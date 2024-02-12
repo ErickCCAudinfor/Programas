@@ -1,0 +1,209 @@
+﻿Imports System.Data.SqlClient
+Imports ActualizaPrecios.FuncionesGenericas
+Public Class ContratoTarifaSrv
+
+    Private funciones As New FuncionesGenericas
+    Public Function UpdateContratoTarifa(ContratoTarifa As ContratoTarifa, TarifaGrupoNew As String, Delete As Boolean, ipDB As String, nameDB As String, userDB As String, passDB As String) As ContratoTarifa
+        Dim conexion = New SqlConnection(ipDB + nameDB + userDB + passDB)
+        Dim ContratoTarifaAux As New ContratoTarifa
+        Try
+            Dim ContratoTarifaBBDD As ContratoTarifa = Nothing
+
+            'Vuelvo a buscar el contratotarifa
+            If ContratoTarifa.IDEntityDTO > 0 Then
+                ContratoTarifaBBDD = GetContratoTarifaByIdContratotarifa(ContratoTarifa.IdContratoTarifa, ipDB, nameDB, userDB, passDB)
+                Dim Tari = funciones.GetTarifaGrupo(TarifaGrupoNew, ipDB, nameDB, userDB, passDB)
+                'Si existe hacemos el update
+
+                'Habria que ver la tarifagrupo sea personalizada, si no F
+                '************************************************************************
+                'Dim ExisteTarifa = Tari.Where(Function(f) f.IdTarifa = If(ContratoTarifaBBDD.IdTarifa, 0) AndAlso f.IdTarifaGrupo = If(ContratoTarifaBBDD.IdTarifaGrupo, 0)).FirstOrDefault
+                'Update Si exsite la tarifa personazliada
+                If ContratoTarifa.textotarifagrupo.Contains("personalizada") Then
+                    'Busco solo la tarifagrupop a actualizar
+                    Dim TariaBuena = Tari.Where(Function(f) f.IdTarifa = ContratoTarifa.IdTarifa).FirstOrDefault
+                    If Not IsNothing(TariaBuena) AndAlso TariaBuena.IdTarifaGrupo > 0 Then
+                        ContratoTarifaAux = UpdateContratoTarifaV2(ContratoTarifaBBDD, TariaBuena, ipDB, nameDB, userDB, passDB)
+                    Else
+                        Throw New Exception($"No se ha encontrato ninguna tarifa para el contrato {ContratoTarifaBBDD.CodigoContrato} ")
+                    End If
+                End If
+            End If
+        Catch ex As Exception
+            Throw
+        End Try
+        Return ContratoTarifaAux
+    End Function
+    Public Function GetEntornoContratoTarifa(Entorno As String, ipDB As String, nameDB As String, userDB As String, passDB As String) As String
+        Dim conexion = New SqlConnection(ipDB + nameDB + userDB + passDB)
+        Dim ret As String
+        Try
+            conexion.Open()
+            Dim query = "select distinct Entorno from Contrato where entorno like '%" + Entorno + "'"
+            Dim comando = New SqlCommand(query, conexion)
+
+            ret = comando.ExecuteScalar().ToString()
+            conexion.Close()
+            Return ret
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return ret
+    End Function
+
+    Public Function GetContratoTarifaLista(ipDB As String, nameDB As String, userDB As String, passDB As String) As ContratoTarifa
+        Dim conexion = New SqlConnection(ipDB + nameDB + userDB + passDB)
+        Dim ret As ContratoTarifa
+        Dim ListaContratoTarifa = New List(Of ContratoTarifa)
+        Try
+            conexion.Open()
+            Dim query = "select * from contratotarifa"
+            Dim comando = New SqlCommand(query, conexion)
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+            'Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+            Do While readerQuery.Read
+
+                Dim ContratoTarifaB = New ContratoTarifa
+
+
+
+                'ListaContratoTipo.Add(contratoTipo)
+            Loop
+            readerQuery.Close()
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return ret
+
+
+    End Function
+    Public Function GetContratoTarifaByCodigoContrato(Cod As Long, ipDB As String, nameDB As String, userDB As String, passDB As String) As ContratoTarifa
+        Dim conexion = New SqlConnection(ipDB + nameDB + userDB + passDB)
+        Dim ret As New ContratoTarifa
+        Dim ContratoTarifaB As New ContratoTarifa
+        Try
+            conexion.Open()
+            Dim query = $"select ct.*,tg.textotarifagrupo, pf.TextoPerfilFacturacion,t.TextoTarifa from contratotarifa ct
+            left join TarifaGrupo tg on ct.idtarifagrupo = tg.idtarifagrupo
+            left join perfilfacturacion pf on ct.idperfilfacturacion = pf.idperfilfacturacion
+            left join tarifa t  on ct.idtarifa = t.idtarifa
+            where codigocontrato={Cod} and FechaDesde is not null and fechaHasta is null
+            and tg.TextoTarifaGrupo like '%personalizada%'"
+            Dim comando = New SqlCommand(query, conexion)
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+            'Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+            Do While readerQuery.Read
+
+                'Dim ContratoTarifaB = New ContratoTarifa
+                ContratoTarifaB.IdContratoTarifa = funciones.ObtenerValor("IdContratoTarifa", readerQuery)
+                ContratoTarifaB.Entorno = funciones.ObtenerValor("Entorno", readerQuery)
+                ContratoTarifaB.CodigoContrato = funciones.ObtenerValor("CodigoContrato", readerQuery)
+                ContratoTarifaB.IdTarifa = funciones.ObtenerValor("IdTarifa", readerQuery)
+                ContratoTarifaB.IdTarifaGrupo = funciones.ObtenerValor("IdTarifaGrupo", readerQuery)
+                ContratoTarifaB.IdPerfilFacturacion = funciones.ObtenerValor("IdPerfilFacturacion", readerQuery)
+                ContratoTarifaB.FechaDesde = funciones.ObtenerValor("FechaDesde", readerQuery)
+                ContratoTarifaB.FechaHasta = funciones.ObtenerValor("FechaHasta", readerQuery)
+                ContratoTarifaB.TextoTarifa = funciones.ObtenerValor("TextoTarifa", readerQuery)
+                ContratoTarifaB.textotarifagrupo = funciones.ObtenerValor("textotarifagrupo", readerQuery)
+                ContratoTarifaB.TextoPerfilFacturacion = funciones.ObtenerValor("TextoPerfilFacturacion", readerQuery)
+
+                'ListaContratoTipo.Add(contratoTipo)
+                'ListaContratoTarifa.Add(ContratoTarifaB)
+            Loop
+            readerQuery.Close()
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return ContratoTarifaB
+    End Function
+
+    Public Function GetContratoTarifaByIdContratotarifa(id As Long, ipDB As String, nameDB As String, userDB As String, passDB As String) As ContratoTarifa
+        Dim conexion = New SqlConnection(ipDB + nameDB + userDB + passDB)
+        Dim ret As New ContratoTarifa
+        Dim ContratoTarifaB As New ContratoTarifa
+        Try
+            conexion.Open()
+            Dim query = $"select * from contratotarifa where IdContratoTarifa={id}"
+            Dim comando = New SqlCommand(query, conexion)
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+            'Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+            Do While readerQuery.Read
+
+                ContratoTarifaB = New ContratoTarifa
+                ContratoTarifaB.IdContratoTarifa = funciones.ObtenerValor("IdContratoTarifa", readerQuery)
+                ContratoTarifaB.Entorno = funciones.ObtenerValor("Entorno", readerQuery)
+                ContratoTarifaB.CodigoContrato = funciones.ObtenerValor("CodigoContrato", readerQuery)
+                ContratoTarifaB.IdTarifa = funciones.ObtenerValor("IdTarifa", readerQuery)
+                ContratoTarifaB.IdTarifaGrupo = funciones.ObtenerValor("IdTarifaGrupo", readerQuery)
+                ContratoTarifaB.IdPerfilFacturacion = funciones.ObtenerValor("IdPerfilFacturacion", readerQuery)
+                ContratoTarifaB.FechaDesde = funciones.ObtenerValor("FechaDesde", readerQuery)
+                ContratoTarifaB.FechaHasta = funciones.ObtenerValor("FechaHasta", readerQuery)
+
+            Loop
+            readerQuery.Close()
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return ContratoTarifaB
+    End Function
+
+    Public Function InsertContratoTarifa(Cont As ContratoTarifa, TarifaGrupoNueva As TarifaGrupo, ipDB As String, nameDB As String, userDB As String, passDB As String) As ContratoTarifa
+        Dim conexion = New SqlConnection(ipDB + nameDB + userDB + passDB)
+        Dim ret As New ContratoTarifa
+        Dim ContratoTarifaB As New ContratoTarifa
+        Try
+            conexion.Open()
+            Dim query = $"INSERT INTO [dbo].[ContratoTarifa] ([Entorno],[CodigoContrato],[IdTarifa],[IdTarifaGrupo],[IdPerfilFacturacion],[FechaDesde],[FechaHasta],[Aviso],[IdContratoTarifaOld],[IsAjusteCAPGas])
+                    VALUES ('{Cont.Entorno}',{Cont.CodigoContrato},{TarifaGrupoNueva.IdTarifa},{TarifaGrupoNueva.IdTarifaGrupo},{TarifaGrupoNueva.IdPerfilFacturacion},'{ If(Cont.FechaDesde, DateTime.Today).AddDays(+1)}',null,null,null,null)"
+            Dim comando = New SqlCommand(query, conexion)
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader
+            readerQuery.Close()
+            conexion.Close()
+            'Modifico el anterior tarifagrupo
+            UpdateContratoTarifaViejaFechaHasta(Cont, ipDB, nameDB, userDB, passDB)
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return ContratoTarifaB
+    End Function
+
+    Public Function UpdateContratoTarifaV2(Cont As ContratoTarifa, TarifaGrupoNueva As TarifaGrupo, ipDB As String, nameDB As String, userDB As String, passDB As String) As ContratoTarifa
+        Dim conexion = New SqlConnection(ipDB + nameDB + userDB + passDB)
+        Dim ret As New ContratoTarifa
+        Dim ContratoTarifaB As New ContratoTarifa
+        Try
+            conexion.Open()
+            Dim query = $"update contratotarifa set IdTarifaGrupo = {TarifaGrupoNueva.IdTarifaGrupo}
+                        , IdPerfilFacturacion =  {TarifaGrupoNueva.IdPerfilFacturacion}                          
+                        where IdContratoTarifa in ({Cont.IdContratoTarifa})"
+            Dim comando = New SqlCommand(query, conexion)
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader
+            readerQuery.Close()
+            conexion.Close()
+            ContratoTarifaB = GetContratoTarifaByIdContratotarifa(Cont.IdContratoTarifa, ipDB, nameDB, userDB, passDB)
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return ContratoTarifaB
+    End Function
+
+
+    Public Sub UpdateContratoTarifaViejaFechaHasta(Cont As ContratoTarifa, ipDB As String, nameDB As String, userDB As String, passDB As String)
+        Dim conexion = New SqlConnection(ipDB + nameDB + userDB + passDB)
+        Try
+            conexion.Open()
+            Dim query = $"update contratotarifa set FechaHasta = '{Cont.FechaDesde}'                   
+                        where IdContratoTarifa in ({Cont.IdContratoTarifa})"
+            Dim comando = New SqlCommand(query, conexion)
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader
+            readerQuery.Close()
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+
+    End Sub
+End Class
