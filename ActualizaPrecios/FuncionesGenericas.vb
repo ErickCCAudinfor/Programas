@@ -167,7 +167,7 @@ Public Class FuncionesGenericas
             Using conexion As New SqlConnection(connectionString)
                 conexion.Open()
 
-                Dim query As String = $"SELECT IdContrato,CodigoContrato,FechaAplicacionPrecios,FechaContrato
+                Dim query As String = $"SELECT IdContrato,CodigoContrato,FechaAplicacionPrecios,FechaContrato,Entorno
                     FROM Contrato
                     WHERE codigocontrato = {CodContrato}"
 
@@ -181,6 +181,7 @@ Public Class FuncionesGenericas
                         Contrato.CodigoContrato = readerQuery.GetValue(1).ToString
                         Contrato.FechaAplicacionPrecios = readerQuery.GetValue(2).ToString
                         Contrato.FechaContrato = readerQuery.GetValue(3).ToString
+                        Contrato.Entorno = readerQuery.GetValue(4).ToString
                     Loop
                 End If
 
@@ -530,4 +531,42 @@ Public Class FuncionesGenericas
         Return TarifaPrecioContrato
     End Function
 
+
+    Public Function GetProductosbyEntorno(Entorno As String, ipDB As String, nameDB As String, userDB As String, passDB As String) As List(Of Producto)
+        Dim Productos As New List(Of Producto)
+
+        Try
+            Dim connectionString As String = $"{ipDB}{nameDB}{userDB}{passDB}"
+            Using conexion As New SqlConnection(connectionString)
+                conexion.Open()
+
+                Dim query As String = $"select IdProducto,Entorno,IdProductoGrupo,TextoProducto,isnull(Importe,0),AntesIE,isnull(IdTipoImpuesto,0) from Producto where Entorno = '{Entorno}' "
+
+                Dim comando As New SqlCommand(query, conexion)
+                comando.CommandTimeout = 3600
+                Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+
+                If readerQuery.HasRows Then
+                    Do While readerQuery.Read
+                        Dim Pro As New Producto
+                        Pro.IdProducto = readerQuery.GetValue(0).ToString
+                        Pro.Entorno = readerQuery.GetValue(1).ToString
+                        Pro.IdProducto = readerQuery.GetValue(2).ToString
+                        Pro.TextoProducto = readerQuery.GetValue(3).ToString
+                        Pro.Importe = readerQuery.GetValue(4).ToString
+                        Pro.AntesIE = readerQuery.GetValue(5).ToString
+                        Pro.IdTipoImpuesto = readerQuery.GetValue(6).ToString
+                        Productos.Add(Pro)
+                    Loop
+                End If
+
+                readerQuery.Close()
+            End Using
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return Productos
+    End Function
 End Class

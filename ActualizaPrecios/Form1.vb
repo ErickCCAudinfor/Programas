@@ -19,44 +19,51 @@ Public Class Form1
             Dim ContratoActualizar As New List(Of Long)
             Dim Con As New List(Of Long)
             Dim contratosTexto As String = TextBox2.Text
-            ' Separar la cadena en una matriz de cadenas utilizando la coma como delimitador
-            Dim contratosSeparados As String() = contratosTexto.Split(","c)
-            'Convertir los contratos separados a Longs y agregarlos a una lista
 
-            For Each contratoTexto As String In contratosSeparados
-                Dim codigosCon As Long
-                If Long.TryParse(contratoTexto.Trim(), codigosCon) Then
-                    Con.Add(codigosCon)
+            If contratosTexto.Trim.Length > 0 Then
+                ' Separar la cadena en una matriz de cadenas utilizando la coma como delimitador
+                Dim contratosSeparados As String() = contratosTexto.Split(","c)
+                'Convertir los contratos separados a Longs y agregarlos a una lista
+
+                For Each contratoTexto As String In contratosSeparados
+                    Dim codigosCon As Long
+                    If Long.TryParse(contratoTexto.Trim(), codigosCon) Then
+                        Con.Add(codigosCon)
+                    End If
+                Next
+
+                If CheckBox1.Checked Then 'CUPS
+                    Dim Cups As New List(Of String)
+                    'Cups.Add("ES0027700038574004TJ")
+                    'Contratos = Funciones.BuscarbyCups(Cups, ipDB, nameDB, userDB, passDB)
+
                 End If
-            Next
+                If CheckBox2.Checked Then 'Contrato
+                    ContratoActualizar = Funciones.BuscarbyCodigocontrato(Con, ipDB, nameDB, userDB, passDB)
+                    totalContratos = Con.Count
+                End If
+                If CheckBox3.Checked Then 'Cliente
 
-            If CheckBox1.Checked Then 'CUPS
-                Dim Cups As New List(Of String)
-                'Cups.Add("ES0027700038574004TJ")
-                'Contratos = Funciones.BuscarbyCups(Cups, ipDB, nameDB, userDB, passDB)
+                End If
+                Dim yesorNot As MsgBoxResult
+                Dim todoOK As Boolean = False
+                If totalContratos <> ContratoActualizar.Count Then
+                    yesorNot = MsgBox("Los contratos filtratos y los contratos encontrados no coinciden. ¿Actualizar de todas formas?", vbYesNo)
+                Else
+                    todoOK = True
+                End If
+                If (yesorNot = 6 OrElse yesorNot = 1) OrElse todoOK Then
+                    Dim ContratosTXT = ActualizarRegistros(ContratoActualizar)
 
-            End If
-            If CheckBox2.Checked Then 'Contrato
-                ContratoActualizar = Funciones.BuscarbyCodigocontrato(Con, ipDB, nameDB, userDB, passDB)
-                totalContratos = Con.Count
-            End If
-            If CheckBox3.Checked Then 'Cliente
+                    MessageBox.Show($"{ContratosTXT} / {ContratoActualizar.Count} contratos")
+                Else
+                    MessageBox.Show($"Se ha cancelado la actualización")
+                End If
 
-            End If
-            Dim yesorNot As MsgBoxResult
-            Dim todoOK As Boolean = False
-            If totalContratos <> ContratoActualizar.Count Then
-                yesorNot = MsgBox("Los contratos filtratos y los contratos encontrados no coinciden. ¿Actualizar de todas formas?", vbYesNo)
             Else
-                todoOK = True
+                MessageBox.Show("No hay datos a modificar")
             End If
-            If (yesorNot = 6 OrElse yesorNot = 1) OrElse todoOK Then
-                Dim ContratosTXT = ActualizarRegistros(ContratoActualizar)
 
-                MessageBox.Show($"{ContratosTXT} / {ContratoActualizar.Count} contratos")
-            Else
-                MessageBox.Show($"Se ha cancelado la actualización")
-            End If
 
 
         Catch ex As Exception
@@ -276,5 +283,31 @@ Public Class Form1
             ' Si CheckBox3 no está marcado, habilitar CheckBox1 y CheckBox2
             TextBox1.Enabled = False
         End If
+    End Sub
+
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        Try
+            Dim contratosTexto As String = TextBox2.Text
+            Dim contratosSeparados As String() = contratosTexto.Split(","c)
+            'Convertir los contratos separados a Longs y agregarlos a una lista
+            Dim Con As New List(Of Long)
+            For Each contratoTexto As String In contratosSeparados
+                Dim codigosCon As Long
+                If Long.TryParse(contratoTexto.Trim(), codigosCon) Then
+                    Con.Add(codigosCon)
+                End If
+            Next
+
+
+            Dim ModiCo As New ProductosAsig
+            Dim Entorno = If(Funciones.GetContrato(Con.FirstOrDefault, ipDB, nameDB, userDB, passDB).Entorno = "E1", "G1", "G2")
+            ModiCo.ComboBox1.DataSource = Funciones.GetProductosbyEntorno(Entorno, ipDB, nameDB, userDB, passDB)
+            ModiCo.ComboBox1.DisplayMember = "TextoProducto"
+            ModiCo.ComboBox1.ValueMember = "IdProducto"
+            ModiCo.Show()
+        Catch ex As Exception
+            MessageBox.Show(ex.Message)
+        End Try
+
     End Sub
 End Class
