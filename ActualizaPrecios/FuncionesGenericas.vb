@@ -540,7 +540,9 @@ Public Class FuncionesGenericas
             Using conexion As New SqlConnection(connectionString)
                 conexion.Open()
 
-                Dim query As String = $"select IdProducto,Entorno,IdProductoGrupo,TextoProducto,isnull(Importe,0),AntesIE,isnull(IdTipoImpuesto,0) from Producto where Entorno = '{Entorno}' "
+                Dim query As String = $"select IdProducto,Entorno,IdProductoGrupo,TextoProducto,isnull(Importe,0),AntesIE,isnull(IdTipoImpuesto,0) 
+                ,isnull(SobreConsumo,0),isnull(PrecioSobreConsumo,0)
+                from Producto where Entorno = '{Entorno}' "
 
                 Dim comando As New SqlCommand(query, conexion)
                 comando.CommandTimeout = 3600
@@ -551,11 +553,13 @@ Public Class FuncionesGenericas
                         Dim Pro As New Producto
                         Pro.IdProducto = readerQuery.GetValue(0).ToString
                         Pro.Entorno = readerQuery.GetValue(1).ToString
-                        Pro.IdProducto = readerQuery.GetValue(2).ToString
+                        Pro.IdProductoGrupo = readerQuery.GetValue(2).ToString
                         Pro.TextoProducto = readerQuery.GetValue(3).ToString
                         Pro.Importe = readerQuery.GetValue(4).ToString
                         Pro.AntesIE = readerQuery.GetValue(5).ToString
                         Pro.IdTipoImpuesto = readerQuery.GetValue(6).ToString
+                        Pro.SobreConsumo = readerQuery.GetValue(7).ToString
+                        Pro.PrecioSobreConsumo = readerQuery.GetValue(8).ToString
                         Productos.Add(Pro)
                     Loop
                 End If
@@ -568,5 +572,73 @@ Public Class FuncionesGenericas
         End Try
 
         Return Productos
+    End Function
+
+    Public Function GetProductoGrupobyById(IdproductoGrupo As Long, ipDB As String, nameDB As String, userDB As String, passDB As String) As ProductoGrupo
+        Dim ProductoGr As New ProductoGrupo
+
+        Try
+            Dim connectionString As String = $"{ipDB}{nameDB}{userDB}{passDB}"
+            Using conexion As New SqlConnection(connectionString)
+                conexion.Open()
+
+                Dim query As String = $"select * from Productogrupo where IdProductoGrupo = {IdproductoGrupo} "
+
+                Dim comando As New SqlCommand(query, conexion)
+                comando.CommandTimeout = 3600
+                Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+
+                If readerQuery.HasRows Then
+                    Do While readerQuery.Read
+
+                        ProductoGr.IdProductoGrupo = readerQuery.GetValue(0).ToString
+                        ProductoGr.Entorno = readerQuery.GetValue(1).ToString
+                        ProductoGr.TextoProductoGrupo = readerQuery.GetValue(2).ToString
+                    Loop
+                End If
+
+                readerQuery.Close()
+            End Using
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return ProductoGr
+    End Function
+
+    Public Function GetTipoImpuestoBy(ipDB As String, nameDB As String, userDB As String, passDB As String) As List(Of TipoImpuesto)
+        Dim ListaImpuestoTipo As New List(Of TipoImpuesto)
+
+        Try
+            Dim connectionString As String = $"{ipDB}{nameDB}{userDB}{passDB}"
+            Using conexion As New SqlConnection(connectionString)
+                conexion.Open()
+
+                Dim query As String = $"select * from TipoImpuesto"
+
+                Dim comando As New SqlCommand(query, conexion)
+                comando.CommandTimeout = 3600
+                Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+
+                If readerQuery.HasRows Then
+                    Do While readerQuery.Read
+                        Dim ImpuestoTipo As New TipoImpuesto
+                        ImpuestoTipo.IdTipoImpuesto = readerQuery.GetValue(0).ToString
+                        ImpuestoTipo.Entorno = readerQuery.GetValue(1).ToString
+                        ImpuestoTipo.TextoImpuesto = readerQuery.GetValue(2).ToString
+                        ImpuestoTipo.Porcentaje = readerQuery.GetValue(3).ToString
+                        ListaImpuestoTipo.Add(ImpuestoTipo)
+                    Loop
+                End If
+
+                readerQuery.Close()
+            End Using
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return ListaImpuestoTipo
     End Function
 End Class

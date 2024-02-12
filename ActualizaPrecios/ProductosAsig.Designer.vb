@@ -45,7 +45,7 @@ Partial Class ProductosAsig
         ComboBox1.FormattingEnabled = True
         ComboBox1.Location = New Point(172, 12)
         ComboBox1.Name = "ComboBox1"
-        ComboBox1.Size = New Size(168, 23)
+        ComboBox1.Size = New Size(313, 23)
         ComboBox1.TabIndex = 0
         ' 
         ' TextBox1
@@ -53,7 +53,7 @@ Partial Class ProductosAsig
         TextBox1.Enabled = False
         TextBox1.Location = New Point(172, 41)
         TextBox1.Name = "TextBox1"
-        TextBox1.Size = New Size(229, 23)
+        TextBox1.Size = New Size(313, 23)
         TextBox1.TabIndex = 1
         ' 
         ' Label1
@@ -78,7 +78,7 @@ Partial Class ProductosAsig
         ' 
         DateTimePicker1.Location = New Point(172, 71)
         DateTimePicker1.Name = "DateTimePicker1"
-        DateTimePicker1.Size = New Size(229, 23)
+        DateTimePicker1.Size = New Size(313, 23)
         DateTimePicker1.TabIndex = 4
         ' 
         ' Label3
@@ -93,7 +93,7 @@ Partial Class ProductosAsig
         ' CheckBox1
         ' 
         CheckBox1.AutoSize = True
-        CheckBox1.Location = New Point(19, 150)
+        CheckBox1.Location = New Point(172, 144)
         CheckBox1.Name = "CheckBox1"
         CheckBox1.Size = New Size(68, 19)
         CheckBox1.TabIndex = 7
@@ -103,7 +103,7 @@ Partial Class ProductosAsig
         ' CheckBox4
         ' 
         CheckBox4.AutoSize = True
-        CheckBox4.Location = New Point(107, 150)
+        CheckBox4.Location = New Point(260, 144)
         CheckBox4.Name = "CheckBox4"
         CheckBox4.Size = New Size(82, 19)
         CheckBox4.TabIndex = 10
@@ -113,7 +113,7 @@ Partial Class ProductosAsig
         ' CheckBox5
         ' 
         CheckBox5.AutoSize = True
-        CheckBox5.Location = New Point(207, 150)
+        CheckBox5.Location = New Point(360, 144)
         CheckBox5.Name = "CheckBox5"
         CheckBox5.Size = New Size(84, 19)
         CheckBox5.TabIndex = 11
@@ -122,7 +122,7 @@ Partial Class ProductosAsig
         ' 
         ' Button1
         ' 
-        Button1.Location = New Point(326, 233)
+        Button1.Location = New Point(410, 203)
         Button1.Name = "Button1"
         Button1.Size = New Size(75, 23)
         Button1.TabIndex = 13
@@ -140,6 +140,7 @@ Partial Class ProductosAsig
         ' 
         ' NumericUpDown1
         ' 
+        NumericUpDown1.DecimalPlaces = 8
         NumericUpDown1.Location = New Point(172, 106)
         NumericUpDown1.Name = "NumericUpDown1"
         NumericUpDown1.Size = New Size(120, 23)
@@ -148,15 +149,15 @@ Partial Class ProductosAsig
         ' ComboBox2
         ' 
         ComboBox2.FormattingEnabled = True
-        ComboBox2.Location = New Point(109, 179)
+        ComboBox2.Location = New Point(172, 175)
         ComboBox2.Name = "ComboBox2"
-        ComboBox2.Size = New Size(85, 23)
+        ComboBox2.Size = New Size(191, 23)
         ComboBox2.TabIndex = 16
         ' 
         ' Label5
         ' 
         Label5.AutoSize = True
-        Label5.Location = New Point(21, 183)
+        Label5.Location = New Point(12, 183)
         Label5.Name = "Label5"
         Label5.Size = New Size(83, 15)
         Label5.TabIndex = 17
@@ -166,7 +167,7 @@ Partial Class ProductosAsig
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(415, 268)
+        ClientSize = New Size(493, 229)
         Controls.Add(Label5)
         Controls.Add(ComboBox2)
         Controls.Add(NumericUpDown1)
