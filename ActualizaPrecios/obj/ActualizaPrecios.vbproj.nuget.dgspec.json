@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\ErickCC\\Documents\\TotalDoc\\ActualizaPrecios\\ActualizaPrecios.vbproj": {}
+    "C:\\Users\\ErickCC\\Documents\\TotalDoc\\Programas\\ActualizaPrecios\\ActualizaPrecios.vbproj": {}
   },
   "projects": {
-    "C:\\Users\\ErickCC\\Documents\\TotalDoc\\ActualizaPrecios\\ActualizaPrecios.vbproj": {
+    "C:\\Users\\ErickCC\\Documents\\TotalDoc\\Programas\\ActualizaPrecios\\ActualizaPrecios.vbproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ErickCC\\Documents\\TotalDoc\\ActualizaPrecios\\ActualizaPrecios.vbproj",
+        "projectUniqueName": "C:\\Users\\ErickCC\\Documents\\TotalDoc\\Programas\\ActualizaPrecios\\ActualizaPrecios.vbproj",
         "projectName": "ActualizaPrecios",
-        "projectPath": "C:\\Users\\ErickCC\\Documents\\TotalDoc\\ActualizaPrecios\\ActualizaPrecios.vbproj",
+        "projectPath": "C:\\Users\\ErickCC\\Documents\\TotalDoc\\Programas\\ActualizaPrecios\\ActualizaPrecios.vbproj",
         "packagesPath": "C:\\Users\\ErickCC\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ErickCC\\Documents\\TotalDoc\\ActualizaPrecios\\obj\\",
+        "outputPath": "C:\\Users\\ErickCC\\Documents\\TotalDoc\\Programas\\ActualizaPrecios\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
