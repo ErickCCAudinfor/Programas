@@ -1,20 +1,31 @@
 ﻿Imports System.Data.SqlClient
 Imports ActualizaPrecios.FuncionesGenericas
 Public Class ContratoTarifaSrv
+    Private ReadOnly Property connectionString As String
+    Public Sub New(connectionString)
+        Try
+            Me.connectionString = connectionString
+        Catch ex As Exception
+            Throw
+        End Try
+    End Sub
 
-    Private funciones As New FuncionesGenericas
-    Public Function UpdateContratoTarifa(ContratoTarifa As ContratoTarifa, TarifaGrupoNew As String, Delete As Boolean, ipDB As String, nameDB As String, userDB As String, passDB As String) As ContratoTarifa
-        Dim conexion = New SqlConnection(ipDB + nameDB + userDB + passDB)
+
+    Public Function UpdateContratoTarifa(ContratoTarifa As ContratoTarifa, TarifaGrupoNew As String, Delete As Boolean) As ContratoTarifa
+        Dim conexion = New SqlConnection(connectionString)
         Dim ContratoTarifaAux As New ContratoTarifa
+        Dim funciones As New FuncionesGenericas(Me.connectionString)
         Try
             Dim ContratoTarifaBBDD As ContratoTarifa = Nothing
 
             'Vuelvo a buscar el contratotarifa
             If ContratoTarifa.IDEntityDTO > 0 Then
-                ContratoTarifaBBDD = GetContratoTarifaByIdContratotarifa(ContratoTarifa.IdContratoTarifa, ipDB, nameDB, userDB, passDB)
-                Dim Tari = funciones.GetTarifaGrupo(TarifaGrupoNew, ipDB, nameDB, userDB, passDB)
+                ContratoTarifaBBDD = GetContratoTarifaByIdContratotarifa(ContratoTarifa.IdContratoTarifa)
+                Dim Tari = funciones.GetTarifaGrupo(TarifaGrupoNew)
                 'Si existe hacemos el update
-
+                If IsNothing(Tari) OrElse Tari.Count = 0 Then
+                    Throw New Exception($"La tarifa grupo ** {TarifaGrupoNew} ** no existe")
+                End If
                 'Habria que ver la tarifagrupo sea personalizada, si no F
                 '************************************************************************
                 'Dim ExisteTarifa = Tari.Where(Function(f) f.IdTarifa = If(ContratoTarifaBBDD.IdTarifa, 0) AndAlso f.IdTarifaGrupo = If(ContratoTarifaBBDD.IdTarifaGrupo, 0)).FirstOrDefault
@@ -23,7 +34,7 @@ Public Class ContratoTarifaSrv
                     'Busco solo la tarifagrupop a actualizar
                     Dim TariaBuena = Tari.Where(Function(f) f.IdTarifa = ContratoTarifa.IdTarifa).FirstOrDefault
                     If Not IsNothing(TariaBuena) AndAlso TariaBuena.IdTarifaGrupo > 0 Then
-                        ContratoTarifaAux = UpdateContratoTarifaV2(ContratoTarifaBBDD, TariaBuena, ipDB, nameDB, userDB, passDB)
+                        ContratoTarifaAux = UpdateContratoTarifaV2(ContratoTarifaBBDD, TariaBuena)
                     Else
                         Throw New Exception($"No se ha encontrato ninguna tarifa para el contrato {ContratoTarifaBBDD.CodigoContrato} ")
                     End If
@@ -78,8 +89,9 @@ Public Class ContratoTarifaSrv
 
 
     End Function
-    Public Function GetContratoTarifaByCodigoContrato(Cod As Long, ipDB As String, nameDB As String, userDB As String, passDB As String) As ContratoTarifa
-        Dim conexion = New SqlConnection(ipDB + nameDB + userDB + passDB)
+    Public Function GetContratoTarifaByCodigoContrato(Cod As Long) As ContratoTarifa
+        Dim conexion = New SqlConnection(connectionString)
+        Dim funciones As New FuncionesGenericas(Me.connectionString)
         Dim ret As New ContratoTarifa
         Dim ContratoTarifaB As New ContratoTarifa
         Try
@@ -119,8 +131,9 @@ Public Class ContratoTarifaSrv
         Return ContratoTarifaB
     End Function
 
-    Public Function GetContratoTarifaByIdContratotarifa(id As Long, ipDB As String, nameDB As String, userDB As String, passDB As String) As ContratoTarifa
-        Dim conexion = New SqlConnection(ipDB + nameDB + userDB + passDB)
+    Public Function GetContratoTarifaByIdContratotarifa(id As Long) As ContratoTarifa
+        Dim conexion = New SqlConnection(connectionString)
+        Dim funciones As New FuncionesGenericas(Me.connectionString)
         Dim ret As New ContratoTarifa
         Dim ContratoTarifaB As New ContratoTarifa
         Try
@@ -170,8 +183,8 @@ Public Class ContratoTarifaSrv
         Return ContratoTarifaB
     End Function
 
-    Public Function UpdateContratoTarifaV2(Cont As ContratoTarifa, TarifaGrupoNueva As TarifaGrupo, ipDB As String, nameDB As String, userDB As String, passDB As String) As ContratoTarifa
-        Dim conexion = New SqlConnection(ipDB + nameDB + userDB + passDB)
+    Public Function UpdateContratoTarifaV2(Cont As ContratoTarifa, TarifaGrupoNueva As TarifaGrupo) As ContratoTarifa
+        Dim conexion = New SqlConnection(connectionString)
         Dim ret As New ContratoTarifa
         Dim ContratoTarifaB As New ContratoTarifa
         Try
@@ -183,7 +196,7 @@ Public Class ContratoTarifaSrv
             Dim readerQuery As SqlDataReader = comando.ExecuteReader
             readerQuery.Close()
             conexion.Close()
-            ContratoTarifaB = GetContratoTarifaByIdContratotarifa(Cont.IdContratoTarifa, ipDB, nameDB, userDB, passDB)
+            ContratoTarifaB = GetContratoTarifaByIdContratotarifa(Cont.IdContratoTarifa)
         Catch ex As Exception
             Console.WriteLine(ex)
         End Try

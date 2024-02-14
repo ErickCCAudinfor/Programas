@@ -1,37 +1,30 @@
 ﻿Imports System.Collections.ObjectModel
+Imports System.IO
 Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 Imports Microsoft.VisualBasic.Logging
 
 Public Class Form1
 
-    Private ReadOnly Property ipDB As String = "data source=172.31.100.50;"
+    Private ReadOnly Property ipDB As String = "data source=172.31.100.12;"
     'Private ReadOnly Property ipDB As String = "data source=172.31.100.50\TOTALUAT;"
-    Private ReadOnly Property nameDB As String = "initial catalog=SigeTotalUAT;"
+    Private ReadOnly Property nameDB As String = "initial catalog=SigeTotal;"
     'Private ReadOnly Property nameDB As String = "initial catalog=SigeTotalUAT;"
     Private ReadOnly Property userDB As String = "User ID=Sige;"
     Private ReadOnly Property passDB As String = "Password=SigeNew;"
+    Private ReadOnly Property NombreUsuarioEquipo As String = Environment.UserName
+    Private ReadOnly Property connectionString As String = $"{ipDB}{nameDB}{userDB}{passDB}"
 
-    Private ContratoTarifaSrv As New ContratoTarifaSrv
-    Private Funciones As New FuncionesGenericas
+    Private ReadOnly ContratoTarifaSrv As New ContratoTarifaSrv(connectionString)
+
+    Private ReadOnly Funciones As New FuncionesGenericas(connectionString)
+
     Private Sub Actualizar(sender As Object, e As EventArgs) Handles Button1.Click
 
         Try
             Dim totalContratos = 0
             Dim ContratoActualizar As New List(Of Long)
             Dim Con As New List(Of Long)
-            Dim contratosTexto As String = TextBox2.Text
-
-            'If contratosTexto.Trim.Length > 0 AndAlso TextBox1.Text.Trim.Length > 0 Then
-            ' Separar la cadena en una matriz de cadenas utilizando la coma como delimitador
-            Dim contratosSeparados As String() = contratosTexto.Split(","c)
-            'Convertir los contratos separados a Longs y agregarlos a una lista
-
-            For Each contratoTexto As String In contratosSeparados
-                Dim codigosCon As Long
-                If Long.TryParse(contratoTexto.Trim(), codigosCon) Then
-                    Con.Add(codigosCon)
-                End If
-            Next
+            Con = GetConSinSplit(TextBox2.Text)
 
             If CheckBox1.Checked Then 'CUPS
                 Dim Cups As New List(Of String)
@@ -40,7 +33,7 @@ Public Class Form1
 
             End If
             If CheckBox2.Checked Then 'Contrato
-                ContratoActualizar = Funciones.BuscarbyCodigocontrato(Con, ipDB, nameDB, userDB, passDB)
+                ContratoActualizar = Funciones.BuscarbyCodigocontrato(Con)
                 totalContratos = Con.Count
             End If
             If CheckBox3.Checked Then 'Cliente
@@ -56,7 +49,7 @@ Public Class Form1
             If (yesorNot = 6 OrElse yesorNot = 1) OrElse todoOK Then
                 Dim ContratosTXT = ActualizarRegistros(ContratoActualizar)
 
-                MessageBox.Show($"{ContratosTXT} / {ContratoActualizar.Count} contratos")
+                MessageBox.Show($"{ContratosTXT}. Contratos iniciales:{ContratoActualizar.Count} contratos")
             Else
                 MessageBox.Show($"Se ha cancelado la actualización")
             End If
@@ -82,7 +75,7 @@ Public Class Form1
 
             'Me busco solo contratos que tengan fechaHasta is null y sea personalizada
             For Each cod In ListaCodigo
-                ContratoTra.Add(ContratoTarifaSrv.GetContratoTarifaByCodigoContrato(cod, ipDB, nameDB, userDB, passDB))
+                ContratoTra.Add(ContratoTarifaSrv.GetContratoTarifaByCodigoContrato(cod))
             Next
 
             Dim pepe = 1
@@ -95,132 +88,141 @@ Public Class Form1
             If ListaCodigo.Count = ContratoTra.Count Then
 
                 For Each elment In ContratoTra
-                    'ContratoTraMergeado.Add(ContratoTarifaSrv.UpdateContratoTarifa(elment, TextBox1.Text, False, ipDB, nameDB, userDB, passDB))
-                    Dim ContratoActualizar = ContratoTarifaSrv.UpdateContratoTarifa(elment, TextBox1.Text, False, ipDB, nameDB, userDB, passDB)
-                    'Dim ContratoTarifaViejo = elment
-                    If Not IsNothing(ContratoActualizar) AndAlso ContratoActualizar.IdContratoTarifa > 0 Then
-                        ' Dependiendo de si el PerfilFacturacion del ContratoTarifa es indexado,
-                        ' cargaremos los precios de IndexadoPrecioSrv o TarifaPrecioSrv.
-                        ' Estos precios serán los mismos que se muestran en el programa de presupuestos,
-                        ' los vigentes para una Tarifa, TarifaGrupo y fecha concreta.
 
-                        ' Guardamos el nuevo ContratoTarifa.
-
-                        Dim Contrato As Contrato = Funciones.GetContrato(If(elment.CodigoContrato, 0L), ipDB, nameDB, userDB, passDB)
-                        Dim FechaPresupuesto As DateTime = DateTime.Today 'New DateTime(Now.Year, Now.Month, Now.Day)
-                        If Not IsNothing(Contrato) AndAlso Contrato.IdContrato > 0L Then
-                            If Not IsNothing(Contrato.FechaAplicacionPrecios) AndAlso Contrato.FechaAplicacionPrecios > DateTime.MinValue Then
-                                FechaPresupuesto = If(Contrato.FechaAplicacionPrecios, DateTime.Now)
-                            Else
-                                If Not IsNothing(Contrato.FechaContrato) AndAlso Contrato.FechaContrato > DateTime.MinValue Then
-                                    FechaPresupuesto = If(Contrato.FechaContrato, DateTime.Now)
+                    If Not IsNothing(elment.IdContratoTarifa) AndAlso elment.IdContratoTarifa > 0 Then
+                        'ContratoTraMergeado.Add(ContratoTarifaSrv.UpdateContratoTarifa(elment, TextBox1.Text, False, ipDB, nameDB, userDB, passDB))
+                        Dim ContratoActualizar = ContratoTarifaSrv.UpdateContratoTarifa(elment, TextBox1.Text, False)
+                        'Dim ContratoTarifaViejo = elment
+                        If Not IsNothing(ContratoActualizar) AndAlso ContratoActualizar.IdContratoTarifa > 0 Then
+                            ' Dependiendo de si el PerfilFacturacion del ContratoTarifa es indexado,
+                            ' cargaremos los precios de IndexadoPrecioSrv o TarifaPrecioSrv.
+                            ' Estos precios serán los mismos que se muestran en el programa de presupuestos,
+                            ' los vigentes para una Tarifa, TarifaGrupo y fecha concreta.
+                            Dim Contrato As Contrato = Funciones.GetContrato(If(elment.CodigoContrato, 0L))
+                            Dim FechaPresupuesto As DateTime = DateTime.Today 'New DateTime(Now.Year, Now.Month, Now.Day)
+                            If Not IsNothing(Contrato) AndAlso Contrato.IdContrato > 0L Then
+                                If Not IsNothing(Contrato.FechaAplicacionPrecios) AndAlso Contrato.FechaAplicacionPrecios > DateTime.MinValue Then
+                                    FechaPresupuesto = If(Contrato.FechaAplicacionPrecios, DateTime.Now)
+                                Else
+                                    If Not IsNothing(Contrato.FechaContrato) AndAlso Contrato.FechaContrato > DateTime.MinValue Then
+                                        FechaPresupuesto = If(Contrato.FechaContrato, DateTime.Now)
+                                    End If
                                 End If
+
                             End If
 
-                        End If
 
 
+                            If Not IsNothing(ContratoActualizar) Then
+                                ContratoActualizar.PerfilFacturacion = Funciones.GetPerfilFacturacion(If(ContratoActualizar.IdPerfilFacturacion, 0))
 
-                        If Not IsNothing(ContratoActualizar) Then
-                            ContratoActualizar.PerfilFacturacion = Funciones.GetPerfilFacturacion(If(ContratoActualizar.IdPerfilFacturacion, 0), ipDB, nameDB, userDB, passDB)
+                                If Not IsNothing(ContratoActualizar.PerfilFacturacion) Then
+                                    Dim tarifasPrecioContratoGuardar As New List(Of TarifaPrecioContrato) ' Lista para guardar los nuevos precios
+                                    Dim OldtarifasPrecioContratoQuitar As New List(Of TarifaPrecioContrato) ' Lista a con los viejos precios
+                                    'Dim TarifaPerdidaCalculadaContratoGuardar As New ObservableCollection(Of TarifaPerdidaCalculadaContratoDTO)
 
-                            If Not IsNothing(ContratoActualizar.PerfilFacturacion) Then
-                                Dim tarifasPrecioContratoGuardar As New List(Of TarifaPrecioContrato)
-                                'Dim TarifaPerdidaCalculadaContratoGuardar As New ObservableCollection(Of TarifaPerdidaCalculadaContratoDTO)
+                                    If ContratoActualizar.PerfilFacturacion.isPerfilIndexado() Then
 
-                                If ContratoActualizar.PerfilFacturacion.isPerfilIndexado() Then
+                                        If ContratoActualizar.Entorno = "G1" Then
 
-                                    If ContratoActualizar.Entorno = "G1" Then
+                                            Dim indexadosPrecios As List(Of IndexadoPrecio) = Funciones.GetDTOAllPeriodosIndx(ContratoActualizar.IdTarifa, ContratoActualizar.IdTarifaGrupo, FechaPresupuesto).OrderBy(Function(f) f.IdIndexadoPrecio).ToList
+                                            OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifaIndex(elment)
+                                            ''Avisar si no hay precios para grabar
+                                            If Not IsNothing(indexadosPrecios) AndAlso indexadosPrecios.Count > 0 Then
+                                                For Each eleindexadoPrecio As IndexadoPrecio In indexadosPrecios
+                                                    Dim tarifaPrecioContrato As New TarifaPrecioContrato
 
-                                        Dim indexadosPrecios As List(Of IndexadoPrecio) = Funciones.GetDTOAllPeriodosIndx(ContratoActualizar.IdTarifa, ContratoActualizar.IdTarifaGrupo, FechaPresupuesto, ipDB, nameDB, userDB, passDB).OrderBy(Function(f) f.IdIndexadoPrecio).ToList
-                                        ''Avisar si no hay precios para grabar
-                                        If Not IsNothing(indexadosPrecios) AndAlso indexadosPrecios.Count > 0 Then
-                                            For Each eleindexadoPrecio As IndexadoPrecio In indexadosPrecios
-                                                Dim tarifaPrecioContrato As New TarifaPrecioContrato
+                                                    tarifaPrecioContrato.IdContratoTarifa = ContratoActualizar.IdContratoTarifa
+                                                    tarifaPrecioContrato.IdIndexadoPrecio = eleindexadoPrecio.IdIndexadoPrecio
+                                                    tarifaPrecioContrato.TextoTarifaPeriodo = eleindexadoPrecio.TextoTarifaPeriodo
+                                                    tarifaPrecioContrato.IdTarifaPeriodo = eleindexadoPrecio.IdTarifaPeriodo
+                                                    tarifaPrecioContrato.Entorno = eleindexadoPrecio.Entorno
+                                                    tarifasPrecioContratoGuardar.Add(tarifaPrecioContrato)
+                                                Next
+                                            Else
+                                                ''Avisar si no hay precios para grabar
+                                                'Throw New Exception(SessionInformationDTO.GetMessage(IdUsuarioEntorno, "ContratoTarifaSrv_FALTA_TARIFA_PRECIO_VIGENTE"))
+                                            End If
 
-                                                tarifaPrecioContrato.IdContratoTarifa = ContratoActualizar.IdContratoTarifa
-                                                tarifaPrecioContrato.IdIndexadoPrecio = eleindexadoPrecio.IdIndexadoPrecio
-                                                tarifaPrecioContrato.TextoTarifaPeriodo = eleindexadoPrecio.TextoTarifaPeriodo
-                                                tarifaPrecioContrato.IdTarifaPeriodo = eleindexadoPrecio.IdTarifaPeriodo
-                                                tarifaPrecioContrato.Entorno = eleindexadoPrecio.Entorno
-                                                tarifasPrecioContratoGuardar.Add(tarifaPrecioContrato)
+                                            ''Tarifa Perdida Calculada Contrato
+                                            'Dim TPCLista As List(Of TarifaPerdidaCalculadaDTO) = objTarifaPerdidaCalculadaSrv.GetDTOAllPeriodos(ContratoActualizar.IdTarifa, ContratoActualizar.IdTarifaGrupo, FechaPresupuesto)
+                                            '''Avisar si no hay precios para grabar
+                                            'If Not IsNothing(TPCLista) AndAlso TPCLista.Count > 0 Then
+                                            '    For Each TPC As TarifaPerdidaCalculadaDTO In TPCLista
+
+                                            '        Dim TPCContrato As New TarifaPerdidaCalculadaContratoDTO
+
+                                            '        TPCContrato.IdContratoTarifa = ContratoActualizar.IdContratoTarifa
+                                            '        TPCContrato.IdTarifaPerdidaCalculada = TPC.IdTarifaPerdidaCalculada
+
+                                            '        TarifaPerdidaCalculadaContratoGuardar.Add(TPCContrato)
+                                            '    Next
+                                            'Else
+                                            '    'TODO Preguntar Carlos si interrumpir proceso o no
+                                            '    'Throw New Exception(String.Format(SessionInformationDTO.GetMessage(IdUsuarioEntorno, "TarifaPrecioContratoSrv_FALTA_PERDIDA_CALCULADA_VIGENTE"), ContratoActualizar.CodigoContrato))
+                                            'End If
+                                        Else
+                                            Dim indexadosPrecios As List(Of IndexadoPrecioGas) = Funciones.GetDTOAllPeriodosIndxGas(ContratoActualizar.IdTarifa, ContratoActualizar.IdTarifaGrupo, FechaPresupuesto).OrderBy(Function(f) f.IdIndexadoPrecioGas).ToList
+                                            OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifaIndexGas(elment)
+                                            ''Avisar si no hay precios para grabar
+                                            If Not IsNothing(indexadosPrecios) AndAlso indexadosPrecios.Count > 0 Then
+                                                For Each indexadoPrecio As IndexadoPrecioGas In indexadosPrecios
+                                                    Dim tarifaPrecioContrato As New TarifaPrecioContrato
+
+                                                    tarifaPrecioContrato.IdContratoTarifa = ContratoActualizar.IdContratoTarifa
+                                                    tarifaPrecioContrato.IdIndexadoPrecioGas = indexadoPrecio.IdIndexadoPrecioGas
+                                                    tarifaPrecioContrato.IdTarifaPeriodo = indexadoPrecio.IdTarifaPeriodo
+                                                    tarifaPrecioContrato.TextoTarifaPeriodo = indexadoPrecio.TextoTarifaPeriodo
+                                                    tarifaPrecioContrato.Entorno = indexadoPrecio.Entorno
+                                                    tarifasPrecioContratoGuardar.Add(tarifaPrecioContrato)
+                                                Next
+                                            End If
+                                        End If
+
+                                    Else
+                                        Dim tarifasPrecios As List(Of TarifaPrecio) = Funciones.GetDTOAllPeriodosTarifaPrecio(ContratoActualizar.IdTarifa, ContratoActualizar.IdTarifaGrupo, FechaPresupuesto).OrderBy(Function(f) f.IdTarifaPrecio).ToList
+                                        OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifa(elment)
+                                        If Not IsNothing(tarifasPrecios) AndAlso tarifasPrecios.Count > 0 Then
+                                            For Each tarifaPrecio As TarifaPrecio In tarifasPrecios
+                                                Dim tarifapreciocontrato As New TarifaPrecioContrato
+
+                                                tarifapreciocontrato.IdContratoTarifa = ContratoActualizar.IdContratoTarifa
+                                                tarifapreciocontrato.IdTarifaPrecio = tarifaPrecio.IdTarifaPrecio
+                                                tarifapreciocontrato.IdTarifaPeriodo = tarifaPrecio.IdTarifaPeriodo
+                                                tarifapreciocontrato.TextoTarifaPeriodo = tarifaPrecio.TextoTarifaPeriodo
+                                                tarifapreciocontrato.Entorno = tarifaPrecio.Entorno
+                                                tarifasPrecioContratoGuardar.Add(tarifapreciocontrato)
                                             Next
                                         Else
                                             ''Avisar si no hay precios para grabar
                                             'Throw New Exception(SessionInformationDTO.GetMessage(IdUsuarioEntorno, "ContratoTarifaSrv_FALTA_TARIFA_PRECIO_VIGENTE"))
                                         End If
 
-                                        ''Tarifa Perdida Calculada Contrato
-                                        'Dim TPCLista As List(Of TarifaPerdidaCalculadaDTO) = objTarifaPerdidaCalculadaSrv.GetDTOAllPeriodos(ContratoActualizar.IdTarifa, ContratoActualizar.IdTarifaGrupo, FechaPresupuesto)
-                                        '''Avisar si no hay precios para grabar
-                                        'If Not IsNothing(TPCLista) AndAlso TPCLista.Count > 0 Then
-                                        '    For Each TPC As TarifaPerdidaCalculadaDTO In TPCLista
-
-                                        '        Dim TPCContrato As New TarifaPerdidaCalculadaContratoDTO
-
-                                        '        TPCContrato.IdContratoTarifa = ContratoActualizar.IdContratoTarifa
-                                        '        TPCContrato.IdTarifaPerdidaCalculada = TPC.IdTarifaPerdidaCalculada
-
-                                        '        TarifaPerdidaCalculadaContratoGuardar.Add(TPCContrato)
-                                        '    Next
-                                        'Else
-                                        '    'TODO Preguntar Carlos si interrumpir proceso o no
-                                        '    'Throw New Exception(String.Format(SessionInformationDTO.GetMessage(IdUsuarioEntorno, "TarifaPrecioContratoSrv_FALTA_PERDIDA_CALCULADA_VIGENTE"), ContratoActualizar.CodigoContrato))
-                                        'End If
-                                    Else
-                                        Dim indexadosPrecios As List(Of IndexadoPrecioGas) = Funciones.GetDTOAllPeriodosIndxGas(ContratoActualizar.IdTarifa, ContratoActualizar.IdTarifaGrupo, FechaPresupuesto, ipDB, nameDB, userDB, passDB).OrderBy(Function(f) f.IdIndexadoPrecioGas).ToList
-                                        ''Avisar si no hay precios para grabar
-                                        If Not IsNothing(indexadosPrecios) AndAlso indexadosPrecios.Count > 0 Then
-                                            For Each indexadoPrecio As IndexadoPrecioGas In indexadosPrecios
-                                                Dim tarifaPrecioContrato As New TarifaPrecioContrato
-
-                                                tarifaPrecioContrato.IdContratoTarifa = ContratoActualizar.IdContratoTarifa
-                                                tarifaPrecioContrato.IdIndexadoPrecioGas = indexadoPrecio.IdIndexadoPrecioGas
-                                                tarifaPrecioContrato.IdTarifaPeriodo = indexadoPrecio.IdTarifaPeriodo
-                                                tarifaPrecioContrato.TextoTarifaPeriodo = indexadoPrecio.TextoTarifaPeriodo
-                                                tarifaPrecioContrato.Entorno = indexadoPrecio.Entorno
-                                                tarifasPrecioContratoGuardar.Add(tarifaPrecioContrato)
-                                            Next
-                                        End If
                                     End If
 
+                                    'Compruebo que haya valores en los dos sitios
+                                    If Not IsNothing(tarifasPrecioContratoGuardar) AndAlso tarifasPrecioContratoGuardar.Count > 0 AndAlso Not IsNothing(OldtarifasPrecioContratoQuitar) AndAlso OldtarifasPrecioContratoQuitar.Count > 0 Then
+                                        ' Guardamos todos los registros de TarifaPrecioContrato generados.
+                                        Funciones.UpdatePrecioContratoTarifa(tarifasPrecioContratoGuardar, OldtarifasPrecioContratoQuitar)
+                                    Else
+                                        Throw New Exception("Imposible continuar, precios no encontrados. Contrato: " + elment.CodigoContrato)
+                                    End If
+
+                                    'objTarifaPerdidaCalculadaSrv.MergeUpdateTarifaPerdidaCalculadaContratoDTO(TarifaPerdidaCalculadaContratoGuardar, New ObservableCollection(Of TarifaPerdidaCalculadaContratoDTO))
+                                    'If Actualizado > 0 Then
+                                    '    Contador = +1
+                                    'Else
+                                    '    ContratosSinActualizar += elment.CodigoContrato + " "
+                                    'End If
                                 Else
-                                    Dim tarifasPrecios As List(Of TarifaPrecio) = Funciones.GetDTOAllPeriodosTarifaPrecio(ContratoActualizar.IdTarifa, ContratoActualizar.IdTarifaGrupo, FechaPresupuesto, ipDB, nameDB, userDB, passDB).OrderBy(Function(f) f.IdTarifaPrecio).ToList
-
-                                    If Not IsNothing(tarifasPrecios) AndAlso tarifasPrecios.Count > 0 Then
-                                        For Each tarifaPrecio As TarifaPrecio In tarifasPrecios
-                                            Dim tarifapreciocontrato As New TarifaPrecioContrato
-
-                                            tarifapreciocontrato.IdContratoTarifa = ContratoActualizar.IdContratoTarifa
-                                            tarifapreciocontrato.IdTarifaPrecio = tarifaPrecio.IdTarifaPrecio
-                                            tarifapreciocontrato.IdTarifaPeriodo = tarifaPrecio.IdTarifaPeriodo
-                                            tarifapreciocontrato.TextoTarifaPeriodo = tarifaPrecio.TextoTarifaPeriodo
-                                            tarifapreciocontrato.Entorno = tarifaPrecio.Entorno
-                                            tarifasPrecioContratoGuardar.Add(tarifapreciocontrato)
-                                        Next
-                                    Else
-                                        ''Avisar si no hay precios para grabar
-                                        'Throw New Exception(SessionInformationDTO.GetMessage(IdUsuarioEntorno, "ContratoTarifaSrv_FALTA_TARIFA_PRECIO_VIGENTE"))
-                                    End If
-
+                                    'Throw New Exception(SessionInformationDTO.GetMessage(IdUsuarioEntorno, "ContratoTarifaSrv_FALTA_PERFIL_FACTURACION"))
                                 End If
-
-                                ' Guardamos todos los registros de TarifaPrecioContrato generados.
-                                Dim TarifaPrecioContratoOld = Funciones.GetPrecioContratoTarifa(elment, ipDB, nameDB, userDB, passDB)
-                                'Dim Actualizado =
-                                'tarifasPrecioContratoGuardar.OrderByDescending(Sub(f) f.IdIndexadoPrecio).ToList
-                                Funciones.UpdatePrecioContratoTarifa(tarifasPrecioContratoGuardar, TarifaPrecioContratoOld, ipDB, nameDB, userDB, passDB)
-                                'objTarifaPerdidaCalculadaSrv.MergeUpdateTarifaPerdidaCalculadaContratoDTO(TarifaPerdidaCalculadaContratoGuardar, New ObservableCollection(Of TarifaPerdidaCalculadaContratoDTO))
-                                'If Actualizado > 0 Then
-                                '    Contador = +1
-                                'Else
-                                '    ContratosSinActualizar += elment.CodigoContrato + " "
-                                'End If
-                            Else
-                                'Throw New Exception(SessionInformationDTO.GetMessage(IdUsuarioEntorno, "ContratoTarifaSrv_FALTA_PERFIL_FACTURACION"))
                             End If
                         End If
+                    Else
+                        Throw New Exception("Se cancela, no hay registros a actualizar")
                     End If
+
                 Next
             Else
                 MessageBox.Show("las listas no coinciden")
@@ -276,6 +278,7 @@ Public Class Form1
         End If
     End Sub
 
+    'Si hay contrato escrito habilitamos el texto de tarifa grupo
     Private Sub TextBox2_TextChanged(sender As Object, e As EventArgs) Handles TextBox2.TextChanged
         If TextBox2.Enabled AndAlso TextBox2.Text.Trim.Length >= 1 Then
             ' Si CheckBox3 está marcado, deshabilitar CheckBox1 y CheckBox2
@@ -286,27 +289,44 @@ Public Class Form1
         End If
     End Sub
 
+    'Productos Asignacion, si no ha escrito nada en textotarifagrupo no buscamos nada, y enviamos mensaje
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
         Try
-            Dim contratosTexto As String = TextBox2.Text
-            Dim contratosSeparados As String() = contratosTexto.Split(","c)
-            'Convertir los contratos separados a Longs y agregarlos a una lista
-            Dim Con As New List(Of Long)
-            For Each contratoTexto As String In contratosSeparados
-                Dim codigosCon As Long
-                If Long.TryParse(contratoTexto.Trim(), codigosCon) Then
-                    Con.Add(codigosCon)
-                End If
-            Next
-            Dim Entorno = If(Funciones.GetContrato(Con.FirstOrDefault, ipDB, nameDB, userDB, passDB).Entorno = "E1", "G1", "G2")
-            Dim ModiCo As New ProductosAsig(Entorno, ipDB, nameDB, userDB, passDB)
-            ModiCo.Show()
+            Dim Con = GetConSinSplit(TextBox1.Text)
+            If Con.Count > 0 Then
+                Dim Entorno = If(Funciones.GetContrato(Con.FirstOrDefault).Entorno = "E1", "G1", "G2")
+                Dim ModiCo As New ProductosAsig(Entorno, Con, ipDB, nameDB, userDB, passDB)
+                ModiCo.Show()
+            Else
+                MessageBox.Show("Ingrese al menos un contrato")
+            End If
+
         Catch ex As Exception
             MessageBox.Show(ex.Message)
         End Try
 
     End Sub
 
+    'Para separar los contratos introducidos con comas(,)
+    Private Function GetConSinSplit(contxt As String) As List(Of Long)
+        Dim Con As New List(Of Long)
+        Try
+            ' Separar la cadena en una matriz de cadenas utilizando la coma como delimitador
+            Dim contratosTexto As String = TextBox2.Text
+            Dim contratosSeparados As String() = contratosTexto.Split(","c)
+            For Each contratoTexto As String In contratosSeparados
+                Dim codigosCon As Long
+                If Long.TryParse(contratoTexto.Trim(), codigosCon) Then
+                    Con.Add(codigosCon)
+                End If
+            Next
+        Catch ex As Exception
+            MessageBox.Show(ex.Message)
+        End Try
+        Return Con
+    End Function
+
+    'Habilitar o deshabilitar el botón de actualizar si no hay un texto de tarifa grupo 
     Private Sub TextBox1_TextChanged(sender As Object, e As EventArgs) Handles TextBox1.TextChanged
         Try
             If TextBox1.Text.Trim.Length > 0 Then
@@ -314,6 +334,195 @@ Public Class Form1
             Else
                 Button1.Enabled = False
             End If
+        Catch ex As Exception
+            MessageBox.Show(ex.Message)
+        End Try
+    End Sub
+
+    'Crear las validaciones
+    Private Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
+        Try
+            Dim listas As New List(Of String)
+            Dim Validaciones As New ValidacionExcel(connectionString)
+#Region "Consulta 1"
+            Dim resultadoConsulta1 As String = "select c.codigocontrato
+,cups.CodigoCUPS
+,c.Confirmado
+,convert(varchar,c.FechaCreacion, 103) as FechaCreacion
+,convert(varchar,c.FechaPrevistaActivacion, 103) as FechaPrevistaActivacion
+,stf.TextoFechaEfecto
+,c.observaciones 
+,cs.textosituacion 
+from contrato c 
+inner join cups on cups.IdCups = c.idcups
+inner join ContratoSituacion cs on c.IdContratoSituacion = cs.IdContratoSituacion
+left join SolicitudTipoFechaEfecto stf on stf.IdSolicitudTipoFechaEfecto = c.IdSolicitudTipoFechaEfecto
+inner join Solicitud s on s.CodigoContrato = c.CodigoContrato and (s.idsolicitudtipo in (1009
+,1010
+,1011
+,1013
+,50103
+,50112) or s.IdSolicitudTipo is null)
+where c.idcontratosituacion in (4,14) and Confirmado=0
+order by c.CodigoContrato"
+#End Region
+#Region "Consulta 2"
+            Dim resultadoConsulta2 As String = "select c.codigocontrato
+,cups.CodigoCUPS
+,c.Confirmado
+,convert(varchar,c.FechaCreacion, 103) as FechaCreacion
+,convert(varchar,c.FechaPrevistaActivacion, 103) as FechaPrevistaActivacion
+,stf.TextoFechaEfecto
+,c.observaciones from contrato c 
+inner join cups on cups.IdCups = c.idcups
+left join SolicitudTipoFechaEfecto stf on stf.IdSolicitudTipoFechaEfecto = c.IdSolicitudTipoFechaEfecto
+inner join Solicitud s on s.CodigoContrato = c.CodigoContrato and s.idusuario=1
+where c.idcontratosituacion=4 order by c.FechaCreacion"
+#End Region
+#Region "Consulta 3"
+            Dim resultadoConsulta3 As String = ";with 
+ContratoTarifaVigenteMaxima as
+(    select CodigoContrato,
+           max(FechaDesde) as FechaDesde
+    from ContratoTarifa
+    where GetDate() between FechaDesde and FechaHasta
+    group by CodigoContrato)
+,ContratoTarifaFechaAjustada as
+(    select ct.CodigoContrato,
+           ctvm.FechaDesde as fechaCTVM,
+           ct.FechaDesde as fechaCT,
+           case when ctvm.FechaDesde is not null then ctvm.FechaDesde else ct.FechaDesde end as Fecha
+    from ContratoTarifa ct left join ContratoTarifaVigenteMaxima ctvm on ctvm.CodigoContrato = ct.CodigoContrato)
+,ContratoTarifaFechaMaxima as
+(    select CodigoContrato,
+           max(Fecha) as FechaDesde
+    from ContratoTarifaFechaAjustada
+    group by CodigoContrato)
+,ContratoTarifaVigente as
+(    select ctfm.Codigocontrato,
+           ctfm.FechaDesde,
+           Entorno,
+           IdTarifaGrupo,
+           IdTarifa,
+           IdPerfilFacturacion
+    from ContratoTarifa ct 
+	inner join ContratoTarifaFechaMaxima ctfm on ct.CodigoContrato = ctfm.CodigoContrato and ct.FechaDesde = ctfm.FechaDesde)
+select Solicitud.IdSolicitud as Solicitud
+,SolicitudTipo.NombreSolicitudTipo as TipoSolicitud
+,u.Nombre
+,SolicitudSituacion.Nombre as Situacion 
+,Cliente.Identidad as Cliente
+,Solicitud.CodigoContrato as Contrato
+,Contrato.FechaCreacion as 'Fecha creacion contrato'
+,CASE
+	WHEN (Cliente.Nombre is null) OR (Cliente.Nombre = '')
+		THEN Cliente.RazonSocial
+		ELSE CONCAT(Cliente.Nombre, ' ' , ISNULL(Cliente.Apellido1, '') , ' ' , ISNULL(Cliente.Apellido2, ''))
+		END as Nombre
+,CUPS.CodigoCUPS as CUPS
+,convert(varchar,Solicitud.FechaApertura,103) as 'Fecha apertura'
+,convert(varchar,Solicitud.FechaCierre,103) as 'Fecha cierre'
+,convert(varchar,Contrato.FechaAlta,103) as 'Fecha alta'
+,convert(varchar,Contrato.FechaPrevistaActivacion,103) as 'F. Prev. Act.'
+,SolicitudTipoFechaEfecto.TextoFechaEfecto as 'Texto Fecha Efecto'
+,convert(varchar,Contrato.FechaPrevistaBaja,103) as 'F. Prev. Baja'
+,convert(varchar,Contrato.FechaBaja,103) as 'Fecha baja'
+,Motivobaja.TextoBaja as 'Motivo baja'
+,MotivoRechazo.TextoRechazo as 'Motivo Rechazo'
+,Solicitud.Observaciones 
+,Case
+	when Agente.CodigoTipoAgente=2
+		then Agente.NombreAgente
+    when Agente.CodigoTipoAgente=3
+        then Agenteb.NombreAgente
+        else null
+    End As NombreAgente
+,Case
+	when Agente.CodigoTipoAgente=3
+		then Agente.NombreAgente
+        else null
+    End As NombreSubAgente
+,CASE
+	when ClienteContactoTelefono.TipoContacto = 'T'
+		then ClienteContactoTelefono.Valor
+	when ClienteContactoTelefono.TipoContacto = 'M'
+		then ClienteContactoTelefono.Valor
+	end as TelefonoAgente
+,Tarifa.TextoTarifa As Tarifa
+, CONCAT( CallejeroTipoVia.TextoVia,' ',Callejero.NombreCalle, ' ', Cliente.Numero, ' ' ,Cliente.Aclarador) as Direccion
+, Ciudad.TextoCiudad as Pobllacion
+, ClienteContactoEmail.Valor as EMail
+,eq.IdEquipoMedida as 'Nº Equipo Medida'
+,ContratoPotenciaMaxima.PotenciaMaxima as 'Potencia Actual'
+,Solicitud.ValorTrafo as 'Situación Libre'
+,ModoLectura.Descripcion as 'Modo lectura'
+from Solicitud with(nolock)
+left join Usuario u with(nolock) on u.IdUsuario = Solicitud.IdUsuario
+left join SolicitudTipoFechaEfecto on Solicitud.IdSolicitudTipoFechaEfecto=SolicitudTipoFechaEfecto.IdSolicitudTipoFechaEfecto
+left join SolicitudTipo with(nolock) on SolicitudTipo.IdSolicitudTipo = Solicitud.IdSolicitudTipo
+left join SolicitudSituacion with(nolock) on SolicitudSituacion.IdSolicitudSituacion = Solicitud.IdSolicitudSituacion
+left join Contrato with(nolock) on Contrato.CodigoContrato = Solicitud.CodigoContrato
+left join Cliente with(nolock) on Cliente.IdCliente = Contrato.IdCliente
+left join CUPS with(nolock) on CUPS.IdCups = Contrato.IdCups
+left join MotivoBaja with(nolock) on MotivoBaja.IdMotivoBaja = Contrato.IdMotivoBaja
+left join MotivoRechazo with(nolock) on MotivoRechazo.IdMotivoRechazo = Solicitud.IdMotivoRechazo
+left join Agente with(nolock) on Agente.IdAgente = Contrato.IdAgente
+left join (select IdAgente, NombreAgente, IdAgenteNivelAnterior from Agente with(nolock)) as Agenteb on Agenteb.IdAgente = Agente.IdAgenteNivelAnterior
+left join ClienteContacto as ClienteContactoTelefono with(nolock) on ClienteContactoTelefono.IdCliente = Cliente.IdCliente AND ClienteContactoTelefono.TipoContacto = 'T' and ClienteContactoTelefono.PorDefecto = 1
+left join Tarifa with(nolock) on Tarifa.IdTarifa = Contrato.IdTarifa
+left join Callejero with(nolock) on Callejero.IdCallejero = Cliente.IdCallejero
+left join CallejeroTipoVia with(nolock) on CallejeroTipoVia.IdCallejeroTipoVia = Callejero.IdCallejeroTipoVia
+left join Ciudad with(nolock) on Ciudad.IdCiudad = CUPS.IdCiudad
+left join ClienteContacto as ClienteContactoEmail with(nolock) on ClienteContactoEmail.IdCliente = Cliente.IdCliente AND ClienteContactoEmail.TipoContacto = 'E' and ClienteContactoEmail.PorDefecto = 1
+LEFT JOIN (Select Top 1 Entorno, CodigoContrato, NumeroSerie, IdEquipoModelo, Min(IdEquipoMedida) as IdEquipoMedida, IsInstalado as IsInstalado from EquipoMedida with(nolock) where isinstalado=1  group by Entorno, CodigoContrato, NumeroSerie, IdEquipoModelo, IsInstalado) as eq ON (Contrato.CodigoContrato = eq.CodigoContrato and eq.Entorno = 'G2')
+LEFT JOIN EquipoModelo with(nolock) ON (eq.IdEquipoModelo =EquipoModelo.IdEquipoModelo) 
+LEFT JOIN (
+			SELECT	IdContrato, MAX(PotenciaContratada)	AS PotenciaMaxima 
+				FROM ContratoPotencia with(nolock)
+				GROUP BY IdContrato
+			  ) AS ContratoPotenciaMaxima 
+			  ON ContratoPotenciaMaxima.IdContrato = Contrato.IdContrato
+LEFT JOIN ModoLectura with(nolock) ON Solicitud.IdModoLectura = ModoLectura.IdModoLectura
+left join ContratoTarifaVigente with (nolock) on ContratoTarifaVigente.CodigoContrato = Contrato.CodigoContrato
+left join TarifaGrupo with (nolock) on TarifaGrupo.IdTarifaGrupo = ContratoTarifaVigente.IdTarifaGrupo
+where Solicitud.FechaApertura >= convert(date,Getdate(),3)
+order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
+#End Region
+            listas.Add(resultadoConsulta1)
+            listas.Add(resultadoConsulta2)
+            listas.Add(resultadoConsulta3)
+
+            ' Ruta del archivo CSV
+            'Dim rutaArchivo As String = $"C:\Users\ErickCC\Documents\TotalDoc\Validaciones\Validaciones{Date.Today.ToString("ddMMyyyy")}.xlsx"
+            Dim rutaCarpeta As String = $"C:\Users\{NombreUsuarioEquipo}\Desktop\Validaciones"
+            Dim rutaArchivo As String = Path.Combine(rutaCarpeta, $"Validaciones{Date.Today.ToString("ddMMyyyy")}.xlsx")
+            ' Verificar si la carpeta existe, y si no, crearla
+            If Not Directory.Exists(rutaCarpeta) Then
+                Directory.CreateDirectory(rutaCarpeta)
+            End If
+
+            ' Verificar si el archivo existe, y si no, crearlo
+            If Not File.Exists(rutaArchivo) Then
+                File.Create(rutaArchivo).Close()
+            End If
+
+            Validaciones.EjecutarConsultasYGuardarEnExcel(listas, rutaArchivo)
+            MessageBox.Show($"Se han creado los datos en el archivo Excel en: {rutaArchivo}")
+        Catch ex As Exception
+            MessageBox.Show(ex.Message)
+        End Try
+    End Sub
+
+    Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
+        Try
+            Dim Con = GetConSinSplit(TextBox1.Text)
+            If Con.Count > 0 Then
+                Dim CodigoDir As New CodigoDir(connectionString)
+                CodigoDir.Show()
+            Else
+                MessageBox.Show("Ingrese al menos un contrato")
+            End If
+
         Catch ex As Exception
             MessageBox.Show(ex.Message)
         End Try

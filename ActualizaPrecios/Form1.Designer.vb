@@ -34,6 +34,8 @@ Partial Class Form1
         Label3 = New Label()
         Button2 = New Button()
         Button3 = New Button()
+        Button4 = New Button()
+        Button5 = New Button()
         SuspendLayout()
         ' 
         ' Button1
@@ -91,7 +93,7 @@ Partial Class Form1
         TextBox2.HideSelection = False
         TextBox2.Location = New Point(12, 40)
         TextBox2.Name = "TextBox2"
-        TextBox2.PlaceholderText = "Selecciona un filtro y escriba aqui para buscar, separa por comas(,) los datos"
+        TextBox2.PlaceholderText = "Selecciona un filtro y escriba aqui para buscar: 216, 456789,231,24,...etc."
         TextBox2.Size = New Size(424, 23)
         TextBox2.TabIndex = 5
         ' 
@@ -133,18 +135,38 @@ Partial Class Form1
         ' 
         ' Button3
         ' 
-        Button3.Location = New Point(199, 179)
+        Button3.Location = New Point(237, 179)
         Button3.Name = "Button3"
         Button3.Size = New Size(180, 23)
         Button3.TabIndex = 10
         Button3.Text = "Modificar Administrador"
         Button3.UseVisualStyleBackColor = True
         ' 
+        ' Button4
+        ' 
+        Button4.Location = New Point(12, 208)
+        Button4.Name = "Button4"
+        Button4.Size = New Size(180, 23)
+        Button4.TabIndex = 11
+        Button4.Text = "Validaciones"
+        Button4.UseVisualStyleBackColor = True
+        ' 
+        ' Button5
+        ' 
+        Button5.Location = New Point(237, 207)
+        Button5.Name = "Button5"
+        Button5.Size = New Size(180, 23)
+        Button5.TabIndex = 12
+        Button5.Text = "CodigosDIR"
+        Button5.UseVisualStyleBackColor = True
+        ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(448, 210)
+        ClientSize = New Size(448, 242)
+        Controls.Add(Button5)
+        Controls.Add(Button4)
         Controls.Add(Button3)
         Controls.Add(Button2)
         Controls.Add(Label3)
@@ -174,4 +196,6 @@ Partial Class Form1
     Friend WithEvents Label3 As Label
     Friend WithEvents Button2 As Button
     Friend WithEvents Button3 As Button
+    Friend WithEvents Button4 As Button
+    Friend WithEvents Button5 As Button
 End Class

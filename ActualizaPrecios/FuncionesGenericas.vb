@@ -1,10 +1,18 @@
 ﻿Imports System.Collections.ObjectModel
 Imports System.Data.SqlClient
-
+Imports System.IO
 
 Public Class FuncionesGenericas
 
-    Private funciones As FuncionesGenericas
+    Private ReadOnly Property connectionString As String
+    Public Sub New(connectionString)
+        Try
+            Me.connectionString = connectionString
+        Catch ex As Exception
+            Throw
+        End Try
+    End Sub
+
     Public Function ObtenerValor(ByVal strNombreColumna As String,
                                  ByRef oReader As SqlDataReader) As Object
         Dim oValor As Object = Nothing
@@ -90,12 +98,12 @@ Public Class FuncionesGenericas
 
         Return ListaContrato
     End Function
-    Public Function BuscarbyCodigocontrato(ListaContratos As List(Of Long), ipDB As String, nameDB As String, userDB As String, passDB As String) As List(Of Long)
+    Public Function BuscarbyCodigocontrato(ListaContratos As List(Of Long)) As List(Of Long)
         Dim ListaContrato As New List(Of Long)
 
         Try
-            Dim connectionString As String = $"{ipDB}{nameDB}{userDB}{passDB}"
-            Using conexion As New SqlConnection(connectionString)
+            'Dim connectionString As String = $"{ipDB}{nameDB}{userDB}{passDB}"
+            Using conexion As New SqlConnection(Me.connectionString)
                 conexion.Open()
 
                 For Each CodigoCon In ListaContratos
@@ -129,8 +137,8 @@ Public Class FuncionesGenericas
     End Function
 
 
-    Public Function GetTarifaGrupo(TextoTarifaGrupo As String, ipDB As String, nameDB As String, userDB As String, passDB As String) As List(Of TarifaGrupo)
-        Dim conexion = New SqlConnection(ipDB + nameDB + userDB + passDB)
+    Public Function GetTarifaGrupo(TextoTarifaGrupo As String) As List(Of TarifaGrupo)
+        Dim conexion = New SqlConnection(connectionString)
         Dim ret As New TarifaGrupo
         Dim TarifaGrupob As New List(Of TarifaGrupo)
         Try
@@ -159,11 +167,11 @@ Public Class FuncionesGenericas
         End Try
         Return TarifaGrupob
     End Function
-    Public Function GetContrato(CodContrato As Long, ipDB As String, nameDB As String, userDB As String, passDB As String) As Contrato
+    Public Function GetContrato(CodContrato As Long) As Contrato
         Dim Contrato As New Contrato
 
         Try
-            Dim connectionString As String = $"{ipDB}{nameDB}{userDB}{passDB}"
+
             Using conexion As New SqlConnection(connectionString)
                 conexion.Open()
 
@@ -195,11 +203,11 @@ Public Class FuncionesGenericas
         Return Contrato
     End Function
 
-    Public Function GetPerfilFacturacion(IdPerfilFacturacion As Long, ipDB As String, nameDB As String, userDB As String, passDB As String) As PerfilFacturacion
+    Public Function GetPerfilFacturacion(IdPerfilFacturacion As Long) As PerfilFacturacion
         Dim PerfilFacturacion As New PerfilFacturacion
 
         Try
-            Dim connectionString As String = $"{ipDB}{nameDB}{userDB}{passDB}"
+
             Using conexion As New SqlConnection(connectionString)
                 conexion.Open()
 
@@ -222,7 +230,7 @@ Public Class FuncionesGenericas
                 End If
                 readerQuery.Close()
                 If PerfilFacturacion.IdPerfilFacturacion Then
-                    PerfilFacturacion.PerfilFacturacionConfiguraciones = GetPerfilFacturacionConfiguracion(IdPerfilFacturacion, ipDB, nameDB, userDB, passDB)
+                    PerfilFacturacion.PerfilFacturacionConfiguraciones = GetPerfilFacturacionConfiguracion(IdPerfilFacturacion)
                 End If
 
             End Using
@@ -235,11 +243,11 @@ Public Class FuncionesGenericas
     End Function
 
 
-    Public Function GetPerfilFacturacionConfiguracion(IdPerfilFacturacion As Long, ipDB As String, nameDB As String, userDB As String, passDB As String) As ObservableCollection(Of PerfilFacturacionConfiguracion)
+    Public Function GetPerfilFacturacionConfiguracion(IdPerfilFacturacion As Long) As ObservableCollection(Of PerfilFacturacionConfiguracion)
         Dim PerfilFacturacionConfiguracion As New ObservableCollection(Of PerfilFacturacionConfiguracion)
 
         Try
-            Dim connectionString As String = $"{ipDB}{nameDB}{userDB}{passDB}"
+
             Using conexion As New SqlConnection(connectionString)
                 conexion.Open()
 
@@ -273,11 +281,11 @@ Public Class FuncionesGenericas
         Return PerfilFacturacionConfiguracion
     End Function
 
-    Public Function GetDTOAllPeriodosIndx(IdTarifa As Long?, IdTarifaGrupo As Long?, FechaPresupuesto As DateTime?, ipDB As String, nameDB As String, userDB As String, passDB As String) As List(Of IndexadoPrecio)
+    Public Function GetDTOAllPeriodosIndx(IdTarifa As Long?, IdTarifaGrupo As Long?, FechaPresupuesto As DateTime?) As List(Of IndexadoPrecio)
         Dim IndexadoPrecio As New List(Of IndexadoPrecio)
 
         Try
-            Dim connectionString As String = $"{ipDB}{nameDB}{userDB}{passDB}"
+
             Using conexion As New SqlConnection(connectionString)
                 conexion.Open()
 
@@ -314,11 +322,11 @@ Public Class FuncionesGenericas
         Return IndexadoPrecio
     End Function
 
-    Public Function GetDTOAllPeriodosIndxGas(IdTarifa As Long?, IdTarifaGrupo As Long?, FechaPresupuesto As DateTime?, ipDB As String, nameDB As String, userDB As String, passDB As String) As List(Of IndexadoPrecioGas)
+    Public Function GetDTOAllPeriodosIndxGas(IdTarifa As Long?, IdTarifaGrupo As Long?, FechaPresupuesto As DateTime?) As List(Of IndexadoPrecioGas)
         Dim IndexadoPrecioGas As New List(Of IndexadoPrecioGas)
 
         Try
-            Dim connectionString As String = $"{ipDB}{nameDB}{userDB}{passDB}"
+
             Using conexion As New SqlConnection(connectionString)
                 conexion.Open()
 
@@ -354,11 +362,11 @@ Public Class FuncionesGenericas
         Return IndexadoPrecioGas
     End Function
 
-    Public Function GetDTOAllPeriodosTarifaPrecio(IdTarifa As Long?, IdTarifaGrupo As Long?, FechaPresupuesto As DateTime?, ipDB As String, nameDB As String, userDB As String, passDB As String) As List(Of TarifaPrecio)
+    Public Function GetDTOAllPeriodosTarifaPrecio(IdTarifa As Long?, IdTarifaGrupo As Long?, FechaPresupuesto As DateTime?) As List(Of TarifaPrecio)
         Dim TarifaPrecio As New List(Of TarifaPrecio)
 
         Try
-            Dim connectionString As String = $"{ipDB}{nameDB}{userDB}{passDB}"
+
             Using conexion As New SqlConnection(connectionString)
                 conexion.Open()
 
@@ -395,8 +403,8 @@ Public Class FuncionesGenericas
     End Function
 
 
-    Public Function UpdatePrecioContratoTarifa(Cont As List(Of TarifaPrecioContrato), ContOld As List(Of TarifaPrecioContrato), ipDB As String, nameDB As String, userDB As String, passDB As String) As Long
-        Dim conexion = New SqlConnection(ipDB + nameDB + userDB + passDB)
+    Public Function UpdatePrecioContratoTarifa(Cont As List(Of TarifaPrecioContrato), ContOld As List(Of TarifaPrecioContrato)) As Long
+        Dim conexion = New SqlConnection(connectionString)
 
         Dim FilfasAfectadas As New Long
         Try
@@ -483,8 +491,8 @@ Public Class FuncionesGenericas
 
 
 
-    Public Function GetPrecioContratoTarifa(Cont As ContratoTarifa, ipDB As String, nameDB As String, userDB As String, passDB As String) As List(Of TarifaPrecioContrato)
-        Dim conexion = New SqlConnection(ipDB + nameDB + userDB + passDB)
+    Public Function GetPrecioContratoTarifaIndex(Cont As ContratoTarifa) As List(Of TarifaPrecioContrato)
+        Dim conexion = New SqlConnection(connectionString)
 
         Dim TarifaPrecioContrato As New List(Of TarifaPrecioContrato)
         Try
@@ -497,7 +505,7 @@ Public Class FuncionesGenericas
                         left join TarifaPeriodo tp on inp.IdTarifaPeriodo = tp.IdTarifaPeriodo
                         where ct.idcontratotarifa in (
                         {Cont.IdContratoTarifa}
-                        ) order by tp.IdTarifaPeriodo"
+                        ) order by tp.IdTarifaPeriodo desc"
             Dim comando As New SqlCommand(query, conexion)
             comando.CommandTimeout = 3600
             Dim readerQuery As SqlDataReader = comando.ExecuteReader()
@@ -530,7 +538,100 @@ Public Class FuncionesGenericas
         End Try
         Return TarifaPrecioContrato
     End Function
+    Public Function GetPrecioContratoTarifa(Cont As ContratoTarifa) As List(Of TarifaPrecioContrato)
+        Dim conexion = New SqlConnection(connectionString)
 
+        Dim TarifaPrecioContrato As New List(Of TarifaPrecioContrato)
+        Try
+            conexion.Open()
+            Dim query = $"select tarifapreciocontrato.*, t.idtarifa, tg.IdTarifaGrupo,tg.TextoTarifaGrupo, tp.IdTarifaPeriodo,tp.TextoTarifaPeriodo from tarifapreciocontrato 
+                        left join Contratotarifa ct  on tarifapreciocontrato.idcontratotarifa = ct.idcontratotarifa
+                        left join tarifa t  on ct.idtarifa = t.idtarifa
+                        left join TarifaGrupo tg on ct.IdTarifaGrupo = tg.IdTarifaGrupo
+                        left join tarifaprecio Inp on TarifaPrecioContrato.IdIndexadoPrecio = Inp.IdIndexadoPrecio
+                        left join TarifaPeriodo tp on inp.IdTarifaPeriodo = tp.IdTarifaPeriodo
+                        where ct.idcontratotarifa in (
+                        {Cont.IdContratoTarifa}
+                        ) order by tp.IdTarifaPeriodo desc"
+            Dim comando As New SqlCommand(query, conexion)
+            comando.CommandTimeout = 3600
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+
+            If readerQuery.HasRows Then
+                Do While readerQuery.Read
+                    Dim TarifaPrecioContratoL As New TarifaPrecioContrato
+                    TarifaPrecioContratoL.IdTarifaPrecioContrato = readerQuery.GetValue(0).ToString
+                    TarifaPrecioContratoL.Entorno = readerQuery.GetValue(1).ToString
+                    TarifaPrecioContratoL.IdContratoTarifa = readerQuery.GetValue(2).ToString
+                    TarifaPrecioContratoL.IdTarifaPrecio = readerQuery.GetValue(3).ToString
+                    If TarifaPrecioContratoL.Entorno = "G1" Then
+                        TarifaPrecioContratoL.IdIndexadoPrecio = readerQuery.GetValue(4).ToString
+                    Else
+                        TarifaPrecioContratoL.IdIndexadoPrecioGas = readerQuery.GetValue(5).ToString
+                    End If
+                    TarifaPrecioContratoL.IdTarifa = readerQuery.GetValue(6).ToString
+                    TarifaPrecioContratoL.IdTarifaGrupo = readerQuery.GetValue(7).ToString
+                    TarifaPrecioContratoL.TextoTarifaGrupo = readerQuery.GetValue(8).ToString
+                    TarifaPrecioContratoL.IdTarifaPeriodo = readerQuery.GetValue(9).ToString
+                    TarifaPrecioContratoL.TextoTarifaPeriodo = readerQuery.GetValue(10).ToString
+                    TarifaPrecioContrato.Add(TarifaPrecioContratoL)
+                Loop
+            End If
+            readerQuery.Close()
+            conexion.Close()
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return TarifaPrecioContrato
+    End Function
+    Public Function GetPrecioContratoTarifaIndexGas(Cont As ContratoTarifa) As List(Of TarifaPrecioContrato)
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim TarifaPrecioContrato As New List(Of TarifaPrecioContrato)
+        Try
+            conexion.Open()
+            Dim query = $"select tarifapreciocontrato.*, t.idtarifa, tg.IdTarifaGrupo,tg.TextoTarifaGrupo, tp.IdTarifaPeriodo,tp.TextoTarifaPeriodo from tarifapreciocontrato 
+                        left join Contratotarifa ct  on tarifapreciocontrato.idcontratotarifa = ct.idcontratotarifa
+                        left join tarifa t  on ct.idtarifa = t.idtarifa
+                        left join TarifaGrupo tg on ct.IdTarifaGrupo = tg.IdTarifaGrupo
+                        left join IndexadoPrecioGas Inp on TarifaPrecioContrato.IdIndexadoPrecio = Inp.IdIndexadoPrecioGas
+                        left join TarifaPeriodo tp on inp.IdTarifaPeriodo = tp.IdTarifaPeriodo
+                        where ct.idcontratotarifa in (
+                        {Cont.IdContratoTarifa}
+                        ) order by tp.IdTarifaPeriodo desc"
+            Dim comando As New SqlCommand(query, conexion)
+            comando.CommandTimeout = 3600
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+
+            If readerQuery.HasRows Then
+                Do While readerQuery.Read
+                    Dim TarifaPrecioContratoL As New TarifaPrecioContrato
+                    TarifaPrecioContratoL.IdTarifaPrecioContrato = readerQuery.GetValue(0).ToString
+                    TarifaPrecioContratoL.Entorno = readerQuery.GetValue(1).ToString
+                    TarifaPrecioContratoL.IdContratoTarifa = readerQuery.GetValue(2).ToString
+                    TarifaPrecioContratoL.IdTarifaPrecio = readerQuery.GetValue(3).ToString
+                    If TarifaPrecioContratoL.Entorno = "G1" Then
+                        TarifaPrecioContratoL.IdIndexadoPrecio = readerQuery.GetValue(4).ToString
+                    Else
+                        TarifaPrecioContratoL.IdIndexadoPrecioGas = readerQuery.GetValue(5).ToString
+                    End If
+                    TarifaPrecioContratoL.IdTarifa = readerQuery.GetValue(6).ToString
+                    TarifaPrecioContratoL.IdTarifaGrupo = readerQuery.GetValue(7).ToString
+                    TarifaPrecioContratoL.TextoTarifaGrupo = readerQuery.GetValue(8).ToString
+                    TarifaPrecioContratoL.IdTarifaPeriodo = readerQuery.GetValue(9).ToString
+                    TarifaPrecioContratoL.TextoTarifaPeriodo = readerQuery.GetValue(10).ToString
+                    TarifaPrecioContrato.Add(TarifaPrecioContratoL)
+                Loop
+            End If
+            readerQuery.Close()
+            conexion.Close()
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return TarifaPrecioContrato
+    End Function
 
     Public Function GetProductosbyEntorno(Entorno As String, ipDB As String, nameDB As String, userDB As String, passDB As String) As List(Of Producto)
         Dim Productos As New List(Of Producto)
@@ -641,4 +742,20 @@ Public Class FuncionesGenericas
 
         Return ListaImpuestoTipo
     End Function
+
+
+
+    Public Sub EscribirEnArchivo(escritor As StreamWriter, contrato As Contrato)
+        Try
+            ' Genera el contenido que deseas escribir en el archivo
+            Dim contenido As String = "Información del contrato: " & contrato.ToString()
+
+            ' Escribir el contenido en el archivo
+            escritor.WriteLine(contenido)
+        Catch ex As Exception
+            Throw
+        End Try
+
+    End Sub
+
 End Class

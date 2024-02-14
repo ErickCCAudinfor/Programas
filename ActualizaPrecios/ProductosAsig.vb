@@ -1,6 +1,7 @@
-﻿Public Class ProductosAsig
+﻿Imports System.IO
 
-    Private Funciones As New FuncionesGenericas
+Public Class ProductosAsig
+
 
     Private ReadOnly Property ipDB As String
     'Private ReadOnly Property ipDB As String = "data source=172.31.100.50\TOTALUAT;"
@@ -9,7 +10,19 @@
     Private ReadOnly Property userDB As String
     Private ReadOnly Property passDB As String
 
-    Public Sub New(Entorno As String, ipDB As String, nameDB As String, userDB As String, passDB As String)
+    Private ReadOnly Property Contratos As List(Of Long)
+
+    Private ReadOnly Property connectionString As String
+    Public Sub New(connectionString)
+        Try
+            Me.connectionString = connectionString
+        Catch ex As Exception
+            Throw
+        End Try
+    End Sub
+    Private Funciones As New FuncionesGenericas(Me.connectionString)
+
+    Public Sub New(Entorno As String, Contratos As List(Of Long), ipDB As String, nameDB As String, userDB As String, passDB As String)
         Try
             InitializeComponent()
             Me.ipDB = ipDB
@@ -20,6 +33,7 @@
             Me.ComboBox1.DataSource = Funciones.GetProductosbyEntorno(Entorno, ipDB, nameDB, userDB, passDB)
             Me.ComboBox1.DisplayMember = "TextoProducto"
             Me.ComboBox1.ValueMember = "IdProducto"
+            Me.Contratos = Contratos
         Catch ex As Exception
             Throw
         End Try
@@ -62,9 +76,34 @@
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         Try
+            Dim Contrato As New List(Of Contrato)
+            'Contrato.Add(Funciones.GetContrato(12))
 
+            ' Ruta del archivo de texto
+            Dim rutaCarpeta As String = $"C:\logP\{Date.Today.ToString("ddMMyyyy")}"
+            Dim rutaArchivo As String = Path.Combine(rutaCarpeta, "logProgramas.txt")
+            ' Verificar si la carpeta existe, y si no, crearla
+            If Not Directory.Exists(rutaCarpeta) Then
+                Directory.CreateDirectory(rutaCarpeta)
+            End If
+
+            ' Verificar si el archivo existe, y si no, crearlo
+            If Not File.Exists(rutaArchivo) Then
+                File.Create(rutaArchivo).Close()
+            End If
+
+            ' Abrir el archivo para escritura
+            Using escritor As New StreamWriter(rutaArchivo, True)
+                For Each elemnt In Contrato
+                    ' Realiza las acciones que desees hacer dentro del bucle
+                    ' Por ejemplo, puedes llamar a una función que escriba en el archivo
+                    Funciones.EscribirEnArchivo(escritor, elemnt)
+                Next
+            End Using
+
+            MessageBox.Show($"Se han escrito todos los datos en el archivo correctamente. {rutaArchivo}")
         Catch ex As Exception
-            Throw
+            MessageBox.Show("Error al escribir en el archivo: " & ex.Message)
         End Try
     End Sub
 End Class
