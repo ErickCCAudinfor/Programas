@@ -187,7 +187,9 @@ Public Class FuncionesGenericas
                     Do While readerQuery.Read
                         Contrato.IdContrato = readerQuery.GetValue(0).ToString
                         Contrato.CodigoContrato = readerQuery.GetValue(1).ToString
-                        Contrato.FechaAplicacionPrecios = readerQuery.GetValue(2).ToString
+                        If Not readerQuery.IsDBNull(2) Then
+                            Contrato.FechaAplicacionPrecios = readerQuery.GetValue(2).ToString()
+                        End If
                         Contrato.FechaContrato = readerQuery.GetValue(3).ToString
                         Contrato.Entorno = readerQuery.GetValue(4).ToString
                     Loop
@@ -285,15 +287,15 @@ Public Class FuncionesGenericas
         Dim IndexadoPrecio As New List(Of IndexadoPrecio)
 
         Try
-
+            Dim top = If(IdTarifa = 202020, 3, 6)
             Using conexion As New SqlConnection(connectionString)
                 conexion.Open()
 
-                Dim query As String = $"SELECT top 6 IdIndexadoPrecio,IndexadoPrecio.Entorno,IndexadoPrecio.IdTarifa,IdTarifaGrupo,IdIndexadoConcepto,tp.IdTarifaPeriodo,tp.TextoTarifaPeriodo
+                Dim query As String = $"SELECT top {top} IdIndexadoPrecio,IndexadoPrecio.Entorno,IndexadoPrecio.IdTarifa,IdTarifaGrupo,IdIndexadoConcepto,tp.IdTarifaPeriodo,tp.TextoTarifaPeriodo
                     FROM IndexadoPrecio
                     Inner join TarifaPeriodo tp on IndexadoPrecio.IdTarifaPeriodo = tp.IdTarifaPeriodo
-                    WHERE IndexadoPrecio.IdTarifa = {IdTarifa} AND IdTarifaGrupo = {IdTarifaGrupo} and FechaFinPresupuesto ='{FechaPresupuesto}' order by IdIndexadoPrecio desc"
-
+                    WHERE IndexadoPrecio.IdTarifa = {IdTarifa} AND IdTarifaGrupo = {IdTarifaGrupo} order by IdIndexadoPrecio desc"
+                'and FechaFinPresupuesto ='{FechaPresupuesto}' 
                 Dim comando As New SqlCommand(query, conexion)
                 comando.CommandTimeout = 3600
                 Dim readerQuery As SqlDataReader = comando.ExecuteReader()
@@ -330,11 +332,11 @@ Public Class FuncionesGenericas
             Using conexion As New SqlConnection(connectionString)
                 conexion.Open()
 
-                Dim query As String = $"select IdIndexadoPrecioGas,Entorno,IdTarifa,IdTarifaGrupo,IdTarifaPeriodo,tp.TextoTarifaPeriodo
+                Dim query As String = $"select IdIndexadoPrecioGas,IndexadoPrecioGas.Entorno,IndexadoPrecioGas.IdTarifa,IdTarifaGrupo,IndexadoPrecioGas.IdTarifaPeriodo,tp.TextoTarifaPeriodo
                     FROM IndexadoPrecioGas
                     Inner join TarifaPeriodo tp on IndexadoPrecioGas.IdTarifaPeriodo = tp.IdTarifaPeriodo
-                    WHERE IdTarifa = {IdTarifa} AND IdTarifaGrupo = {IdTarifaGrupo} and FechaFinPresupuesto ='{FechaPresupuesto}' order by IdIndexadoPrecioGas desc"
-
+                    WHERE IndexadoPrecioGas.IdTarifa = {IdTarifa} AND IdTarifaGrupo = {IdTarifaGrupo} order by IdIndexadoPrecioGas desc"
+                ' and FechaFinPresupuesto ='{FechaPresupuesto}' 
                 Dim comando As New SqlCommand(query, conexion)
                 comando.CommandTimeout = 3600
                 Dim readerQuery As SqlDataReader = comando.ExecuteReader()
@@ -366,15 +368,15 @@ Public Class FuncionesGenericas
         Dim TarifaPrecio As New List(Of TarifaPrecio)
 
         Try
-
+            Dim top = If(IdTarifa = 202020, 3, 6)
             Using conexion As New SqlConnection(connectionString)
                 conexion.Open()
 
-                Dim query As String = $"select top 6 IdTarifaPrecio,Entorno,IdTarifa,IdTarifaGrupo,IdTarifaPeriodo,tp.TextoTarifaPeriodo
+                Dim query As String = $"select top {top} IdTarifaPrecio,TarifaPrecio.Entorno,TarifaPrecio.IdTarifa,IdTarifaGrupo,TarifaPrecio.IdTarifaPeriodo,tp.TextoTarifaPeriodo
                     FROM TarifaPrecio
                     Inner join TarifaPeriodo tp on TarifaPrecio.IdTarifaPeriodo = tp.IdTarifaPeriodo
-                    WHERE IdTarifa = {IdTarifa} AND IdTarifaGrupo = {IdTarifaGrupo} and FechaFinPresupuesto ='{FechaPresupuesto}' order by IdTarifaPrecio desc"
-
+                    WHERE TarifaPrecio.IdTarifa = {IdTarifa} AND IdTarifaGrupo = {IdTarifaGrupo}  order by IdTarifaPrecio desc"
+                'and FechaFinPresupuesto ='{FechaPresupuesto}'
                 Dim comando As New SqlCommand(query, conexion)
                 comando.CommandTimeout = 3600
                 Dim readerQuery As SqlDataReader = comando.ExecuteReader()
@@ -403,7 +405,7 @@ Public Class FuncionesGenericas
     End Function
 
 
-    Public Function UpdatePrecioContratoTarifa(Cont As List(Of TarifaPrecioContrato), ContOld As List(Of TarifaPrecioContrato)) As Long
+    Public Function UpdatePrecioContratoTarifa(Cont As List(Of TarifaPrecioContrato), ContOld As List(Of TarifaPrecioContrato), IsFijoIndex As Boolean) As Long
         Dim conexion = New SqlConnection(connectionString)
 
         Dim FilfasAfectadas As New Long
@@ -418,18 +420,26 @@ Public Class FuncionesGenericas
                 Dim ContViejo As TarifaPrecioContrato = ContOld(i)
 
                 If ContNuevo.IdTarifaPeriodo = ContViejo.IdTarifaPeriodo Then
-                    If ContNuevo.Entorno = "G1" Then
+                    'Si es indexado entra aqui
+                    If IsFijoIndex Then
+                        If ContNuevo.Entorno = "G1" Then
+                            Dim query = $"UPDATE tarifapreciocontrato
+                                set IdIndexadoPrecio = {ContNuevo.IdIndexadoPrecio}, IdTarifaPrecio = 0   where IdTarifaPrecioContrato in ({ContViejo.IdTarifaPrecioContrato})"
+                            Dim comando = New SqlCommand(query, conexion)
+                            FilfasAfectadas = comando.ExecuteNonQuery
+                        ElseIf ContNuevo.Entorno = "G2" Then
+                            Dim query = $"UPDATE tarifapreciocontrato
+                                    set IdIndexadoPrecioGas = {ContNuevo.IdIndexadoPrecioGas} , IdTarifaPrecio = 0   where IdTarifaPrecioContrato in ({ContViejo.IdTarifaPrecioContrato})"
+                            Dim comando = New SqlCommand(query, conexion)
+                            FilfasAfectadas = comando.ExecuteNonQuery
+                        End If
+                    Else
                         Dim query = $"UPDATE tarifapreciocontrato
-                                set IdIndexadoPrecio = {ContNuevo.IdIndexadoPrecio}   where IdTarifaPrecioContrato in ({ContViejo.IdTarifaPrecioContrato})"
-                        Dim comando = New SqlCommand(query, conexion)
-                        FilfasAfectadas = comando.ExecuteNonQuery
-
-                    ElseIf ContNuevo.Entorno = "G2" Then
-                        Dim query = $"UPDATE tarifapreciocontrato
-                                    set IdIndexadoPrecioGas = {ContNuevo.IdIndexadoPrecioGas}   where IdTarifaPrecioContrato in ({ContViejo.IdTarifaPrecioContrato})"
+                                set IdTarifaPrecio = {ContNuevo.IdTarifaPrecio}, IdIndexadoPrecio = 0 ,IdIndexadoPrecioGas =0   where IdTarifaPrecioContrato in ({ContViejo.IdTarifaPrecioContrato})"
                         Dim comando = New SqlCommand(query, conexion)
                         FilfasAfectadas = comando.ExecuteNonQuery
                     End If
+
                 End If
             Next
             'conexion.Open()
@@ -548,7 +558,7 @@ Public Class FuncionesGenericas
                         left join Contratotarifa ct  on tarifapreciocontrato.idcontratotarifa = ct.idcontratotarifa
                         left join tarifa t  on ct.idtarifa = t.idtarifa
                         left join TarifaGrupo tg on ct.IdTarifaGrupo = tg.IdTarifaGrupo
-                        left join tarifaprecio Inp on TarifaPrecioContrato.IdIndexadoPrecio = Inp.IdIndexadoPrecio
+                        left join tarifaprecio Inp on TarifaPrecioContrato.idtarifaprecio = Inp.idtarifaprecio
                         left join TarifaPeriodo tp on inp.IdTarifaPeriodo = tp.IdTarifaPeriodo
                         where ct.idcontratotarifa in (
                         {Cont.IdContratoTarifa}
@@ -633,11 +643,10 @@ Public Class FuncionesGenericas
         Return TarifaPrecioContrato
     End Function
 
-    Public Function GetProductosbyEntorno(Entorno As String, ipDB As String, nameDB As String, userDB As String, passDB As String) As List(Of Producto)
+    Public Function GetProductosbyEntorno(Entorno As String) As List(Of Producto)
         Dim Productos As New List(Of Producto)
 
         Try
-            Dim connectionString As String = $"{ipDB}{nameDB}{userDB}{passDB}"
             Using conexion As New SqlConnection(connectionString)
                 conexion.Open()
 
@@ -675,11 +684,10 @@ Public Class FuncionesGenericas
         Return Productos
     End Function
 
-    Public Function GetProductoGrupobyById(IdproductoGrupo As Long, ipDB As String, nameDB As String, userDB As String, passDB As String) As ProductoGrupo
+    Public Function GetProductoGrupobyById(IdproductoGrupo As Long) As ProductoGrupo
         Dim ProductoGr As New ProductoGrupo
 
         Try
-            Dim connectionString As String = $"{ipDB}{nameDB}{userDB}{passDB}"
             Using conexion As New SqlConnection(connectionString)
                 conexion.Open()
 
@@ -708,11 +716,11 @@ Public Class FuncionesGenericas
         Return ProductoGr
     End Function
 
-    Public Function GetTipoImpuestoBy(ipDB As String, nameDB As String, userDB As String, passDB As String) As List(Of TipoImpuesto)
+    Public Function GetTipoImpuestoBy() As List(Of TipoImpuesto)
         Dim ListaImpuestoTipo As New List(Of TipoImpuesto)
 
         Try
-            Dim connectionString As String = $"{ipDB}{nameDB}{userDB}{passDB}"
+
             Using conexion As New SqlConnection(connectionString)
                 conexion.Open()
 
@@ -757,5 +765,50 @@ Public Class FuncionesGenericas
         End Try
 
     End Sub
+
+
+    Public Function UpdateCodigosDir(CodigoUnidadTramitadora As String, CodigoOficinaContable As String, CodigoOrganoGestor As String, Contratos As List(Of Long)) As Long
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim FilfasAfectadas As Long
+        Try
+
+            conexion.Open()
+            Dim Codigos = String.Join(",", Contratos)
+            Dim query = $"update Contrato set CodigoUnidadTramitadora='{CodigoUnidadTramitadora}',
+                        CodigoOficinaContable='{CodigoOficinaContable}',
+                        CodigoOrganoGestor='{CodigoOrganoGestor}'
+                        where CodigoContrato in ({Codigos})"
+            Dim comando = New SqlCommand(query, conexion)
+            FilfasAfectadas = comando.ExecuteNonQuery
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return FilfasAfectadas
+    End Function
+
+    Public Function InsertProductoAsignacion(Entorno As String, IdProductoGrupo As Long, IdProducto As Long, IdContrato As Long, FechaInicial As Date, Importe As Decimal, IdTipoImpuesto As Long, AntesIE As Boolean, AplicarSobreConsumo As Boolean, AplicarPrecioConsumo As Boolean) As Long
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim FilfasAfectadas As Long
+        Try
+
+            conexion.Open()
+            'Dim Codigos = String.Join(",", Contratos)
+            'Dim query = $"INSERT INTO ProductoAsignacion(Entorno,IdProductoGrupo,IdProducto,TipoAsignacion,IdContrato,FechaInicial,Importe,IdTipoImpuesto,AntesIE,AplicarSobreConsumo,AplicarPrecioConsumo) 
+            '                values('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO',{IdContrato},'{FechaInicial}',{Importe.ToString.Replace(",", ".")},{IdTipoImpuesto},{If(AntesIE, 1, 0)},{If(AplicarSobreConsumo, 1, 0)},{If(AplicarPrecioConsumo, 1, 0)})"
+
+            Dim query =
+$"INSERT INTO ProductoAsignacion (Entorno, IdProductoGrupo, IdProducto, TipoAsignacion, IdCliente, IdContrato, IdTarifa, IdTarifaGrupo, IdTipoCobro, IdTarifaPeaje, Desde, Hasta, IsControlFecha, FechaInicial, FechaFinal, Plazo, PlazoCargado, ImporteTotalPlazo, IsFacturado, Importe, Descuento, AntesIE, IdTipoImpuesto, PrecioDia, IsFacturaProrrateo, IdFacturaProrrateo, PorcentajeIncremento, AplicarSobreConsumo, ImportePlazo, AplicarPrecioConsumo, IsBonificacion, FechaAsignacion)
+VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '{FechaInicial}', NULL, NULL, NULL, NULL, NULL, {Importe.ToString.Replace(",", ".")}, 0.00, {If(AntesIE, 1, 0)}, {IdTipoImpuesto}, 0, 0, NULL, 0.00, {If(AplicarSobreConsumo, 1, 0)}, NULL, {If(AplicarPrecioConsumo, 1, 0)}, NULL, NULL);"
+            Dim comando = New SqlCommand(query, conexion)
+            FilfasAfectadas = comando.ExecuteNonQuery
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return FilfasAfectadas
+    End Function
 
 End Class

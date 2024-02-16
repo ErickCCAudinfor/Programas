@@ -135,6 +135,7 @@ Partial Class Form1
         ' 
         ' Button3
         ' 
+        Button3.Enabled = False
         Button3.Location = New Point(237, 179)
         Button3.Name = "Button3"
         Button3.Size = New Size(180, 23)

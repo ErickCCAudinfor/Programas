@@ -140,7 +140,7 @@ Partial Class ProductosAsig
         ' 
         ' NumericUpDown1
         ' 
-        NumericUpDown1.DecimalPlaces = 8
+        NumericUpDown1.DecimalPlaces = 6
         NumericUpDown1.Location = New Point(172, 106)
         NumericUpDown1.Name = "NumericUpDown1"
         NumericUpDown1.Size = New Size(120, 23)

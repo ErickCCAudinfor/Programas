@@ -120,13 +120,13 @@ Public Class Form1
                                     Dim tarifasPrecioContratoGuardar As New List(Of TarifaPrecioContrato) ' Lista para guardar los nuevos precios
                                     Dim OldtarifasPrecioContratoQuitar As New List(Of TarifaPrecioContrato) ' Lista a con los viejos precios
                                     'Dim TarifaPerdidaCalculadaContratoGuardar As New ObservableCollection(Of TarifaPerdidaCalculadaContratoDTO)
-
+                                    Dim isFijoIndex As Boolean = False
+                                    'Compruebo si el nuevocontratotarifa es fijo o indexado
                                     If ContratoActualizar.PerfilFacturacion.isPerfilIndexado() Then
-
+                                        isFijoIndex = True
                                         If ContratoActualizar.Entorno = "G1" Then
 
                                             Dim indexadosPrecios As List(Of IndexadoPrecio) = Funciones.GetDTOAllPeriodosIndx(ContratoActualizar.IdTarifa, ContratoActualizar.IdTarifaGrupo, FechaPresupuesto).OrderBy(Function(f) f.IdIndexadoPrecio).ToList
-                                            OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifaIndex(elment)
                                             ''Avisar si no hay precios para grabar
                                             If Not IsNothing(indexadosPrecios) AndAlso indexadosPrecios.Count > 0 Then
                                                 For Each eleindexadoPrecio As IndexadoPrecio In indexadosPrecios
@@ -143,27 +143,9 @@ Public Class Form1
                                                 ''Avisar si no hay precios para grabar
                                                 'Throw New Exception(SessionInformationDTO.GetMessage(IdUsuarioEntorno, "ContratoTarifaSrv_FALTA_TARIFA_PRECIO_VIGENTE"))
                                             End If
-
-                                            ''Tarifa Perdida Calculada Contrato
-                                            'Dim TPCLista As List(Of TarifaPerdidaCalculadaDTO) = objTarifaPerdidaCalculadaSrv.GetDTOAllPeriodos(ContratoActualizar.IdTarifa, ContratoActualizar.IdTarifaGrupo, FechaPresupuesto)
-                                            '''Avisar si no hay precios para grabar
-                                            'If Not IsNothing(TPCLista) AndAlso TPCLista.Count > 0 Then
-                                            '    For Each TPC As TarifaPerdidaCalculadaDTO In TPCLista
-
-                                            '        Dim TPCContrato As New TarifaPerdidaCalculadaContratoDTO
-
-                                            '        TPCContrato.IdContratoTarifa = ContratoActualizar.IdContratoTarifa
-                                            '        TPCContrato.IdTarifaPerdidaCalculada = TPC.IdTarifaPerdidaCalculada
-
-                                            '        TarifaPerdidaCalculadaContratoGuardar.Add(TPCContrato)
-                                            '    Next
-                                            'Else
-                                            '    'TODO Preguntar Carlos si interrumpir proceso o no
-                                            '    'Throw New Exception(String.Format(SessionInformationDTO.GetMessage(IdUsuarioEntorno, "TarifaPrecioContratoSrv_FALTA_PERDIDA_CALCULADA_VIGENTE"), ContratoActualizar.CodigoContrato))
-                                            'End If
                                         Else
                                             Dim indexadosPrecios As List(Of IndexadoPrecioGas) = Funciones.GetDTOAllPeriodosIndxGas(ContratoActualizar.IdTarifa, ContratoActualizar.IdTarifaGrupo, FechaPresupuesto).OrderBy(Function(f) f.IdIndexadoPrecioGas).ToList
-                                            OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifaIndexGas(elment)
+
                                             ''Avisar si no hay precios para grabar
                                             If Not IsNothing(indexadosPrecios) AndAlso indexadosPrecios.Count > 0 Then
                                                 For Each indexadoPrecio As IndexadoPrecioGas In indexadosPrecios
@@ -181,7 +163,7 @@ Public Class Form1
 
                                     Else
                                         Dim tarifasPrecios As List(Of TarifaPrecio) = Funciones.GetDTOAllPeriodosTarifaPrecio(ContratoActualizar.IdTarifa, ContratoActualizar.IdTarifaGrupo, FechaPresupuesto).OrderBy(Function(f) f.IdTarifaPrecio).ToList
-                                        OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifa(elment)
+
                                         If Not IsNothing(tarifasPrecios) AndAlso tarifasPrecios.Count > 0 Then
                                             For Each tarifaPrecio As TarifaPrecio In tarifasPrecios
                                                 Dim tarifapreciocontrato As New TarifaPrecioContrato
@@ -200,10 +182,21 @@ Public Class Form1
 
                                     End If
 
+                                    'Compruebo si el contratotarifaviejo es fijo o indexado
+                                    elment.PerfilFacturacion = Funciones.GetPerfilFacturacion(If(elment.IdPerfilFacturacion, 0))
+                                    If elment.PerfilFacturacion.isPerfilIndexado() Then
+                                        If elment.Entorno = "G1" Then
+                                            OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifaIndex(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
+                                        Else
+                                            OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifaIndexGas(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
+                                        End If
+                                    Else
+                                        OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifa(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
+                                    End If
                                     'Compruebo que haya valores en los dos sitios
                                     If Not IsNothing(tarifasPrecioContratoGuardar) AndAlso tarifasPrecioContratoGuardar.Count > 0 AndAlso Not IsNothing(OldtarifasPrecioContratoQuitar) AndAlso OldtarifasPrecioContratoQuitar.Count > 0 Then
                                         ' Guardamos todos los registros de TarifaPrecioContrato generados.
-                                        Funciones.UpdatePrecioContratoTarifa(tarifasPrecioContratoGuardar, OldtarifasPrecioContratoQuitar)
+                                        Funciones.UpdatePrecioContratoTarifa(tarifasPrecioContratoGuardar, OldtarifasPrecioContratoQuitar, isFijoIndex)
                                     Else
                                         Throw New Exception("Imposible continuar, precios no encontrados. Contrato: " + elment.CodigoContrato)
                                     End If
@@ -295,7 +288,7 @@ Public Class Form1
             Dim Con = GetConSinSplit(TextBox1.Text)
             If Con.Count > 0 Then
                 Dim Entorno = If(Funciones.GetContrato(Con.FirstOrDefault).Entorno = "E1", "G1", "G2")
-                Dim ModiCo As New ProductosAsig(Entorno, Con, ipDB, nameDB, userDB, passDB)
+                Dim ModiCo As New ProductosAsig(Entorno, Con, connectionString)
                 ModiCo.Show()
             Else
                 MessageBox.Show("Ingrese al menos un contrato")
@@ -517,7 +510,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
         Try
             Dim Con = GetConSinSplit(TextBox1.Text)
             If Con.Count > 0 Then
-                Dim CodigoDir As New CodigoDir(connectionString)
+                Dim CodigoDir As New CodigoDir(connectionString, Con)
                 CodigoDir.Show()
             Else
                 MessageBox.Show("Ingrese al menos un contrato")

@@ -22,6 +22,7 @@ Partial Class CodigoDir
     'No lo modifique con el editor de código.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        Dim resources As ComponentModel.ComponentResourceManager = New ComponentModel.ComponentResourceManager(GetType(CodigoDir))
         Button1 = New Button()
         Label1 = New Label()
         Label2 = New Label()
@@ -90,7 +91,7 @@ Partial Class CodigoDir
         ' 
         ' CodigoDir
         ' 
-        AutoScaleDimensions = New SizeF(7F, 15F)
+        AutoScaleDimensions = New SizeF(7.0F, 15.0F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(358, 161)
         Controls.Add(TextBox3)
@@ -100,6 +101,7 @@ Partial Class CodigoDir
         Controls.Add(Label2)
         Controls.Add(Label1)
         Controls.Add(Button1)
+        Icon = CType(resources.GetObject("$this.Icon"), Icon)
         Name = "CodigoDir"
         Text = "CodigoDir"
         ResumeLayout(False)
