@@ -54,3 +54,17 @@ C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Debug\net6.0-
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Debug\net6.0-windows\ActualizaPrecios.genruntimeconfig.cache
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\ActualizaPrecios.pdb
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Debug\net6.0-windows\ref\ActualizaPrecios.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\EPPlus.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\EPPlus.Interfaces.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\EPPlus.System.Drawing.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\Microsoft.Extensions.Configuration.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\Microsoft.Extensions.Configuration.FileExtensions.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\Microsoft.Extensions.Configuration.Json.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\Microsoft.Extensions.FileProviders.Abstractions.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\Microsoft.Extensions.FileProviders.Physical.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\Microsoft.Extensions.FileSystemGlobbing.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\Microsoft.Extensions.Primitives.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\Microsoft.IO.RecyclableMemoryStream.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\System.Security.Cryptography.Pkcs.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\runtimes\win\lib\net6.0\System.Security.Cryptography.Pkcs.dll

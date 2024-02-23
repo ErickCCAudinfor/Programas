@@ -205,6 +205,88 @@ Public Class FuncionesGenericas
         Return Contrato
     End Function
 
+    Public Function GetListContratobyCIF(Cif As String) As List(Of Contrato)
+        Dim listaContratos As New List(Of Contrato)
+        Try
+            Using conexion As New SqlConnection(connectionString)
+                conexion.Open()
+
+                Dim query As String = $"select idcontrato,CodigoContrato, FechaContrato,cl.IdCliente, c.Entorno, IdContratoSituacion from Contrato c
+                                        inner join Cliente cl on c.IdCliente = cl.IdCliente
+                                        where cl.Identidad = '{Cif}'"
+
+                Dim comando As New SqlCommand(query, conexion)
+                comando.CommandTimeout = 3600
+                Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+
+                If readerQuery.HasRows Then
+                    Do While readerQuery.Read
+                        Dim Contrato As New Contrato
+                        Contrato.IdContrato = readerQuery.GetValue(0).ToString
+                        Contrato.CodigoContrato = readerQuery.GetValue(1).ToString
+                        Contrato.FechaContrato = readerQuery.GetValue(2).ToString
+                        Contrato.IdCliente = readerQuery.GetValue(3).ToString
+                        Contrato.Entorno = readerQuery.GetValue(4).ToString
+                        Contrato.IdContratoSituacion = readerQuery.GetValue(5).ToString
+                        listaContratos.Add(Contrato)
+                    Loop
+                End If
+
+                readerQuery.Close()
+            End Using
+        Catch ex As Exception
+            Throw
+        End Try
+
+        Return listaContratos
+    End Function
+
+
+    Public Function GetListContratobyCUPS(CUPS As String) As List(Of Contrato)
+        Dim listaContratos As New List(Of Contrato)
+        Try
+            Using conexion As New SqlConnection(connectionString)
+                conexion.Open()
+
+                Dim query As String = $";with iddc as (select idcups from CUPS where codigocups like '{CUPS}%')
+select idcontrato,codigocontrato,fechacontrato,idcliente,entorno,idcontratosituacion,isrenovacionprocesada 
+from contrato where idcups in (select idcups from iddc)"
+
+                Dim comando As New SqlCommand(query, conexion)
+                comando.CommandTimeout = 3600
+                Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+
+                If readerQuery.HasRows Then
+                    Do While readerQuery.Read
+                        Dim Contrato As New Contrato
+                        Contrato.IdContrato = readerQuery.GetValue(0).ToString
+                        Contrato.CodigoContrato = readerQuery.GetValue(1).ToString
+                        Contrato.FechaContrato = readerQuery.GetValue(2).ToString
+                        Contrato.IdCliente = readerQuery.GetValue(3).ToString
+                        Contrato.Entorno = readerQuery.GetValue(4).ToString
+                        Contrato.IdContratoSituacion = readerQuery.GetValue(5).ToString
+                        Dim isRenovacionProcesadaString As String = readerQuery.GetValue(6).ToString()
+                        Dim isRenovacionProcesadaBoolean As Boolean
+                        If Boolean.TryParse(isRenovacionProcesadaString, isRenovacionProcesadaBoolean) Then
+                            Contrato.IsRenovacionProcesada = isRenovacionProcesadaBoolean
+                        Else
+                            Contrato.IsRenovacionProcesada = False
+                        End If
+
+                        listaContratos.Add(Contrato)
+                    Loop
+                End If
+
+                readerQuery.Close()
+            End Using
+        Catch ex As Exception
+            Throw
+        End Try
+
+        Return listaContratos
+    End Function
+
+
     Public Function GetPerfilFacturacion(IdPerfilFacturacion As Long) As PerfilFacturacion
         Dim PerfilFacturacion As New PerfilFacturacion
 
@@ -424,18 +506,18 @@ Public Class FuncionesGenericas
                     If IsFijoIndex Then
                         If ContNuevo.Entorno = "G1" Then
                             Dim query = $"UPDATE tarifapreciocontrato
-                                set IdIndexadoPrecio = {ContNuevo.IdIndexadoPrecio}, IdTarifaPrecio = 0   where IdTarifaPrecioContrato in ({ContViejo.IdTarifaPrecioContrato})"
+                                set IdIndexadoPrecio = {ContNuevo.IdIndexadoPrecio}  where IdTarifaPrecioContrato in ({ContViejo.IdTarifaPrecioContrato})"
                             Dim comando = New SqlCommand(query, conexion)
                             FilfasAfectadas = comando.ExecuteNonQuery
                         ElseIf ContNuevo.Entorno = "G2" Then
                             Dim query = $"UPDATE tarifapreciocontrato
-                                    set IdIndexadoPrecioGas = {ContNuevo.IdIndexadoPrecioGas} , IdTarifaPrecio = 0   where IdTarifaPrecioContrato in ({ContViejo.IdTarifaPrecioContrato})"
+                                    set IdIndexadoPrecioGas = {ContNuevo.IdIndexadoPrecioGas}   where IdTarifaPrecioContrato in ({ContViejo.IdTarifaPrecioContrato})"
                             Dim comando = New SqlCommand(query, conexion)
                             FilfasAfectadas = comando.ExecuteNonQuery
                         End If
                     Else
                         Dim query = $"UPDATE tarifapreciocontrato
-                                set IdTarifaPrecio = {ContNuevo.IdTarifaPrecio}, IdIndexadoPrecio = 0 ,IdIndexadoPrecioGas =0   where IdTarifaPrecioContrato in ({ContViejo.IdTarifaPrecioContrato})"
+                                set IdTarifaPrecio = {ContNuevo.IdTarifaPrecio}  where IdTarifaPrecioContrato in ({ContViejo.IdTarifaPrecioContrato})"
                         Dim comando = New SqlCommand(query, conexion)
                         FilfasAfectadas = comando.ExecuteNonQuery
                     End If
@@ -605,7 +687,7 @@ Public Class FuncionesGenericas
                         left join Contratotarifa ct  on tarifapreciocontrato.idcontratotarifa = ct.idcontratotarifa
                         left join tarifa t  on ct.idtarifa = t.idtarifa
                         left join TarifaGrupo tg on ct.IdTarifaGrupo = tg.IdTarifaGrupo
-                        left join IndexadoPrecioGas Inp on TarifaPrecioContrato.IdIndexadoPrecio = Inp.IdIndexadoPrecioGas
+                        left join IndexadoPrecioGas Inp on TarifaPrecioContrato.IdIndexadoPrecioGas = Inp.IdIndexadoPrecioGas
                         left join TarifaPeriodo tp on inp.IdTarifaPeriodo = tp.IdTarifaPeriodo
                         where ct.idcontratotarifa in (
                         {Cont.IdContratoTarifa}
@@ -811,4 +893,68 @@ VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, 
         Return FilfasAfectadas
     End Function
 
+
+    Public Function getCNAEbyCodigo(CodigoCNAE As String) As CNAE
+
+        Dim ObjCNAE As New CNAE
+        Try
+
+            Using conexion As New SqlConnection(connectionString)
+                conexion.Open()
+
+                Dim query As String = $"select * from CNAE where CodigoCNAE = '{CodigoCNAE}'"
+
+                Dim comando As New SqlCommand(query, conexion)
+                comando.CommandTimeout = 3600
+                Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+
+                If readerQuery.HasRows Then
+                    Do While readerQuery.Read
+                        ObjCNAE.IdCNAE = readerQuery.GetValue(0).ToString
+                        ObjCNAE.Entorno = readerQuery.GetValue(1).ToString
+                        ObjCNAE.CodigoCNAE = readerQuery.GetValue(2).ToString
+                        ObjCNAE.TextoCNAE = readerQuery.GetValue(3).ToString
+                        ObjCNAE.CodigoAgrupacion = readerQuery.GetValue(4).ToString
+                        ObjCNAE.DescripcionCodigoAgrupacion = readerQuery.GetValue(5).ToString
+                    Loop
+                End If
+                readerQuery.Close()
+            End Using
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return ObjCNAE
+    End Function
+
+    Public Function UpdateContratoCNAE(Codigocontrato As Long, IdCNAE As Long) As Long
+        Dim FilfasAfectadas As Long
+        Try
+            Dim conexion = New SqlConnection(connectionString)
+            conexion.Open()
+            Dim query = $"update Contrato set IdCNAE={IdCNAE} where CodigoContrato = {Codigocontrato}"
+            Dim comando = New SqlCommand(query, conexion)
+            FilfasAfectadas = comando.ExecuteNonQuery
+            conexion.Close()
+        Catch ex As Exception
+            Throw
+        End Try
+        Return FilfasAfectadas
+    End Function
+
+    Public Function VolverARenovar(Contrato As Long) As Long
+        Dim FilfasAfectadas As Long
+        Try
+            Dim conexion = New SqlConnection(connectionString)
+            conexion.Open()
+            Dim query = $"update contrato set isrenovacionprocesada = null where CodigoContrato in ({Contrato})"
+            Dim comando = New SqlCommand(query, conexion)
+            FilfasAfectadas = comando.ExecuteNonQuery
+            conexion.Close()
+        Catch ex As Exception
+            Throw
+        End Try
+        Return FilfasAfectadas
+    End Function
+
 End Class
+

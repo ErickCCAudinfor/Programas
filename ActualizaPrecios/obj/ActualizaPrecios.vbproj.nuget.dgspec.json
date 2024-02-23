@@ -49,6 +49,10 @@
               "target": "Package",
               "version": "[0.102.2, )"
             },
+            "EPPlus": {
+              "target": "Package",
+              "version": "[7.0.9, )"
+            },
             "System.Data.SqlClient": {
               "target": "Package",
               "version": "[4.8.6, )"

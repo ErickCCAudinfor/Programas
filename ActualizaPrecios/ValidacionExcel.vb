@@ -50,7 +50,10 @@ Public Class ValidacionExcel
                                         End If
                                         ' Convertir el valor a un tipo compatible con ClosedXML
                                         If TypeOf value Is DBNull Then
-                                            value = Nothing ' Tratar valores DBNull
+                                            value = "NULL" ' Tratar valores DBNull como "NULL"
+                                        ElseIf TypeOf value Is Boolean Then
+                                            ' Tratar campos booleanos como 1 o 0 en lugar de True o False
+                                            value = If(DirectCast(value, Boolean), 1, 0)
                                         End If
 
                                         ' Asignar el valor a la celda como String

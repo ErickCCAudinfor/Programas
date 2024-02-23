@@ -36,12 +36,14 @@ Partial Class Form1
         Button3 = New Button()
         Button4 = New Button()
         Button5 = New Button()
+        Button6 = New Button()
+        TextBox3 = New TextBox()
         SuspendLayout()
         ' 
         ' Button1
         ' 
         Button1.Enabled = False
-        Button1.Location = New Point(361, 101)
+        Button1.Location = New Point(361, 83)
         Button1.Name = "Button1"
         Button1.Size = New Size(75, 23)
         Button1.TabIndex = 0
@@ -81,7 +83,7 @@ Partial Class Form1
         ' TextBox1
         ' 
         TextBox1.Enabled = False
-        TextBox1.Location = New Point(12, 102)
+        TextBox1.Location = New Point(12, 84)
         TextBox1.Name = "TextBox1"
         TextBox1.PlaceholderText = "Ingrese la tarifa grupo"
         TextBox1.Size = New Size(343, 23)
@@ -92,6 +94,7 @@ Partial Class Form1
         TextBox2.Enabled = False
         TextBox2.HideSelection = False
         TextBox2.Location = New Point(12, 40)
+        TextBox2.Multiline = True
         TextBox2.Name = "TextBox2"
         TextBox2.PlaceholderText = "Selecciona un filtro y escriba aqui para buscar: 216, 456789,231,24,...etc."
         TextBox2.Size = New Size(424, 23)
@@ -100,7 +103,7 @@ Partial Class Form1
         ' Label1
         ' 
         Label1.AutoSize = True
-        Label1.Location = New Point(12, 84)
+        Label1.Location = New Point(12, 66)
         Label1.Name = "Label1"
         Label1.Size = New Size(71, 15)
         Label1.TabIndex = 6
@@ -135,17 +138,16 @@ Partial Class Form1
         ' 
         ' Button3
         ' 
-        Button3.Enabled = False
-        Button3.Location = New Point(237, 179)
+        Button3.Location = New Point(12, 210)
         Button3.Name = "Button3"
         Button3.Size = New Size(180, 23)
         Button3.TabIndex = 10
-        Button3.Text = "Modificar Administrador"
+        Button3.Text = "Volver a renovar"
         Button3.UseVisualStyleBackColor = True
         ' 
         ' Button4
         ' 
-        Button4.Location = New Point(12, 208)
+        Button4.Location = New Point(12, 268)
         Button4.Name = "Button4"
         Button4.Size = New Size(180, 23)
         Button4.TabIndex = 11
@@ -154,18 +156,37 @@ Partial Class Form1
         ' 
         ' Button5
         ' 
-        Button5.Location = New Point(237, 207)
+        Button5.Location = New Point(12, 239)
         Button5.Name = "Button5"
         Button5.Size = New Size(180, 23)
         Button5.TabIndex = 12
         Button5.Text = "CodigosDIR"
         Button5.UseVisualStyleBackColor = True
         ' 
+        ' Button6
+        ' 
+        Button6.Location = New Point(370, 199)
+        Button6.Name = "Button6"
+        Button6.Size = New Size(180, 23)
+        Button6.TabIndex = 13
+        Button6.Text = "Actualizar CNAE Excel"
+        Button6.UseVisualStyleBackColor = True
+        ' 
+        ' TextBox3
+        ' 
+        TextBox3.Location = New Point(370, 228)
+        TextBox3.Name = "TextBox3"
+        TextBox3.PlaceholderText = "Ruta del Archivo excel"
+        TextBox3.Size = New Size(181, 23)
+        TextBox3.TabIndex = 14
+        ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(448, 242)
+        ClientSize = New Size(574, 324)
+        Controls.Add(TextBox3)
+        Controls.Add(Button6)
         Controls.Add(Button5)
         Controls.Add(Button4)
         Controls.Add(Button3)
@@ -199,4 +220,6 @@ Partial Class Form1
     Friend WithEvents Button3 As Button
     Friend WithEvents Button4 As Button
     Friend WithEvents Button5 As Button
+    Friend WithEvents Button6 As Button
+    Friend WithEvents TextBox3 As TextBox
 End Class

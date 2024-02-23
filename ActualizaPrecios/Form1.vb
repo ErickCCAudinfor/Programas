@@ -27,38 +27,39 @@ Public Class Form1
             Con = GetConSinSplit(TextBox2.Text)
 
             If CheckBox1.Checked Then 'CUPS
-                Dim Cups As New List(Of String)
+                'Dim Cups As New List(Of String)
                 'Cups.Add("ES0027700038574004TJ")
                 'Contratos = Funciones.BuscarbyCups(Cups, ipDB, nameDB, userDB, passDB)
 
             End If
             If CheckBox2.Checked Then 'Contrato
-                ContratoActualizar = Funciones.BuscarbyCodigocontrato(Con)
-                totalContratos = Con.Count
+                Dim yesorNot1 = MsgBox($"Hay un total de {Con.Count} contratos, ¿Seguir con la actualización?", vbYesNo)
+                If yesorNot1 = 6 OrElse yesorNot1 = 1 Then
+                    ContratoActualizar = Funciones.BuscarbyCodigocontrato(Con)
+                    totalContratos = Con.Count
+                End If
             End If
-            If CheckBox3.Checked Then 'Cliente
+            'If CheckBox3.Checked Then 'Cliente
 
-            End If
+            'End If
             Dim yesorNot As MsgBoxResult
             Dim todoOK As Boolean = False
-            If totalContratos <> ContratoActualizar.Count Then
-                yesorNot = MsgBox("Los contratos filtratos y los contratos encontrados no coinciden. ¿Actualizar de todas formas?", vbYesNo)
+            If ContratoActualizar.Count > 0 Then
+                If totalContratos <> ContratoActualizar.Count Then
+                    yesorNot = MsgBox("Los contratos filtratos y los contratos encontrados no coinciden. ¿Actualizar de todas formas?", vbYesNo)
+                Else
+                    todoOK = True
+                End If
+                If ((yesorNot = 6 OrElse yesorNot = 1) OrElse todoOK) Then
+                    Dim ContratosTXT = ActualizarRegistros(ContratoActualizar)
+
+                    MessageBox.Show($"{ContratosTXT}. Contratos iniciales:{ContratoActualizar.Count} contratos")
+                Else
+                    MessageBox.Show($"Se ha cancelado la actualización")
+                End If
             Else
-                todoOK = True
+                MessageBox.Show($"Sin Contratos")
             End If
-            If (yesorNot = 6 OrElse yesorNot = 1) OrElse todoOK Then
-                Dim ContratosTXT = ActualizarRegistros(ContratoActualizar)
-
-                MessageBox.Show($"{ContratosTXT}. Contratos iniciales:{ContratoActualizar.Count} contratos")
-            Else
-                MessageBox.Show($"Se ha cancelado la actualización")
-            End If
-
-            'Else
-            '    MessageBox.Show("No hay datos a modificar")
-            'End If
-
-
 
         Catch ex As Exception
             MessageBox.Show("Exception: " + ex.Message)
@@ -233,11 +234,13 @@ Public Class Form1
             CheckBox2.Enabled = False
             CheckBox3.Enabled = False
             TextBox2.Enabled = True
+
         Else
             ' Si CheckBox1 no está marcado, habilitar CheckBox2 y CheckBox3
             CheckBox2.Enabled = True
             CheckBox3.Enabled = True
             TextBox2.Enabled = False
+
         End If
     End Sub
 
@@ -285,7 +288,7 @@ Public Class Form1
     'Productos Asignacion, si no ha escrito nada en textotarifagrupo no buscamos nada, y enviamos mensaje
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
         Try
-            Dim Con = GetConSinSplit(TextBox1.Text)
+            Dim Con = GetConSinSplit(TextBox2.Text)
             If Con.Count > 0 Then
                 Dim Entorno = If(Funciones.GetContrato(Con.FirstOrDefault).Entorno = "E1", "G1", "G2")
                 Dim ModiCo As New ProductosAsig(Entorno, Con, connectionString)
@@ -305,13 +308,30 @@ Public Class Form1
         Dim Con As New List(Of Long)
         Try
             ' Separar la cadena en una matriz de cadenas utilizando la coma como delimitador
-            Dim contratosTexto As String = TextBox2.Text
+            Dim contratosTexto As String = contxt
             Dim contratosSeparados As String() = contratosTexto.Split(","c)
             For Each contratoTexto As String In contratosSeparados
                 Dim codigosCon As Long
                 If Long.TryParse(contratoTexto.Trim(), codigosCon) Then
                     Con.Add(codigosCon)
                 End If
+            Next
+        Catch ex As Exception
+            MessageBox.Show(ex.Message)
+        End Try
+        Return Con
+    End Function
+    Private Function GetConSinSplitCupsCIFS(contxt As String) As List(Of String)
+        Dim Con As New List(Of String)
+        Try
+            ' Separar la cadena en una matriz de cadenas utilizando la coma como delimitador
+            Dim contratosTexto As String = contxt
+            Dim contratosSeparados As String() = contratosTexto.Split(","c)
+            For Each cupstexto As String In contratosSeparados
+                'Dim cupss As String
+                'If String.TryParse(cupstexto.Trim(), cupss) Then
+                Con.Add(cupstexto)
+                'End If
             Next
         Catch ex As Exception
             MessageBox.Show(ex.Message)
@@ -506,9 +526,10 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
         End Try
     End Sub
 
+    'Codigos DIR
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
         Try
-            Dim Con = GetConSinSplit(TextBox1.Text)
+            Dim Con = GetConSinSplit(TextBox2.Text)
             If Con.Count > 0 Then
                 Dim CodigoDir As New CodigoDir(connectionString, Con)
                 CodigoDir.Show()
@@ -516,6 +537,78 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
                 MessageBox.Show("Ingrese al menos un contrato")
             End If
 
+        Catch ex As Exception
+            MessageBox.Show(ex.Message)
+        End Try
+    End Sub
+
+    'Actualizar CNAES 
+    Private Async Sub Button6_Click(sender As Object, e As EventArgs) Handles Button6.Click
+        Try
+            Dim stopwatch As New Stopwatch()
+            stopwatch.Start() ' Iniciar el cronómetro
+            'Dim Empieza As TimeSpan = stopwatch.Elapsed
+            Dim ActualizarCNAE As New ActualizarCNAEFromExcel(connectionString)
+            If TextBox3.Text.Trim.Length > 0 Then
+                ActualizarCNAE.RutaExcel = TextBox3.Text
+                Dim contratosActualizado = Await ActualizarCNAE.ActualizarCNAEFromExcelAsync()
+
+                ' Detener el cronómetro y obtener el tiempo transcurrido
+                stopwatch.Stop()
+                Dim tiempoTranscurrido As TimeSpan = stopwatch.Elapsed
+
+                MessageBox.Show($"Se han actualizado {contratosActualizado} contratos. Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes} minutos.")
+            Else
+                MessageBox.Show($"Escriba una ruta para seguir.")
+            End If
+
+        Catch ex As Exception
+            MessageBox.Show(ex.Message)
+        End Try
+    End Sub
+
+    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
+        Try
+            Dim RenovadoANull = 0L
+            'Si esta por cups
+            If CheckBox1.Checked Then
+                Dim Cups = GetConSinSplitCupsCIFS(TextBox2.Text)
+                If Cups.Count > 0 Then
+                    For Each cps In Cups
+                        Dim cps20 As String = cps.Substring(0, Math.Min(20, cps.Length)) 'saco los primeros 20 caracteres
+
+                        Dim ContratoActivo = Funciones.GetListContratobyCUPS(cps20.Trim).Where(Function(f) If(f.IdContratoSituacion, 0L) = 1).FirstOrDefault ' Buscamos solo el activo
+                        RenovadoANull = Funciones.VolverARenovar(ContratoActivo.CodigoContrato)
+                    Next
+                End If
+            End If
+            ' Si esta por contrato
+            If CheckBox2.Checked Then
+                Dim Con = GetConSinSplit(TextBox2.Text)
+                If Con.Count > 0 Then
+                    For Each elemnt In Con
+                        Dim ConActivo = Funciones.GetContrato(elemnt)
+                        If Not IsNothing(ConActivo) AndAlso ConActivo.IdContrato > 0 AndAlso ConActivo.IdContratoSituacion = 1 Then ' solo si es activo
+                            RenovadoANull = Funciones.VolverARenovar(ConActivo.CodigoContrato)
+                        End If
+                    Next
+                End If
+            End If
+            'Si esta por Cliente
+            If CheckBox3.Checked Then
+                Dim CIFS = GetConSinSplitCupsCIFS(TextBox2.Text)
+                If CIFS.Count > 0 Then
+                    For Each cif In CIFS
+                        Dim ContratoActivo = Funciones.GetListContratobyCIF(cif.Trim).Where(Function(f) If(f.IdContratoSituacion, 0L) = 1).FirstOrDefault ' Buscamos solo el activo
+                        RenovadoANull = Funciones.VolverARenovar(ContratoActivo.CodigoContrato)
+                    Next
+                End If
+            End If
+            If RenovadoANull > 0 Then
+                MessageBox.Show("Contratos listos para ser renovados")
+            Else
+                MessageBox.Show("Ningún contrato renovado")
+            End If
         Catch ex As Exception
             MessageBox.Show(ex.Message)
         End Try
