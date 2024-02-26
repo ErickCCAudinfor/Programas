@@ -37,6 +37,8 @@ Partial Class ProductosAsig
         NumericUpDown1 = New NumericUpDown()
         ComboBox2 = New ComboBox()
         Label5 = New Label()
+        CheckBox2 = New CheckBox()
+        Label6 = New Label()
         CType(NumericUpDown1, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
@@ -122,11 +124,11 @@ Partial Class ProductosAsig
         ' 
         ' Button1
         ' 
-        Button1.Location = New Point(410, 203)
+        Button1.Location = New Point(382, 218)
         Button1.Name = "Button1"
-        Button1.Size = New Size(75, 23)
+        Button1.Size = New Size(103, 23)
         Button1.TabIndex = 13
-        Button1.Text = "Añadir"
+        Button1.Text = "Insertar"
         Button1.UseVisualStyleBackColor = True
         ' 
         ' Label4
@@ -163,11 +165,33 @@ Partial Class ProductosAsig
         Label5.TabIndex = 17
         Label5.Text = "Tipo Impuesto"
         ' 
+        ' CheckBox2
+        ' 
+        CheckBox2.AutoSize = True
+        CheckBox2.Checked = True
+        CheckBox2.CheckState = CheckState.Checked
+        CheckBox2.Location = New Point(310, 223)
+        CheckBox2.Name = "CheckBox2"
+        CheckBox2.Size = New Size(15, 14)
+        CheckBox2.TabIndex = 18
+        CheckBox2.UseVisualStyleBackColor = True
+        ' 
+        ' Label6
+        ' 
+        Label6.AutoSize = True
+        Label6.Location = New Point(167, 222)
+        Label6.Name = "Label6"
+        Label6.Size = New Size(137, 15)
+        Label6.TabIndex = 19
+        Label6.Text = "Desmarca para el update"
+        ' 
         ' ProductosAsig
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(493, 229)
+        ClientSize = New Size(493, 244)
+        Controls.Add(Label6)
+        Controls.Add(CheckBox2)
         Controls.Add(Label5)
         Controls.Add(ComboBox2)
         Controls.Add(NumericUpDown1)
@@ -204,4 +228,6 @@ Partial Class ProductosAsig
     Friend WithEvents NumericUpDown1 As NumericUpDown
     Friend WithEvents ComboBox2 As ComboBox
     Friend WithEvents Label5 As Label
+    Friend WithEvents CheckBox2 As CheckBox
+    Friend WithEvents Label6 As Label
 End Class

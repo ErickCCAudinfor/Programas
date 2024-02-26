@@ -89,7 +89,7 @@ Public Class ContratoTarifaSrv
 
 
     End Function
-    Public Function GetContratoTarifaByCodigoContrato(Cod As Long) As ContratoTarifa
+    Public Function GetContratoTarifaPersonalizadaByCodigoContrato(Cod As Long) As ContratoTarifa
         Dim conexion = New SqlConnection(connectionString)
         Dim funciones As New FuncionesGenericas(Me.connectionString)
         Dim ret As New ContratoTarifa
@@ -102,6 +102,48 @@ Public Class ContratoTarifaSrv
             left join tarifa t  on ct.idtarifa = t.idtarifa
             where codigocontrato={Cod} and FechaDesde is not null and fechaHasta is null
             and tg.TextoTarifaGrupo like '%personalizada%'"
+            Dim comando = New SqlCommand(query, conexion)
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+            'Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+            Do While readerQuery.Read
+
+                'Dim ContratoTarifaB = New ContratoTarifa
+                ContratoTarifaB.IdContratoTarifa = funciones.ObtenerValor("IdContratoTarifa", readerQuery)
+                ContratoTarifaB.Entorno = funciones.ObtenerValor("Entorno", readerQuery)
+                ContratoTarifaB.CodigoContrato = funciones.ObtenerValor("CodigoContrato", readerQuery)
+                ContratoTarifaB.IdTarifa = funciones.ObtenerValor("IdTarifa", readerQuery)
+                ContratoTarifaB.IdTarifaGrupo = funciones.ObtenerValor("IdTarifaGrupo", readerQuery)
+                ContratoTarifaB.IdPerfilFacturacion = funciones.ObtenerValor("IdPerfilFacturacion", readerQuery)
+                ContratoTarifaB.FechaDesde = funciones.ObtenerValor("FechaDesde", readerQuery)
+                ContratoTarifaB.FechaHasta = funciones.ObtenerValor("FechaHasta", readerQuery)
+                ContratoTarifaB.TextoTarifa = funciones.ObtenerValor("TextoTarifa", readerQuery)
+                ContratoTarifaB.textotarifagrupo = funciones.ObtenerValor("textotarifagrupo", readerQuery)
+                ContratoTarifaB.TextoPerfilFacturacion = funciones.ObtenerValor("TextoPerfilFacturacion", readerQuery)
+
+                'ListaContratoTipo.Add(contratoTipo)
+                'ListaContratoTarifa.Add(ContratoTarifaB)
+            Loop
+            readerQuery.Close()
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return ContratoTarifaB
+    End Function
+
+
+    Public Function GetContratoTarifaByCodigoContrato(Cod As Long) As ContratoTarifa
+        Dim conexion = New SqlConnection(connectionString)
+        Dim funciones As New FuncionesGenericas(Me.connectionString)
+        Dim ret As New ContratoTarifa
+        Dim ContratoTarifaB As New ContratoTarifa
+        Try
+            conexion.Open()
+            Dim query = $"select ct.*,tg.textotarifagrupo, pf.TextoPerfilFacturacion,t.TextoTarifa from contratotarifa ct
+            left join TarifaGrupo tg on ct.idtarifagrupo = tg.idtarifagrupo
+            left join perfilfacturacion pf on ct.idperfilfacturacion = pf.idperfilfacturacion
+            left join tarifa t  on ct.idtarifa = t.idtarifa
+            where codigocontrato={Cod}"
             Dim comando = New SqlCommand(query, conexion)
             Dim readerQuery As SqlDataReader = comando.ExecuteReader()
             'Dim readerQuery As SqlDataReader = comando.ExecuteReader()

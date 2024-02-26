@@ -76,24 +76,6 @@ Public Class ProductosAsig
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         Try
             Dim Funciones As New FuncionesGenericas(Me.connectionString)
-            'Dim Contrato As New List(Of Contrato)
-            'Contrato.Add(Funciones.GetContrato(12))
-
-            '' Ruta del archivo de texto
-            'Dim rutaCarpeta As String = $"C:\logP\{Date.Today.ToString("ddMMyyyy")}"
-            'Dim rutaArchivo As String = Path.Combine(rutaCarpeta, "logProgramas.txt")
-            '' Verificar si la carpeta existe, y si no, crearla
-            'If Not Directory.Exists(rutaCarpeta) Then
-            '    Directory.CreateDirectory(rutaCarpeta)
-            'End If
-
-            '' Verificar si el archivo existe, y si no, crearlo
-            'If Not File.Exists(rutaArchivo) Then
-            '    File.Create(rutaArchivo).Close()
-            'End If
-
-            ' Abrir el archivo para escritura
-            'Using escritor As New StreamWriter(rutaArchivo, True)
             Dim productoSeleccionado As Producto = TryCast(ComboBox1.SelectedItem, Producto)
             Dim TipoImpuesto As TipoImpuesto = TryCast(ComboBox2.SelectedItem, TipoImpuesto)
             Dim importe = NumericUpDown1.Value
@@ -104,16 +86,29 @@ Public Class ProductosAsig
             Dim PrecioSobreConsumo = CheckBox5.Checked
             For Each elemnt In Contratos
                 Dim Contrato = Funciones.GetContrato(elemnt)
-                Funciones.InsertProductoAsignacion(Contrato.Entorno, productoSeleccionado.IdProductoGrupo, productoSeleccionado.IdProducto, Contrato.IdContrato, Fecha, importe, IdTipoImpuesto, AntesIe, SobreConsumo, PrecioSobreConsumo)
-                ' Realiza las acciones que desees hacer dentro del bucle
-                ' Por ejemplo, puedes llamar a una función que escriba en el archivo
-                'Funciones.EscribirEnArchivo(escritor, elemnt)
-            Next
-            'End Using
+                If CheckBox2.Checked Then 'Insertar
+                    Funciones.InsertProductoAsignacion(Contrato.Entorno, productoSeleccionado.IdProductoGrupo, productoSeleccionado.IdProducto, Contrato.IdContrato, Fecha, importe, IdTipoImpuesto, AntesIe, SobreConsumo, PrecioSobreConsumo)
+                End If
+                'If Not CheckBox2.Checked Then 'Insertar
+                '    Funciones.UpdateProductoAsignacion(Contrato.Entorno, productoSeleccionado.IdProductoGrupo, productoSeleccionado.IdProducto, Contrato.IdContrato, Fecha, importe, IdTipoImpuesto, AntesIe, SobreConsumo, PrecioSobreConsumo)
+                'End If
 
+            Next
             MessageBox.Show($"Se han escrito todos los datos en el archivo correctamente.")
         Catch ex As Exception
-            MessageBox.Show("Error al escribir en el archivo: " & ex.Message)
+            Throw
+        End Try
+    End Sub
+
+    Private Sub CheckBox2_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox2.CheckedChanged
+        Try
+            If CheckBox2.Checked Then
+                Button1.Text = "Insertar"
+            Else
+                Button1.Text = "Actualizar"
+            End If
+        Catch ex As Exception
+
         End Try
     End Sub
 End Class

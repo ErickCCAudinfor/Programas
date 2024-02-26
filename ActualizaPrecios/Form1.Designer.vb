@@ -38,6 +38,8 @@ Partial Class Form1
         Button5 = New Button()
         Button6 = New Button()
         TextBox3 = New TextBox()
+        Button7 = New Button()
+        Label4 = New Label()
         SuspendLayout()
         ' 
         ' Button1
@@ -180,11 +182,31 @@ Partial Class Form1
         TextBox3.Size = New Size(181, 23)
         TextBox3.TabIndex = 14
         ' 
+        ' Button7
+        ' 
+        Button7.Location = New Point(252, 112)
+        Button7.Name = "Button7"
+        Button7.Size = New Size(103, 23)
+        Button7.TabIndex = 15
+        Button7.Text = "Revisar"
+        Button7.UseVisualStyleBackColor = True
+        ' 
+        ' Label4
+        ' 
+        Label4.AutoSize = True
+        Label4.Location = New Point(12, 116)
+        Label4.Name = "Label4"
+        Label4.Size = New Size(236, 15)
+        Label4.TabIndex = 16
+        Label4.Text = "Revisar Tarifa Precio Contrato Personalizada"
+        ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(574, 324)
+        Controls.Add(Label4)
+        Controls.Add(Button7)
         Controls.Add(TextBox3)
         Controls.Add(Button6)
         Controls.Add(Button5)
@@ -222,4 +244,6 @@ Partial Class Form1
     Friend WithEvents Button5 As Button
     Friend WithEvents Button6 As Button
     Friend WithEvents TextBox3 As TextBox
+    Friend WithEvents Button7 As Button
+    Friend WithEvents Label4 As Label
 End Class

@@ -5,9 +5,9 @@ Imports Microsoft.VisualBasic.Logging
 
 Public Class Form1
 
-    Private ReadOnly Property ipDB As String = "data source=172.31.100.12;"
+    Private ReadOnly Property ipDB As String = "data source=172.31.100.50;"
     'Private ReadOnly Property ipDB As String = "data source=172.31.100.50\TOTALUAT;"
-    Private ReadOnly Property nameDB As String = "initial catalog=SigeTotal;"
+    Private ReadOnly Property nameDB As String = "initial catalog=SigeTotalUAT;"
     'Private ReadOnly Property nameDB As String = "initial catalog=SigeTotalUAT;"
     Private ReadOnly Property userDB As String = "User ID=Sige;"
     Private ReadOnly Property passDB As String = "Password=SigeNew;"
@@ -44,6 +44,8 @@ Public Class Form1
             'End If
             Dim yesorNot As MsgBoxResult
             Dim todoOK As Boolean = False
+            'Escribo los valores que tiene ahora, para posteriormente comparar o hacer uso de este y dejarlo como esta
+            Funciones.EscribirContratoTarifaAntesCambios(ContratoActualizar)
             If ContratoActualizar.Count > 0 Then
                 If totalContratos <> ContratoActualizar.Count Then
                     yesorNot = MsgBox("Los contratos filtratos y los contratos encontrados no coinciden. ¿Actualizar de todas formas?", vbYesNo)
@@ -76,7 +78,7 @@ Public Class Form1
 
             'Me busco solo contratos que tengan fechaHasta is null y sea personalizada
             For Each cod In ListaCodigo
-                ContratoTra.Add(ContratoTarifaSrv.GetContratoTarifaByCodigoContrato(cod))
+                ContratoTra.Add(ContratoTarifaSrv.GetContratoTarifaPersonalizadaByCodigoContrato(cod))
             Next
 
             Dim pepe = 1
@@ -300,7 +302,6 @@ Public Class Form1
         Catch ex As Exception
             MessageBox.Show(ex.Message)
         End Try
-
     End Sub
 
     'Para separar los contratos introducidos con comas(,)
@@ -567,6 +568,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
         End Try
     End Sub
 
+    'Volver a RenovarContratos
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         Try
             Dim RenovadoANull = 0L
@@ -609,6 +611,16 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
             Else
                 MessageBox.Show("Ningún contrato renovado")
             End If
+        Catch ex As Exception
+            MessageBox.Show(ex.Message)
+        End Try
+    End Sub
+
+    Private Sub Button7_Click(sender As Object, e As EventArgs) Handles Button7.Click
+        Try
+            Dim RutaArchivo = Funciones.RevisaTarifaPrecioContratoPersonalizada()
+            MessageBox.Show($"Se ha generado la revisión en la siguiente ruta:{RutaArchivo}")
+            'Funciones.RevisaTarifaPrecioContratoPersonalizadaGas()
         Catch ex As Exception
             MessageBox.Show(ex.Message)
         End Try

@@ -894,6 +894,32 @@ VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, 
     End Function
 
 
+
+    Public Function UpdateProductoAsignacion(Entorno As String, IdProductoGrupo As Long, IdProducto As Long, IdContrato As Long, FechaInicial As Date, Importe As Decimal, IdTipoImpuesto As Long, AntesIE As Boolean, AplicarSobreConsumo As Boolean, AplicarPrecioConsumo As Boolean) As Long
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim FilfasAfectadas As Long
+        Try
+
+            conexion.Open()
+            'Dim Codigos = String.Join(",", Contratos)
+            'Dim query = $"INSERT INTO ProductoAsignacion(Entorno,IdProductoGrupo,IdProducto,TipoAsignacion,IdContrato,FechaInicial,Importe,IdTipoImpuesto,AntesIE,AplicarSobreConsumo,AplicarPrecioConsumo) 
+            '                values('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO',{IdContrato},'{FechaInicial}',{Importe.ToString.Replace(",", ".")},{IdTipoImpuesto},{If(AntesIE, 1, 0)},{If(AplicarSobreConsumo, 1, 0)},{If(AplicarPrecioConsumo, 1, 0)})"
+
+            Dim query =
+$"INSERT INTO ProductoAsignacion (Entorno, IdProductoGrupo, IdProducto, TipoAsignacion, IdCliente, IdContrato, IdTarifa, IdTarifaGrupo, IdTipoCobro, IdTarifaPeaje, Desde, Hasta, IsControlFecha, FechaInicial, FechaFinal, Plazo, PlazoCargado, ImporteTotalPlazo, IsFacturado, Importe, Descuento, AntesIE, IdTipoImpuesto, PrecioDia, IsFacturaProrrateo, IdFacturaProrrateo, PorcentajeIncremento, AplicarSobreConsumo, ImportePlazo, AplicarPrecioConsumo, IsBonificacion, FechaAsignacion)
+VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '{FechaInicial}', NULL, NULL, NULL, NULL, NULL, {Importe.ToString.Replace(",", ".")}, 0.00, {If(AntesIE, 1, 0)}, {IdTipoImpuesto}, 0, 0, NULL, 0.00, {If(AplicarSobreConsumo, 1, 0)}, NULL, {If(AplicarPrecioConsumo, 1, 0)}, NULL, NULL);"
+            Dim comando = New SqlCommand(query, conexion)
+            FilfasAfectadas = comando.ExecuteNonQuery
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return FilfasAfectadas
+    End Function
+
+
+
     Public Function getCNAEbyCodigo(CodigoCNAE As String) As CNAE
 
         Dim ObjCNAE As New CNAE
@@ -956,5 +982,131 @@ VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, 
         Return FilfasAfectadas
     End Function
 
+    Public Sub EscribirContratoTarifaAntesCambios(ListaCodContrato As List(Of Long))
+        Try
+            Dim listasQuerys As New List(Of String)
+            Dim ContratoTarifaSrv As New ContratoTarifaSrv(connectionString)
+            Dim EscribeExcel As New ValidacionExcel(connectionString)
+            Dim ListidContratoTarifa As New List(Of Long)
+            Dim CodJoin = String.Join(",", ListaCodContrato)
+            Dim query = $"select ct.idcontratotarifa, ct.codigocontrato,tg.IdTarifaGrupo,tg.textotarifagrupo, pf.TextoPerfilFacturacion, t.IdTarifa,t.TextoTarifa,ct.FechaDesde,ct.FechaHasta from contratotarifa ct
+left join TarifaGrupo tg on ct.idtarifagrupo = tg.idtarifagrupo
+left join perfilfacturacion pf on ct.idperfilfacturacion = pf.idperfilfacturacion
+left join tarifa t  on ct.idtarifa = t.idtarifa
+where codigocontrato in ({CodJoin})and ct.FechaHasta is null
+order by ct.IdTarifa"
+
+            For Each elment In ListaCodContrato
+                Dim ContratTa = ContratoTarifaSrv.GetContratoTarifaByCodigoContrato(elment)
+                If Not IsNothing(ContratTa) AndAlso ContratTa.IdContratoTarifa > 0 AndAlso IsNothing(ContratTa.FechaHasta) Then
+                    ListidContratoTarifa.Add(ContratTa.IdContratoTarifa)
+                End If
+            Next
+            Dim CodTJoin = String.Join(",", ListidContratoTarifa)
+            Dim query2 = $"select tarifapreciocontrato.*, t.idtarifa, tg.IdTarifaGrupo,tg.TextoTarifaGrupo from tarifapreciocontrato 
+left join Contratotarifa ct  on tarifapreciocontrato.idcontratotarifa = ct.idcontratotarifa
+left join tarifa t  on ct.idtarifa = t.idtarifa
+left join TarifaGrupo tg on ct.IdTarifaGrupo = tg.IdTarifaGrupo
+where ct.idcontratotarifa in ({CodTJoin}) order by t.IdTarifa"
+
+            listasQuerys.Add(query)
+            listasQuerys.Add(query2)
+
+            Dim rutaCarpeta As String = $"C:\Users\{Environment.UserName}\Desktop\Precios"
+            Dim rutaArchivo As String = Path.Combine(rutaCarpeta, $"ContratTarifaAntesActualizacion_{Date.Now.ToString("ddMMyyyyHHmmss")}.xlsx")
+
+            ' Verificar si la carpeta existe, y si no, crearla
+            If Not Directory.Exists(rutaCarpeta) Then
+                Directory.CreateDirectory(rutaCarpeta)
+            End If
+
+            ' Verificar si el archivo existe, y si no, crearlo
+            If Not File.Exists(rutaArchivo) Then
+                File.Create(rutaArchivo).Close()
+            End If
+
+            EscribeExcel.EjecutarConsultasYGuardarEnExcel(listasQuerys, rutaArchivo)
+        Catch ex As Exception
+            Throw
+        End Try
+    End Sub
+
+
+    Public Function RevisaTarifaPrecioContratoPersonalizada() As String
+        Try
+            Dim listasQuerys As New List(Of String)
+            Dim EscribeExcel As New ValidacionExcel(connectionString)
+            Dim query = $";with idcl as (select ct.IdContratoTarifa,ct.IdTarifaGrupo from tarifapreciocontrato tf
+inner join ContratoTarifa ct on ct.idcontratotarifa = tf.idcontratotarifa
+where tf.IdIndexadoPrecio in (select IdIndexadoPrecio from IndexadoPrecio where idtarifagrupo in (
+select IdTarifaGrupo from TarifaGrupo where textotarifagrupo like '%persona%' and IdTarifa>=202020)
+) and ct.idtarifagrupo not in (select IdTarifaGrupo from TarifaGrupo where textotarifagrupo like '%persona%' and IdTarifa>=202020))
+
+select ct.idcontratotarifa, ct.codigocontrato,tg.IdTarifaGrupo,tg.textotarifagrupo, pf.TextoPerfilFacturacion, t.IdTarifa,t.TextoTarifa,ct.FechaDesde,ct.FechaHasta,Per.TextoTarifaGrupo,Per.IdTarifaGrupo,Per.IdContratoTarifa  from ContratoTarifa ct
+left join TarifaGrupo tg on ct.idtarifagrupo = tg.idtarifagrupo
+left join perfilfacturacion pf on ct.idperfilfacturacion = pf.idperfilfacturacion
+left join tarifa t  on ct.idtarifa = t.idtarifa
+inner join (
+select IdContratoTarifa,tg.TextoTarifaGrupo,tg.IdTarifaGrupo from  tarifapreciocontrato tpc
+left join IndexadoPrecio inp on tpc.IdIndexadoPrecio = inp.IdIndexadoPrecio
+left join tarifagrupo tg on inp.idtarifagrupo = tg.idtarifagrupo 
+where  tpc.idcontratotarifa in (select IdContratoTarifa from idcl)
+group by IdContratoTarifa,tg.TextoTarifaGrupo,tg.IdTarifaGrupo
+) Per on ct.IdContratoTarifa = Per.IdContratoTarifa"
+            listasQuerys.Add(query)
+
+            Dim rutaCarpeta As String = $"C:\Users\{Environment.UserName}\Desktop\PreciosPersonalizados"
+            Dim rutaArchivo As String = Path.Combine(rutaCarpeta, $"RevisaPreciosPersonalizados_{Date.Now.ToString("ddMMyyyyHHmmss")}.xlsx")
+            ' Verificar si la carpeta existe, y si no, crearla
+            If Not Directory.Exists(rutaCarpeta) Then
+                Directory.CreateDirectory(rutaCarpeta)
+            End If
+
+            ' Verificar si el archivo existe, y si no, crearlo
+            If Not File.Exists(rutaArchivo) Then
+                File.Create(rutaArchivo).Close()
+            End If
+
+            EscribeExcel.EjecutarConsultasYGuardarEnExcel(listasQuerys, rutaArchivo)
+            Return rutaArchivo
+        Catch ex As Exception
+            Throw
+        End Try
+    End Function
+
+    Public Sub RevisaTarifaPrecioContratoPersonalizadaGas()
+        Try
+            Dim listasQuerys As New List(Of String)
+            Dim EscribeExcel As New ValidacionExcel(connectionString)
+            Dim query = $";with idcl as (select ct.IdContratoTarifa from tarifapreciocontrato tf
+inner join ContratoTarifa ct on ct.idcontratotarifa = tf.idcontratotarifa
+where tf.IdIndexadoPrecio in (select IdIndexadoPrecio from IndexadoPrecio where idtarifagrupo in (
+select IdTarifaGrupo from TarifaGrupo where textotarifagrupo like '%persona%' and IdTarifa>=300001)
+) and ct.idtarifagrupo not in (select IdTarifaGrupo from TarifaGrupo where textotarifagrupo like '%persona%' and IdTarifa>=300001))
+
+select ct.idcontratotarifa, ct.codigocontrato,tg.IdTarifaGrupo,tg.textotarifagrupo, pf.TextoPerfilFacturacion, t.IdTarifa,t.TextoTarifa,ct.FechaDesde,ct.FechaHasta  from ContratoTarifa ct
+left join TarifaGrupo tg on ct.idtarifagrupo = tg.idtarifagrupo
+left join perfilfacturacion pf on ct.idperfilfacturacion = pf.idperfilfacturacion
+left join tarifa t  on ct.idtarifa = t.idtarifa
+where idcontratotarifa in (select IdContratoTarifa from idcl) order by tg.TextoTarifaGrupo"
+            listasQuerys.Add(query)
+
+            Dim rutaCarpeta As String = $"C:\Users\{Environment.UserName}\Desktop\PreciosPersonalizados"
+            Dim rutaArchivo As String = Path.Combine(rutaCarpeta, $"RevisaPreciosPersonalizadosGas_{Date.Now.ToString("ddMMyyyyHHmmss")}.xlsx")
+            ' Verificar si la carpeta existe, y si no, crearla
+            If Not Directory.Exists(rutaCarpeta) Then
+                Directory.CreateDirectory(rutaCarpeta)
+            End If
+
+            ' Verificar si el archivo existe, y si no, crearlo
+            If Not File.Exists(rutaArchivo) Then
+                File.Create(rutaArchivo).Close()
+            End If
+
+            EscribeExcel.EjecutarConsultasYGuardarEnExcel(listasQuerys, rutaArchivo)
+        Catch ex As Exception
+            Throw
+        End Try
+    End Sub
 End Class
 
