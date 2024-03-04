@@ -37,9 +37,10 @@ Partial Class Form1
         Button4 = New Button()
         Button5 = New Button()
         Button6 = New Button()
-        TextBox3 = New TextBox()
         Button7 = New Button()
         Label4 = New Label()
+        Label5 = New Label()
+        Button8 = New Button()
         SuspendLayout()
         ' 
         ' Button1
@@ -174,14 +175,6 @@ Partial Class Form1
         Button6.Text = "Actualizar CNAE Excel"
         Button6.UseVisualStyleBackColor = True
         ' 
-        ' TextBox3
-        ' 
-        TextBox3.Location = New Point(370, 228)
-        TextBox3.Name = "TextBox3"
-        TextBox3.PlaceholderText = "Ruta del Archivo excel"
-        TextBox3.Size = New Size(181, 23)
-        TextBox3.TabIndex = 14
-        ' 
         ' Button7
         ' 
         Button7.Location = New Point(252, 112)
@@ -200,14 +193,36 @@ Partial Class Form1
         Label4.TabIndex = 16
         Label4.Text = "Revisar Tarifa Precio Contrato Personalizada"
         ' 
+        ' Label5
+        ' 
+        Label5.AutoSize = True
+        Label5.BorderStyle = BorderStyle.FixedSingle
+        Label5.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        Label5.ForeColor = SystemColors.HotTrack
+        Label5.Location = New Point(12, 306)
+        Label5.Name = "Label5"
+        Label5.Size = New Size(23, 17)
+        Label5.TabIndex = 17
+        Label5.Text = "Ip:"
+        ' 
+        ' Button8
+        ' 
+        Button8.Location = New Point(370, 228)
+        Button8.Name = "Button8"
+        Button8.Size = New Size(180, 23)
+        Button8.TabIndex = 18
+        Button8.Text = "Actualizar Email Excel"
+        Button8.UseVisualStyleBackColor = True
+        ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(574, 324)
+        Controls.Add(Button8)
+        Controls.Add(Label5)
         Controls.Add(Label4)
         Controls.Add(Button7)
-        Controls.Add(TextBox3)
         Controls.Add(Button6)
         Controls.Add(Button5)
         Controls.Add(Button4)
@@ -243,7 +258,8 @@ Partial Class Form1
     Friend WithEvents Button4 As Button
     Friend WithEvents Button5 As Button
     Friend WithEvents Button6 As Button
-    Friend WithEvents TextBox3 As TextBox
     Friend WithEvents Button7 As Button
     Friend WithEvents Label4 As Label
+    Friend WithEvents Label5 As Label
+    Friend WithEvents Button8 As Button
 End Class

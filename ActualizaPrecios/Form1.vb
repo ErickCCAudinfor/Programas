@@ -5,9 +5,9 @@ Imports Microsoft.VisualBasic.Logging
 
 Public Class Form1
 
-    Private ReadOnly Property ipDB As String = "data source=172.31.100.50;"
+    Private ReadOnly Property ipDB As String = "data source=172.31.100.12;"
     'Private ReadOnly Property ipDB As String = "data source=172.31.100.50\TOTALUAT;"
-    Private ReadOnly Property nameDB As String = "initial catalog=SigeTotalUAT;"
+    Private ReadOnly Property nameDB As String = "initial catalog=SigeTotal;"
     'Private ReadOnly Property nameDB As String = "initial catalog=SigeTotalUAT;"
     Private ReadOnly Property userDB As String = "User ID=Sige;"
     Private ReadOnly Property passDB As String = "Password=SigeNew;"
@@ -546,12 +546,28 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
     'Actualizar CNAES 
     Private Async Sub Button6_Click(sender As Object, e As EventArgs) Handles Button6.Click
         Try
+            ' Crear una instancia de OpenFileDialog
+            Dim openFileDialog1 As New OpenFileDialog()
+
+            ' Configurar propiedades del diálogo
+            openFileDialog1.Title = "Seleccionar archivos"
+            openFileDialog1.Multiselect = True ' Permitir la selección múltiple de archivos
+            openFileDialog1.Filter = "Todos los archivos (*.*)|*.*" ' Filtro de archivos
+            Dim rutaArchivo As String = ""
+            ' Mostrar el diálogo y verificar si el usuario hizo clic en OK
+            If openFileDialog1.ShowDialog() = DialogResult.OK Then
+                ' Obtener la ruta de cada archivo seleccionado y mostrarla en la consola
+                For Each filename As String In openFileDialog1.FileNames
+                    rutaArchivo = filename
+                Next
+            End If
+
             Dim stopwatch As New Stopwatch()
             stopwatch.Start() ' Iniciar el cronómetro
             'Dim Empieza As TimeSpan = stopwatch.Elapsed
             Dim ActualizarCNAE As New ActualizarCNAEFromExcel(connectionString)
-            If TextBox3.Text.Trim.Length > 0 Then
-                ActualizarCNAE.RutaExcel = TextBox3.Text
+            If rutaArchivo.Length > 0 Then
+                ActualizarCNAE.RutaExcel = rutaArchivo
                 Dim contratosActualizado = Await ActualizarCNAE.ActualizarCNAEFromExcelAsync()
 
                 ' Detener el cronómetro y obtener el tiempo transcurrido
@@ -616,6 +632,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
         End Try
     End Sub
 
+    'Revisa si ha habido algún contrato que no se haya configurado bien
     Private Sub Button7_Click(sender As Object, e As EventArgs) Handles Button7.Click
         Try
             Dim RutaArchivo = Funciones.RevisaTarifaPrecioContratoPersonalizada()
@@ -625,4 +642,62 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
             MessageBox.Show(ex.Message)
         End Try
     End Sub
+
+    'Para saber si PRO o AUT
+    Private Sub Label5_Click(sender As Object, e As EventArgs) Handles Label5.TextChanged
+
+        Try
+            If ipDB.Trim.Contains("172.31.100.12") Then
+                Label5.Text = "BD PRO  172.31.100.12 SigeTotal"
+            Else
+                Label5.Text = "BD UAT  172.31.100.50 SigeTotalUAT"
+            End If
+        Catch ex As Exception
+
+        End Try
+
+    End Sub
+
+    'Actualizar emails desde Excel_ FIla 2 contrato y fila 5 el email
+    Private Async Sub Button8_Click(sender As Object, e As EventArgs) Handles Button8.Click
+        Try
+
+            ' Crear una instancia de OpenFileDialog
+            Dim openFileDialog1 As New OpenFileDialog()
+
+            ' Configurar propiedades del diálogo
+            openFileDialog1.Title = "Seleccionar archivos"
+            openFileDialog1.Multiselect = True ' Permitir la selección múltiple de archivos
+            openFileDialog1.Filter = "Todos los archivos (*.*)|*.*" ' Filtro de archivos
+            Dim rutaArchivo As String = ""
+            ' Mostrar el diálogo y verificar si el usuario hizo clic en OK
+            If openFileDialog1.ShowDialog() = DialogResult.OK Then
+                ' Obtener la ruta de cada archivo seleccionado y mostrarla en la consola
+                For Each filename As String In openFileDialog1.FileNames
+                    rutaArchivo = filename
+                Next
+            End If
+
+            Dim stopwatch As New Stopwatch()
+            stopwatch.Start() ' Iniciar el cronómetro
+            'Dim Empieza As TimeSpan = stopwatch.Elapsed
+            Dim ActualizarEmail As New ActualizarEmailFromExcel(connectionString)
+            If rutaArchivo.Length > 0 Then
+                ActualizarEmail.RutaExcel = rutaArchivo
+                Dim contratosActualizado = Await ActualizarEmail.ActualizarCNAEFromExcelAsync
+
+                ' Detener el cronómetro y obtener el tiempo transcurrido
+                stopwatch.Stop()
+                Dim tiempoTranscurrido As TimeSpan = stopwatch.Elapsed
+
+                MessageBox.Show($"Se han actualizado {contratosActualizado} contratos. Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes} minutos.")
+            Else
+                MessageBox.Show($"Escriba una ruta para seguir.")
+            End If
+
+        Catch ex As Exception
+            MessageBox.Show(ex.Message)
+        End Try
+    End Sub
+
 End Class
