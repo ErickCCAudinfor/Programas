@@ -186,16 +186,19 @@ Public Class Form1
                                     End If
 
                                     'Compruebo si el contratotarifaviejo es fijo o indexado
-                                    elment.PerfilFacturacion = Funciones.GetPerfilFacturacion(If(elment.IdPerfilFacturacion, 0))
-                                    If elment.PerfilFacturacion.isPerfilIndexado() Then
-                                        If elment.Entorno = "G1" Then
+                                    Dim TaPrecionContrato = Funciones.GetPrecioContratoTarifaV2(elment)
+                                    If Not IsNothing(TaPrecionContrato) AndAlso TaPrecionContrato.IdContratoTarifa > 0 Then
+                                        If elment.Entorno = "G1" AndAlso TaPrecionContrato.IdIndexadoPrecio > 0 Then
                                             OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifaIndex(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
+                                        ElseIf elment.Entorno = "G1" AndAlso TaPrecionContrato.IdIndexadoPrecio > 0 Then
+                                            OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifa(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
                                         Else
                                             OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifaIndexGas(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
                                         End If
-                                    Else
-                                        OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifa(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
+
                                     End If
+
+
                                     'Compruebo que haya valores en los dos sitios
                                     If Not IsNothing(tarifasPrecioContratoGuardar) AndAlso tarifasPrecioContratoGuardar.Count > 0 AndAlso Not IsNothing(OldtarifasPrecioContratoQuitar) AndAlso OldtarifasPrecioContratoQuitar.Count > 0 Then
                                         ' Guardamos todos los registros de TarifaPrecioContrato generados.

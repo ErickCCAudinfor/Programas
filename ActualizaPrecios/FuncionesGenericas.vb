@@ -679,6 +679,45 @@ from contrato where idcups in (select idcups from iddc)"
         End Try
         Return TarifaPrecioContrato
     End Function
+
+    Public Function GetPrecioContratoTarifaV2(Cont As ContratoTarifa) As TarifaPrecioContrato
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim TarifaPrecioContrato As New TarifaPrecioContrato
+        Try
+            conexion.Open()
+            Dim query = $" select top 1 tarifapreciocontrato.* from tarifapreciocontrato 
+                        left join Contratotarifa ct  on tarifapreciocontrato.idcontratotarifa = ct.idcontratotarifa
+                        where ct.idcontratotarifa in (
+                        {Cont.IdContratoTarifa}
+                        )"
+            Dim comando As New SqlCommand(query, conexion)
+            comando.CommandTimeout = 3600
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+
+            If readerQuery.HasRows Then
+                Do While readerQuery.Read
+                    TarifaPrecioContrato.IdTarifaPrecioContrato = readerQuery.GetValue(0).ToString
+                    TarifaPrecioContrato.Entorno = readerQuery.GetValue(1).ToString
+                    TarifaPrecioContrato.IdContratoTarifa = readerQuery.GetValue(2).ToString
+                    TarifaPrecioContrato.IdTarifaPrecio = readerQuery.GetValue(3).ToString
+                    If TarifaPrecioContrato.Entorno = "G1" Then
+                        TarifaPrecioContrato.IdIndexadoPrecio = readerQuery.GetValue(4).ToString
+                    Else
+                        TarifaPrecioContrato.IdIndexadoPrecioGas = readerQuery.GetValue(5).ToString
+                    End If
+
+                Loop
+            End If
+            readerQuery.Close()
+            conexion.Close()
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return TarifaPrecioContrato
+    End Function
+
     Public Function GetPrecioContratoTarifaIndexGas(Cont As ContratoTarifa) As List(Of TarifaPrecioContrato)
         Dim conexion = New SqlConnection(connectionString)
 
