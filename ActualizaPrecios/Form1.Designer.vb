@@ -48,7 +48,7 @@ Partial Class Form1
         ' Button1
         ' 
         Button1.Enabled = False
-        Button1.Location = New Point(361, 112)
+        Button1.Location = New Point(361, 113)
         Button1.Name = "Button1"
         Button1.Size = New Size(75, 23)
         Button1.TabIndex = 0

@@ -13,3 +13,5 @@
 *.dll
 *.exe
 *.pdb
+*.vsidx
+
