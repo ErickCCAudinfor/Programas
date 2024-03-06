@@ -1,0 +1,15 @@
+# Archivos generados por la compilación
+/bin/
+/obj/
+
+# Archivos de configuración del entorno de desarrollo de Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Otros archivos generados automáticamente
+*.dll
+*.exe
+*.pdb
