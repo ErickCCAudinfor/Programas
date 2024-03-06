@@ -508,12 +508,12 @@ from contrato where idcups in (select idcups from iddc)"
                     If IsFijoIndex Then
                         If ContNuevo.Entorno = "G1" Then
                             Dim query = $"UPDATE tarifapreciocontrato
-                                set IdIndexadoPrecio = {ContNuevo.IdIndexadoPrecio}  where IdTarifaPrecioContrato in ({ContViejo.IdTarifaPrecioContrato})"
+                                set IdIndexadoPrecio = {ContNuevo.IdIndexadoPrecio}, idtarifaprecio= 0 where IdTarifaPrecioContrato in ({ContViejo.IdTarifaPrecioContrato})"
                             Dim comando = New SqlCommand(query, conexion)
                             FilfasAfectadas = comando.ExecuteNonQuery
                         ElseIf ContNuevo.Entorno = "G2" Then
                             Dim query = $"UPDATE tarifapreciocontrato
-                                    set IdIndexadoPrecioGas = {ContNuevo.IdIndexadoPrecioGas} where IdTarifaPrecioContrato in ({ContViejo.IdTarifaPrecioContrato})"
+                                    set IdIndexadoPrecioGas = {ContNuevo.IdIndexadoPrecioGas}, idtarifaprecio= 0 where IdTarifaPrecioContrato in ({ContViejo.IdTarifaPrecioContrato})"
                             Dim comando = New SqlCommand(query, conexion)
                             FilfasAfectadas = comando.ExecuteNonQuery
                         End If

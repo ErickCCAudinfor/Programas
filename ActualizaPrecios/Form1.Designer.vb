@@ -41,12 +41,14 @@ Partial Class Form1
         Label4 = New Label()
         Label5 = New Label()
         Button8 = New Button()
+        CheckBox4 = New CheckBox()
+        TextBox3 = New TextBox()
         SuspendLayout()
         ' 
         ' Button1
         ' 
         Button1.Enabled = False
-        Button1.Location = New Point(361, 83)
+        Button1.Location = New Point(361, 112)
         Button1.Name = "Button1"
         Button1.Size = New Size(75, 23)
         Button1.TabIndex = 0
@@ -88,7 +90,7 @@ Partial Class Form1
         TextBox1.Enabled = False
         TextBox1.Location = New Point(12, 84)
         TextBox1.Name = "TextBox1"
-        TextBox1.PlaceholderText = "Ingrese la tarifa grupo"
+        TextBox1.PlaceholderText = "Ingrese la nueva tarifa grupo"
         TextBox1.Size = New Size(343, 23)
         TextBox1.TabIndex = 4
         ' 
@@ -124,7 +126,7 @@ Partial Class Form1
         ' Label3
         ' 
         Label3.AutoSize = True
-        Label3.Location = New Point(12, 161)
+        Label3.Location = New Point(12, 203)
         Label3.Name = "Label3"
         Label3.Size = New Size(86, 15)
         Label3.TabIndex = 8
@@ -132,7 +134,7 @@ Partial Class Form1
         ' 
         ' Button2
         ' 
-        Button2.Location = New Point(12, 179)
+        Button2.Location = New Point(12, 221)
         Button2.Name = "Button2"
         Button2.Size = New Size(181, 23)
         Button2.TabIndex = 9
@@ -141,7 +143,7 @@ Partial Class Form1
         ' 
         ' Button3
         ' 
-        Button3.Location = New Point(12, 210)
+        Button3.Location = New Point(12, 252)
         Button3.Name = "Button3"
         Button3.Size = New Size(180, 23)
         Button3.TabIndex = 10
@@ -150,7 +152,7 @@ Partial Class Form1
         ' 
         ' Button4
         ' 
-        Button4.Location = New Point(12, 268)
+        Button4.Location = New Point(12, 310)
         Button4.Name = "Button4"
         Button4.Size = New Size(180, 23)
         Button4.TabIndex = 11
@@ -159,7 +161,7 @@ Partial Class Form1
         ' 
         ' Button5
         ' 
-        Button5.Location = New Point(12, 239)
+        Button5.Location = New Point(12, 281)
         Button5.Name = "Button5"
         Button5.Size = New Size(180, 23)
         Button5.TabIndex = 12
@@ -168,7 +170,7 @@ Partial Class Form1
         ' 
         ' Button6
         ' 
-        Button6.Location = New Point(370, 199)
+        Button6.Location = New Point(370, 241)
         Button6.Name = "Button6"
         Button6.Size = New Size(180, 23)
         Button6.TabIndex = 13
@@ -177,7 +179,7 @@ Partial Class Form1
         ' 
         ' Button7
         ' 
-        Button7.Location = New Point(252, 112)
+        Button7.Location = New Point(18, 157)
         Button7.Name = "Button7"
         Button7.Size = New Size(103, 23)
         Button7.TabIndex = 15
@@ -187,7 +189,7 @@ Partial Class Form1
         ' Label4
         ' 
         Label4.AutoSize = True
-        Label4.Location = New Point(12, 116)
+        Label4.Location = New Point(12, 139)
         Label4.Name = "Label4"
         Label4.Size = New Size(236, 15)
         Label4.TabIndex = 16
@@ -199,7 +201,7 @@ Partial Class Form1
         Label5.BorderStyle = BorderStyle.FixedSingle
         Label5.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Label5.ForeColor = SystemColors.HotTrack
-        Label5.Location = New Point(12, 306)
+        Label5.Location = New Point(12, 348)
         Label5.Name = "Label5"
         Label5.Size = New Size(23, 17)
         Label5.TabIndex = 17
@@ -207,18 +209,41 @@ Partial Class Form1
         ' 
         ' Button8
         ' 
-        Button8.Location = New Point(370, 228)
+        Button8.Location = New Point(370, 270)
         Button8.Name = "Button8"
         Button8.Size = New Size(180, 23)
         Button8.TabIndex = 18
         Button8.Text = "Actualizar Email Excel"
         Button8.UseVisualStyleBackColor = True
         ' 
+        ' CheckBox4
+        ' 
+        CheckBox4.AutoSize = True
+        CheckBox4.Checked = True
+        CheckBox4.CheckState = CheckState.Checked
+        CheckBox4.Location = New Point(442, 113)
+        CheckBox4.Name = "CheckBox4"
+        CheckBox4.Size = New Size(98, 19)
+        CheckBox4.TabIndex = 19
+        CheckBox4.Text = "Personalizada"
+        CheckBox4.UseVisualStyleBackColor = True
+        ' 
+        ' TextBox3
+        ' 
+        TextBox3.Enabled = False
+        TextBox3.Location = New Point(12, 113)
+        TextBox3.Name = "TextBox3"
+        TextBox3.PlaceholderText = "Tarifa grupo actual..."
+        TextBox3.Size = New Size(343, 23)
+        TextBox3.TabIndex = 20
+        ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(574, 324)
+        ClientSize = New Size(585, 368)
+        Controls.Add(TextBox3)
+        Controls.Add(CheckBox4)
         Controls.Add(Button8)
         Controls.Add(Label5)
         Controls.Add(Label4)
@@ -262,4 +287,6 @@ Partial Class Form1
     Friend WithEvents Label4 As Label
     Friend WithEvents Label5 As Label
     Friend WithEvents Button8 As Button
+    Friend WithEvents CheckBox4 As CheckBox
+    Friend WithEvents TextBox3 As TextBox
 End Class

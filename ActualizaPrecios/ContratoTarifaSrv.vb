@@ -11,7 +11,7 @@ Public Class ContratoTarifaSrv
     End Sub
 
 
-    Public Function UpdateContratoTarifa(ContratoTarifa As ContratoTarifa, TarifaGrupoNew As String, Delete As Boolean) As ContratoTarifa
+    Public Function UpdateContratoTarifa(ContratoTarifa As ContratoTarifa, TarifaGrupoNew As String, TarifaGrupoNoPersonalizada As String, IsTarifaPersonalizada As Boolean) As ContratoTarifa
         Dim conexion = New SqlConnection(connectionString)
         Dim ContratoTarifaAux As New ContratoTarifa
         Dim funciones As New FuncionesGenericas(Me.connectionString)
@@ -30,7 +30,16 @@ Public Class ContratoTarifaSrv
                 '************************************************************************
                 'Dim ExisteTarifa = Tari.Where(Function(f) f.IdTarifa = If(ContratoTarifaBBDD.IdTarifa, 0) AndAlso f.IdTarifaGrupo = If(ContratoTarifaBBDD.IdTarifaGrupo, 0)).FirstOrDefault
                 'Update Si exsite la tarifa personazliada
-                If ContratoTarifa.textotarifagrupo.Contains("personalizada") Then
+                'f ContratoTarifa.textotarifagrupo.Contains("personalizada") Then
+                If IsTarifaPersonalizada AndAlso ContratoTarifa.textotarifagrupo.Contains("personalizada") Then
+                    'Busco solo la tarifagrupop a actualizar
+                    Dim TariaBuena = Tari.Where(Function(f) f.IdTarifa = ContratoTarifa.IdTarifa).FirstOrDefault
+                    If Not IsNothing(TariaBuena) AndAlso TariaBuena.IdTarifaGrupo > 0 Then
+                        ContratoTarifaAux = UpdateContratoTarifaV2(ContratoTarifaBBDD, TariaBuena)
+                    Else
+                        Throw New Exception($"No se ha encontrato ninguna tarifa para el contrato {ContratoTarifaBBDD.CodigoContrato} ")
+                    End If
+                ElseIf IsTarifaPersonalizada = False AndAlso ContratoTarifa.textotarifagrupo = TarifaGrupoNoPersonalizada Then
                     'Busco solo la tarifagrupop a actualizar
                     Dim TariaBuena = Tari.Where(Function(f) f.IdTarifa = ContratoTarifa.IdTarifa).FirstOrDefault
                     If Not IsNothing(TariaBuena) AndAlso TariaBuena.IdTarifaGrupo > 0 Then
@@ -45,55 +54,14 @@ Public Class ContratoTarifaSrv
         End Try
         Return ContratoTarifaAux
     End Function
-    Public Function GetEntornoContratoTarifa(Entorno As String, ipDB As String, nameDB As String, userDB As String, passDB As String) As String
-        Dim conexion = New SqlConnection(ipDB + nameDB + userDB + passDB)
-        Dim ret As String
-        Try
-            conexion.Open()
-            Dim query = "select distinct Entorno from Contrato where entorno like '%" + Entorno + "'"
-            Dim comando = New SqlCommand(query, conexion)
 
-            ret = comando.ExecuteScalar().ToString()
-            conexion.Close()
-            Return ret
-        Catch ex As Exception
-            Console.WriteLine(ex)
-        End Try
-        Return ret
-    End Function
-
-    Public Function GetContratoTarifaLista(ipDB As String, nameDB As String, userDB As String, passDB As String) As ContratoTarifa
-        Dim conexion = New SqlConnection(ipDB + nameDB + userDB + passDB)
-        Dim ret As ContratoTarifa
-        Dim ListaContratoTarifa = New List(Of ContratoTarifa)
-        Try
-            conexion.Open()
-            Dim query = "select * from contratotarifa"
-            Dim comando = New SqlCommand(query, conexion)
-            Dim readerQuery As SqlDataReader = comando.ExecuteReader()
-            'Dim readerQuery As SqlDataReader = comando.ExecuteReader()
-            Do While readerQuery.Read
-
-                Dim ContratoTarifaB = New ContratoTarifa
-
-
-
-                'ListaContratoTipo.Add(contratoTipo)
-            Loop
-            readerQuery.Close()
-            conexion.Close()
-        Catch ex As Exception
-            Console.WriteLine(ex)
-        End Try
-        Return ret
-
-
-    End Function
-    Public Function GetContratoTarifaPersonalizadaByCodigoContrato(Cod As Long) As ContratoTarifa
+    Public Function GetContratoTarifaPersonalizadaByCodigoContrato(Cod As Long, TarifaGrupoNoPersonalizada As String, IsTarifaPersonalizada As Boolean) As ContratoTarifa
         Dim conexion = New SqlConnection(connectionString)
         Dim funciones As New FuncionesGenericas(Me.connectionString)
         Dim ret As New ContratoTarifa
         Dim ContratoTarifaB As New ContratoTarifa
+        Dim personalizadaorFija = If(IsTarifaPersonalizada, "like '%personalizada%'", $"= '{TarifaGrupoNoPersonalizada}'")
+
         Try
             conexion.Open()
             Dim query = $"select ct.*,tg.textotarifagrupo, pf.TextoPerfilFacturacion,t.TextoTarifa from contratotarifa ct
@@ -101,7 +69,8 @@ Public Class ContratoTarifaSrv
             left join perfilfacturacion pf on ct.idperfilfacturacion = pf.idperfilfacturacion
             left join tarifa t  on ct.idtarifa = t.idtarifa
             where codigocontrato={Cod} and FechaDesde is not null and fechaHasta is null
-            and tg.TextoTarifaGrupo like '%personalizada%'"
+            and tg.TextoTarifaGrupo {personalizadaorFija}"
+            '    like '%personalizada%'"
             Dim comando = New SqlCommand(query, conexion)
             Dim readerQuery As SqlDataReader = comando.ExecuteReader()
             'Dim readerQuery As SqlDataReader = comando.ExecuteReader()

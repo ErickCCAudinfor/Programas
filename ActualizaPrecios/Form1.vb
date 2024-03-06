@@ -78,7 +78,7 @@ Public Class Form1
 
             'Me busco solo contratos que tengan fechaHasta is null y sea personalizada
             For Each cod In ListaCodigo
-                ContratoTra.Add(ContratoTarifaSrv.GetContratoTarifaPersonalizadaByCodigoContrato(cod))
+                ContratoTra.Add(ContratoTarifaSrv.GetContratoTarifaPersonalizadaByCodigoContrato(cod, TextBox3.Text, CheckBox4.Checked))
             Next
 
             Dim pepe = 1
@@ -93,8 +93,8 @@ Public Class Form1
                 For Each elment In ContratoTra
 
                     If Not IsNothing(elment.IdContratoTarifa) AndAlso elment.IdContratoTarifa > 0 Then
-                        'ContratoTraMergeado.Add(ContratoTarifaSrv.UpdateContratoTarifa(elment, TextBox1.Text, False, ipDB, nameDB, userDB, passDB))
-                        Dim ContratoActualizar = ContratoTarifaSrv.UpdateContratoTarifa(elment, TextBox1.Text, False)
+                        'ContratoTraMergeado.Add(ContratoTarifaSrv.UpdateContratoTarifa(elment, NuevaTarifaGrupo, TarifaGrupoActual, IsPersonalizada))
+                        Dim ContratoActualizar = ContratoTarifaSrv.UpdateContratoTarifa(elment, TextBox1.Text, TextBox3.Text, CheckBox4.Checked)
                         'Dim ContratoTarifaViejo = elment
                         If Not IsNothing(ContratoActualizar) AndAlso ContratoActualizar.IdContratoTarifa > 0 Then
                             ' Dependiendo de si el PerfilFacturacion del ContratoTarifa es indexado,
@@ -190,10 +190,12 @@ Public Class Form1
                                     If Not IsNothing(TaPrecionContrato) AndAlso TaPrecionContrato.IdContratoTarifa > 0 Then
                                         If elment.Entorno = "G1" AndAlso TaPrecionContrato.IdIndexadoPrecio > 0 Then
                                             OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifaIndex(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
-                                        ElseIf elment.Entorno = "G1" AndAlso TaPrecionContrato.IdIndexadoPrecio > 0 Then
+                                        ElseIf elment.Entorno = "G1" AndAlso TaPrecionContrato.IdTarifaPrecio > 0 Then
                                             OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifa(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
-                                        Else
+                                        ElseIf elment.Entorno = "G2" AndAlso TaPrecionContrato.IdIndexadoPrecioGas > 0 Then
                                             OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifaIndexGas(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
+                                        Else
+                                            Throw New Exception("Imposible continuar, ha fallado al buscar los precios antiguos " + elment.CodigoContrato)
                                         End If
 
                                     End If
@@ -703,4 +705,18 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
         End Try
     End Sub
 
+
+    Private Sub CheckBox4_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox4.CheckedChanged
+        Try
+            If CheckBox4.Checked = False Then
+                TextBox3.Enabled = True
+            End If
+
+            If CheckBox4.Checked Then
+                TextBox3.Enabled = False
+            End If
+        Catch ex As Exception
+
+        End Try
+    End Sub
 End Class
