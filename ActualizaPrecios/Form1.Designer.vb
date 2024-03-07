@@ -43,12 +43,14 @@ Partial Class Form1
         Button8 = New Button()
         CheckBox4 = New CheckBox()
         TextBox3 = New TextBox()
+        Button9 = New Button()
+        ComboBox1 = New ComboBox()
         SuspendLayout()
         ' 
         ' Button1
         ' 
         Button1.Enabled = False
-        Button1.Location = New Point(361, 113)
+        Button1.Location = New Point(361, 114)
         Button1.Name = "Button1"
         Button1.Size = New Size(75, 23)
         Button1.TabIndex = 0
@@ -108,7 +110,7 @@ Partial Class Form1
         ' Label1
         ' 
         Label1.AutoSize = True
-        Label1.Location = New Point(12, 66)
+        Label1.Location = New Point(15, 70)
         Label1.Name = "Label1"
         Label1.Size = New Size(71, 15)
         Label1.TabIndex = 6
@@ -237,11 +239,31 @@ Partial Class Form1
         TextBox3.Size = New Size(343, 23)
         TextBox3.TabIndex = 20
         ' 
+        ' Button9
+        ' 
+        Button9.Enabled = False
+        Button9.Location = New Point(433, 40)
+        Button9.Name = "Button9"
+        Button9.Size = New Size(75, 23)
+        Button9.TabIndex = 21
+        Button9.Text = "Ver"
+        Button9.UseVisualStyleBackColor = True
+        ' 
+        ' ComboBox1
+        ' 
+        ComboBox1.FormattingEnabled = True
+        ComboBox1.Location = New Point(419, 11)
+        ComboBox1.Name = "ComboBox1"
+        ComboBox1.Size = New Size(121, 23)
+        ComboBox1.TabIndex = 22
+        ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(585, 368)
+        Controls.Add(ComboBox1)
+        Controls.Add(Button9)
         Controls.Add(TextBox3)
         Controls.Add(CheckBox4)
         Controls.Add(Button8)
@@ -289,4 +311,6 @@ Partial Class Form1
     Friend WithEvents Button8 As Button
     Friend WithEvents CheckBox4 As CheckBox
     Friend WithEvents TextBox3 As TextBox
+    Friend WithEvents Button9 As Button
+    Friend WithEvents ComboBox1 As ComboBox
 End Class

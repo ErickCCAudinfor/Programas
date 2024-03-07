@@ -281,6 +281,7 @@ Public Class Form1
         End If
     End Sub
 
+
     'Si hay contrato escrito habilitamos el texto de tarifa grupo
     Private Sub TextBox2_TextChanged(sender As Object, e As EventArgs) Handles TextBox2.TextChanged
         If TextBox2.Enabled AndAlso TextBox2.Text.Trim.Length >= 1 Then
@@ -290,6 +291,7 @@ Public Class Form1
             ' Si CheckBox3 no está marcado, habilitar CheckBox1 y CheckBox2
             TextBox1.Enabled = False
         End If
+
     End Sub
 
     'Productos Asignacion, si no ha escrito nada en textotarifagrupo no buscamos nada, y enviamos mensaje
@@ -719,4 +721,23 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
 
         End Try
     End Sub
+
+    Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button9.Click
+        ' Limpiar el contenido del ListBox
+        ComboBox1.Items.Clear()
+
+        ' Obtener los valores ingresados en el TextBox
+        Dim valores As String() = TextBox2.Text.Split(New Char() {" "c}, StringSplitOptions.RemoveEmptyEntries)
+
+        ' Agregar los valores al ListBox
+        For Each valor As String In valores
+            ComboBox1.Items.Add(valor)
+        Next
+
+        ' Mostrar el ListBox en un formulario modal
+        Dim form As New Form()
+        form.Controls.Add(ComboBox1)
+        form.ShowDialog()
+    End Sub
+
 End Class
