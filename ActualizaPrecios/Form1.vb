@@ -722,22 +722,5 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
         End Try
     End Sub
 
-    Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button9.Click
-        ' Limpiar el contenido del ListBox
-        ComboBox1.Items.Clear()
-
-        ' Obtener los valores ingresados en el TextBox
-        Dim valores As String() = TextBox2.Text.Split(New Char() {" "c}, StringSplitOptions.RemoveEmptyEntries)
-
-        ' Agregar los valores al ListBox
-        For Each valor As String In valores
-            ComboBox1.Items.Add(valor)
-        Next
-
-        ' Mostrar el ListBox en un formulario modal
-        Dim form As New Form()
-        form.Controls.Add(ComboBox1)
-        form.ShowDialog()
-    End Sub
 
 End Class
