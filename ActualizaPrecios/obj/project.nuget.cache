@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "1tF96MW25JhsDYtl/7x+PVc0EQ76Y2FsmLpXInXiWTCH9rPhi9eq8c5bWkd1fKTlB6JROL6um9tlOsj8lCBgsw==",
+  "dgSpecHash": "jfbhi5FNCtNXLzlvkmKdGjxaiVAv2hk/jJnh7TlDUsLFI7wc89vCEzXW7+iLdMbtpaAkcLcpazjX/aasjLhW9Q==",
   "success": true,
   "projectFilePath": "C:\\Users\\ErickCC\\Documents\\TotalDoc\\Programas\\ActualizaPrecios\\ActualizaPrecios.vbproj",
   "expectedPackageFiles": [
@@ -119,7 +119,7 @@
       "code": "NU1803",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "You are running the 'restore' operation with an 'HTTP' source, 'http://192.168.10.225:8090/nuget'. Non-HTTPS access will be removed in a future version. Consider migrating to an 'HTTPS' source."
+      "message": "Está ejecutando la operación \"restore\" con un origen \"HTTP\", \"http://192.168.10.225:8090/nuget\". El acceso que no sea HTTPS se quitará en una versión futura. Considere la posibilidad de migrar a un origen \"HTTPS\"."
     }
   ]
 }

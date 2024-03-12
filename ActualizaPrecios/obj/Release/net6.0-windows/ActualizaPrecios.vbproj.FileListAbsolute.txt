@@ -38,9 +38,11 @@ C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.AssemblyInfoInputs.cache
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.AssemblyInfo.vb
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.vbproj.CoreCompileInputs.cache
-C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.vbproj.CopyComplete
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.dll
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\refint\ActualizaPrecios.dll
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.pdb
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.genruntimeconfig.cache
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ref\ActualizaPrecios.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.sourcelink.json
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\Actualiz.69F36CBA.Up2Date
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.TablaRevisaPreciosPersonalizados.resources

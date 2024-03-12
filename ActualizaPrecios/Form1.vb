@@ -1,7 +1,6 @@
-﻿Imports System.Collections.ObjectModel
+﻿
 Imports System.IO
-Imports System.Windows.Forms.VisualStyles.VisualStyleElement
-Imports Microsoft.VisualBasic.Logging
+
 
 Public Class Form1
 
@@ -287,6 +286,7 @@ Public Class Form1
         If TextBox2.Enabled AndAlso TextBox2.Text.Trim.Length >= 1 Then
             ' Si CheckBox3 está marcado, deshabilitar CheckBox1 y CheckBox2
             TextBox1.Enabled = True
+            'TextBox2.Height = TextRenderer.MeasureText(TextBox2.Text, TextBox2.Font, New Size(TextBox2.Width, Int32.MaxValue), TextFormatFlags.WordBreak).Height + 5 ' Añade un pequeño margen
         Else
             ' Si CheckBox3 no está marcado, habilitar CheckBox1 y CheckBox2
             TextBox1.Enabled = False
@@ -600,10 +600,14 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
                 Dim Cups = GetConSinSplitCupsCIFS(TextBox2.Text)
                 If Cups.Count > 0 Then
                     For Each cps In Cups
-                        Dim cps20 As String = cps.Substring(0, Math.Min(20, cps.Length)) 'saco los primeros 20 caracteres
+                        Dim cps20 As String = Replace(cps, " ", "").Substring(0, Math.Min(20, cps.Length)) 'saco los primeros 20 caracteres
 
-                        Dim ContratoActivo = Funciones.GetListContratobyCUPS(cps20.Trim).Where(Function(f) If(f.IdContratoSituacion, 0L) = 1).FirstOrDefault ' Buscamos solo el activo
-                        RenovadoANull = Funciones.VolverARenovar(ContratoActivo.CodigoContrato)
+                        Dim ContratoActivo = Funciones.GetListContratobyCUPS(Replace(cps20.Trim, " ", "")).Where(Function(f) If(f.IdContratoSituacion, 0L) = 1).FirstOrDefault ' Buscamos solo el activo
+                        If Not IsNothing(ContratoActivo) AndAlso ContratoActivo.IdContrato > 0 AndAlso ContratoActivo.IdContratoSituacion = 1 Then ' solo si es activo
+                            RenovadoANull = Funciones.VolverARenovar(ContratoActivo.CodigoContrato)
+                        End If
+
+
                     Next
                 End If
             End If
@@ -625,7 +629,10 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
                 If CIFS.Count > 0 Then
                     For Each cif In CIFS
                         Dim ContratoActivo = Funciones.GetListContratobyCIF(cif.Trim).Where(Function(f) If(f.IdContratoSituacion, 0L) = 1).FirstOrDefault ' Buscamos solo el activo
-                        RenovadoANull = Funciones.VolverARenovar(ContratoActivo.CodigoContrato)
+                        If Not IsNothing(ContratoActivo) AndAlso ContratoActivo.IdContrato > 0 AndAlso ContratoActivo.IdContratoSituacion = 1 Then ' solo si es activo
+                            RenovadoANull = Funciones.VolverARenovar(ContratoActivo.CodigoContrato)
+                        End If
+
                     Next
                 End If
             End If
@@ -642,8 +649,11 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
     'Revisa si ha habido algún contrato que no se haya configurado bien
     Private Sub Button7_Click(sender As Object, e As EventArgs) Handles Button7.Click
         Try
-            Dim RutaArchivo = Funciones.RevisaTarifaPrecioContratoPersonalizada()
-            MessageBox.Show($"Se ha generado la revisión en la siguiente ruta:{RutaArchivo}")
+            'Dim RutaArchivo = Funciones.RevisaTarifaPrecioContratoPersonalizada()
+            'MessageBox.Show($"Se ha generado la revisión en la siguiente ruta:{RutaArchivo}")
+            Dim table As New TablaRevisaPreciosPersonalizados(connectionString)
+            table.cargar()
+            table.Show()
             'Funciones.RevisaTarifaPrecioContratoPersonalizadaGas()
         Catch ex As Exception
             MessageBox.Show(ex.Message)
@@ -721,6 +731,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
 
         End Try
     End Sub
+
 
 
 End Class

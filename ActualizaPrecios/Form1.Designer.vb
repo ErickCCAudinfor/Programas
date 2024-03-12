@@ -1,7 +1,12 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
+﻿Imports System.Runtime.InteropServices
+
+<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class Form1
     Inherits System.Windows.Forms.Form
 
+    ' Constantes para establecer el estilo del borde
+    Private Const GWL_STYLE As Integer = -16
+    Private Const WS_BORDER As Integer = &H800000
     'Form overrides dispose to clean up the component list.
     <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
@@ -22,7 +27,7 @@ Partial Class Form1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Dim resources As ComponentModel.ComponentResourceManager = New ComponentModel.ComponentResourceManager(GetType(Form1))
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
         Button1 = New Button()
         CheckBox1 = New CheckBox()
         CheckBox2 = New CheckBox()
@@ -43,14 +48,20 @@ Partial Class Form1
         Button8 = New Button()
         CheckBox4 = New CheckBox()
         TextBox3 = New TextBox()
-        Button9 = New Button()
-        ComboBox1 = New ComboBox()
+        Panel1 = New Panel()
+        Panel2 = New Panel()
+        Panel3 = New Panel()
+        Panel4 = New Panel()
+        Panel1.SuspendLayout()
+        Panel2.SuspendLayout()
+        Panel3.SuspendLayout()
+        Panel4.SuspendLayout()
         SuspendLayout()
         ' 
         ' Button1
         ' 
         Button1.Enabled = False
-        Button1.Location = New Point(361, 114)
+        Button1.Location = New Point(363, 53)
         Button1.Name = "Button1"
         Button1.Size = New Size(75, 23)
         Button1.TabIndex = 0
@@ -90,7 +101,7 @@ Partial Class Form1
         ' TextBox1
         ' 
         TextBox1.Enabled = False
-        TextBox1.Location = New Point(12, 84)
+        TextBox1.Location = New Point(7, 23)
         TextBox1.Name = "TextBox1"
         TextBox1.PlaceholderText = "Ingrese la nueva tarifa grupo"
         TextBox1.Size = New Size(343, 23)
@@ -100,17 +111,18 @@ Partial Class Form1
         ' 
         TextBox2.Enabled = False
         TextBox2.HideSelection = False
-        TextBox2.Location = New Point(12, 40)
+        TextBox2.Location = New Point(8, 3)
         TextBox2.Multiline = True
         TextBox2.Name = "TextBox2"
         TextBox2.PlaceholderText = "Selecciona un filtro y escriba aqui para buscar: 216, 456789,231,24,...etc."
-        TextBox2.Size = New Size(424, 23)
+        TextBox2.ScrollBars = ScrollBars.Vertical
+        TextBox2.Size = New Size(525, 31)
         TextBox2.TabIndex = 5
         ' 
         ' Label1
         ' 
         Label1.AutoSize = True
-        Label1.Location = New Point(15, 70)
+        Label1.Location = New Point(8, 9)
         Label1.Name = "Label1"
         Label1.Size = New Size(71, 15)
         Label1.TabIndex = 6
@@ -128,7 +140,7 @@ Partial Class Form1
         ' Label3
         ' 
         Label3.AutoSize = True
-        Label3.Location = New Point(12, 203)
+        Label3.Location = New Point(23, 9)
         Label3.Name = "Label3"
         Label3.Size = New Size(86, 15)
         Label3.TabIndex = 8
@@ -136,7 +148,7 @@ Partial Class Form1
         ' 
         ' Button2
         ' 
-        Button2.Location = New Point(12, 221)
+        Button2.Location = New Point(23, 27)
         Button2.Name = "Button2"
         Button2.Size = New Size(181, 23)
         Button2.TabIndex = 9
@@ -145,7 +157,7 @@ Partial Class Form1
         ' 
         ' Button3
         ' 
-        Button3.Location = New Point(12, 252)
+        Button3.Location = New Point(23, 58)
         Button3.Name = "Button3"
         Button3.Size = New Size(180, 23)
         Button3.TabIndex = 10
@@ -154,7 +166,7 @@ Partial Class Form1
         ' 
         ' Button4
         ' 
-        Button4.Location = New Point(12, 310)
+        Button4.Location = New Point(23, 116)
         Button4.Name = "Button4"
         Button4.Size = New Size(180, 23)
         Button4.TabIndex = 11
@@ -163,7 +175,7 @@ Partial Class Form1
         ' 
         ' Button5
         ' 
-        Button5.Location = New Point(12, 281)
+        Button5.Location = New Point(23, 87)
         Button5.Name = "Button5"
         Button5.Size = New Size(180, 23)
         Button5.TabIndex = 12
@@ -172,7 +184,7 @@ Partial Class Form1
         ' 
         ' Button6
         ' 
-        Button6.Location = New Point(370, 241)
+        Button6.Location = New Point(374, 47)
         Button6.Name = "Button6"
         Button6.Size = New Size(180, 23)
         Button6.TabIndex = 13
@@ -181,7 +193,7 @@ Partial Class Form1
         ' 
         ' Button7
         ' 
-        Button7.Location = New Point(18, 157)
+        Button7.Location = New Point(13, 96)
         Button7.Name = "Button7"
         Button7.Size = New Size(103, 23)
         Button7.TabIndex = 15
@@ -191,7 +203,7 @@ Partial Class Form1
         ' Label4
         ' 
         Label4.AutoSize = True
-        Label4.Location = New Point(12, 139)
+        Label4.Location = New Point(7, 78)
         Label4.Name = "Label4"
         Label4.Size = New Size(236, 15)
         Label4.TabIndex = 16
@@ -201,9 +213,9 @@ Partial Class Form1
         ' 
         Label5.AutoSize = True
         Label5.BorderStyle = BorderStyle.FixedSingle
-        Label5.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        Label5.Font = New Font("Segoe UI", 9.0F, FontStyle.Bold, GraphicsUnit.Point)
         Label5.ForeColor = SystemColors.HotTrack
-        Label5.Location = New Point(12, 348)
+        Label5.Location = New Point(6, 2)
         Label5.Name = "Label5"
         Label5.Size = New Size(23, 17)
         Label5.TabIndex = 17
@@ -211,7 +223,7 @@ Partial Class Form1
         ' 
         ' Button8
         ' 
-        Button8.Location = New Point(370, 270)
+        Button8.Location = New Point(374, 76)
         Button8.Name = "Button8"
         Button8.Size = New Size(180, 23)
         Button8.TabIndex = 18
@@ -223,7 +235,7 @@ Partial Class Form1
         CheckBox4.AutoSize = True
         CheckBox4.Checked = True
         CheckBox4.CheckState = CheckState.Checked
-        CheckBox4.Location = New Point(442, 113)
+        CheckBox4.Location = New Point(444, 52)
         CheckBox4.Name = "CheckBox4"
         CheckBox4.Size = New Size(98, 19)
         CheckBox4.TabIndex = 19
@@ -233,59 +245,85 @@ Partial Class Form1
         ' TextBox3
         ' 
         TextBox3.Enabled = False
-        TextBox3.Location = New Point(12, 113)
+        TextBox3.Location = New Point(7, 52)
         TextBox3.Name = "TextBox3"
         TextBox3.PlaceholderText = "Tarifa grupo actual..."
         TextBox3.Size = New Size(343, 23)
         TextBox3.TabIndex = 20
         ' 
-        ' Button9
+        ' Panel1
         ' 
-        Button9.Location = New Point(433, 40)
-        Button9.Name = "Button9"
-        Button9.Size = New Size(75, 23)
-        Button9.TabIndex = 21
-        Button9.Text = "Ver"
-        Button9.UseVisualStyleBackColor = True
+        Panel1.Controls.Add(Label5)
+        Panel1.Location = New Point(12, 359)
+        Panel1.Name = "Panel1"
+        Panel1.Size = New Size(561, 22)
+        Panel1.TabIndex = 21
         ' 
-        ' ComboBox1
+        ' Panel2
         ' 
-        ComboBox1.FormattingEnabled = True
-        ComboBox1.Location = New Point(419, 11)
-        ComboBox1.Name = "ComboBox1"
-        ComboBox1.Size = New Size(121, 23)
-        ComboBox1.TabIndex = 22
+        Panel2.Controls.Add(Label3)
+        Panel2.Controls.Add(Button2)
+        Panel2.Controls.Add(Button3)
+        Panel2.Controls.Add(Button4)
+        Panel2.Controls.Add(Button8)
+        Panel2.Controls.Add(Button5)
+        Panel2.Controls.Add(Button6)
+        Panel2.Location = New Point(12, 211)
+        Panel2.Name = "Panel2"
+        Panel2.Size = New Size(561, 146)
+        Panel2.TabIndex = 22
+        ' 
+        ' Panel3
+        ' 
+        Panel3.Controls.Add(Label1)
+        Panel3.Controls.Add(Button1)
+        Panel3.Controls.Add(TextBox1)
+        Panel3.Controls.Add(TextBox3)
+        Panel3.Controls.Add(Button7)
+        Panel3.Controls.Add(CheckBox4)
+        Panel3.Controls.Add(Label4)
+        Panel3.Location = New Point(12, 77)
+        Panel3.Name = "Panel3"
+        Panel3.Size = New Size(547, 128)
+        Panel3.TabIndex = 23
+        ' 
+        ' Panel4
+        ' 
+        Panel4.Controls.Add(TextBox2)
+        Panel4.Location = New Point(12, 34)
+        Panel4.Name = "Panel4"
+        Panel4.Size = New Size(536, 37)
+        Panel4.TabIndex = 24
         ' 
         ' Form1
         ' 
-        AutoScaleDimensions = New SizeF(7F, 15F)
+        AutoScaleDimensions = New SizeF(7.0F, 15.0F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(585, 368)
-        Controls.Add(ComboBox1)
-        Controls.Add(Button9)
-        Controls.Add(TextBox3)
-        Controls.Add(CheckBox4)
-        Controls.Add(Button8)
-        Controls.Add(Label5)
-        Controls.Add(Label4)
-        Controls.Add(Button7)
-        Controls.Add(Button6)
-        Controls.Add(Button5)
-        Controls.Add(Button4)
-        Controls.Add(Button3)
-        Controls.Add(Button2)
-        Controls.Add(Label3)
+        BackColor = Color.White
+        ClientSize = New Size(585, 385)
+        Controls.Add(Panel4)
+        Controls.Add(Panel3)
+        Controls.Add(Panel2)
+        Controls.Add(Panel1)
         Controls.Add(Label2)
-        Controls.Add(Label1)
-        Controls.Add(TextBox2)
-        Controls.Add(TextBox1)
         Controls.Add(CheckBox3)
         Controls.Add(CheckBox2)
         Controls.Add(CheckBox1)
-        Controls.Add(Button1)
+        DoubleBuffered = True
+        FormBorderStyle = FormBorderStyle.FixedSingle
         Icon = CType(resources.GetObject("$this.Icon"), Icon)
         Name = "Form1"
-        Text = "Actualizar Precios "
+        StartPosition = FormStartPosition.CenterScreen
+        Text = "Gestor de Datos SIGE"
+        TransparencyKey = Color.YellowGreen
+        Panel1.ResumeLayout(False)
+        Panel1.PerformLayout()
+        Panel2.ResumeLayout(False)
+        Panel2.PerformLayout()
+        Panel3.ResumeLayout(False)
+        Panel3.PerformLayout()
+        Panel4.ResumeLayout(False)
+        Panel4.PerformLayout()
         ResumeLayout(False)
         PerformLayout()
     End Sub
@@ -310,6 +348,19 @@ Partial Class Form1
     Friend WithEvents Button8 As Button
     Friend WithEvents CheckBox4 As CheckBox
     Friend WithEvents TextBox3 As TextBox
-    Friend WithEvents Button9 As Button
-    Friend WithEvents ComboBox1 As ComboBox
+    Friend WithEvents Panel1 As Panel
+    Friend WithEvents Panel2 As Panel
+    Friend WithEvents Panel3 As Panel
+    Friend WithEvents Panel4 As Panel
+
+    Protected Overrides Sub OnPaint(e As PaintEventArgs)
+        MyBase.OnPaint(e)
+
+        ' Dibujar el borde personalizado
+        Dim borderColor As Color = Color.FromArgb(191, 24, 27)
+        Dim borderThickness As Integer = 2
+        Dim rect As New Rectangle(0, 0, Me.ClientSize.Width - 1, Me.ClientSize.Height - 1)
+        Dim borderPen As New Pen(borderColor, borderThickness)
+        e.Graphics.DrawRectangle(borderPen, rect)
+    End Sub
 End Class
