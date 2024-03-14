@@ -1,8 +1,11 @@
 ﻿
 Imports System.IO
+Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 
 
 Public Class Form1
+    Private ProgressBarValue As Integer = 0
+    Private ProgressBarMaxValue As Integer = 100
 
     Private ReadOnly Property ipDB As String = "data source=172.31.100.12;"
     'Private ReadOnly Property ipDB As String = "data source=172.31.100.50\TOTALUAT;"
@@ -16,6 +19,8 @@ Public Class Form1
     Private ReadOnly ContratoTarifaSrv As New ContratoTarifaSrv(connectionString)
 
     Private ReadOnly Funciones As New FuncionesGenericas(connectionString)
+
+
 
     Private Sub Actualizar(sender As Object, e As EventArgs) Handles Button1.Click
 
@@ -366,7 +371,7 @@ Public Class Form1
             Dim listas As New List(Of String)
             Dim Validaciones As New ValidacionExcel(connectionString)
 #Region "Consulta 1"
-            Dim resultadoConsulta1 As String = "select c.codigocontrato
+            Dim resultadoConsulta1 = "select c.codigocontrato
 ,cups.CodigoCUPS
 ,c.Confirmado
 ,convert(varchar,c.FechaCreacion, 103) as FechaCreacion
@@ -388,7 +393,7 @@ where c.idcontratosituacion in (4,14) and Confirmado=0
 order by c.CodigoContrato"
 #End Region
 #Region "Consulta 2"
-            Dim resultadoConsulta2 As String = "select c.codigocontrato
+            Dim resultadoConsulta2 = "select c.codigocontrato
 ,cups.CodigoCUPS
 ,c.Confirmado
 ,convert(varchar,c.FechaCreacion, 103) as FechaCreacion
@@ -401,7 +406,7 @@ inner join Solicitud s on s.CodigoContrato = c.CodigoContrato and s.idusuario=1
 where c.idcontratosituacion=4 order by c.FechaCreacion"
 #End Region
 #Region "Consulta 3"
-            Dim resultadoConsulta3 As String = ";with 
+            Dim resultadoConsulta3 = ";with 
 ContratoTarifaVigenteMaxima as
 (    select CodigoContrato,
            max(FechaDesde) as FechaDesde
@@ -515,8 +520,8 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
 
             ' Ruta del archivo CSV
             'Dim rutaArchivo As String = $"C:\Users\ErickCC\Documents\TotalDoc\Validaciones\Validaciones{Date.Today.ToString("ddMMyyyy")}.xlsx"
-            Dim rutaCarpeta As String = $"C:\Users\{NombreUsuarioEquipo}\Desktop\Validaciones"
-            Dim rutaArchivo As String = Path.Combine(rutaCarpeta, $"Validaciones{Date.Today.ToString("ddMMyyyy")}.xlsx")
+            Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\Validaciones"
+            Dim rutaArchivo = Path.Combine(rutaCarpeta, $"Validaciones{Date.Today.ToString("ddMMyyyy")}.xlsx")
             ' Verificar si la carpeta existe, y si no, crearla
             If Not Directory.Exists(rutaCarpeta) Then
                 Directory.CreateDirectory(rutaCarpeta)
@@ -524,7 +529,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
 
             ' Verificar si el archivo existe, y si no, crearlo
             If Not File.Exists(rutaArchivo) Then
-                File.Create(rutaArchivo).Close()
+                File.Create(rutaArchivo).Close
             End If
 
             Validaciones.EjecutarConsultasYGuardarEnExcel(listas, rutaArchivo)
@@ -732,6 +737,19 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
         End Try
     End Sub
 
-
+    ' Para modificar el agente del contrato
+    Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button9.Click
+        Try
+            Dim Con = GetConSinSplit(TextBox2.Text)
+            If Con.Count > 0 Then
+                Dim Agentes As New Agentes(Con, connectionString)
+                Agentes.Show()
+            Else
+                MessageBox.Show("Ingrese al menos un contrato")
+            End If
+        Catch ex As Exception
+            MessageBox.Show(ex.Message)
+        End Try
+    End Sub
 
 End Class

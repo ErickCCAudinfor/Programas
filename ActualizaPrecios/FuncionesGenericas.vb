@@ -1275,5 +1275,131 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
         End Try
         Return FilfasAfectadas
     End Function
+
+
+    Public Function GetAgente() As List(Of Agente)
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim ListaAgentes As New List(Of Agente)
+        Try
+            conexion.Open()
+            Dim query = $"Select IdAgente,Entorno,NombreAgente from agente where entorno = 'G1' or entorno = 'G2'"
+            Dim comando = New SqlCommand(query, conexion)
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+
+            ' Se lee cada fila del SqlDataReader y se crea un objeto Agente
+            Do While readerQuery.Read
+                Dim AgenteC = New Agente
+
+                ' Controlar valores nulos y convertir al tipo de datos correcto para cada campo
+                AgenteC.IdAgente = GetValueOrDefault(Of Long)(readerQuery, 0, 0)
+                AgenteC.Entorno = GetValueOrDefault(Of String)(readerQuery, 1, "")
+                AgenteC.NombreAgente = $"{AgenteC.Entorno} {GetValueOrDefault(Of String)(readerQuery, 2, "")}"
+                ListaAgentes.Add(AgenteC)
+            Loop
+            readerQuery.Close()
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return ListaAgentes
+    End Function
+
+    Public Function GetAgenteAll() As List(Of Agente)
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim ListaAgentes As New List(Of Agente)
+        Try
+            conexion.Open()
+            Dim query = $"Select * from agente where entorno = 'G1' or entorno = 'G2'"
+            Dim comando = New SqlCommand(query, conexion)
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+
+            ' Se lee cada fila del SqlDataReader y se crea un objeto Agente
+            Do While readerQuery.Read
+                Dim AgenteC = New Agente
+
+                ' Controlar valores nulos y convertir al tipo de datos correcto para cada campo
+                AgenteC.IdAgente = GetValueOrDefault(Of Long)(readerQuery, 0, 0)
+                AgenteC.Entorno = GetValueOrDefault(Of String)(readerQuery, 1, "")
+                AgenteC.NombreAgente = $"{GetValueOrDefault(Of String)(readerQuery, 2, "")} {AgenteC.Entorno}"
+                AgenteC.Direccion = GetValueOrDefault(Of String)(readerQuery, 3, "")
+                AgenteC.CodigoPostal = GetValueOrDefault(Of String)(readerQuery, 4, "")
+                AgenteC.Ciudad = GetValueOrDefault(Of String)(readerQuery, 5, "")
+                AgenteC.Telefono = GetValueOrDefault(Of String)(readerQuery, 6, "")
+                AgenteC.Movil = GetValueOrDefault(Of String)(readerQuery, 7, "")
+                AgenteC.email = GetValueOrDefault(Of String)(readerQuery, 8, "")
+                AgenteC.Web = GetValueOrDefault(Of String)(readerQuery, 9, "")
+                AgenteC.IdProveedor = GetValueOrDefault(Of Long)(readerQuery, 10, 0)
+                AgenteC.IdAgenteGrupo = GetValueOrDefault(Of Long)(readerQuery, 11, 0)
+                AgenteC.Notas = GetValueOrDefault(Of String)(readerQuery, 12, "")
+                AgenteC.CodigoTipoAgente = GetValueOrDefault(Of Long)(readerQuery, 13, 0)
+                AgenteC.IdAgenteNivelAnterior = GetValueOrDefault(Of Long)(readerQuery, 14, 0)
+                AgenteC.EmailSolicitud = GetValueOrDefault(Of String)(readerQuery, 15, "")
+                AgenteC.CodigoVendedor = GetValueOrDefault(Of Long)(readerQuery, 16, 0)
+                AgenteC.IdPerfilCanal = GetValueOrDefault(Of Long)(readerQuery, 17, 0)
+                AgenteC.IdAgenteTipoVenta = GetValueOrDefault(Of Long)(readerQuery, 18, 0)
+                AgenteC.CodigoTipoVenta = GetValueOrDefault(Of Long)(readerQuery, 19, 0)
+                AgenteC.NotificacionAutomaticas = GetValueOrDefault(Of Long)(readerQuery, 20, 0)
+                AgenteC.NotificacionAutomaticasJerarquia = GetValueOrDefault(Of Long)(readerQuery, 21, 0)
+
+                ListaAgentes.Add(AgenteC)
+            Loop
+
+            readerQuery.Close()
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return ListaAgentes
+    End Function
+
+    Public Function GetValueOrDefault(Of T)(reader As SqlDataReader, columnIndex As Integer, defaultValue As T) As T
+        If reader.IsDBNull(columnIndex) Then
+            Return defaultValue
+        Else
+            Dim value As Object = reader.GetValue(columnIndex)
+            If GetType(T) Is GetType(String) Then
+                Return CType(CObj(value.ToString()), T)
+            ElseIf GetType(T) Is GetType(Long) Then
+                If Long.TryParse(value.ToString(), Nothing) Then
+                    Return CType(CObj(value), T)
+                Else
+                    Return defaultValue
+                End If
+            ElseIf GetType(T) Is GetType(Integer) Then
+                If Integer.TryParse(value.ToString(), Nothing) Then
+                    Return CType(CObj(value), T)
+                Else
+                    Return defaultValue
+                End If
+            ElseIf GetType(T) Is GetType(Decimal) Then
+                If Decimal.TryParse(value.ToString(), Nothing) Then
+                    Return CType(CObj(value), T)
+                Else
+                    Return defaultValue
+                End If
+                ' Agrega otros tipos de datos según sea necesario
+            Else
+                Return CType(CObj(value), T)
+            End If
+        End If
+    End Function
+
+    Public Function UpdateContratoIdAgente(Contrato As Long, IdAgente As Long) As Long
+        Dim FilfasAfectadas As Long
+        Try
+            Dim conexion = New SqlConnection(connectionString)
+            conexion.Open()
+            Dim query = $"update Contrato set IdAgente = {IdAgente} where CodigoContrato ={Contrato}"
+            Dim comando = New SqlCommand(query, conexion)
+            FilfasAfectadas = comando.ExecuteNonQuery
+            conexion.Close()
+        Catch ex As Exception
+            Throw
+        End Try
+        Return FilfasAfectadas
+    End Function
+
 End Class
 

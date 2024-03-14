@@ -22,7 +22,7 @@ Partial Class ProductosAsig
     'No lo modifique con el editor de código.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Dim resources As ComponentModel.ComponentResourceManager = New ComponentModel.ComponentResourceManager(GetType(ProductosAsig))
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(ProductosAsig))
         ComboBox1 = New ComboBox()
         TextBox1 = New TextBox()
         Label1 = New Label()
@@ -170,6 +170,7 @@ Partial Class ProductosAsig
         CheckBox2.AutoSize = True
         CheckBox2.Checked = True
         CheckBox2.CheckState = CheckState.Checked
+        CheckBox2.Enabled = False
         CheckBox2.Location = New Point(310, 223)
         CheckBox2.Name = "CheckBox2"
         CheckBox2.Size = New Size(15, 14)

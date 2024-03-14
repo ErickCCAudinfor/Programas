@@ -27,6 +27,7 @@ Partial Class Form1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        components = New ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
         Button1 = New Button()
         CheckBox1 = New CheckBox()
@@ -50,10 +51,15 @@ Partial Class Form1
         TextBox3 = New TextBox()
         Panel1 = New Panel()
         Panel2 = New Panel()
+        Button9 = New Button()
+        PictureBox1 = New PictureBox()
         Panel3 = New Panel()
         Panel4 = New Panel()
+        ToolTop1 = New ToolTip(components)
+        Timer1 = New Timer(components)
         Panel1.SuspendLayout()
         Panel2.SuspendLayout()
+        CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
         Panel3.SuspendLayout()
         Panel4.SuspendLayout()
         SuspendLayout()
@@ -152,7 +158,7 @@ Partial Class Form1
         Button2.Name = "Button2"
         Button2.Size = New Size(181, 23)
         Button2.TabIndex = 9
-        Button2.Text = "Modificar Productos Contratos"
+        Button2.Text = "Añadir Productos Contratos"
         Button2.UseVisualStyleBackColor = True
         ' 
         ' Button3
@@ -166,9 +172,9 @@ Partial Class Form1
         ' 
         ' Button4
         ' 
-        Button4.Location = New Point(23, 116)
+        Button4.Location = New Point(363, 141)
         Button4.Name = "Button4"
-        Button4.Size = New Size(180, 23)
+        Button4.Size = New Size(197, 23)
         Button4.TabIndex = 11
         Button4.Text = "Validaciones"
         Button4.UseVisualStyleBackColor = True
@@ -213,7 +219,7 @@ Partial Class Form1
         ' 
         Label5.AutoSize = True
         Label5.BorderStyle = BorderStyle.FixedSingle
-        Label5.Font = New Font("Segoe UI", 9.0F, FontStyle.Bold, GraphicsUnit.Point)
+        Label5.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Label5.ForeColor = SystemColors.HotTrack
         Label5.Location = New Point(6, 2)
         Label5.Name = "Label5"
@@ -254,13 +260,15 @@ Partial Class Form1
         ' Panel1
         ' 
         Panel1.Controls.Add(Label5)
-        Panel1.Location = New Point(12, 359)
+        Panel1.Location = New Point(12, 379)
         Panel1.Name = "Panel1"
         Panel1.Size = New Size(561, 22)
         Panel1.TabIndex = 21
         ' 
         ' Panel2
         ' 
+        Panel2.Controls.Add(Button9)
+        Panel2.Controls.Add(PictureBox1)
         Panel2.Controls.Add(Label3)
         Panel2.Controls.Add(Button2)
         Panel2.Controls.Add(Button3)
@@ -270,8 +278,27 @@ Partial Class Form1
         Panel2.Controls.Add(Button6)
         Panel2.Location = New Point(12, 211)
         Panel2.Name = "Panel2"
-        Panel2.Size = New Size(561, 146)
+        Panel2.Size = New Size(561, 167)
         Panel2.TabIndex = 22
+        ' 
+        ' Button9
+        ' 
+        Button9.Location = New Point(23, 116)
+        Button9.Name = "Button9"
+        Button9.Size = New Size(180, 23)
+        Button9.TabIndex = 21
+        Button9.Text = "Modificar Agentes"
+        Button9.UseVisualStyleBackColor = True
+        ' 
+        ' PictureBox1
+        ' 
+        PictureBox1.Image = CType(resources.GetObject("PictureBox1.Image"), Image)
+        PictureBox1.Location = New Point(346, 63)
+        PictureBox1.Name = "PictureBox1"
+        PictureBox1.Size = New Size(22, 18)
+        PictureBox1.TabIndex = 20
+        PictureBox1.TabStop = False
+        ToolTop1.SetToolTip(PictureBox1, "Excel CNAE: CIF columna 1 y Codigo CNAE columna 3" & vbCrLf & "Excel EMAIL: Codigo Contrato columna 2 y el email en la columna 5")
         ' 
         ' Panel3
         ' 
@@ -295,12 +322,16 @@ Partial Class Form1
         Panel4.Size = New Size(536, 37)
         Panel4.TabIndex = 24
         ' 
+        ' ToolTop1
+        ' 
+        ToolTop1.ToolTipTitle = "Ayuda"
+        ' 
         ' Form1
         ' 
-        AutoScaleDimensions = New SizeF(7.0F, 15.0F)
+        AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.White
-        ClientSize = New Size(585, 385)
+        ClientSize = New Size(585, 402)
         Controls.Add(Panel4)
         Controls.Add(Panel3)
         Controls.Add(Panel2)
@@ -320,6 +351,7 @@ Partial Class Form1
         Panel1.PerformLayout()
         Panel2.ResumeLayout(False)
         Panel2.PerformLayout()
+        CType(PictureBox1, ComponentModel.ISupportInitialize).EndInit()
         Panel3.ResumeLayout(False)
         Panel3.PerformLayout()
         Panel4.ResumeLayout(False)
@@ -363,4 +395,9 @@ Partial Class Form1
         Dim borderPen As New Pen(borderColor, borderThickness)
         e.Graphics.DrawRectangle(borderPen, rect)
     End Sub
+
+    Friend WithEvents PictureBox1 As PictureBox
+    Friend WithEvents ToolTop1 As ToolTip
+    Friend WithEvents Button9 As Button
+    Friend WithEvents Timer1 As Timer
 End Class

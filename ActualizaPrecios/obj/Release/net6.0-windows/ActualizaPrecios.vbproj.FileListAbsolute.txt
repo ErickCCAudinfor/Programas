@@ -46,3 +46,5 @@ C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.sourcelink.json
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\Actualiz.69F36CBA.Up2Date
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.TablaRevisaPreciosPersonalizados.resources
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.Agentes.resources
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.Resources.resources
