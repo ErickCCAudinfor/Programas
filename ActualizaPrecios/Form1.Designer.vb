@@ -57,6 +57,7 @@ Partial Class Form1
         Panel4 = New Panel()
         ToolTop1 = New ToolTip(components)
         Timer1 = New Timer(components)
+        Button10 = New Button()
         Panel1.SuspendLayout()
         Panel2.SuspendLayout()
         CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
@@ -122,7 +123,7 @@ Partial Class Form1
         TextBox2.Name = "TextBox2"
         TextBox2.PlaceholderText = "Selecciona un filtro y escriba aqui para buscar: 216, 456789,231,24,...etc."
         TextBox2.ScrollBars = ScrollBars.Vertical
-        TextBox2.Size = New Size(525, 31)
+        TextBox2.Size = New Size(525, 43)
         TextBox2.TabIndex = 5
         ' 
         ' Label1
@@ -172,9 +173,9 @@ Partial Class Form1
         ' 
         ' Button4
         ' 
-        Button4.Location = New Point(363, 141)
+        Button4.Location = New Point(434, 121)
         Button4.Name = "Button4"
-        Button4.Size = New Size(197, 23)
+        Button4.Size = New Size(180, 23)
         Button4.TabIndex = 11
         Button4.Text = "Validaciones"
         Button4.UseVisualStyleBackColor = True
@@ -185,12 +186,12 @@ Partial Class Form1
         Button5.Name = "Button5"
         Button5.Size = New Size(180, 23)
         Button5.TabIndex = 12
-        Button5.Text = "CodigosDIR"
+        Button5.Text = "Añadir CodigosDIR"
         Button5.UseVisualStyleBackColor = True
         ' 
         ' Button6
         ' 
-        Button6.Location = New Point(374, 47)
+        Button6.Location = New Point(434, 27)
         Button6.Name = "Button6"
         Button6.Size = New Size(180, 23)
         Button6.TabIndex = 13
@@ -229,7 +230,7 @@ Partial Class Form1
         ' 
         ' Button8
         ' 
-        Button8.Location = New Point(374, 76)
+        Button8.Location = New Point(434, 56)
         Button8.Name = "Button8"
         Button8.Size = New Size(180, 23)
         Button8.TabIndex = 18
@@ -278,7 +279,7 @@ Partial Class Form1
         Panel2.Controls.Add(Button6)
         Panel2.Location = New Point(12, 211)
         Panel2.Name = "Panel2"
-        Panel2.Size = New Size(561, 167)
+        Panel2.Size = New Size(617, 167)
         Panel2.TabIndex = 22
         ' 
         ' Button9
@@ -287,18 +288,18 @@ Partial Class Form1
         Button9.Name = "Button9"
         Button9.Size = New Size(180, 23)
         Button9.TabIndex = 21
-        Button9.Text = "Modificar Agentes"
+        Button9.Text = "Cambiar Agente Contrato"
         Button9.UseVisualStyleBackColor = True
         ' 
         ' PictureBox1
         ' 
         PictureBox1.Image = CType(resources.GetObject("PictureBox1.Image"), Image)
-        PictureBox1.Location = New Point(346, 63)
+        PictureBox1.Location = New Point(406, 43)
         PictureBox1.Name = "PictureBox1"
         PictureBox1.Size = New Size(22, 18)
         PictureBox1.TabIndex = 20
         PictureBox1.TabStop = False
-        ToolTop1.SetToolTip(PictureBox1, "Excel CNAE: CIF columna 1 y Codigo CNAE columna 3" & vbCrLf & "Excel EMAIL: Codigo Contrato columna 2 y el email en la columna 5")
+        ToolTop1.SetToolTip(PictureBox1, "Excel CNAE: CIF columna 1 y Codigo CNAE columna 2" & vbCrLf & "Excel EMAIL: Codigo Contrato columna 1 y el email en la columna 2")
         ' 
         ' Panel3
         ' 
@@ -317,21 +318,31 @@ Partial Class Form1
         ' Panel4
         ' 
         Panel4.Controls.Add(TextBox2)
-        Panel4.Location = New Point(12, 34)
+        Panel4.Location = New Point(12, 27)
         Panel4.Name = "Panel4"
-        Panel4.Size = New Size(536, 37)
+        Panel4.Size = New Size(536, 49)
         Panel4.TabIndex = 24
         ' 
         ' ToolTop1
         ' 
         ToolTop1.ToolTipTitle = "Ayuda"
         ' 
+        ' Button10
+        ' 
+        Button10.Location = New Point(551, 39)
+        Button10.Name = "Button10"
+        Button10.Size = New Size(57, 21)
+        Button10.TabIndex = 25
+        Button10.Text = "Limpiar"
+        Button10.UseVisualStyleBackColor = True
+        ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.White
-        ClientSize = New Size(585, 402)
+        ClientSize = New Size(641, 402)
+        Controls.Add(Button10)
         Controls.Add(Panel4)
         Controls.Add(Panel3)
         Controls.Add(Panel2)
@@ -400,4 +411,5 @@ Partial Class Form1
     Friend WithEvents ToolTop1 As ToolTip
     Friend WithEvents Button9 As Button
     Friend WithEvents Timer1 As Timer
+    Friend WithEvents Button10 As Button
 End Class

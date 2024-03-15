@@ -59,7 +59,7 @@ Public Class ActualizarCNAEFromExcel
                 ' Iterar sobre cada fila del archivo Excel
                 For row As Integer = 2 To rowCount ' Empezamos en la fila 2 para ignorar el encabezado
                     Dim cif As String = worksheet.Cells(row, 1).Value.ToString()
-                    Dim codCnae As String = If(worksheet.Cells(row, 3).Value IsNot Nothing, worksheet.Cells(row, 3).Value.ToString(), String.Empty)
+                    Dim codCnae As String = If(worksheet.Cells(row, 2).Value IsNot Nothing, worksheet.Cells(row, 2).Value.ToString(), String.Empty)
 
                     ' Verificar si el código CNAE está vacío
                     If String.IsNullOrEmpty(codCnae) Then

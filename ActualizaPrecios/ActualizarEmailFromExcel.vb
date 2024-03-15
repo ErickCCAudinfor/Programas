@@ -58,8 +58,8 @@ Public Class ActualizarEmailFromExcel
 
                 ' Iterar sobre cada fila del archivo Excel
                 For row As Integer = 2 To rowCount ' Empezamos en la fila 2 para ignorar el encabezado
-                    Dim CodContrato As String = worksheet.Cells(row, 2).Value?.ToString()
-                    Dim Emails As String = If(worksheet.Cells(row, 5).Value IsNot Nothing, worksheet.Cells(row, 5).Value?.ToString(), String.Empty)
+                    Dim CodContrato As String = worksheet.Cells(row, 1).Value?.ToString()
+                    Dim Emails As String = If(worksheet.Cells(row, 2).Value IsNot Nothing, worksheet.Cells(row, 2).Value?.ToString(), String.Empty)
 
                     ' Verificar si el email está vacío
                     If String.IsNullOrEmpty(Emails) Then

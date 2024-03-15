@@ -4,8 +4,7 @@ Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 
 
 Public Class Form1
-    Private ProgressBarValue As Integer = 0
-    Private ProgressBarMaxValue As Integer = 100
+
 
     Private ReadOnly Property ipDB As String = "data source=172.31.100.12;"
     'Private ReadOnly Property ipDB As String = "data source=172.31.100.50\TOTALUAT;"
@@ -19,8 +18,6 @@ Public Class Form1
     Private ReadOnly ContratoTarifaSrv As New ContratoTarifaSrv(connectionString)
 
     Private ReadOnly Funciones As New FuncionesGenericas(connectionString)
-
-
 
     Private Sub Actualizar(sender As Object, e As EventArgs) Handles Button1.Click
 
@@ -47,7 +44,7 @@ Public Class Form1
 
             'End If
             Dim yesorNot As MsgBoxResult
-            Dim todoOK As Boolean = False
+            Dim todoOK = False
             'Escribo los valores que tiene ahora, para posteriormente comparar o hacer uso de este y dejarlo como esta
             Funciones.EscribirContratoTarifaAntesCambios(ContratoActualizar)
             If ContratoActualizar.Count > 0 Then
@@ -56,7 +53,7 @@ Public Class Form1
                 Else
                     todoOK = True
                 End If
-                If ((yesorNot = 6 OrElse yesorNot = 1) OrElse todoOK) Then
+                If yesorNot = 6 OrElse yesorNot = 1 OrElse todoOK Then
                     Dim ContratosTXT = ActualizarRegistros(ContratoActualizar)
 
                     MessageBox.Show($"{ContratosTXT}. Contratos iniciales:{ContratoActualizar.Count} contratos")
@@ -320,32 +317,61 @@ Public Class Form1
     Private Function GetConSinSplit(contxt As String) As List(Of Long)
         Dim Con As New List(Of Long)
         Try
-            ' Separar la cadena en una matriz de cadenas utilizando la coma como delimitador
-            Dim contratosTexto As String = contxt
-            Dim contratosSeparados As String() = contratosTexto.Split(","c)
-            For Each contratoTexto As String In contratosSeparados
-                Dim codigosCon As Long
-                If Long.TryParse(contratoTexto.Trim(), codigosCon) Then
-                    Con.Add(codigosCon)
-                End If
-            Next
+            If contxt.Contains(",") Then
+                ' Si la cadena ya contiene comas, dividir la cadena utilizando solo comas como delimitadores
+                Dim contratos = contxt.Replace(vbCrLf, "")
+                Dim contratosSeparados As String() = contratos.Split(","c)
+                For Each contratoTexto As String In contratosSeparados
+                    Dim codigosCon As Long
+                    If Long.TryParse(contratoTexto.Trim(), codigosCon) Then
+                        Con.Add(codigosCon)
+                    End If
+                Next
+            Else
+                ' Si la cadena no contiene comas, eliminar espacios en blanco de la cadena
+                Dim contratosTexto As String = contxt.Replace(" ", "")
+                ' Separar la cadena en una matriz de cadenas utilizando comas, saltos de línea y espacios en blanco como delimitadores
+                Dim delimiters As Char() = {","c, ControlChars.Lf, ControlChars.Cr}
+                Dim contratosSeparados As String() = contratosTexto.Split(delimiters, StringSplitOptions.RemoveEmptyEntries)
+                For Each contratoTexto As String In contratosSeparados
+                    Dim codigosCon As Long
+                    If Long.TryParse(contratoTexto.Trim(), codigosCon) Then
+                        Con.Add(codigosCon)
+                    End If
+                Next
+            End If
         Catch ex As Exception
             MessageBox.Show(ex.Message)
         End Try
         Return Con
     End Function
+
+
     Private Function GetConSinSplitCupsCIFS(contxt As String) As List(Of String)
         Dim Con As New List(Of String)
         Try
-            ' Separar la cadena en una matriz de cadenas utilizando la coma como delimitador
-            Dim contratosTexto As String = contxt
-            Dim contratosSeparados As String() = contratosTexto.Split(","c)
-            For Each cupstexto As String In contratosSeparados
-                'Dim cupss As String
-                'If String.TryParse(cupstexto.Trim(), cupss) Then
-                Con.Add(cupstexto)
-                'End If
-            Next
+
+            If contxt.Contains(",") Then
+                ' Separar la cadena en una matriz de cadenas utilizando la coma como delimitador
+                Dim contratosTexto As String = contxt.Replace(vbCrLf, "")
+                Dim contratosSeparados As String() = contratosTexto.Split(","c)
+                For Each cupstexto As String In contratosSeparados
+                    If cupstexto.Length > 1 Then
+                        Con.Add(cupstexto)
+                    End If
+                Next
+            Else
+                ' Si la cadena no contiene comas, eliminar espacios en blanco de la cadena
+                Dim contratosTexto As String = contxt.Replace(" ", "")
+                ' Separar la cadena en una matriz de cadenas utilizando comas, saltos de línea y espacios en blanco como delimitadores
+                Dim delimiters As Char() = {","c, ControlChars.Lf, ControlChars.Cr}
+                Dim contratosSeparados As String() = contratosTexto.Split(delimiters, StringSplitOptions.RemoveEmptyEntries)
+                For Each contratoTexto As String In contratosSeparados
+                    If contratoTexto.Length > 1 Then
+                        Con.Add(contratoTexto)
+                    End If
+                Next
+            End If
         Catch ex As Exception
             MessageBox.Show(ex.Message)
         End Try
@@ -529,7 +555,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
 
             ' Verificar si el archivo existe, y si no, crearlo
             If Not File.Exists(rutaArchivo) Then
-                File.Create(rutaArchivo).Close
+                File.Create(rutaArchivo).Close()
             End If
 
             Validaciones.EjecutarConsultasYGuardarEnExcel(listas, rutaArchivo)
@@ -752,4 +778,14 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
         End Try
     End Sub
 
+    'Limpiar filtros
+    Private Sub Button10_Click(sender As Object, e As EventArgs) Handles Button10.Click
+        Try
+            TextBox2.Text = ""
+            TextBox1.Text = ""
+            TextBox3.Text = ""
+        Catch ex As Exception
+            MessageBox.Show(ex.Message)
+        End Try
+    End Sub
 End Class
