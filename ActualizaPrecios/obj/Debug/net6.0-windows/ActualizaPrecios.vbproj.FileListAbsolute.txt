@@ -72,3 +72,4 @@ C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Debug\net6.0-
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Debug\net6.0-windows\ActualizaPrecios.TablaRevisaPreciosPersonalizados.resources
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Debug\net6.0-windows\ActualizaPrecios.Resources.resources
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Debug\net6.0-windows\ActualizaPrecios.Agentes.resources
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Debug\net6.0-windows\ActualizaPrecios.AdministradoresWF.resources

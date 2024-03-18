@@ -51,6 +51,7 @@ Partial Class Form1
         TextBox3 = New TextBox()
         Panel1 = New Panel()
         Panel2 = New Panel()
+        Button11 = New Button()
         Button9 = New Button()
         PictureBox1 = New PictureBox()
         Panel3 = New Panel()
@@ -173,7 +174,7 @@ Partial Class Form1
         ' 
         ' Button4
         ' 
-        Button4.Location = New Point(434, 121)
+        Button4.Location = New Point(434, 137)
         Button4.Name = "Button4"
         Button4.Size = New Size(180, 23)
         Button4.TabIndex = 11
@@ -261,13 +262,14 @@ Partial Class Form1
         ' Panel1
         ' 
         Panel1.Controls.Add(Label5)
-        Panel1.Location = New Point(12, 379)
+        Panel1.Location = New Point(12, 398)
         Panel1.Name = "Panel1"
         Panel1.Size = New Size(561, 22)
         Panel1.TabIndex = 21
         ' 
         ' Panel2
         ' 
+        Panel2.Controls.Add(Button11)
         Panel2.Controls.Add(Button9)
         Panel2.Controls.Add(PictureBox1)
         Panel2.Controls.Add(Label3)
@@ -281,6 +283,15 @@ Partial Class Form1
         Panel2.Name = "Panel2"
         Panel2.Size = New Size(617, 167)
         Panel2.TabIndex = 22
+        ' 
+        ' Button11
+        ' 
+        Button11.Location = New Point(23, 144)
+        Button11.Name = "Button11"
+        Button11.Size = New Size(180, 23)
+        Button11.TabIndex = 22
+        Button11.Text = "Cambiar Administrador Contrato"
+        Button11.UseVisualStyleBackColor = True
         ' 
         ' Button9
         ' 
@@ -341,7 +352,7 @@ Partial Class Form1
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.White
-        ClientSize = New Size(641, 402)
+        ClientSize = New Size(641, 424)
         Controls.Add(Button10)
         Controls.Add(Panel4)
         Controls.Add(Panel3)
@@ -412,4 +423,5 @@ Partial Class Form1
     Friend WithEvents Button9 As Button
     Friend WithEvents Timer1 As Timer
     Friend WithEvents Button10 As Button
+    Friend WithEvents Button11 As Button
 End Class

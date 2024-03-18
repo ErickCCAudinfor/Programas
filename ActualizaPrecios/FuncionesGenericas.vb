@@ -1354,6 +1354,79 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
         Return ListaAgentes
     End Function
 
+    Public Function GetAdmind() As List(Of Administrador)
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim ListaAdministrador As New List(Of Administrador)
+        Try
+            conexion.Open()
+            Dim query = $"Select IdAdministrador,Entorno,NombreAdministrador from Administrador where entorno = 'G1' or entorno = 'G2'"
+            Dim comando = New SqlCommand(query, conexion)
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+
+            ' Se lee cada fila del SqlDataReader y se crea un objeto Agente
+            Do While readerQuery.Read
+                Dim AdminC = New Administrador
+
+                ' Controlar valores nulos y convertir al tipo de datos correcto para cada campo
+                AdminC.IdAdministrador = GetValueOrDefault(Of Long)(readerQuery, 0, 0)
+                AdminC.Entorno = GetValueOrDefault(Of String)(readerQuery, 1, "")
+                AdminC.NombreAdministrador = $"{AdminC.Entorno} {GetValueOrDefault(Of String)(readerQuery, 2, "")}"
+                ListaAdministrador.Add(AdminC)
+            Loop
+            readerQuery.Close()
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return ListaAdministrador
+    End Function
+
+    Public Function GetAdminAll() As List(Of Administrador)
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim ListaAdministrador As New List(Of Administrador)
+        Try
+            conexion.Open()
+            Dim query = $"Select * from agente where entorno = 'G1' or entorno = 'G2'"
+            Dim comando = New SqlCommand(query, conexion)
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+
+            ' Se lee cada fila del SqlDataReader y se crea un objeto Agente
+            Do While readerQuery.Read
+                Dim AdminC = New Administrador
+
+                ' Controlar valores nulos y convertir al tipo de datos correcto para cada campo
+                AdminC.IdAdministrador = GetValueOrDefault(Of Long)(readerQuery, 0, 0)
+                AdminC.Entorno = GetValueOrDefault(Of String)(readerQuery, 1, "")
+                AdminC.NombreAdministrador = $"{AdminC.Entorno} {GetValueOrDefault(Of String)(readerQuery, 2, "")}"
+                AdminC.Direccion = GetValueOrDefault(Of String)(readerQuery, 3, "")
+                AdminC.CodigoPostal = GetValueOrDefault(Of String)(readerQuery, 4, "")
+                AdminC.Ciudad = GetValueOrDefault(Of String)(readerQuery, 5, "")
+                AdminC.Telefono = GetValueOrDefault(Of String)(readerQuery, 6, "")
+                AdminC.Movil = GetValueOrDefault(Of String)(readerQuery, 7, "")
+                AdminC.email = GetValueOrDefault(Of String)(readerQuery, 8, "")
+                AdminC.Web = GetValueOrDefault(Of String)(readerQuery, 9, "")
+                AdminC.Notas = GetValueOrDefault(Of Long)(readerQuery, 10, 0)
+                AdminC.UsuarioWeb = GetValueOrDefault(Of Long)(readerQuery, 11, 0)
+                AdminC.PasswordWeb = GetValueOrDefault(Of String)(readerQuery, 12, "")
+                AdminC.FincasPlus = GetValueOrDefault(Of Boolean)(readerQuery, 13, False)
+                AdminC.TuComunidad = GetValueOrDefault(Of Boolean)(readerQuery, 14, False)
+                AdminC.TAAF = GetValueOrDefault(Of Boolean)(readerQuery, 15, False)
+                AdminC.IsPasswordEncriptado = GetValueOrDefault(Of Boolean)(readerQuery, 16, False)
+
+
+                ListaAdministrador.Add(AdminC)
+            Loop
+
+            readerQuery.Close()
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return ListaAdministrador
+    End Function
+
     Public Function GetValueOrDefault(Of T)(reader As SqlDataReader, columnIndex As Integer, defaultValue As T) As T
         If reader.IsDBNull(columnIndex) Then
             Return defaultValue
@@ -1379,6 +1452,13 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
                 Else
                     Return defaultValue
                 End If
+
+            ElseIf GetType(T) Is GetType(Boolean) Then
+                If Boolean.TryParse(value.ToString(), Nothing) Then
+                    Return CType(CObj(value), T)
+                Else
+                    Return defaultValue
+                End If
                 ' Agrega otros tipos de datos según sea necesario
             Else
                 Return CType(CObj(value), T)
@@ -1400,6 +1480,19 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
         End Try
         Return FilfasAfectadas
     End Function
-
+    Public Function UpdateContratoIdAdmin(Contrato As Long, IdAdministrador As Long) As Long
+        Dim FilfasAfectadas As Long
+        Try
+            Dim conexion = New SqlConnection(connectionString)
+            conexion.Open()
+            Dim query = $"update Contrato set IdAdministrador = {IdAdministrador} where CodigoContrato ={Contrato}"
+            Dim comando = New SqlCommand(query, conexion)
+            FilfasAfectadas = comando.ExecuteNonQuery
+            conexion.Close()
+        Catch ex As Exception
+            Throw
+        End Try
+        Return FilfasAfectadas
+    End Function
 End Class
 

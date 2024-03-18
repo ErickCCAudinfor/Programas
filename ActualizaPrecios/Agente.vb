@@ -1,5 +1,5 @@
 ﻿
-Partial Public Class Agente
+Public Class Agente
     Public Property IdAgente As Long
     Public Property Entorno As String
     Public Property NombreAgente As String

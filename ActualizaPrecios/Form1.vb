@@ -769,7 +769,21 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
             Dim Con = GetConSinSplit(TextBox2.Text)
             If Con.Count > 0 Then
                 Dim Agentes As New Agentes(Con, connectionString)
-                Agentes.Show()
+                Agentes.Show
+            Else
+                MessageBox.Show("Ingrese al menos un contrato")
+            End If
+        Catch ex As Exception
+            MessageBox.Show(ex.Message)
+        End Try
+    End Sub
+    ' Para modificar el Administrador del contrato
+    Private Sub Button11_Click(sender As Object, e As EventArgs) Handles Button11.Click
+        Try
+            Dim Con = GetConSinSplit(TextBox2.Text)
+            If Con.Count > 0 Then
+                Dim Administradores As New AdministradoresWF(Con, connectionString)
+                Administradores.Show()
             Else
                 MessageBox.Show("Ingrese al menos un contrato")
             End If
@@ -788,4 +802,6 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
             MessageBox.Show(ex.Message)
         End Try
     End Sub
+
+
 End Class

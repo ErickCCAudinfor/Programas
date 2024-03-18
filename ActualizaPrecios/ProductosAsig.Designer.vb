@@ -209,6 +209,7 @@ Partial Class ProductosAsig
         Controls.Add(ComboBox1)
         Icon = CType(resources.GetObject("$this.Icon"), Icon)
         Name = "ProductosAsig"
+        StartPosition = FormStartPosition.CenterScreen
         Text = "Productos"
         CType(NumericUpDown1, ComponentModel.ISupportInitialize).EndInit()
         ResumeLayout(False)
