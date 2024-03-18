@@ -1,11 +1,9 @@
 ﻿
 Imports System.IO
-Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 
 
 Public Class Form1
-
-
+    Dim complementos As New Complementos()
     Private ReadOnly Property ipDB As String = "data source=172.31.100.12;"
     'Private ReadOnly Property ipDB As String = "data source=172.31.100.50\TOTALUAT;"
     Private ReadOnly Property nameDB As String = "initial catalog=SigeTotal;"
@@ -56,16 +54,16 @@ Public Class Form1
                 If yesorNot = 6 OrElse yesorNot = 1 OrElse todoOK Then
                     Dim ContratosTXT = ActualizarRegistros(ContratoActualizar)
 
-                    MessageBox.Show($"{ContratosTXT}. Contratos iniciales:{ContratoActualizar.Count} contratos")
+                    complementos.MostrarMensajePersonalizado($"{ContratosTXT}. Contratos iniciales:{ContratoActualizar.Count} contratos")
                 Else
-                    MessageBox.Show($"Se ha cancelado la actualización")
+                    complementos.MostrarMensajePersonalizado($"Se ha cancelado la actualización")
                 End If
             Else
-                MessageBox.Show($"Sin Contratos")
+                complementos.MostrarMensajePersonalizado($"Sin Contratos")
             End If
 
         Catch ex As Exception
-            MessageBox.Show("Exception: " + ex.Message)
+            complementos.MostrarMensajePersonalizado("Exception: " + ex.Message)
         End Try
 
     End Sub
@@ -305,11 +303,11 @@ Public Class Form1
                 Dim ModiCo As New ProductosAsig(Entorno, Con, connectionString)
                 ModiCo.Show()
             Else
-                MessageBox.Show("Ingrese al menos un contrato")
+                complementos.MostrarMensajePersonalizado($"Ingrese al menos un contrato")
             End If
 
         Catch ex As Exception
-            MessageBox.Show(ex.Message)
+            complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
 
@@ -341,7 +339,7 @@ Public Class Form1
                 Next
             End If
         Catch ex As Exception
-            MessageBox.Show(ex.Message)
+            complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
         Return Con
     End Function
@@ -373,7 +371,7 @@ Public Class Form1
                 Next
             End If
         Catch ex As Exception
-            MessageBox.Show(ex.Message)
+            complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
         Return Con
     End Function
@@ -387,7 +385,7 @@ Public Class Form1
                 Button1.Enabled = False
             End If
         Catch ex As Exception
-            MessageBox.Show(ex.Message)
+            complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
 
@@ -559,9 +557,11 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
             End If
 
             Validaciones.EjecutarConsultasYGuardarEnExcel(listas, rutaArchivo)
-            MessageBox.Show($"Se han creado los datos en el archivo Excel en: {rutaArchivo}")
+            complementos.MostrarMensajePersonalizado($"Se han creado los datos en el archivo Excel en: {rutaArchivo}")
+
+            'MessageBox.Show($"Se han creado los datos en el archivo Excel en: {rutaArchivo}")
         Catch ex As Exception
-            MessageBox.Show(ex.Message)
+            complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
 
@@ -573,11 +573,11 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
                 Dim CodigoDir As New CodigoDir(connectionString, Con)
                 CodigoDir.Show()
             Else
-                MessageBox.Show("Ingrese al menos un contrato")
+                complementos.MostrarMensajePersonalizado($"Ingrese al menos un contrato")
             End If
 
         Catch ex As Exception
-            MessageBox.Show(ex.Message)
+            complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
 
@@ -618,7 +618,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
             End If
 
         Catch ex As Exception
-            MessageBox.Show(ex.Message)
+            complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
 
@@ -668,12 +668,12 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
                 End If
             End If
             If RenovadoANull > 0 Then
-                MessageBox.Show("Contratos listos para ser renovados")
+                complementos.MostrarMensajePersonalizado($"Contratos listos para ser renovados")
             Else
-                MessageBox.Show("Ningún contrato renovado")
+                complementos.MostrarMensajePersonalizado($"Ningún contrato renovado")
             End If
         Catch ex As Exception
-            MessageBox.Show(ex.Message)
+            complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
 
@@ -687,7 +687,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
             table.Show()
             'Funciones.RevisaTarifaPrecioContratoPersonalizadaGas()
         Catch ex As Exception
-            MessageBox.Show(ex.Message)
+            complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
 
@@ -744,7 +744,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
             End If
 
         Catch ex As Exception
-            MessageBox.Show(ex.Message)
+            complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
 
@@ -769,12 +769,12 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
             Dim Con = GetConSinSplit(TextBox2.Text)
             If Con.Count > 0 Then
                 Dim Agentes As New Agentes(Con, connectionString)
-                Agentes.Show
+                Agentes.Show()
             Else
-                MessageBox.Show("Ingrese al menos un contrato")
+                complementos.MostrarMensajePersonalizado($"Ingrese al menos un contrato")
             End If
         Catch ex As Exception
-            MessageBox.Show(ex.Message)
+            complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
     ' Para modificar el Administrador del contrato
@@ -785,10 +785,10 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
                 Dim Administradores As New AdministradoresWF(Con, connectionString)
                 Administradores.Show()
             Else
-                MessageBox.Show("Ingrese al menos un contrato")
+                complementos.MostrarMensajePersonalizado($"Ingrese al menos un contrato")
             End If
         Catch ex As Exception
-            MessageBox.Show(ex.Message)
+            complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
 
@@ -799,9 +799,8 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
             TextBox1.Text = ""
             TextBox3.Text = ""
         Catch ex As Exception
-            MessageBox.Show(ex.Message)
+            complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
-
 
 End Class
