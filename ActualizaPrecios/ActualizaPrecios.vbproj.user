@@ -13,6 +13,9 @@
     <Compile Update="Form1.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="LoadingWF.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="ProductosAsig.vb">
       <SubType>Form</SubType>
     </Compile>

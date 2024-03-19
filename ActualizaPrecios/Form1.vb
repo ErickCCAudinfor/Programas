@@ -4,6 +4,7 @@ Imports System.IO
 
 Public Class Form1
     Dim complementos As New Complementos()
+    Dim LoadingWF As New LoadingWF
     Private ReadOnly Property ipDB As String = "data source=172.31.100.12;"
     'Private ReadOnly Property ipDB As String = "data source=172.31.100.50\TOTALUAT;"
     Private ReadOnly Property nameDB As String = "initial catalog=SigeTotal;"
@@ -225,7 +226,8 @@ Public Class Form1
 
                 Next
             Else
-                MessageBox.Show("las listas no coinciden")
+                complementos.MostrarMensajePersonalizado("las listas no coinciden")
+
             End If
 
         Catch ex As Exception
@@ -390,8 +392,9 @@ Public Class Form1
     End Sub
 
     'Crear las validaciones
-    Private Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
+    Private Async Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
         Try
+            LoadingWF.Show()
             Dim listas As New List(Of String)
             Dim Validaciones As New ValidacionExcel(connectionString)
 #Region "Consulta 1"
@@ -556,12 +559,15 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
                 File.Create(rutaArchivo).Close()
             End If
 
-            Validaciones.EjecutarConsultasYGuardarEnExcel(listas, rutaArchivo)
+            Await Task.Run(Sub() Validaciones.EjecutarConsultasYGuardarEnExcel(listas, rutaArchivo))
+            LoadingWF.Hide()
             complementos.MostrarMensajePersonalizado($"Se han creado los datos en el archivo Excel en: {rutaArchivo}")
 
             'MessageBox.Show($"Se han creado los datos en el archivo Excel en: {rutaArchivo}")
         Catch ex As Exception
+            LoadingWF.Hide()
             complementos.MostrarMensajePersonalizado(ex.Message)
+
         End Try
     End Sub
 
@@ -605,26 +611,30 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
             'Dim Empieza As TimeSpan = stopwatch.Elapsed
             Dim ActualizarCNAE As New ActualizarCNAEFromExcel(connectionString)
             If rutaArchivo.Length > 0 Then
+                LoadingWF.Show()
                 ActualizarCNAE.RutaExcel = rutaArchivo
                 Dim contratosActualizado = Await ActualizarCNAE.ActualizarCNAEFromExcelAsync()
 
                 ' Detener el cronómetro y obtener el tiempo transcurrido
                 stopwatch.Stop()
+                LoadingWF.Hide()
                 Dim tiempoTranscurrido As TimeSpan = stopwatch.Elapsed
 
-                MessageBox.Show($"Se han actualizado {contratosActualizado} contratos. Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes} minutos.")
+                complementos.MostrarMensajePersonalizado($"Se han actualizado {contratosActualizado} contratos. Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes} minutos.")
             Else
-                MessageBox.Show($"Escriba una ruta para seguir.")
+                complementos.MostrarMensajePersonalizado($"Escriba una ruta para seguir.")
             End If
 
         Catch ex As Exception
+            LoadingWF.Hide()
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
 
     'Volver a RenovarContratos
-    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
+    Private Async Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         Try
+            LoadingWF.Show()
             Dim RenovadoANull = 0L
             'Si esta por cups
             If CheckBox1.Checked Then
@@ -635,7 +645,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
 
                         Dim ContratoActivo = Funciones.GetListContratobyCUPS(Replace(cps20.Trim, " ", "")).Where(Function(f) If(f.IdContratoSituacion, 0L) = 1).FirstOrDefault ' Buscamos solo el activo
                         If Not IsNothing(ContratoActivo) AndAlso ContratoActivo.IdContrato > 0 AndAlso ContratoActivo.IdContratoSituacion = 1 Then ' solo si es activo
-                            RenovadoANull = Funciones.VolverARenovar(ContratoActivo.CodigoContrato)
+                            RenovadoANull = Await Task.Run(Function() Funciones.VolverARenovar(ContratoActivo.CodigoContrato))
                         End If
 
 
@@ -649,7 +659,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
                     For Each elemnt In Con
                         Dim ConActivo = Funciones.GetContrato(elemnt)
                         If Not IsNothing(ConActivo) AndAlso ConActivo.IdContrato > 0 AndAlso ConActivo.IdContratoSituacion = 1 Then ' solo si es activo
-                            RenovadoANull = Funciones.VolverARenovar(ConActivo.CodigoContrato)
+                            RenovadoANull = Await Task.Run(Function() Funciones.VolverARenovar(ConActivo.CodigoContrato))
                         End If
                     Next
                 End If
@@ -661,18 +671,21 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
                     For Each cif In CIFS
                         Dim ContratoActivo = Funciones.GetListContratobyCIF(cif.Trim).Where(Function(f) If(f.IdContratoSituacion, 0L) = 1).FirstOrDefault ' Buscamos solo el activo
                         If Not IsNothing(ContratoActivo) AndAlso ContratoActivo.IdContrato > 0 AndAlso ContratoActivo.IdContratoSituacion = 1 Then ' solo si es activo
-                            RenovadoANull = Funciones.VolverARenovar(ContratoActivo.CodigoContrato)
+                            RenovadoANull = Await Task.Run(Function() Funciones.VolverARenovar(ContratoActivo.CodigoContrato))
                         End If
 
                     Next
                 End If
             End If
+            LoadingWF.Hide()
+
             If RenovadoANull > 0 Then
                 complementos.MostrarMensajePersonalizado($"Contratos listos para ser renovados")
             Else
                 complementos.MostrarMensajePersonalizado($"Ningún contrato renovado")
             End If
         Catch ex As Exception
+            LoadingWF.Hide()
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
@@ -682,8 +695,10 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
         Try
             'Dim RutaArchivo = Funciones.RevisaTarifaPrecioContratoPersonalizada()
             'MessageBox.Show($"Se ha generado la revisión en la siguiente ruta:{RutaArchivo}")
+
             Dim table As New TablaRevisaPreciosPersonalizados(connectionString)
             table.cargar()
+
             table.Show()
             'Funciones.RevisaTarifaPrecioContratoPersonalizadaGas()
         Catch ex As Exception
@@ -731,19 +746,24 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
             'Dim Empieza As TimeSpan = stopwatch.Elapsed
             Dim ActualizarEmail As New ActualizarEmailFromExcel(connectionString)
             If rutaArchivo.Length > 0 Then
+                LoadingWF.Show()
                 ActualizarEmail.RutaExcel = rutaArchivo
                 Dim contratosActualizado = Await ActualizarEmail.ActualizarCNAEFromExcelAsync
 
                 ' Detener el cronómetro y obtener el tiempo transcurrido
                 stopwatch.Stop()
                 Dim tiempoTranscurrido As TimeSpan = stopwatch.Elapsed
+                LoadingWF.Hide()
+                complementos.MostrarMensajePersonalizado($"Se han actualizado {contratosActualizado} contratos. Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes} minutos.")
 
-                MessageBox.Show($"Se han actualizado {contratosActualizado} contratos. Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes} minutos.")
             Else
-                MessageBox.Show($"Escriba una ruta para seguir.")
+
+                complementos.MostrarMensajePersonalizado($"Escriba una ruta para seguir.")
+
             End If
 
         Catch ex As Exception
+            LoadingWF.Hide()
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
@@ -795,12 +815,90 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
     'Limpiar filtros
     Private Sub Button10_Click(sender As Object, e As EventArgs) Handles Button10.Click
         Try
+
             TextBox2.Text = ""
             TextBox1.Text = ""
             TextBox3.Text = ""
+
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
 
+
+
+    '    Private Sub Button12_Click(sender As Object, e As EventArgs)
+    '        Try
+    '            Dim listas As New List(Of String)
+    '            Dim Validaciones As New ValidacionExcel(connectionString)
+    '#Region "Consulta 1"
+    '            Dim resultadoConsulta1 = "select top 50 fvc.IdFacturaVentaCabecera
+    ',cl.Identidad
+    ',CUPS.codigocups
+    ',c.codigocontrato
+    ',t.TextoTarifa
+    ',tg.TextoTarifaGrupo
+    ',fvc.SerieFactura
+    ',fvc.NumeroFactura
+    ',fvc.FechaFactura
+    ',fvc.FechaLecturaAnteriorXML
+    ',fvc.FechaLecturaActualXML
+    ',replace(max(l.InfoLecturaXML.value('(//LecturaInfoDTO/ConsumoGasKwh) [1]', 'decimal(18,6)')),'.',',') As ConsumoGasKwh
+    ',STRING_AGG(CONVERT(NVARCHAR(max),ISNULL(fvl.Descripcion,'N/A')), '||') AS Descripcion
+    ',STRING_AGG(CONVERT(NVARCHAR(max),ISNULL(convert(nvarchar(max),fvl.ImporteBase),'N/A')), '||') AS ImporteBase
+    ',max(mcc.FechaDesde) as FechaInicioClic
+    ',max(mcc.FechaHasta) as FechaHastaClic
+    'from FacturaVentaCabecera fvc with (nolock)
+    'inner join contrato c with (nolock)  on c.CodigoContrato = fvc.CodigoContrato
+    'inner join cups with (nolock) on cups.IdCups =c.IdCups
+    'inner join Cliente cl with(nolock) on cl.IdCliente = c.IdCliente
+    'inner join FacturaVentaLinea fvl with (nolock) on fvl.idfacturaventacabecera = fvc.idfacturaventacabecera and FacturaConcepto=90032
+    'left join lectura l with (nolock) on l.idfacturaventacabecerasectorc = fvc.idfacturaventacabecera
+    'inner join contratotarifa ct with (nolock) on ct.codigocontrato = c.codigocontrato and fvc.InfoCabeceraXML.value('(FacturaInfoCabeceraDTO/FacturaInfoCabeceralectura/IdTarifaGrupo)[1]', 'integer')= ct.IdTarifaGrupo
+    'inner join tarifagrupo tg with (nolock) on tg.idtarifagrupo = ct.idtarifagrupo  
+    'inner join tarifa t with (nolock) on ct.idtarifa = t.idtarifa
+    'left join MultiClickCabecera mcc with (nolock) on mcc.IdCliente = cl.IdCliente
+
+    'where fvc.Entorno='E2' and fvc.fechafactura >= '01/01/2023' and l.Facturado=1 and SerieFactura is not null 
+
+    'group by fvc.IdFacturaVentaCabecera
+    ',cl.Identidad
+    ',CUPS.codigocups
+    ',c.codigocontrato
+    ',t.TextoTarifa
+    ',tg.TextoTarifaGrupo
+    ',fvc.SerieFactura
+    ',fvc.NumeroFactura
+    ',fvc.FechaFactura
+    ',fvc.FechaLecturaAnteriorXML
+    ',fvc.FechaLecturaActualXML
+    ',mcc.FechaDesde
+    ',mcc.FechaHasta
+    'order by fvc.FechaFactura"
+    '#End Region
+
+    '            listas.Add(resultadoConsulta1)
+
+    '            ' Ruta del archivo CSV
+    '            'Dim rutaArchivo As String = $"C:\Users\ErickCC\Documents\TotalDoc\Validaciones\Validaciones{Date.Today.ToString("ddMMyyyy")}.xlsx"
+    '            Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\Variable"
+    '            Dim rutaArchivo = Path.Combine(rutaCarpeta, $"Variables{Date.Today.ToString("ddMMyyyy")}.xlsx")
+    '            ' Verificar si la carpeta existe, y si no, crearla
+    '            If Not Directory.Exists(rutaCarpeta) Then
+    '                Directory.CreateDirectory(rutaCarpeta)
+    '            End If
+
+    '            ' Verificar si el archivo existe, y si no, crearlo
+    '            If Not File.Exists(rutaArchivo) Then
+    '                File.Create(rutaArchivo).Close()
+    '            End If
+
+    '            Validaciones.EjecutarConsultasYGuardarEnExcelVariableGas(listas, rutaArchivo)
+    '            complementos.MostrarMensajePersonalizado($"Se han creado los datos en el archivo Excel en: {rutaArchivo}")
+
+    '            'MessageBox.Show($"Se han creado los datos en el archivo Excel en: {rutaArchivo}")
+    '        Catch ex As Exception
+    '            complementos.MostrarMensajePersonalizado(ex.Message)
+    '        End Try
+    'End Sub
 End Class
