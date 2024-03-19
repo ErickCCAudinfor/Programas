@@ -22,6 +22,7 @@ Partial Class AdministradoresWF
     'No lo modifique con el editor de código.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(AdministradoresWF))
         Label8 = New Label()
         Label7 = New Label()
         Label6 = New Label()
@@ -153,6 +154,7 @@ Partial Class AdministradoresWF
         Controls.Add(Button1)
         Controls.Add(ComboBox1)
         Controls.Add(Label1)
+        Icon = CType(resources.GetObject("$this.Icon"), Icon)
         Name = "AdministradoresWF"
         StartPosition = FormStartPosition.CenterScreen
         Text = "AdministradoresWF"

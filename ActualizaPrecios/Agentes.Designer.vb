@@ -22,6 +22,7 @@ Partial Class Agentes
     'No lo modifique con el editor de código.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Agentes))
         Label1 = New Label()
         ComboBox1 = New ComboBox()
         Button1 = New Button()
@@ -153,6 +154,7 @@ Partial Class Agentes
         Controls.Add(Button1)
         Controls.Add(ComboBox1)
         Controls.Add(Label1)
+        Icon = CType(resources.GetObject("$this.Icon"), Icon)
         Name = "Agentes"
         StartPosition = FormStartPosition.CenterScreen
         Text = "Agentes"
