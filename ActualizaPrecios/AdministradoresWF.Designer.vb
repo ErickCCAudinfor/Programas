@@ -157,7 +157,7 @@ Partial Class AdministradoresWF
         Icon = CType(resources.GetObject("$this.Icon"), Icon)
         Name = "AdministradoresWF"
         StartPosition = FormStartPosition.CenterScreen
-        Text = "AdministradoresWF"
+        Text = "Administradores"
         ResumeLayout(False)
         PerformLayout()
     End Sub

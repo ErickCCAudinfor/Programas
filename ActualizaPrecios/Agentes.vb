@@ -3,7 +3,7 @@
 
     Private ReadOnly Property connectionString As String
     Private ReadOnly Property Funciones As FuncionesGenericas
-
+    Dim LoadingWF As New LoadingWF
     Public Sub New(Contratos As List(Of Long), connectionString As String)
         Try
             InitializeComponent()
@@ -30,7 +30,9 @@
             Dim AgenteSeleccionado As Agente = TryCast(ComboBox1.SelectedItem, Agente)
             Dim AgenteSeleccionadoGas As Agente = TryCast(ComboBox2.SelectedItem, Agente)
             Dim ListaOk As New List(Of Contrato)
+            LoadingWF.Show()
             For Each elemnt In Contratos
+
                 Dim Contrato = Funciones.GetContrato(elemnt)
                 'Contrato de luz
                 If Not IsNothing(Contrato) AndAlso Contrato.IdContrato > 0 AndAlso Contrato.Entorno = "E1" AndAlso Not IsNothing(AgenteSeleccionado) AndAlso AgenteSeleccionado.IdAgente > 0 Then
@@ -47,6 +49,8 @@
                     End If
                 End If
             Next
+            LoadingWF.Hide()
+
             If ListaOk.Count > 0 Then
                 MessageBox.Show($"Contratos Actualizados")
             Else
@@ -54,6 +58,7 @@
             End If
 
         Catch ex As Exception
+            LoadingWF.Hide()
             Throw
         End Try
     End Sub
