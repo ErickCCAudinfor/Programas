@@ -22,7 +22,6 @@ Partial Class TablaRevisaPreciosPersonalizados
     'No lo modifique con el editor de código.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        components = New ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(TablaRevisaPreciosPersonalizados))
         DataGridView1 = New DataGridView()
         CType(DataGridView1, ComponentModel.ISupportInitialize).BeginInit()
@@ -39,7 +38,6 @@ Partial Class TablaRevisaPreciosPersonalizados
         DataGridView1.RowTemplate.Height = 25
         DataGridView1.Size = New Size(1224, 151)
         DataGridView1.TabIndex = 0
-
         ' 
         ' TablaRevisaPreciosPersonalizados
         ' 
@@ -50,7 +48,7 @@ Partial Class TablaRevisaPreciosPersonalizados
         Icon = CType(resources.GetObject("$this.Icon"), Icon)
         Name = "TablaRevisaPreciosPersonalizados"
         StartPosition = FormStartPosition.CenterScreen
-        Text = "TablaRevisaPreciosPersonalizados"
+        Text = "Revisa Precios Personizados"
         CType(DataGridView1, ComponentModel.ISupportInitialize).EndInit()
         ResumeLayout(False)
     End Sub

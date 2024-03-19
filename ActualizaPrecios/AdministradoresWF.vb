@@ -6,6 +6,8 @@ Public Class AdministradoresWF
     Private ReadOnly Property connectionString As String
     Private ReadOnly Property Funciones As FuncionesGenericas
 
+    Dim LoadingWF As New LoadingWF
+
     Public Sub New(Contratos As List(Of Long), connectionString As String)
         Try
             InitializeComponent()
@@ -31,6 +33,7 @@ Public Class AdministradoresWF
             Dim AdministradorSeleccionado As Administrador = TryCast(ComboBox1.SelectedItem, Administrador)
             Dim AdministradorSeleccionadoGas As Administrador = TryCast(ComboBox2.SelectedItem, Administrador)
             Dim ListaOk As New List(Of Contrato)
+            LoadingWF.Show()
             For Each elemnt In Contratos
                 Dim Contrato = Funciones.GetContrato(elemnt)
                 'Contrato de luz
@@ -48,6 +51,7 @@ Public Class AdministradoresWF
                     End If
                 End If
             Next
+            LoadingWF.Hide()
             If ListaOk.Count > 0 Then
                 MessageBox.Show($"Contratos Actualizados")
             Else
@@ -55,6 +59,7 @@ Public Class AdministradoresWF
             End If
 
         Catch ex As Exception
+            LoadingWF.Hide()
             Throw
         End Try
     End Sub

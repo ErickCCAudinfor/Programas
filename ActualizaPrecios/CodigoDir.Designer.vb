@@ -104,7 +104,7 @@ Partial Class CodigoDir
         Icon = CType(resources.GetObject("$this.Icon"), Icon)
         Name = "CodigoDir"
         StartPosition = FormStartPosition.CenterScreen
-        Text = "CodigoDir"
+        Text = "Codigos Dir"
         ResumeLayout(False)
         PerformLayout()
     End Sub

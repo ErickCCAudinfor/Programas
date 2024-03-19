@@ -2,6 +2,7 @@
 
     Public ReadOnly Property connectionString As String
     Public ReadOnly Property CodContratos As List(Of Long)
+    Dim LoadingWF As New LoadingWF
     Public Sub New(connectionString As String, CodContratos As List(Of Long))
         Try
             InitializeComponent()
@@ -12,11 +13,15 @@
         End Try
     End Sub
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+    Private Async Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         Try
+
             Dim funciones As New FuncionesGenericas(connectionString)
             If TextBox1.Text.Trim.Length > 0 AndAlso TextBox1.Text.Trim.Length > 0 AndAlso TextBox1.Text.Trim.Length > 0 Then
-                If funciones.UpdateCodigosDir(TextBox1.Text, TextBox2.Text, TextBox3.Text, CodContratos) > 0 Then
+                LoadingWF.Show()
+                Dim ok = Await Task.Run(Function() funciones.UpdateCodigosDir(TextBox1.Text, TextBox2.Text, TextBox3.Text, CodContratos))
+                LoadingWF.Hide()
+                If ok > 0 Then
                     MessageBox.Show("Contratos actualizados")
                 End If
 
@@ -25,6 +30,7 @@
             End If
 
         Catch ex As Exception
+            LoadingWF.Hide()
             MessageBox.Show(ex.Message)
         End Try
     End Sub

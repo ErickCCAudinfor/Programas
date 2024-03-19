@@ -691,17 +691,18 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
     End Sub
 
     'Revisa si ha habido algún contrato que no se haya configurado bien
-    Private Sub Button7_Click(sender As Object, e As EventArgs) Handles Button7.Click
+    Private Async Sub Button7_Click(sender As Object, e As EventArgs) Handles Button7.Click
         Try
             'Dim RutaArchivo = Funciones.RevisaTarifaPrecioContratoPersonalizada()
             'MessageBox.Show($"Se ha generado la revisión en la siguiente ruta:{RutaArchivo}")
-
+            LoadingWF.Show()
             Dim table As New TablaRevisaPreciosPersonalizados(connectionString)
-            table.cargar()
-
+            Await Task.Run(Sub() table.cargar())
+            LoadingWF.Hide()
             table.Show()
             'Funciones.RevisaTarifaPrecioContratoPersonalizadaGas()
         Catch ex As Exception
+            LoadingWF.Hide()
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub

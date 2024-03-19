@@ -1,15 +1,7 @@
 ﻿Imports System.IO
 
 Public Class ProductosAsig
-
-
-    'Private ReadOnly Property ipDB As String
-    ''Private ReadOnly Property ipDB As String = "data source=172.31.100.50\TOTALUAT;"
-    'Private ReadOnly Property nameDB As String
-    ''Private ReadOnly Property nameDB As String = "initial catalog=SigeTotalUAT;"
-    'Private ReadOnly Property userDB As String
-    'Private ReadOnly Property passDB As String
-
+    Dim LoadingWF As New LoadingWF
     Private ReadOnly Property Contratos As List(Of Long)
 
     Private ReadOnly Property connectionString As String
@@ -73,8 +65,9 @@ Public Class ProductosAsig
 
     End Sub
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+    Private Async Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         Try
+            LoadingWF.Show()
             Dim Funciones As New FuncionesGenericas(Me.connectionString)
             Dim productoSeleccionado As Producto = TryCast(ComboBox1.SelectedItem, Producto)
             Dim TipoImpuesto As TipoImpuesto = TryCast(ComboBox2.SelectedItem, TipoImpuesto)
@@ -87,15 +80,17 @@ Public Class ProductosAsig
             For Each elemnt In Contratos
                 Dim Contrato = Funciones.GetContrato(elemnt)
                 If CheckBox2.Checked Then 'Insertar
-                    Funciones.InsertProductoAsignacion(Contrato.Entorno, productoSeleccionado.IdProductoGrupo, productoSeleccionado.IdProducto, Contrato.IdContrato, Fecha, importe, IdTipoImpuesto, AntesIe, SobreConsumo, PrecioSobreConsumo)
+                    Dim ok = Await Task.Run(Function() Funciones.InsertProductoAsignacion(Contrato.Entorno, productoSeleccionado.IdProductoGrupo, productoSeleccionado.IdProducto, Contrato.IdContrato, Fecha, importe, IdTipoImpuesto, AntesIe, SobreConsumo, PrecioSobreConsumo))
                 End If
                 'If Not CheckBox2.Checked Then 'Insertar
                 '    Funciones.UpdateProductoAsignacion(Contrato.Entorno, productoSeleccionado.IdProductoGrupo, productoSeleccionado.IdProducto, Contrato.IdContrato, Fecha, importe, IdTipoImpuesto, AntesIe, SobreConsumo, PrecioSobreConsumo)
                 'End If
 
             Next
+            LoadingWF.Hide()
             MessageBox.Show($"Se han escrito todos los datos en el archivo correctamente.")
         Catch ex As Exception
+            LoadingWF.Hide()
             Throw
         End Try
     End Sub
