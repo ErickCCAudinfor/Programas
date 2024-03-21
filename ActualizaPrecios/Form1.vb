@@ -18,7 +18,7 @@ Public Class Form1
 
     Private ReadOnly Funciones As New FuncionesGenericas(connectionString)
 
-    Private Sub Actualizar(sender As Object, e As EventArgs) Handles Button1.Click
+    Private Async Sub Actualizar(sender As Object, e As EventArgs) Handles Button1.Click
 
         Try
             Dim totalContratos = 0
@@ -35,8 +35,10 @@ Public Class Form1
             If CheckBox2.Checked Then 'Contrato
                 Dim yesorNot1 = MsgBox($"Hay un total de {Con.Count} contratos, ¿Seguir con la actualización?", vbYesNo)
                 If yesorNot1 = 6 OrElse yesorNot1 = 1 Then
-                    ContratoActualizar = Funciones.BuscarbyCodigocontrato(Con)
+                    LoadingWF.Show()
+                    ContratoActualizar = Await Task.Run(Function() Funciones.BuscarbyCodigocontrato(Con))
                     totalContratos = Con.Count
+                    LoadingWF.Hide()
                 End If
             End If
             'If CheckBox3.Checked Then 'Cliente
@@ -53,8 +55,9 @@ Public Class Form1
                     todoOK = True
                 End If
                 If yesorNot = 6 OrElse yesorNot = 1 OrElse todoOK Then
-                    Dim ContratosTXT = ActualizarRegistros(ContratoActualizar)
-
+                    LoadingWF.Show()
+                    Dim ContratosTXT = Await Task.Run(Function() ActualizarRegistros(ContratoActualizar))
+                    LoadingWF.Hide()
                     complementos.MostrarMensajePersonalizado($"{ContratosTXT}. Contratos iniciales:{ContratoActualizar.Count} contratos")
                 Else
                     complementos.MostrarMensajePersonalizado($"Se ha cancelado la actualización")
@@ -64,6 +67,7 @@ Public Class Form1
             End If
 
         Catch ex As Exception
+            LoadingWF.Hide()
             complementos.MostrarMensajePersonalizado("Exception: " + ex.Message)
         End Try
 
@@ -538,13 +542,13 @@ LEFT JOIN (
 LEFT JOIN ModoLectura with(nolock) ON Solicitud.IdModoLectura = ModoLectura.IdModoLectura
 left join ContratoTarifaVigente with (nolock) on ContratoTarifaVigente.CodigoContrato = Contrato.CodigoContrato
 left join TarifaGrupo with (nolock) on TarifaGrupo.IdTarifaGrupo = ContratoTarifaVigente.IdTarifaGrupo
-where Solicitud.FechaApertura >= convert(date,Getdate(),3)
-order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
+where   Solicitud.FechaApertura  >= DATEADD (dd, 0, DATEDIFF (dd, 0, GETDATE() - 1))
+order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
 #End Region
             listas.Add(resultadoConsulta1)
             listas.Add(resultadoConsulta2)
             listas.Add(resultadoConsulta3)
-
+            'where Solicitud.FechaApertura >= convert(date,Getdate(),3)
             ' Ruta del archivo CSV
             'Dim rutaArchivo As String = $"C:\Users\ErickCC\Documents\TotalDoc\Validaciones\Validaciones{Date.Today.ToString("ddMMyyyy")}.xlsx"
             Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\Validaciones"
