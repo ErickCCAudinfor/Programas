@@ -303,6 +303,11 @@ Public Class Form1
     'Productos Asignacion, si no ha escrito nada en textotarifagrupo no buscamos nada, y enviamos mensaje
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
         Try
+            If CheckBox1.Checked OrElse CheckBox3.Checked Then
+                complementos.MostrarMensajePersonalizado($"Habilitado solo para el check de contratos")
+                Exit Sub
+            End If
+
             Dim Con = GetConSinSplit(TextBox2.Text)
             If Con.Count > 0 Then
                 Dim Entorno = If(Funciones.GetContrato(Con.FirstOrDefault).Entorno = "E1", "G1", "G2")
@@ -578,6 +583,11 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
     'Codigos DIR
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
         Try
+            If CheckBox1.Checked OrElse CheckBox3.Checked Then
+                complementos.MostrarMensajePersonalizado($"Habilitado solo para el check de contratos")
+                Exit Sub
+            End If
+
             Dim Con = GetConSinSplit(TextBox2.Text)
             If Con.Count > 0 Then
                 Dim CodigoDir As New CodigoDir(connectionString, Con)
@@ -773,7 +783,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         End Try
     End Sub
 
-
+    'Check box personalizado, habilita o deshabilita
     Private Sub CheckBox4_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox4.CheckedChanged
         Try
             If CheckBox4.Checked = False Then
@@ -791,13 +801,66 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
     ' Para modificar el agente del contrato
     Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button9.Click
         Try
-            Dim Con = GetConSinSplit(TextBox2.Text)
-            If Con.Count > 0 Then
-                Dim Agentes As New Agentes(Con, connectionString)
+
+            Dim ListaCodContrato As New List(Of Long)
+
+            'Check Cups
+            If CheckBox1.Checked Then
+                Dim Cups = GetConSinSplitCupsCIFS(TextBox2.Text)
+                If Cups.Count > 0 Then
+                    For Each cps In Cups
+                        Dim cps20 As String = Replace(cps, " ", "").Substring(0, Math.Min(20, cps.Length)) 'saco los primeros 20 caracteres
+
+                        Dim ListContratos = Funciones.GetListContratobyCUPS(Replace(cps20.Trim, " ", "")).ToList
+                        If ListContratos.Count > 0 Then
+                            For Each elemnt In ListContratos
+                                If Not IsNothing(elemnt) AndAlso elemnt.IdContrato > 0 Then
+                                    ListaCodContrato.Add(If(elemnt.CodigoContrato, 0L))
+                                End If
+                            Next
+                        End If
+
+                    Next
+                End If
+            End If
+            ' Check contrato
+            If CheckBox2.Checked Then
+                Dim ConC = GetConSinSplit(TextBox2.Text)
+                If ConC.Count > 0 Then
+                    For Each elemnt In ConC
+                        Dim ContratoC = Funciones.GetContrato(elemnt)
+                        If Not IsNothing(ContratoC) AndAlso ContratoC.IdContrato > 0 Then ' solo si es activo
+                            ListaCodContrato.Add(If(ContratoC.CodigoContrato, 0L))
+                        End If
+                    Next
+                End If
+            End If
+            'Check Cliente
+            If CheckBox3.Checked Then
+                Dim CIFS = GetConSinSplitCupsCIFS(TextBox2.Text)
+                If CIFS.Count > 0 Then
+                    For Each cif In CIFS
+                        Dim ListContratos = Funciones.GetListContratobyCIF(cif.Trim).ToList
+                        If ListContratos.Count > 0 Then
+                            For Each elemnt In ListContratos
+                                If Not IsNothing(elemnt) AndAlso elemnt.IdContrato > 0 Then
+                                    ListaCodContrato.Add(If(elemnt.CodigoContrato, 0L))
+                                End If
+                            Next
+                        End If
+                    Next
+                End If
+            End If
+
+            '
+
+            If ListaCodContrato.Count > 0 Then
+                Dim Agentes As New Agentes(ListaCodContrato, connectionString)
                 Agentes.Show()
             Else
-                complementos.MostrarMensajePersonalizado($"Ingrese al menos un contrato")
+                complementos.MostrarMensajePersonalizado($"No hay contratos")
             End If
+
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
@@ -805,12 +868,64 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
     ' Para modificar el Administrador del contrato
     Private Sub Button11_Click(sender As Object, e As EventArgs) Handles Button11.Click
         Try
-            Dim Con = GetConSinSplit(TextBox2.Text)
-            If Con.Count > 0 Then
-                Dim Administradores As New AdministradoresWF(Con, connectionString)
+
+            Dim ListaCodContrato As New List(Of Long)
+
+            'Check Cups
+            If CheckBox1.Checked Then
+                Dim Cups = GetConSinSplitCupsCIFS(TextBox2.Text)
+                If Cups.Count > 0 Then
+                    For Each cps In Cups
+                        Dim cps20 As String = Replace(cps, " ", "").Substring(0, Math.Min(20, cps.Length)) 'saco los primeros 20 caracteres
+
+                        Dim ListContratos = Funciones.GetListContratobyCUPS(Replace(cps20.Trim, " ", "")).ToList
+                        If ListContratos.Count > 0 Then
+                            For Each elemnt In ListContratos
+                                If Not IsNothing(elemnt) AndAlso elemnt.IdContrato > 0 Then
+                                    ListaCodContrato.Add(If(elemnt.CodigoContrato, 0L))
+                                End If
+                            Next
+                        End If
+
+                    Next
+                End If
+            End If
+            ' Check contrato
+            If CheckBox2.Checked Then
+                Dim ConC = GetConSinSplit(TextBox2.Text)
+                If ConC.Count > 0 Then
+                    For Each elemnt In ConC
+                        Dim ContratoC = Funciones.GetContrato(elemnt)
+                        If Not IsNothing(ContratoC) AndAlso ContratoC.IdContrato > 0 Then ' solo si es activo
+                            ListaCodContrato.Add(If(ContratoC.CodigoContrato, 0L))
+                        End If
+                    Next
+                End If
+            End If
+            'Check Cliente
+            If CheckBox3.Checked Then
+                Dim CIFS = GetConSinSplitCupsCIFS(TextBox2.Text)
+                If CIFS.Count > 0 Then
+                    For Each cif In CIFS
+                        Dim ListContratos = Funciones.GetListContratobyCIF(cif.Trim).ToList
+                        If ListContratos.Count > 0 Then
+                            For Each elemnt In ListContratos
+                                If Not IsNothing(elemnt) AndAlso elemnt.IdContrato > 0 Then
+                                    ListaCodContrato.Add(If(elemnt.CodigoContrato, 0L))
+                                End If
+                            Next
+                        End If
+                    Next
+                End If
+            End If
+
+            '
+
+            If ListaCodContrato.Count > 0 Then
+                Dim Administradores As New AdministradoresWF(ListaCodContrato, connectionString)
                 Administradores.Show()
             Else
-                complementos.MostrarMensajePersonalizado($"Ingrese al menos un contrato")
+                complementos.MostrarMensajePersonalizado($"No hay contratos")
             End If
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)

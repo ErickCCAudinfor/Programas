@@ -18,12 +18,16 @@ Imports System.Reflection
  Assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0"),  _
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  Assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ac72a6b8dcc27a0017d80ef9df22f06f8841cbc6"),  _
 =======
  Assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6edff6e7a6adad386b5d48221023f1f3965cafab"),  _
 >>>>>>> Develop
 =======
  Assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c93b6a657ed22b8645b27fc78cd88536a8b75563"),  _
+>>>>>>> Develop
+=======
+ Assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dd12079a73316c88f73bbbf0663e49ec2b0ad353"),  _
 >>>>>>> Develop
  Assembly: System.Reflection.AssemblyProductAttribute("ActualizaPrecios"),  _
  Assembly: System.Reflection.AssemblyTitleAttribute("ActualizaPrecios"),  _
