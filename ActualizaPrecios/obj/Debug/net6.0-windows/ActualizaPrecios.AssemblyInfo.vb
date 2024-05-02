@@ -19,6 +19,7 @@ Imports System.Reflection
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  Assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ac72a6b8dcc27a0017d80ef9df22f06f8841cbc6"),  _
 =======
  Assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6edff6e7a6adad386b5d48221023f1f3965cafab"),  _
@@ -29,6 +30,9 @@ Imports System.Reflection
 =======
  Assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dd12079a73316c88f73bbbf0663e49ec2b0ad353"),  _
 >>>>>>> Develop
+=======
+ Assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+153b871e67237e94e2aa1dd3390a8ea32492f09f"),  _
+>>>>>>> c2a3485 (Cambios / Release y debug)
  Assembly: System.Reflection.AssemblyProductAttribute("ActualizaPrecios"),  _
  Assembly: System.Reflection.AssemblyTitleAttribute("ActualizaPrecios"),  _
  Assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0"),  _

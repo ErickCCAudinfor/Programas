@@ -34,6 +34,8 @@ Partial Class Agentes
         Label6 = New Label()
         Label7 = New Label()
         Label8 = New Label()
+        Label9 = New Label()
+        Label10 = New Label()
         SuspendLayout()
         ' 
         ' Label1
@@ -138,11 +140,31 @@ Partial Class Agentes
         Label8.TabIndex = 10
         Label8.Text = "0"
         ' 
+        ' Label9
+        ' 
+        Label9.AutoSize = True
+        Label9.Location = New Point(271, 103)
+        Label9.Name = "Label9"
+        Label9.Size = New Size(13, 15)
+        Label9.TabIndex = 12
+        Label9.Text = "0"
+        ' 
+        ' Label10
+        ' 
+        Label10.AutoSize = True
+        Label10.Location = New Point(184, 103)
+        Label10.Name = "Label10"
+        Label10.Size = New Size(90, 15)
+        Label10.TabIndex = 11
+        Label10.Text = "Total Contratos:"
+        ' 
         ' Agentes
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(536, 126)
+        Controls.Add(Label9)
+        Controls.Add(Label10)
         Controls.Add(Label8)
         Controls.Add(Label7)
         Controls.Add(Label6)
@@ -173,4 +195,6 @@ Partial Class Agentes
     Friend WithEvents Label6 As Label
     Friend WithEvents Label7 As Label
     Friend WithEvents Label8 As Label
+    Friend WithEvents Label9 As Label
+    Friend WithEvents Label10 As Label
 End Class

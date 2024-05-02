@@ -1452,7 +1452,12 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
                 Else
                     Return defaultValue
                 End If
-
+            ElseIf GetType(T) Is GetType(Byte) Then
+                If Byte.TryParse(value.ToString(), Nothing) Then
+                    Return CType(CObj(value), T)
+                Else
+                    Return defaultValue
+                End If
             ElseIf GetType(T) Is GetType(Boolean) Then
                 If Boolean.TryParse(value.ToString(), Nothing) Then
                     Return CType(CObj(value), T)
@@ -1494,5 +1499,32 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
         End Try
         Return FilfasAfectadas
     End Function
+
+    Public Function ExtraerPDFFactura(Facs As String) As Byte()
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim FacturaByte As Byte() = Nothing
+        Try
+            conexion.Open()
+            Dim query = $" select  IdFacturaVentaCabecera, d.DocumentoData from FacturaVentaCabecera fv
+ left join contratodocumento cd on fv.IdContratoDocumento = cd.IdContratoDocumento
+ left join Documento d on cd.IdDocumento = d.IdDocumento
+ where CONCAT(seriefactura,numerofactura) ='{Facs}'"
+            Dim comando = New SqlCommand(query, conexion)
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+
+             ' Se lee cada fila del SqlDataReader y se crea un objeto Agente
+        If readerQuery.Read() Then
+            ' Leemos los datos binarios del campo DocumentoData
+            FacturaByte = DirectCast(readerQuery("DocumentoData"), Byte())
+        End If
+            readerQuery.Close()
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return FacturaByte
+    End Function
+
 End Class
 

@@ -16,6 +16,7 @@
             Me.ComboBox1.DisplayMember = "NombreAgente"
             Me.ComboBox1.ValueMember = "IdAgente"
             Label3.Text = agentes.Count
+            Label9.Text = Contratos.Count
         Catch ex As Exception
             Throw
         End Try

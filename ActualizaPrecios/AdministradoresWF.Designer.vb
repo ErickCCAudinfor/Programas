@@ -34,6 +34,8 @@ Partial Class AdministradoresWF
         Button1 = New Button()
         ComboBox1 = New ComboBox()
         Label1 = New Label()
+        Label9 = New Label()
+        Label10 = New Label()
         SuspendLayout()
         ' 
         ' Label8
@@ -138,11 +140,31 @@ Partial Class AdministradoresWF
         Label1.TabIndex = 11
         Label1.Text = "Admin Luz"
         ' 
+        ' Label9
+        ' 
+        Label9.AutoSize = True
+        Label9.Location = New Point(296, 102)
+        Label9.Name = "Label9"
+        Label9.Size = New Size(13, 15)
+        Label9.TabIndex = 23
+        Label9.Text = "0"
+        ' 
+        ' Label10
+        ' 
+        Label10.AutoSize = True
+        Label10.Location = New Point(191, 102)
+        Label10.Name = "Label10"
+        Label10.Size = New Size(90, 15)
+        Label10.TabIndex = 22
+        Label10.Text = "Total Contratos:"
+        ' 
         ' AdministradoresWF
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(527, 134)
+        Controls.Add(Label9)
+        Controls.Add(Label10)
         Controls.Add(Label8)
         Controls.Add(Label7)
         Controls.Add(Label6)
@@ -173,4 +195,6 @@ Partial Class AdministradoresWF
     Friend WithEvents Button1 As Button
     Friend WithEvents ComboBox1 As ComboBox
     Friend WithEvents Label1 As Label
+    Friend WithEvents Label9 As Label
+    Friend WithEvents Label10 As Label
 End Class

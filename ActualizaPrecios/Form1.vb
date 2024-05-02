@@ -403,7 +403,7 @@ Public Class Form1
     'Crear las validaciones
     Private Async Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
         Try
-            LoadingWF.Show()
+            LoadingWF.Show
             Dim listas As New List(Of String)
             Dim Validaciones As New ValidacionExcel(connectionString)
 #Region "Consulta 1"
@@ -565,16 +565,16 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
 
             ' Verificar si el archivo existe, y si no, crearlo
             If Not File.Exists(rutaArchivo) Then
-                File.Create(rutaArchivo).Close()
+                File.Create(rutaArchivo).Close
             End If
 
             Await Task.Run(Sub() Validaciones.EjecutarConsultasYGuardarEnExcel(listas, rutaArchivo))
-            LoadingWF.Hide()
+            LoadingWF.Hide
             complementos.MostrarMensajePersonalizado($"Se han creado los datos en el archivo Excel en: {rutaArchivo}")
 
             'MessageBox.Show($"Se han creado los datos en el archivo Excel en: {rutaArchivo}")
         Catch ex As Exception
-            LoadingWF.Hide()
+            LoadingWF.Hide
             complementos.MostrarMensajePersonalizado(ex.Message)
 
         End Try
@@ -943,6 +943,37 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
+    End Sub
+
+    Private Async Sub Button12_Click(sender As Object, e As EventArgs) Handles Button12.Click
+        Try
+            Dim listaFacs As New List(Of String)
+#Region "Facturas"
+            listaFacs.Add("ABOGAS2300003848")
+#End Region
+            Await Task.Run(Sub()
+                               For Each elemnt In listaFacs
+                                   Dim Facs As Byte() = Funciones.ExtraerPDFFactura(elemnt)
+                                   Dim originalFileName As String = $"{elemnt}.PDF"
+                                   Dim nameWithoutExtension As String = System.IO.Path.GetFileNameWithoutExtension(originalFileName)
+                                   Dim newFileName As String = Mid(nameWithoutExtension, 1, 100) & System.IO.Path.GetExtension(originalFileName)
+
+                                   Dim Destino = "C:\Users\ErickCC\Documents\TotalDoc\PDFFacturas"
+                                   If Not IO.Directory.Exists(Destino) Then
+                                       IO.Directory.CreateDirectory(Destino)
+                                   End If
+
+
+                                   Dim TempFileName As String = Path.Combine(Destino, newFileName)
+                                   File.WriteAllBytes(TempFileName, Facs)
+                               Next
+                           End Sub)
+
+            complementos.MostrarMensajePersonalizado("PDF descargados")
+        Catch ex As Exception
+            complementos.MostrarMensajePersonalizado(ex.Message)
+        End Try
+
     End Sub
 
 

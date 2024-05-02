@@ -51,6 +51,7 @@ Partial Class Form1
         TextBox3 = New TextBox()
         Panel1 = New Panel()
         Panel2 = New Panel()
+        Button12 = New Button()
         Button11 = New Button()
         Button9 = New Button()
         PictureBox1 = New PictureBox()
@@ -269,6 +270,7 @@ Partial Class Form1
         ' 
         ' Panel2
         ' 
+        Panel2.Controls.Add(Button12)
         Panel2.Controls.Add(Button11)
         Panel2.Controls.Add(Button9)
         Panel2.Controls.Add(PictureBox1)
@@ -283,6 +285,15 @@ Partial Class Form1
         Panel2.Name = "Panel2"
         Panel2.Size = New Size(617, 167)
         Panel2.TabIndex = 22
+        ' 
+        ' Button12
+        ' 
+        Button12.Location = New Point(434, 87)
+        Button12.Name = "Button12"
+        Button12.Size = New Size(180, 23)
+        Button12.TabIndex = 23
+        Button12.Text = "Extraer PDF Facs"
+        Button12.UseVisualStyleBackColor = True
         ' 
         ' Button11
         ' 
@@ -424,4 +435,5 @@ Partial Class Form1
     Friend WithEvents Timer1 As Timer
     Friend WithEvents Button10 As Button
     Friend WithEvents Button11 As Button
+    Friend WithEvents Button12 As Button
 End Class
