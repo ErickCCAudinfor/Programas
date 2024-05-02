@@ -20,6 +20,7 @@ Public Class AdministradoresWF
             Me.ComboBox1.DisplayMember = "NombreAdministrador"
             Me.ComboBox1.ValueMember = "IdAdministrador"
             Label3.Text = admins.Count
+            Label9.Text = Contratos.Count
         Catch ex As Exception
             Throw
         End Try
@@ -102,4 +103,5 @@ Public Class AdministradoresWF
             ' Manejar excepciones según sea necesario
         End Try
     End Sub
+
 End Class
