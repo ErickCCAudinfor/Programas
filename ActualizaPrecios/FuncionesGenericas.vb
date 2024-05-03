@@ -1515,9 +1515,12 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
 
              ' Se lee cada fila del SqlDataReader y se crea un objeto Agente
         If readerQuery.Read() Then
-            ' Leemos los datos binarios del campo DocumentoData
-            FacturaByte = DirectCast(readerQuery("DocumentoData"), Byte())
-        End If
+                ' Leemos los datos binarios del campo DocumentoData
+                If Not readerQuery.IsDBNull(readerQuery.GetOrdinal("DocumentoData")) Then
+                    ' Leer los datos binarios del campo DocumentoData
+                    FacturaByte = DirectCast(readerQuery("DocumentoData"), Byte())
+                End If
+            End If
             readerQuery.Close()
             conexion.Close()
         Catch ex As Exception
