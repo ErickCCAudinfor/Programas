@@ -981,12 +981,14 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         Try
             Dim listaFacs = GetFacsSinSplit(TextBox2.Text)
             If listaFacs.Count > 0 Then
+                Dim ComprobarFacs As New List(Of String)
                 Await Task.Run(Sub()
                                    For Each elemnt In listaFacs
                                        Dim Facs As Byte() = Funciones.ExtraerPDFFactura(elemnt)
                                        If IsNothing(Facs) Then
                                            Continue For
                                        End If
+                                       ComprobarFacs.Add(elemnt)
                                        Dim originalFileName As String = $"{elemnt}.PDF"
                                        Dim nameWithoutExtension As String = System.IO.Path.GetFileNameWithoutExtension(originalFileName)
                                        Dim newFileName As String = Mid(nameWithoutExtension, 1, 100) & System.IO.Path.GetExtension(originalFileName)
@@ -1001,8 +1003,12 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                                        File.WriteAllBytes(TempFileName, Facs)
                                    Next
                                End Sub)
+                If ComprobarFacs.Count > 0 Then
+                    complementos.MostrarMensajePersonalizado("PDF descargados.")
+                Else
+                    complementos.MostrarMensajePersonalizado("Ningún PDF se ha descargado")
+                End If
 
-                complementos.MostrarMensajePersonalizado("PDF descargados.")
             Else
                 complementos.MostrarMensajePersonalizado("No hay facturas a descargar.")
             End If
