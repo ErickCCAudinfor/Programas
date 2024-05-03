@@ -387,6 +387,38 @@ Public Class Form1
         Return Con
     End Function
 
+    Private Function GetFacsSinSplit(Facs As String) As List(Of String)
+        Dim Con As New List(Of String)
+        Try
+            If Facs.Contains(",") Then
+                ' Si la cadena ya contiene comas, dividir la cadena utilizando solo comas como delimitadores
+                Dim FacsTexto As String = Facs.Replace(" ", "")
+                Dim FacsTexto2 As String = FacsTexto.Replace(vbTab, "")
+                Dim contratosSeparados As String() = FacsTexto2.Split(","c)
+                For Each facsl As String In contratosSeparados
+                    If Facs.Length > 1 Then
+                        Con.Add(Replace(facsl, "_", "")) 'Si tiene guiones bajos reemplazo y unifico serie y numero
+                    End If
+                Next
+            Else
+                ' Si la cadena no contiene comas, eliminar espacios en blanco de la cadena
+                Dim FacsTexto As String = Facs.Replace(" ", "")
+                Dim FacsTexto2 As String = FacsTexto.Replace(vbTab, "")
+                ' Separar la cadena en una matriz de cadenas utilizando comas, saltos de línea y espacios en blanco como delimitadores
+                Dim delimiters As Char() = {","c, ControlChars.Lf, ControlChars.Cr}
+                Dim contratosSeparados As String() = FacsTexto2.Split(delimiters, StringSplitOptions.RemoveEmptyEntries)
+                For Each facsl As String In contratosSeparados
+                    If Facs.Length > 1 Then
+                        Con.Add(Replace(facsl, "_", "")) 'Si tiene guiones bajos reemplazo y unifico serie y numero
+                    End If
+                Next
+            End If
+        Catch ex As Exception
+            complementos.MostrarMensajePersonalizado(ex.Message)
+        End Try
+        Return Con
+    End Function
+
     'Habilitar o deshabilitar el botón de actualizar si no hay un texto de tarifa grupo 
     Private Sub TextBox1_TextChanged(sender As Object, e As EventArgs) Handles TextBox1.TextChanged
         Try
@@ -947,6 +979,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
 
     Private Async Sub Button12_Click(sender As Object, e As EventArgs) Handles Button12.Click
         Try
+<<<<<<< HEAD
             Dim listaFacs As New List(Of String)
 #Region "Facturas"
             listaFacs.Add("ABOGAS2300003848")
@@ -970,6 +1003,36 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                            End Sub)
 
             complementos.MostrarMensajePersonalizado("PDF descargados")
+=======
+            Dim listaFacs = GetFacsSinSplit(TextBox2.Text)
+            If listaFacs.Count > 0 Then
+                Await Task.Run(Sub()
+                                   For Each elemnt In listaFacs
+                                       Dim Facs As Byte() = Funciones.ExtraerPDFFactura(elemnt)
+                                       If IsNothing(Facs) Then
+                                           Continue For
+                                       End If
+                                       Dim originalFileName As String = $"{elemnt}.PDF"
+                                       Dim nameWithoutExtension As String = System.IO.Path.GetFileNameWithoutExtension(originalFileName)
+                                       Dim newFileName As String = Mid(nameWithoutExtension, 1, 100) & System.IO.Path.GetExtension(originalFileName)
+
+                                       Dim Destino = $"C:\Users\{NombreUsuarioEquipo}\Desktop\PDFFacturas"
+                                       If Not IO.Directory.Exists(Destino) Then
+                                           IO.Directory.CreateDirectory(Destino)
+                                       End If
+
+
+                                       Dim TempFileName As String = Path.Combine(Destino, newFileName)
+                                       File.WriteAllBytes(TempFileName, Facs)
+                                   Next
+                               End Sub)
+
+                complementos.MostrarMensajePersonalizado("PDF descargados.")
+            Else
+                complementos.MostrarMensajePersonalizado("No hay facturas a descargar.")
+            End If
+
+>>>>>>> Develop
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try

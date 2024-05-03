@@ -132,6 +132,11 @@
   <metadata name="ToolTop1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <data name="PictureBox1.ToolTip" xml:space="preserve">
+    <value>Excel CNAE: CIF columna 1 y Codigo CNAE columna 2.
+Excel EMAIL: Codigo Contrato columna 1 y el email en la columna 2.
+Extraer PDF_ Facs: Escribir serie_numero, en el primer texbox y cualquier checkbox.</value>
+  </data>
   <metadata name="Timer1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>118, 17</value>
   </metadata>

@@ -316,12 +316,12 @@ Partial Class Form1
         ' PictureBox1
         ' 
         PictureBox1.Image = CType(resources.GetObject("PictureBox1.Image"), Image)
-        PictureBox1.Location = New Point(406, 43)
+        PictureBox1.Location = New Point(406, 56)
         PictureBox1.Name = "PictureBox1"
         PictureBox1.Size = New Size(22, 18)
         PictureBox1.TabIndex = 20
         PictureBox1.TabStop = False
-        ToolTop1.SetToolTip(PictureBox1, "Excel CNAE: CIF columna 1 y Codigo CNAE columna 2" & vbCrLf & "Excel EMAIL: Codigo Contrato columna 1 y el email en la columna 2")
+        ToolTop1.SetToolTip(PictureBox1, resources.GetString("PictureBox1.ToolTip"))
         ' 
         ' Panel3
         ' 
