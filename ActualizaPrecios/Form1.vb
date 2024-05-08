@@ -209,6 +209,7 @@ Public Class Form1
                                     If Not IsNothing(tarifasPrecioContratoGuardar) AndAlso tarifasPrecioContratoGuardar.Count > 0 AndAlso Not IsNothing(OldtarifasPrecioContratoQuitar) AndAlso OldtarifasPrecioContratoQuitar.Count > 0 Then
                                         ' Guardamos todos los registros de TarifaPrecioContrato generados.
                                         Funciones.UpdatePrecioContratoTarifa(tarifasPrecioContratoGuardar, OldtarifasPrecioContratoQuitar, isFijoIndex)
+                                        Contador += 1
                                     Else
                                         Throw New Exception("Imposible continuar, precios no encontrados. Contrato: " + elment.CodigoContrato)
                                     End If
@@ -435,7 +436,7 @@ Public Class Form1
     'Crear las validaciones
     Private Async Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
         Try
-            LoadingWF.Show
+            LoadingWF.Show()
             Dim listas As New List(Of String)
             Dim Validaciones As New ValidacionExcel(connectionString)
 #Region "Consulta 1"
@@ -597,16 +598,16 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
 
             ' Verificar si el archivo existe, y si no, crearlo
             If Not File.Exists(rutaArchivo) Then
-                File.Create(rutaArchivo).Close
+                File.Create(rutaArchivo).Close()
             End If
 
             Await Task.Run(Sub() Validaciones.EjecutarConsultasYGuardarEnExcel(listas, rutaArchivo))
-            LoadingWF.Hide
+            LoadingWF.Hide()
             complementos.MostrarMensajePersonalizado($"Se han creado los datos en el archivo Excel en: {rutaArchivo}")
 
             'MessageBox.Show($"Se han creado los datos en el archivo Excel en: {rutaArchivo}")
         Catch ex As Exception
-            LoadingWF.Hide
+            LoadingWF.Hide()
             complementos.MostrarMensajePersonalizado(ex.Message)
 
         End Try
@@ -773,22 +774,22 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         Try
 
             ' Crear una instancia de OpenFileDialog
-            Dim openFileDialog1 As New OpenFileDialog()
+            Dim openFileDialog1 As New OpenFileDialog
 
             ' Configurar propiedades del diálogo
             openFileDialog1.Title = "Seleccionar archivos"
             openFileDialog1.Multiselect = True ' Permitir la selección múltiple de archivos
             openFileDialog1.Filter = "Todos los archivos (*.*)|*.*" ' Filtro de archivos
-            Dim rutaArchivo As String = ""
+            Dim rutaArchivo = ""
             ' Mostrar el diálogo y verificar si el usuario hizo clic en OK
-            If openFileDialog1.ShowDialog() = DialogResult.OK Then
+            If openFileDialog1.ShowDialog = DialogResult.OK Then
                 ' Obtener la ruta de cada archivo seleccionado y mostrarla en la consola
-                For Each filename As String In openFileDialog1.FileNames
+                For Each filename In openFileDialog1.FileNames
                     rutaArchivo = filename
                 Next
             End If
 
-            Dim stopwatch As New Stopwatch()
+            Dim stopwatch As New Stopwatch
             stopwatch.Start() ' Iniciar el cronómetro
             'Dim Empieza As TimeSpan = stopwatch.Elapsed
             Dim ActualizarEmail As New ActualizarEmailFromExcel(connectionString)
@@ -799,7 +800,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
 
                 ' Detener el cronómetro y obtener el tiempo transcurrido
                 stopwatch.Stop()
-                Dim tiempoTranscurrido As TimeSpan = stopwatch.Elapsed
+                Dim tiempoTranscurrido = stopwatch.Elapsed
                 LoadingWF.Hide()
                 complementos.MostrarMensajePersonalizado($"Se han actualizado {contratosActualizado} contratos. Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes} minutos.")
 
@@ -977,6 +978,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         End Try
     End Sub
 
+    'Extraer PDFs
     Private Async Sub Button12_Click(sender As Object, e As EventArgs) Handles Button12.Click
         Try
 <<<<<<< HEAD
@@ -1006,7 +1008,12 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
 =======
             Dim listaFacs = GetFacsSinSplit(TextBox2.Text)
             If listaFacs.Count > 0 Then
+                Dim Destino = $"C:\Users\{NombreUsuarioEquipo}\Desktop\PDFFacturas"
+                If Not IO.Directory.Exists(Destino) Then
+                    IO.Directory.CreateDirectory(Destino)
+                End If
                 Dim ComprobarFacs As New List(Of String)
+                LoadingWF.Show()
                 Await Task.Run(Sub()
                                    For Each elemnt In listaFacs
                                        Dim Facs As Byte() = Funciones.ExtraerPDFFactura(elemnt)
@@ -1017,25 +1024,20 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                                        Dim originalFileName As String = $"{elemnt}.PDF"
                                        Dim nameWithoutExtension As String = System.IO.Path.GetFileNameWithoutExtension(originalFileName)
                                        Dim newFileName As String = Mid(nameWithoutExtension, 1, 100) & System.IO.Path.GetExtension(originalFileName)
-
-                                       Dim Destino = $"C:\Users\{NombreUsuarioEquipo}\Desktop\PDFFacturas"
-                                       If Not IO.Directory.Exists(Destino) Then
-                                           IO.Directory.CreateDirectory(Destino)
-                                       End If
-
-
                                        Dim TempFileName As String = Path.Combine(Destino, newFileName)
                                        File.WriteAllBytes(TempFileName, Facs)
                                    Next
                                End Sub)
+                LoadingWF.Hide()
                 If ComprobarFacs.Count > 0 Then
-                    complementos.MostrarMensajePersonalizado("PDF descargados.")
+                    complementos.MostrarMensajePersonalizado("PDF descargados. Pulse Aceptar para abrir la carpeta contenedora")
+                    Process.Start("explorer.exe", Destino)
                 Else
                     complementos.MostrarMensajePersonalizado("Ningún PDF se ha descargado")
                 End If
 
             Else
-                complementos.MostrarMensajePersonalizado("No hay facturas a descargar.")
+                complementos.MostrarMensajePersonalizado("No hay facturas a en los filtros")
             End If
 
 >>>>>>> Develop
@@ -1043,6 +1045,44 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
 
+    End Sub
+
+    ' Open Items
+    Private Async Sub Button13_Click(sender As Object, e As EventArgs) Handles Button13.Click
+        Try
+
+            ' Crear una instancia de OpenFileDialog
+            Dim openFileDialog1 As New OpenFileDialog
+
+            ' Configurar propiedades del diálogo
+            openFileDialog1.Title = "Seleccionar archivos"
+            openFileDialog1.Multiselect = True ' Permitir la selección múltiple de archivos
+            openFileDialog1.Filter = "Todos los archivos (*.*)|*.*" ' Filtro de archivos
+            Dim rutaArchivo = ""
+            ' Mostrar el diálogo y verificar si el usuario hizo clic en OK
+            If openFileDialog1.ShowDialog = DialogResult.OK Then
+                ' Obtener la ruta de cada archivo seleccionado y mostrarla en la consola
+                For Each filename In openFileDialog1.FileNames
+                    rutaArchivo = filename
+                Next
+            End If
+
+            Dim stopwatch As New Stopwatch
+            stopwatch.Start() ' Iniciar el cronómetro
+            'Dim Empieza As TimeSpan = stopwatch.Elapsed
+            Dim ActualizarEmail As New ActualizarEmailFromExcel(connectionString)
+            If rutaArchivo.Length > 0 Then
+                Dim OpenItms As New OpenItemsXML
+                LoadingWF.Show()
+                Dim Open = Await Task.Run(Function() OpenItms.FormatearXML(rutaArchivo))
+                LoadingWF.Hide()
+                complementos.MostrarMensajePersonalizado($"Se han eliminado {Open} nodos del tipo <audinforContract/>.\nSe ha guardado en la siguiente ruta: {Path.GetDirectoryName(rutaArchivo)}\ParaImportar")
+            End If
+
+        Catch ex As Exception
+            LoadingWF.Hide()
+            complementos.MostrarMensajePersonalizado(ex.Message)
+        End Try
     End Sub
 
 

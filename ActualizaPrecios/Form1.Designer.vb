@@ -51,6 +51,7 @@ Partial Class Form1
         TextBox3 = New TextBox()
         Panel1 = New Panel()
         Panel2 = New Panel()
+        Button13 = New Button()
         Button12 = New Button()
         Button11 = New Button()
         Button9 = New Button()
@@ -222,7 +223,7 @@ Partial Class Form1
         ' 
         Label5.AutoSize = True
         Label5.BorderStyle = BorderStyle.FixedSingle
-        Label5.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        Label5.Font = New Font("Segoe UI", 9.0F, FontStyle.Bold, GraphicsUnit.Point)
         Label5.ForeColor = SystemColors.HotTrack
         Label5.Location = New Point(6, 2)
         Label5.Name = "Label5"
@@ -270,6 +271,7 @@ Partial Class Form1
         ' 
         ' Panel2
         ' 
+        Panel2.Controls.Add(Button13)
         Panel2.Controls.Add(Button12)
         Panel2.Controls.Add(Button11)
         Panel2.Controls.Add(Button9)
@@ -285,6 +287,15 @@ Partial Class Form1
         Panel2.Name = "Panel2"
         Panel2.Size = New Size(617, 167)
         Panel2.TabIndex = 22
+        ' 
+        ' Button13
+        ' 
+        Button13.Location = New Point(229, 27)
+        Button13.Name = "Button13"
+        Button13.Size = New Size(180, 23)
+        Button13.TabIndex = 24
+        Button13.Text = "OpenItems"
+        Button13.UseVisualStyleBackColor = True
         ' 
         ' Button12
         ' 
@@ -316,7 +327,7 @@ Partial Class Form1
         ' PictureBox1
         ' 
         PictureBox1.Image = CType(resources.GetObject("PictureBox1.Image"), Image)
-        PictureBox1.Location = New Point(406, 56)
+        PictureBox1.Location = New Point(520, 9)
         PictureBox1.Name = "PictureBox1"
         PictureBox1.Size = New Size(22, 18)
         PictureBox1.TabIndex = 20
@@ -436,4 +447,5 @@ Partial Class Form1
     Friend WithEvents Button10 As Button
     Friend WithEvents Button11 As Button
     Friend WithEvents Button12 As Button
+    Friend WithEvents Button13 As Button
 End Class

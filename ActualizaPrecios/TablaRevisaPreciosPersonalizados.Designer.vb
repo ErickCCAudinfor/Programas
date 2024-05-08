@@ -48,7 +48,7 @@ Partial Class TablaRevisaPreciosPersonalizados
         Icon = CType(resources.GetObject("$this.Icon"), Icon)
         Name = "TablaRevisaPreciosPersonalizados"
         StartPosition = FormStartPosition.CenterScreen
-        Text = "Revisa Precios Personizados"
+        Text = "Revisa Precios Personalizados"
         CType(DataGridView1, ComponentModel.ISupportInitialize).EndInit()
         ResumeLayout(False)
     End Sub
