@@ -31,9 +31,9 @@ Partial Class LoadingWF
         ' 
         Load.BackgroundImageLayout = ImageLayout.Center
         Load.Image = CType(resources.GetObject("Load.Image"), Image)
-        Load.Location = New Point(-11, -8)
+        Load.Location = New Point(-104, -157)
         Load.Name = "Load"
-        Load.Size = New Size(461, 188)
+        Load.Size = New Size(545, 287)
         Load.TabIndex = 0
         Load.TabStop = False
         ' 
@@ -41,7 +41,7 @@ Partial Class LoadingWF
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(453, 179)
+        ClientSize = New Size(341, 118)
         Controls.Add(Load)
         FormBorderStyle = FormBorderStyle.None
         Icon = CType(resources.GetObject("$this.Icon"), Icon)

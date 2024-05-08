@@ -13,7 +13,7 @@ Partial Class PerfilFacturacionConfiguracion
         Try
             Return If(Me.CodigoConcepto, 0) = 30004 OrElse If(Me.CodigoConcepto, 0) = 90012
         Catch ex As Exception
-            Throw ex
+            Throw
         End Try
     End Function
 End Class
