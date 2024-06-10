@@ -1096,29 +1096,29 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
 #Region "FTP"
 
             ' Definir los parámetros de conexión
-            Dim servidorFTP As String = "172.31.100.13" ' Reemplazar con la dirección IP o nombre de host
-            Dim usuarioFTP As String = "audin\administrador"
-            Dim contrasenaFTP As String = "Azal3a$2020"
+            'Dim servidorFTP As String = "172.31.100.13" ' Reemplazar con la dirección IP o nombre de host
+            'Dim usuarioFTP As String = "audin\administrador"
+            'Dim contrasenaFTP As String = "Azal3a$2020"
 
-            ' Definir los archivos de origen y destino
-            Dim archivoOrigen As String = "archivo_origen.txt" ' Reemplazar con el nombre del archivo en el servidor FTP
-            Dim archivoDestino As String = "C:\Ruta\al\Archivo\Destino.txt" ' Reemplazar con la ruta completa del archivo en tu equipo local
+            '' Definir los archivos de origen y destino
+            'Dim archivoOrigen As String = "archivo_origen.txt" ' Reemplazar con el nombre del archivo en el servidor FTP
+            'Dim archivoDestino As String = "C:\Ruta\al\Archivo\Destino.txt" ' Reemplazar con la ruta completa del archivo en tu equipo local
 
-            ' Establecer la conexión con el servidor FTP
-            Dim ftp As New System.Net.FtpClient.FtpClient()
-            ftp.Host = servidorFTP
-            ftp.Credentials = New System.Net.NetworkCredential(usuarioFTP, contrasenaFTP)
-            ' Descargar el archivo del servidor FTP
-            Try
-                Dim p = ftp.DirectoryExists(origen)
-                Dim rr = ""
-            Catch ex As Exception
-                Console.WriteLine("Error al descargar el archivo:", ex.Message)
-                Exit Sub
-            End Try
+            '' Establecer la conexión con el servidor FTP
+            'Dim ftp As New System.Net.FtpClient.FtpClient()
+            'ftp.Host = servidorFTP
+            'ftp.Credentials = New System.Net.NetworkCredential(usuarioFTP, contrasenaFTP)
+            '' Descargar el archivo del servidor FTP
+            'Try
+            '    Dim p = ftp.DirectoryExists(origen)
+            '    Dim rr = ""
+            'Catch ex As Exception
+            '    Console.WriteLine("Error al descargar el archivo:", ex.Message)
+            '    Exit Sub
+            'End Try
 
             ' Cerrar la conexión FTP
-            ftp.Disconnect()
+            'ftp.Disconnect()
 #End Region
 
             Dim stopwatch As New Stopwatch
