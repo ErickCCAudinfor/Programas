@@ -108,9 +108,9 @@ Partial Class AdministradoresWF
         Label2.AutoSize = True
         Label2.Location = New Point(43, 102)
         Label2.Name = "Label2"
-        Label2.Size = New Size(81, 15)
+        Label2.Size = New Size(79, 15)
         Label2.TabIndex = 14
-        Label2.Text = "Total Agentes:"
+        Label2.Text = "Total Admins:"
         ' 
         ' Button1
         ' 

@@ -1529,5 +1529,31 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
         Return FacturaByte
     End Function
 
+
+    Public Function CodPostalCups(IdCups As Long) As String
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim IdCupss As String = 0
+        Try
+            conexion.Open()
+            Dim query = $"select codpostal from CUPS where IdCups = {IdCups}"
+            Dim comando = New SqlCommand(query, conexion)
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+
+            ' Se lee cada fila del SqlDataReader y se crea un objeto Agente
+            If readerQuery.Read() Then
+                ' Leemos los datos binarios del campo DocumentoData
+                If Not readerQuery.IsDBNull(readerQuery.GetOrdinal("codpostal")) Then
+                    ' Leer los datos binarios del campo DocumentoData
+                    IdCupss = DirectCast(readerQuery("codpostal"), String)
+                End If
+            End If
+            readerQuery.Close()
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return IdCupss
+    End Function
 End Class
 

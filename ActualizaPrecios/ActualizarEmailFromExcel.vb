@@ -155,11 +155,11 @@ Public Class ActualizarEmailFromExcel
                 Excel.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos)
             End If
 
-            MessageBox.Show($"Proceso Completado")
+            'MessageBox.Show($"Proceso Completado")
         Catch ex As Exception
             Excel.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos)
             ' Manejo de excepciones
-            MessageBox.Show($"Error: {ex.Message}")
+
             Throw
         End Try
 

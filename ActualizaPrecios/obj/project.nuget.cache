@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "jfbhi5FNCtNXLzlvkmKdGjxaiVAv2hk/jJnh7TlDUsLFI7wc89vCEzXW7+iLdMbtpaAkcLcpazjX/aasjLhW9Q==",
+  "dgSpecHash": "F+DClzUA6vS88QlJbqvs2lozJgNwW0d1Uh+WuAqaAVxabxtDWIF8bDjdef8Ey5DitRwYopleuP3lHqcMytFbPw==",
   "success": true,
   "projectFilePath": "C:\\Users\\ErickCC\\Documents\\TotalDoc\\Programas\\ActualizaPrecios\\ActualizaPrecios.vbproj",
   "expectedPackageFiles": [
@@ -71,6 +71,7 @@
     "C:\\Users\\ErickCC\\.nuget\\packages\\system.io.packaging\\6.0.0\\system.io.packaging.6.0.0.nupkg.sha512",
     "C:\\Users\\ErickCC\\.nuget\\packages\\system.linq\\4.3.0\\system.linq.4.3.0.nupkg.sha512",
     "C:\\Users\\ErickCC\\.nuget\\packages\\system.linq.expressions\\4.3.0\\system.linq.expressions.4.3.0.nupkg.sha512",
+    "C:\\Users\\ErickCC\\.nuget\\packages\\system.net.ftpclient\\1.0.5824.34026\\system.net.ftpclient.1.0.5824.34026.nupkg.sha512",
     "C:\\Users\\ErickCC\\.nuget\\packages\\system.net.http\\4.3.4\\system.net.http.4.3.4.nupkg.sha512",
     "C:\\Users\\ErickCC\\.nuget\\packages\\system.net.primitives\\4.3.0\\system.net.primitives.4.3.0.nupkg.sha512",
     "C:\\Users\\ErickCC\\.nuget\\packages\\system.net.sockets\\4.3.0\\system.net.sockets.4.3.0.nupkg.sha512",
@@ -120,6 +121,16 @@
       "level": "Warning",
       "warningLevel": 1,
       "message": "Está ejecutando la operación \"restore\" con un origen \"HTTP\", \"http://192.168.10.225:8090/nuget\". El acceso que no sea HTTPS se quitará en una versión futura. Considere la posibilidad de migrar a un origen \"HTTPS\"."
+    },
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "El paquete \"System.Net.FtpClient 1.0.5824.34026\" se restauró con \".NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1\" en lugar de la plataforma de destino del proyecto \"net6.0-windows7.0\". Puede que el paquete no sea totalmente compatible con el proyecto.",
+      "libraryId": "System.Net.FtpClient",
+      "targetGraphs": [
+        "net6.0-windows7.0"
+      ]
     }
   ]
 }

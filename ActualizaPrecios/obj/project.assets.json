@@ -1070,6 +1070,19 @@
           "lib/netstandard1.6/System.Linq.Expressions.dll": {}
         }
       },
+      "System.Net.FtpClient/1.0.5824.34026": {
+        "type": "package",
+        "compile": {
+          "lib/net40/System.Net.FtpClient.dll": {
+            "related": ".XML"
+          }
+        },
+        "runtime": {
+          "lib/net40/System.Net.FtpClient.dll": {
+            "related": ".XML"
+          }
+        }
+      },
       "System.Net.Http/4.3.4": {
         "type": "package",
         "dependencies": {
@@ -4032,6 +4045,43 @@
         "system.linq.expressions.nuspec"
       ]
     },
+    "System.Net.FtpClient/1.0.5824.34026": {
+      "sha512": "U3Ak8SSgMlcyot3jdcE7Ns53/mi8ZicXfhSIsAC53/Lt5ESbe6Byle40+w1B7pd7ZDLEKemhbCtltkA6luXF4g==",
+      "type": "package",
+      "path": "system.net.ftpclient/1.0.5824.34026",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net40/System.Net.FtpClient.XML",
+        "lib/net40/System.Net.FtpClient.dll",
+        "source/AssemblyInfo.cs",
+        "source/Extensions/GetChecksum.cs",
+        "source/Extensions/MD5.cs",
+        "source/Extensions/XCRC.cs",
+        "source/Extensions/XMD5.cs",
+        "source/Extensions/XSHA1.cs",
+        "source/Extensions/XSHA256.cs",
+        "source/Extensions/XSHA512.cs",
+        "source/FtpClient.cs",
+        "source/FtpDataStream.cs",
+        "source/FtpEnums.cs",
+        "source/FtpExceptions.cs",
+        "source/FtpExtensionAttribute.cs",
+        "source/FtpExtensions.cs",
+        "source/FtpHash.cs",
+        "source/FtpListItem.cs",
+        "source/FtpReply.cs",
+        "source/FtpSocketStream.cs",
+        "source/FtpTrace.cs",
+        "source/IFtpClient.cs",
+        "source/IFtpListItem.cs",
+        "source/IFtpReply.cs",
+        "source/System.Net.FtpClient.NET2.csproj",
+        "source/System.Net.FtpClient.csproj",
+        "system.net.ftpclient.1.0.5824.34026.nupkg.sha512",
+        "system.net.ftpclient.nuspec"
+      ]
+    },
     "System.Net.Http/4.3.4": {
       "sha512": "aOa2d51SEbmM+H+Csw7yJOuNZoHkrP2XnAurye5HWYgGVVU54YZDvsLUYRv6h18X3sPnjNCANmN7ZhIPiqMcjA==",
       "type": "package",
@@ -6206,7 +6256,8 @@
     "net6.0-windows7.0": [
       "ClosedXML >= 0.102.2",
       "EPPlus >= 7.0.9",
-      "System.Data.SqlClient >= 4.8.6"
+      "System.Data.SqlClient >= 4.8.6",
+      "System.Net.FtpClient >= 1.0.5824.34026"
     ]
   },
   "packageFolders": {
@@ -6270,6 +6321,10 @@
           "System.Data.SqlClient": {
             "target": "Package",
             "version": "[4.8.6, )"
+          },
+          "System.Net.FtpClient": {
+            "target": "Package",
+            "version": "[1.0.5824.34026, )"
           }
         },
         "imports": [
@@ -6301,6 +6356,16 @@
       "level": "Warning",
       "warningLevel": 1,
       "message": "Está ejecutando la operación \"restore\" con un origen \"HTTP\", \"http://192.168.10.225:8090/nuget\". El acceso que no sea HTTPS se quitará en una versión futura. Considere la posibilidad de migrar a un origen \"HTTPS\"."
+    },
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "El paquete \"System.Net.FtpClient 1.0.5824.34026\" se restauró con \".NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1\" en lugar de la plataforma de destino del proyecto \"net6.0-windows7.0\". Puede que el paquete no sea totalmente compatible con el proyecto.",
+      "libraryId": "System.Net.FtpClient",
+      "targetGraphs": [
+        "net6.0-windows7.0"
+      ]
     }
   ]
 }

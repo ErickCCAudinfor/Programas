@@ -1,6 +1,6 @@
 ﻿
 Imports System.IO
-
+Imports System.Net.FtpClient
 
 Public Class Form1
     Dim complementos As New Complementos()
@@ -716,10 +716,16 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                 Dim CIFS = GetConSinSplitCupsCIFS(TextBox2.Text)
                 If CIFS.Count > 0 Then
                     For Each cif In CIFS
-                        Dim ContratoActivo = Funciones.GetListContratobyCIF(cif.Trim).Where(Function(f) If(f.IdContratoSituacion, 0L) = 1).FirstOrDefault ' Buscamos solo el activo
-                        If Not IsNothing(ContratoActivo) AndAlso ContratoActivo.IdContrato > 0 AndAlso ContratoActivo.IdContratoSituacion = 1 Then ' solo si es activo
-                            RenovadoANull = Await Task.Run(Function() Funciones.VolverARenovar(ContratoActivo.CodigoContrato))
+                        Dim ListContratoActivo = Funciones.GetListContratobyCIF(cif.Trim).Where(Function(f) If(f.IdContratoSituacion, 0L) = 1).ToList ' Buscamos solo el activo
+                        If Not IsNothing(ListContratoActivo) AndAlso ListContratoActivo.Count > 0 Then
+
+                            For Each ContratoActivo In ListContratoActivo.Where(Function(f) f.IdContratoSituacion = 1) 'por siacaso
+                                If Not IsNothing(ContratoActivo) AndAlso ContratoActivo.IdContrato > 0 AndAlso ContratoActivo.IdContratoSituacion = 1 Then ' solo si es activo
+                                    RenovadoANull = Await Task.Run(Function() Funciones.VolverARenovar(ContratoActivo.CodigoContrato))
+                                End If
+                            Next
                         End If
+
 
                     Next
                 End If
@@ -1040,6 +1046,54 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                     rutaArchivo = filename
                 Next
             End If
+
+            'Muevo primero el archivo a una ruta local
+            ' Definir las rutas de origen y destino
+            Dim origen As String = rutaArchivo
+            Dim destino As String = $"C:\Users\{NombreUsuarioEquipo}\Documents\OpenItems"
+            Dim NameFile As String = Path.GetFileName(origen)
+            'Compruebo si existe el destino
+            If Not IO.Directory.Exists(destino) Then
+                IO.Directory.CreateDirectory(destino)
+            End If
+
+            ' Verificar si el archivo existe en la ruta de origen
+            'If File.Exists(origen) Then
+            '    ' Mover el archivo al destino
+            '    File.Copy(origen, destino + "\" + NameFile)
+            '    'Console.WriteLine("Archivo movido exitosamente a: " & destino)
+            'Else
+            '    'Console.WriteLine("Archivo no encontrado en la ruta de origen: " & origen)
+            'End If
+
+
+#Region "FTP"
+
+            ' Definir los parámetros de conexión
+            Dim servidorFTP As String = "172.31.100.13" ' Reemplazar con la dirección IP o nombre de host
+            Dim usuarioFTP As String = "audin\administrador"
+            Dim contrasenaFTP As String = "Azal3a$2020"
+
+            ' Definir los archivos de origen y destino
+            Dim archivoOrigen As String = "archivo_origen.txt" ' Reemplazar con el nombre del archivo en el servidor FTP
+            Dim archivoDestino As String = "C:\Ruta\al\Archivo\Destino.txt" ' Reemplazar con la ruta completa del archivo en tu equipo local
+
+            ' Establecer la conexión con el servidor FTP
+            Dim ftp As New System.Net.FtpClient.FtpClient()
+            ftp.Host = servidorFTP
+            ftp.Credentials = New System.Net.NetworkCredential(usuarioFTP, contrasenaFTP)
+            ' Descargar el archivo del servidor FTP
+            Try
+                Dim p = ftp.DirectoryExists(origen)
+                Dim rr = ""
+            Catch ex As Exception
+                Console.WriteLine("Error al descargar el archivo:", ex.Message)
+                Exit Sub
+            End Try
+
+            ' Cerrar la conexión FTP
+            ftp.Disconnect()
+#End Region
 
             Dim stopwatch As New Stopwatch
             stopwatch.Start() ' Iniciar el cronómetro
