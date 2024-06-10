@@ -50,3 +50,4 @@ C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.Resources.resources
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.AdministradoresWF.resources
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.LoadingWF.resources
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Release\net6.0-windows\System.Net.FtpClient.dll

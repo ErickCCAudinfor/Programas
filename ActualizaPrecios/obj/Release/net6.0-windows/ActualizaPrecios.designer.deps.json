@@ -815,6 +815,14 @@
           }
         }
       },
+      "System.Net.FtpClient/1.0.5824.34026": {
+        "runtime": {
+          "lib/net40/System.Net.FtpClient.dll": {
+            "assemblyVersion": "1.0.5824.34026",
+            "fileVersion": "1.0.5824.34026"
+          }
+        }
+      },
       "System.Net.Http/4.3.4": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "3.1.0",
@@ -1987,6 +1995,13 @@
       "sha512": "sha512-PGKkrd2khG4CnlyJwxwwaWWiSiWFNBGlgXvJpeO0xCXrZ89ODrQ6tjEWS/kOqZ8GwEOUATtKtzp1eRgmYNfclg==",
       "path": "system.linq.expressions/4.3.0",
       "hashPath": "system.linq.expressions.4.3.0.nupkg.sha512"
+    },
+    "System.Net.FtpClient/1.0.5824.34026": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-U3Ak8SSgMlcyot3jdcE7Ns53/mi8ZicXfhSIsAC53/Lt5ESbe6Byle40+w1B7pd7ZDLEKemhbCtltkA6luXF4g==",
+      "path": "system.net.ftpclient/1.0.5824.34026",
+      "hashPath": "system.net.ftpclient.1.0.5824.34026.nupkg.sha512"
     },
     "System.Net.Http/4.3.4": {
       "type": "package",
