@@ -175,7 +175,7 @@ Public Class FuncionesGenericas
             Using conexion As New SqlConnection(connectionString)
                 conexion.Open()
 
-                Dim query As String = $"SELECT IdContrato,CodigoContrato,FechaAplicacionPrecios,FechaContrato,Entorno,idcliente,idcontratosituacion
+                Dim query As String = $"SELECT IdContrato,CodigoContrato,FechaAplicacionPrecios,FechaContrato,Entorno,idcliente,idcontratosituacion,idcups
                     FROM Contrato
                     WHERE codigocontrato = {CodContrato}"
 
@@ -194,6 +194,7 @@ Public Class FuncionesGenericas
                         Contrato.Entorno = readerQuery.GetValue(4).ToString
                         Contrato.IdCliente = readerQuery.GetValue(5).ToString
                         Contrato.IdContratoSituacion = readerQuery.GetValue(6).ToString
+                        Contrato.IdCups = readerQuery.GetValue(7).ToString
                     Loop
                 End If
 
