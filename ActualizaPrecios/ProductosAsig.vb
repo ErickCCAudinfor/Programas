@@ -77,6 +77,7 @@ Public Class ProductosAsig
             Dim AntesIe = CheckBox1.Checked
             Dim SobreConsumo = CheckBox4.Checked
             Dim PrecioSobreConsumo = CheckBox5.Checked
+            Dim PrecioSobredia = CheckBox3.Checked
             For Each elemnt In Contratos
                 Dim Contrato = Funciones.GetContrato(elemnt)
                 'TipoImpuesto Según codpostal
@@ -85,7 +86,7 @@ Public Class ProductosAsig
                 'Añadiremos el impuesto de canarias según el codigo de postal 35 o 38
                 IdTipoImpuesto = If(id > 0, id, IdTipoImpuesto)
                 If CheckBox2.Checked Then 'Insertar
-                    Dim ok = Await Task.Run(Function() Funciones.InsertProductoAsignacion(Contrato.Entorno, productoSeleccionado.IdProductoGrupo, productoSeleccionado.IdProducto, Contrato.IdContrato, Fecha, importe, IdTipoImpuesto, AntesIe, SobreConsumo, PrecioSobreConsumo))
+                    Dim ok = Await Task.Run(Function() Funciones.InsertProductoAsignacion(Contrato.Entorno, productoSeleccionado.IdProductoGrupo, productoSeleccionado.IdProducto, Contrato.IdContrato, Fecha, importe, IdTipoImpuesto, AntesIe, SobreConsumo, PrecioSobreConsumo, PrecioSobredia))
                 End If
                 'If Not CheckBox2.Checked Then 'Insertar
                 '    Funciones.UpdateProductoAsignacion(Contrato.Entorno, productoSeleccionado.IdProductoGrupo, productoSeleccionado.IdProducto, Contrato.IdContrato, Fecha, importe, IdTipoImpuesto, AntesIe, SobreConsumo, PrecioSobreConsumo)
@@ -124,7 +125,7 @@ Public Class ProductosAsig
                     IdImpuesto = 5
                 Case Else
                     ' Código postal no válido
-                    IdImpuesto = -1 ' O cualquier otro valor que desees para indicar que el código postal no es válido
+                    IdImpuesto = 1 ' O cualquier otro valor que desees para indicar que el código postal no es válido
             End Select
         Catch ex As Exception
             Throw

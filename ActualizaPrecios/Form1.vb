@@ -1,6 +1,7 @@
 ﻿
 Imports System.IO
 Imports System.Net.FtpClient
+Imports System.Text.RegularExpressions
 
 Public Class Form1
     Dim complementos As New Complementos()
@@ -188,32 +189,38 @@ Public Class Form1
                                         End If
 
                                     End If
+                                    If elment.TextoTarifa.Contains("TDVE") Then
 
-                                    'Compruebo si el contratotarifaviejo es fijo o indexado
-                                    Dim TaPrecionContrato = Funciones.GetPrecioContratoTarifaV2(elment)
-                                    If Not IsNothing(TaPrecionContrato) AndAlso TaPrecionContrato.IdContratoTarifa > 0 Then
-                                        If elment.Entorno = "G1" AndAlso TaPrecionContrato.IdIndexadoPrecio > 0 Then
-                                            OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifaIndex(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
-                                        ElseIf elment.Entorno = "G1" AndAlso TaPrecionContrato.IdTarifaPrecio > 0 Then
-                                            OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifa(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
-                                        ElseIf elment.Entorno = "G2" AndAlso TaPrecionContrato.IdIndexadoPrecioGas > 0 Then
-                                            OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifaIndexGas(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
+                                        Funciones.InsertTarifaPrecioContrato(tarifasPrecioContratoGuardar)
+                                    Else
+
+                                        'Compruebo si el contratotarifaviejo es fijo o indexado
+                                        Dim TaPrecionContrato = Funciones.GetPrecioContratoTarifaV2(elment)
+                                        If Not IsNothing(TaPrecionContrato) AndAlso TaPrecionContrato.IdContratoTarifa > 0 Then
+                                            If elment.Entorno = "G1" AndAlso TaPrecionContrato.IdIndexadoPrecio > 0 Then
+                                                OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifaIndex(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
+                                            ElseIf elment.Entorno = "G1" AndAlso TaPrecionContrato.IdTarifaPrecio > 0 Then
+                                                OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifa(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
+                                            ElseIf elment.Entorno = "G2" AndAlso TaPrecionContrato.IdIndexadoPrecioGas > 0 Then
+                                                OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifaIndexGas(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
+                                            Else
+                                                Throw New Exception("Imposible continuar, ha fallado al buscar los precios antiguos " + elment.CodigoContrato)
+                                            End If
                                         Else
-                                            Throw New Exception("Imposible continuar, ha fallado al buscar los precios antiguos " + elment.CodigoContrato)
+
+                                            Throw New Exception("El precio personalizado no existe, Imposible actualizar a la nueva tarifagrupo " + elment.CodigoContrato)
                                         End If
 
+
+                                        'Compruebo que haya valores en los dos sitios
+                                        If Not IsNothing(tarifasPrecioContratoGuardar) AndAlso tarifasPrecioContratoGuardar.Count > 0 AndAlso Not IsNothing(OldtarifasPrecioContratoQuitar) AndAlso OldtarifasPrecioContratoQuitar.Count > 0 Then
+                                            ' Guardamos todos los registros de TarifaPrecioContrato generados.
+                                            Funciones.UpdatePrecioContratoTarifa(tarifasPrecioContratoGuardar, OldtarifasPrecioContratoQuitar, isFijoIndex)
+                                            Contador += 1
+                                        Else
+                                            Throw New Exception("Imposible continuar, precios no encontrados. Contrato: " + elment.CodigoContrato)
+                                        End If
                                     End If
-
-
-                                    'Compruebo que haya valores en los dos sitios
-                                    If Not IsNothing(tarifasPrecioContratoGuardar) AndAlso tarifasPrecioContratoGuardar.Count > 0 AndAlso Not IsNothing(OldtarifasPrecioContratoQuitar) AndAlso OldtarifasPrecioContratoQuitar.Count > 0 Then
-                                        ' Guardamos todos los registros de TarifaPrecioContrato generados.
-                                        Funciones.UpdatePrecioContratoTarifa(tarifasPrecioContratoGuardar, OldtarifasPrecioContratoQuitar, isFijoIndex)
-                                        Contador += 1
-                                    Else
-                                        Throw New Exception("Imposible continuar, precios no encontrados. Contrato: " + elment.CodigoContrato)
-                                    End If
-
                                     'objTarifaPerdidaCalculadaSrv.MergeUpdateTarifaPerdidaCalculadaContratoDTO(TarifaPerdidaCalculadaContratoGuardar, New ObservableCollection(Of TarifaPerdidaCalculadaContratoDTO))
                                     'If Actualizado > 0 Then
                                     '    Contador = +1
@@ -596,7 +603,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             ' Ruta del archivo CSV
             'Dim rutaArchivo As String = $"C:\Users\ErickCC\Documents\TotalDoc\Validaciones\Validaciones{Date.Today.ToString("ddMMyyyy")}.xlsx"
             Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\Validaciones"
-            Dim rutaArchivo = Path.Combine(rutaCarpeta, $"Validaciones{Date.Today.ToString("ddMMyyyy")}.xlsx")
+            Dim rutaArchivo = Path.Combine(rutaCarpeta, $"Validaciones_{Date.Today.ToString("ddMMyyyy")}.xlsx")
             ' Verificar si la carpeta existe, y si no, crearla
             If Not Directory.Exists(rutaCarpeta) Then
                 Directory.CreateDirectory(rutaCarpeta)
@@ -772,6 +779,8 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         Try
             If ipDB.Trim.Contains("172.31.100.12") Then
                 Label5.Text = "BD PRO  172.31.100.12 SigeTotal"
+            ElseIf ipDB.Trim.Contains("172.31.100.29") Then
+                Label5.Text = "BD UAT  172.31.100.29 SigeTotal_Replica"
             Else
                 Label5.Text = "BD UAT  172.31.100.50 SigeTotalUAT"
             End If
@@ -781,8 +790,10 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
 
     End Sub
 
-    'Actualizar emails desde Excel_ FIla 2 contrato y fila 5 el email
+    'Actualizar emails desde Excel_ FIla  contrato 1 y fila 2 el email
     Private Async Sub Button8_Click(sender As Object, e As EventArgs) Handles Button8.Click
+        Dim contratosActualizado = 0
+        Dim tiempoTranscurrido As TimeSpan
         Try
 
             ' Crear una instancia de OpenFileDialog
@@ -808,23 +819,18 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             If rutaArchivo.Length > 0 Then
                 LoadingWF.Show()
                 ActualizarEmail.RutaExcel = rutaArchivo
-                Dim contratosActualizado = Await ActualizarEmail.ActualizarCNAEFromExcelAsync
+                contratosActualizado = Await ActualizarEmail.ActualizarEmailFromExcelAsync
 
                 ' Detener el cronómetro y obtener el tiempo transcurrido
                 stopwatch.Stop()
-                Dim tiempoTranscurrido = stopwatch.Elapsed
-                LoadingWF.Hide()
-                complementos.MostrarMensajePersonalizado($"Se han actualizado {contratosActualizado} contratos. Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes} minutos.")
-
-            Else
-
-                complementos.MostrarMensajePersonalizado($"Escriba una ruta para seguir.")
-
+                tiempoTranscurrido = stopwatch.Elapsed
             End If
 
         Catch ex As Exception
-            LoadingWF.Hide()
             complementos.MostrarMensajePersonalizado(ex.Message)
+        Finally
+            LoadingWF.Hide()
+            complementos.MostrarMensajePersonalizado($"Se han actualizado {contratosActualizado} contratos. Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes} minutos.")
         End Try
     End Sub
 
@@ -1026,7 +1032,31 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             Else
                 complementos.MostrarMensajePersonalizado("No hay facturas a en los filtros")
             End If
+            'Dim folderPath As String = "C:\Users\ErickCC\Desktop\PDFFacturas"
 
+            '' Ruta del archivo de texto donde se guardarán los nombres de los PDF
+            'Dim outputPath As String = "C:\Users\ErickCC\Desktop\nombresPDF.txt"
+
+            'Try
+            '    ' Obtener todos los archivos PDF en la carpeta
+            '    Dim pdfFiles As String() = Directory.GetFiles(folderPath, "*.pdf")
+
+            '    ' Crear o sobrescribir el archivo de texto
+            '    Using writer As StreamWriter = New StreamWriter(outputPath)
+            '        ' Escribir cada nombre de archivo PDF en el archivo de texto
+            '        For Each file As String In pdfFiles
+            '            writer.WriteLine(Path.GetFileName(file))
+            '        Next
+            '    End Using
+
+            '    'Console.WriteLine("Los nombres de los archivos PDF se han guardado correctamente en: " & outputPath)
+            'Catch ex As Exception
+            '    'Console.WriteLine("Ocurrió un error: " & ex.Message)
+            'End Try
+
+            '' Esperar a que el usuario presione una tecla antes de cerrar
+            ''Console.WriteLine("Presiona cualquier tecla para salir...")
+            ''Console.ReadKey()
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
@@ -1045,6 +1075,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             openFileDialog1.Multiselect = True ' Permitir la selección múltiple de archivos
             openFileDialog1.Filter = "Todos los archivos (*.*)|*.*" ' Filtro de archivos
             Dim rutaArchivo = ""
+            Dim RutaNueva = ""
             ' Mostrar el diálogo y verificar si el usuario hizo clic en OK
             If openFileDialog1.ShowDialog = DialogResult.OK Then
                 ' Obtener la ruta de cada archivo seleccionado y mostrarla en la consola
@@ -1056,7 +1087,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             'Muevo primero el archivo a una ruta local
             ' Definir las rutas de origen y destino
             Dim origen As String = rutaArchivo
-            Dim destino As String = $"C:\Users\{NombreUsuarioEquipo}\Documents\OpenItems"
+            Dim destino As String = $"\\172.31.100.13\Total\FicherosExport\Import\OriginalItems"
             Dim NameFile As String = Path.GetFileName(origen)
             'Compruebo si existe el destino
             If Not IO.Directory.Exists(destino) Then
@@ -1064,13 +1095,14 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             End If
 
             ' Verificar si el archivo existe en la ruta de origen
-            'If File.Exists(origen) Then
-            '    ' Mover el archivo al destino
-            '    File.Copy(origen, destino + "\" + NameFile)
-            '    'Console.WriteLine("Archivo movido exitosamente a: " & destino)
-            'Else
-            '    'Console.WriteLine("Archivo no encontrado en la ruta de origen: " & origen)
-            'End If
+            If File.Exists(origen) Then
+                ' Nos guardamos el original en la carpeta OriginalItems
+                File.Move(origen, destino + "\" + NameFile)
+                RutaNueva = destino + "\" + NameFile
+                'Console.WriteLine("Archivo movido exitosamente a: " & destino)
+            Else
+                'Console.WriteLine("Archivo no encontrado en la ruta de origen: " & origen)
+            End If
 
 
 #Region "FTP"
@@ -1104,13 +1136,14 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             Dim stopwatch As New Stopwatch
             stopwatch.Start() ' Iniciar el cronómetro
             'Dim Empieza As TimeSpan = stopwatch.Elapsed
-            Dim ActualizarEmail As New ActualizarEmailFromExcel(connectionString)
-            If rutaArchivo.Length > 0 Then
+            'Dim ActualizarEmail As New ActualizarEmailFromExcel(connectionString)
+            If RutaNueva.Length > 0 Then
                 Dim OpenItms As New OpenItemsXML
                 LoadingWF.Show()
-                Dim Open = Await Task.Run(Function() OpenItms.FormatearXML(rutaArchivo))
+                'Pasamos la nueva ruta
+                Dim Open = Await Task.Run(Function() OpenItms.FormatearXML(RutaNueva))
                 LoadingWF.Hide()
-                complementos.MostrarMensajePersonalizado($"Se han eliminado {Open} nodos del tipo <audinforContract/>.\nSe ha guardado en la siguiente ruta: {Path.GetDirectoryName(rutaArchivo)}\ParaImportar")
+                complementos.MostrarMensajePersonalizado($"Se han eliminado {Open} nodos del tipo <audinforContract/>.\nSe ha guardado en la siguiente ruta: {Path.GetDirectoryName(rutaArchivo)}")
             End If
 
         Catch ex As Exception
@@ -1119,6 +1152,147 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         End Try
     End Sub
 
+    Private Async Sub Button14_Click(sender As Object, e As EventArgs) Handles Button14.Click
+        Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\CSVFACVA"
+        Dim rutaArchivo = Path.Combine(rutaCarpeta, $"CSV_VA_{Date.Today.ToString("ddMMyyyy")}.csv")
+        Dim contratosActualizado = 0
+        Dim tiempoTranscurrido As TimeSpan
+
+        Try
+            Dim Validaciones As New ValidacionExcel(connectionString)
+
+
+            ' Verificar si la carpeta existe, y si no, crearla
+            If Not Directory.Exists(rutaCarpeta) Then
+                Directory.CreateDirectory(rutaCarpeta)
+            End If
+
+            ' Verificar si el archivo existe, y si no, crearlo
+            If Not File.Exists(rutaArchivo) Then
+                File.Create(rutaArchivo).Close()
+            End If
+
+            ' Crear una instancia de OpenFileDialog
+            Dim openFileDialog1 As New OpenFileDialog
+
+            ' Configurar propiedades del diálogo
+            openFileDialog1.Title = "Seleccionar archivos"
+            openFileDialog1.Multiselect = True ' Permitir la selección múltiple de archivos
+            openFileDialog1.Filter = "Todos los archivos (*.*)|*.*" ' Filtro de archivos
+            Dim rutaEscogida = ""
+            ' Mostrar el diálogo y verificar si el usuario hizo clic en OK
+            If openFileDialog1.ShowDialog = DialogResult.OK Then
+                ' Obtener la ruta de cada archivo seleccionado y mostrarla en la consola
+                For Each filename In openFileDialog1.FileNames
+                    rutaEscogida = filename
+                Next
+            End If
+
+
+            'Dim Empieza As TimeSpan = stopwatch.Elapsed
+            Dim ActualizarEmail As New ActualizarEmailFromExcel(connectionString)
+            If rutaEscogida.Length > 0 Then
+                LoadingWF.Show()
+                Dim stopwatch As New Stopwatch
+                stopwatch.Start() ' Iniciar el cronómetro
+                Await Task.Run(Sub() Validaciones.CSV(rutaEscogida, rutaArchivo))
+
+                ' Detener el cronómetro y obtener el tiempo transcurrido
+                stopwatch.Stop()
+                tiempoTranscurrido = stopwatch.Elapsed
+            End If
+        Catch ex As Exception
+            LoadingWF.Hide()
+            complementos.MostrarMensajePersonalizado(ex.Message)
+        Finally
+            LoadingWF.Hide()
+            complementos.MostrarMensajePersonalizado($"Se han creado los datos en el archivo Excel en: {rutaArchivo} Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes.ToString("F2")} minutos.")
+
+        End Try
+    End Sub
+
+    ' Desglosar la descripcion del click de cada factura
+    Private Async Sub Button15_Click(sender As Object, e As EventArgs) Handles Button15.Click
+        Try
+            Dim ListaFClicks As New List(Of ClickFac)
+
+            Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ClickFacs"
+            Dim rutaArchivo = Path.Combine(rutaCarpeta, $"DesglosadoClick_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+            Dim listaFacs = GetFacsSinSplit(TextBox2.Text)
+
+            If listaFacs.Count > 0 Then
+                LoadingWF.Show()
+                Await Task.Run(Sub()
+                                   For Each facs In listaFacs
+                                       Dim fClicks = Funciones.GetFacClick(facs)
+                                       Dim pepe = 0
+                                       'Dim regex As New Regex("=\s*\d+\*(.*)")
+                                       Dim regex As New Regex("(\d+)%.*\((Coste P\d+) = (\d+)\*(.*)")
+                                       Dim regexPorcentaje As New Regex("(\d+(?:,\d+)?)%")
+
+                                       For Each f In fClicks
+                                           Dim texto As String = f.Descripcion
+                                           Dim match As Match = regex.Match(texto)
+
+                                           If match.Success Then
+                                               'Dim porcentaje As Decimal = Convert.ToDecimal(match.Groups(1).Value)
+                                               Dim periodo As String = match.Groups(2).Value
+                                               Dim consumo As Decimal = Convert.ToDecimal(match.Groups(3).Value)
+                                               Dim expresion As String = match.Groups(4).Value.Trim()
+
+                                               ' Calcular el valor de la expresión
+                                               Try
+                                                   Dim resultado As Decimal = EvaluarExpresion(expresion)
+                                                   'Console.WriteLine($"Resultado: {resultado}")
+                                                   f.ClickCalculado = resultado
+                                                   f.ConsumokWh = consumo
+                                                   'f.Porcentaje = porcentaje
+                                                   f.Periodo = Replace(periodo, "Coste", "")
+
+                                               Catch ex As Exception
+                                                   Throw
+                                               End Try
+                                           End If
+                                           Dim matchPorcentaje As Match = regexPorcentaje.Match(f.Descripcion)
+                                           If matchPorcentaje.Success Then
+                                               f.Porcentaje = Convert.ToDecimal(matchPorcentaje.Groups(1).Value.Trim())
+                                           Else
+                                               f.Porcentaje = 0.0
+                                           End If
+                                           ListaFClicks.Add(f)
+                                       Next
+
+                                   Next
+
+                                   ' Verificar si la carpeta existe, y si no, crearla
+                                   If Not Directory.Exists(rutaCarpeta) Then
+                                       Directory.CreateDirectory(rutaCarpeta)
+                                   End If
+
+                                   ' Verificar si el archivo existe, y si no, crearlo
+                                   If Not File.Exists(rutaArchivo) Then
+                                       File.Create(rutaArchivo).Close()
+                                   End If
+                                   Dim Val As New ValidacionExcel(connectionString)
+                                   Val.GuardarEnExcelClick(ListaFClicks, rutaArchivo) 'Escribo en el excel
+
+                               End Sub)
+                LoadingWF.Hide()
+                complementos.MostrarMensajePersonalizado($"Archivo Excel guardado en: {rutaArchivo}")
+            Else
+                complementos.MostrarMensajePersonalizado("No hay facturas")
+            End If
+
+
+        Catch ex As Exception
+            LoadingWF.Hide()
+            complementos.MostrarMensajePersonalizado(ex.Message)
+        End Try
+    End Sub
+    Function EvaluarExpresion(expresion As String) As Double
+        Dim resultado As Double = New DataTable().Compute(expresion.Replace(",", "."), Nothing)
+        Return resultado
+    End Function
 
 
     '    Private Sub Button12_Click(sender As Object, e As EventArgs)

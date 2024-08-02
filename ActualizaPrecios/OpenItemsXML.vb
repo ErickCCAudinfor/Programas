@@ -11,13 +11,14 @@ Public Class OpenItemsXML
 
             Dim archivoXML As String = Path.GetFileName(Ruta)
             Dim Directorio As String = Path.GetDirectoryName(Ruta)
-
-            Dim Destino2 = $"{Directorio}\ParaImportar"
+            'Copiamos de la ruta nueva a la raiz, dejando el original sin tocar
+            Dim Destino2 = $"\\172.31.100.13\Total\FicherosExport\Import\"
             If Not Directory.Exists(Destino2) Then
                 Directory.CreateDirectory(Destino2)
             End If
             Destino2 = Path.Combine(Destino2, archivoXML)
             File.Copy(Ruta, Destino2, True)
+            'Trabajamos sobre la copia
             Eliminados = ProcesarInvoiceNodes(Destino2)
         Catch ex As Exception
             Throw

@@ -58,6 +58,10 @@
               "target": "Package",
               "version": "[7.0.9, )"
             },
+            "ExcelDataReader.DataSet": {
+              "target": "Package",
+              "version": "[3.7.0, )"
+            },
             "System.Data.SqlClient": {
               "target": "Package",
               "version": "[4.8.6, )"

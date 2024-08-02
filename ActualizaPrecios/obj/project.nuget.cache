@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "F+DClzUA6vS88QlJbqvs2lozJgNwW0d1Uh+WuAqaAVxabxtDWIF8bDjdef8Ey5DitRwYopleuP3lHqcMytFbPw==",
+  "dgSpecHash": "qR54cild9pCIOW72kO7vpnK6/+IS/2gW5s9pYGVSfPHYqMhwO7jn3cbRfGbleA4+mQAt5Ot5yj3moUf4y1w05g==",
   "success": true,
   "projectFilePath": "C:\\Users\\ErickCC\\Documents\\TotalDoc\\Programas\\ActualizaPrecios\\ActualizaPrecios.vbproj",
   "expectedPackageFiles": [
@@ -9,6 +9,8 @@
     "C:\\Users\\ErickCC\\.nuget\\packages\\epplus\\7.0.9\\epplus.7.0.9.nupkg.sha512",
     "C:\\Users\\ErickCC\\.nuget\\packages\\epplus.interfaces\\6.1.1\\epplus.interfaces.6.1.1.nupkg.sha512",
     "C:\\Users\\ErickCC\\.nuget\\packages\\epplus.system.drawing\\6.1.1\\epplus.system.drawing.6.1.1.nupkg.sha512",
+    "C:\\Users\\ErickCC\\.nuget\\packages\\exceldatareader\\3.7.0\\exceldatareader.3.7.0.nupkg.sha512",
+    "C:\\Users\\ErickCC\\.nuget\\packages\\exceldatareader.dataset\\3.7.0\\exceldatareader.dataset.3.7.0.nupkg.sha512",
     "C:\\Users\\ErickCC\\.nuget\\packages\\excelnumberformat\\1.1.0\\excelnumberformat.1.1.0.nupkg.sha512",
     "C:\\Users\\ErickCC\\.nuget\\packages\\irony.netcore\\1.0.11\\irony.netcore.1.0.11.nupkg.sha512",
     "C:\\Users\\ErickCC\\.nuget\\packages\\microsoft.extensions.configuration\\6.0.0\\microsoft.extensions.configuration.6.0.0.nupkg.sha512",

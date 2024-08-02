@@ -40,7 +40,7 @@ Public Class ActualizarEmailFromExcel
     Private ReadOnly Property NombreUsuarioEquipo As String = Environment.UserName
 
 
-    Public Async Function ActualizarCNAEFromExcelAsync() As Task(Of Long)
+    Public Async Function ActualizarEmailFromExcelAsync() As Task(Of Long)
         Dim contador = 0L
         Dim excelFilePath As String = $"{RutaExcel}"
         Dim Excel As New Excel

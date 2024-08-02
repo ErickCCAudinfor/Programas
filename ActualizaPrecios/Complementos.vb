@@ -19,7 +19,7 @@
         Dim btnOK As New Button()
         btnOK.Text = "OK"
         btnOK.DialogResult = DialogResult.OK
-        btnOK.Location = New System.Drawing.Point(110, 70)
+        btnOK.Location = New System.Drawing.Point(110, 80)
         btnOK.Size = New System.Drawing.Size(75, 23)
 
         mensajeForm.Controls.Add(labelMensaje)

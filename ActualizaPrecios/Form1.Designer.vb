@@ -51,6 +51,8 @@ Partial Class Form1
         TextBox3 = New TextBox()
         Panel1 = New Panel()
         Panel2 = New Panel()
+        Button15 = New Button()
+        Button14 = New Button()
         Button13 = New Button()
         Button12 = New Button()
         Button11 = New Button()
@@ -176,7 +178,7 @@ Partial Class Form1
         ' 
         ' Button4
         ' 
-        Button4.Location = New Point(434, 137)
+        Button4.Location = New Point(434, 145)
         Button4.Name = "Button4"
         Button4.Size = New Size(180, 23)
         Button4.TabIndex = 11
@@ -223,7 +225,7 @@ Partial Class Form1
         ' 
         Label5.AutoSize = True
         Label5.BorderStyle = BorderStyle.FixedSingle
-        Label5.Font = New Font("Segoe UI", 9.0F, FontStyle.Bold, GraphicsUnit.Point)
+        Label5.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Label5.ForeColor = SystemColors.HotTrack
         Label5.Location = New Point(6, 2)
         Label5.Name = "Label5"
@@ -271,6 +273,8 @@ Partial Class Form1
         ' 
         ' Panel2
         ' 
+        Panel2.Controls.Add(Button15)
+        Panel2.Controls.Add(Button14)
         Panel2.Controls.Add(Button13)
         Panel2.Controls.Add(Button12)
         Panel2.Controls.Add(Button11)
@@ -287,6 +291,24 @@ Partial Class Form1
         Panel2.Name = "Panel2"
         Panel2.Size = New Size(617, 167)
         Panel2.TabIndex = 22
+        ' 
+        ' Button15
+        ' 
+        Button15.Location = New Point(229, 141)
+        Button15.Name = "Button15"
+        Button15.Size = New Size(180, 23)
+        Button15.TabIndex = 26
+        Button15.Text = "Evaluar"
+        Button15.UseVisualStyleBackColor = True
+        ' 
+        ' Button14
+        ' 
+        Button14.Location = New Point(434, 116)
+        Button14.Name = "Button14"
+        Button14.Size = New Size(180, 23)
+        Button14.TabIndex = 25
+        Button14.Text = "Extraer CSV Varios"
+        Button14.UseVisualStyleBackColor = True
         ' 
         ' Button13
         ' 
@@ -327,9 +349,9 @@ Partial Class Form1
         ' PictureBox1
         ' 
         PictureBox1.Image = CType(resources.GetObject("PictureBox1.Image"), Image)
-        PictureBox1.Location = New Point(520, 9)
+        PictureBox1.Location = New Point(539, 3)
         PictureBox1.Name = "PictureBox1"
-        PictureBox1.Size = New Size(22, 18)
+        PictureBox1.Size = New Size(22, 21)
         PictureBox1.TabIndex = 20
         PictureBox1.TabStop = False
         ToolTop1.SetToolTip(PictureBox1, resources.GetString("PictureBox1.ToolTip"))
@@ -448,4 +470,6 @@ Partial Class Form1
     Friend WithEvents Button11 As Button
     Friend WithEvents Button12 As Button
     Friend WithEvents Button13 As Button
+    Friend WithEvents Button14 As Button
+    Friend WithEvents Button15 As Button
 End Class

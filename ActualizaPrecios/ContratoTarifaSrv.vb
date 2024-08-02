@@ -31,7 +31,7 @@ Public Class ContratoTarifaSrv
                 'Dim ExisteTarifa = Tari.Where(Function(f) f.IdTarifa = If(ContratoTarifaBBDD.IdTarifa, 0) AndAlso f.IdTarifaGrupo = If(ContratoTarifaBBDD.IdTarifaGrupo, 0)).FirstOrDefault
                 'Update Si exsite la tarifa personazliada
                 'f ContratoTarifa.textotarifagrupo.Contains("personalizada") Then
-                If IsTarifaPersonalizada AndAlso ContratoTarifa.textotarifagrupo.Contains("personalizada") Then
+                If IsTarifaPersonalizada AndAlso ContratoTarifa.textotarifagrupo.ToLower.Contains("personalizada") Then
                     'Busco solo la tarifagrupop a actualizar
                     Dim TariaBuena = Tari.Where(Function(f) f.IdTarifa = ContratoTarifa.IdTarifa).FirstOrDefault
                     If Not IsNothing(TariaBuena) AndAlso TariaBuena.IdTarifaGrupo > 0 Then
