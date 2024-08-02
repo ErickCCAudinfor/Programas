@@ -39,6 +39,7 @@ Partial Class ProductosAsig
         Label5 = New Label()
         CheckBox2 = New CheckBox()
         Label6 = New Label()
+        CheckBox3 = New CheckBox()
         CType(NumericUpDown1, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
@@ -105,7 +106,7 @@ Partial Class ProductosAsig
         ' CheckBox4
         ' 
         CheckBox4.AutoSize = True
-        CheckBox4.Location = New Point(260, 144)
+        CheckBox4.Location = New Point(246, 144)
         CheckBox4.Name = "CheckBox4"
         CheckBox4.Size = New Size(82, 19)
         CheckBox4.TabIndex = 10
@@ -115,7 +116,7 @@ Partial Class ProductosAsig
         ' CheckBox5
         ' 
         CheckBox5.AutoSize = True
-        CheckBox5.Location = New Point(360, 144)
+        CheckBox5.Location = New Point(401, 144)
         CheckBox5.Name = "CheckBox5"
         CheckBox5.Size = New Size(84, 19)
         CheckBox5.TabIndex = 11
@@ -186,11 +187,22 @@ Partial Class ProductosAsig
         Label6.TabIndex = 19
         Label6.Text = "Desmarca para el update"
         ' 
+        ' CheckBox3
+        ' 
+        CheckBox3.AutoSize = True
+        CheckBox3.Location = New Point(334, 144)
+        CheckBox3.Name = "CheckBox3"
+        CheckBox3.Size = New Size(54, 19)
+        CheckBox3.TabIndex = 20
+        CheckBox3.Text = "p/día"
+        CheckBox3.UseVisualStyleBackColor = True
+        ' 
         ' ProductosAsig
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(493, 244)
+        Controls.Add(CheckBox3)
         Controls.Add(Label6)
         Controls.Add(CheckBox2)
         Controls.Add(Label5)
@@ -232,4 +244,5 @@ Partial Class ProductosAsig
     Friend WithEvents Label5 As Label
     Friend WithEvents CheckBox2 As CheckBox
     Friend WithEvents Label6 As Label
+    Friend WithEvents CheckBox3 As CheckBox
 End Class

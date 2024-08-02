@@ -1,6 +1,7 @@
 ﻿Imports System.Collections.ObjectModel
 Imports System.Data.SqlClient
 Imports System.IO
+Imports System.Net
 
 Public Class FuncionesGenericas
 
@@ -12,6 +13,10 @@ Public Class FuncionesGenericas
             Throw
         End Try
     End Sub
+    'Private ReadOnly Property URL_API_DOCUMENTOS As String = "http://172.31.100.51:8045/documentos/"
+    Private ReadOnly Property URL_API_DOCUMENTOS As String = "http://172.31.100.31:8045/documentos/"
+
+    Private ReadOnly Property API_DOCUMENTOS_ACTIVA As Boolean = True
 
     Public Function ObtenerValor(ByVal strNombreColumna As String,
                                  ByRef oReader As SqlDataReader) As Object
@@ -634,11 +639,11 @@ from contrato where idcups in (select idcups from iddc)"
     End Function
     Public Function GetPrecioContratoTarifa(Cont As ContratoTarifa) As List(Of TarifaPrecioContrato)
         Dim conexion = New SqlConnection(connectionString)
-
+        Dim top = If(Cont.IdTarifa = 202020, 3, 6)
         Dim TarifaPrecioContrato As New List(Of TarifaPrecioContrato)
         Try
             conexion.Open()
-            Dim query = $"select tarifapreciocontrato.*, t.idtarifa, tg.IdTarifaGrupo,tg.TextoTarifaGrupo, tp.IdTarifaPeriodo,tp.TextoTarifaPeriodo from tarifapreciocontrato 
+            Dim query = $"select top {top} tarifapreciocontrato.*, t.idtarifa, tg.IdTarifaGrupo,tg.TextoTarifaGrupo, tp.IdTarifaPeriodo,tp.TextoTarifaPeriodo from tarifapreciocontrato 
                         left join Contratotarifa ct  on tarifapreciocontrato.idcontratotarifa = ct.idcontratotarifa
                         left join tarifa t  on ct.idtarifa = t.idtarifa
                         left join TarifaGrupo tg on ct.IdTarifaGrupo = tg.IdTarifaGrupo
@@ -646,7 +651,7 @@ from contrato where idcups in (select idcups from iddc)"
                         left join TarifaPeriodo tp on inp.IdTarifaPeriodo = tp.IdTarifaPeriodo
                         where ct.idcontratotarifa in (
                         {Cont.IdContratoTarifa}
-                        ) order by tp.IdTarifaPeriodo desc"
+                        ) order by  IdTarifaPrecioContrato, tp.IdTarifaPeriodo desc"
             Dim comando As New SqlCommand(query, conexion)
             comando.CommandTimeout = 3600
             Dim readerQuery As SqlDataReader = comando.ExecuteReader()
@@ -911,7 +916,7 @@ from contrato where idcups in (select idcups from iddc)"
         Return FilfasAfectadas
     End Function
 
-    Public Function InsertProductoAsignacion(Entorno As String, IdProductoGrupo As Long, IdProducto As Long, IdContrato As Long, FechaInicial As Date, Importe As Decimal, IdTipoImpuesto As Long, AntesIE As Boolean, AplicarSobreConsumo As Boolean, AplicarPrecioConsumo As Boolean) As Long
+    Public Function InsertProductoAsignacion(Entorno As String, IdProductoGrupo As Long, IdProducto As Long, IdContrato As Long, FechaInicial As Date, Importe As Decimal, IdTipoImpuesto As Long, AntesIE As Boolean, AplicarSobreConsumo As Boolean, AplicarPrecioConsumo As Boolean, PrecioSobredia As Boolean) As Long
         Dim conexion = New SqlConnection(connectionString)
 
         Dim FilfasAfectadas As Long
@@ -924,7 +929,7 @@ from contrato where idcups in (select idcups from iddc)"
 
             Dim query =
 $"INSERT INTO ProductoAsignacion (Entorno, IdProductoGrupo, IdProducto, TipoAsignacion, IdCliente, IdContrato, IdTarifa, IdTarifaGrupo, IdTipoCobro, IdTarifaPeaje, Desde, Hasta, IsControlFecha, FechaInicial, FechaFinal, Plazo, PlazoCargado, ImporteTotalPlazo, IsFacturado, Importe, Descuento, AntesIE, IdTipoImpuesto, PrecioDia, IsFacturaProrrateo, IdFacturaProrrateo, PorcentajeIncremento, AplicarSobreConsumo, ImportePlazo, AplicarPrecioConsumo, IsBonificacion, FechaAsignacion)
-VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '{FechaInicial}', NULL, NULL, NULL, NULL, NULL, {Importe.ToString.Replace(",", ".")}, 0.00, {If(AntesIE, 1, 0)}, {IdTipoImpuesto}, 0, 0, NULL, 0.00, {If(AplicarSobreConsumo, 1, 0)}, NULL, {If(AplicarPrecioConsumo, 1, 0)}, NULL, NULL);"
+VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '{FechaInicial}', NULL, NULL, NULL, NULL, NULL, {Importe.ToString.Replace(",", ".")}, 0.00, {If(AntesIE, 1, 0)}, {IdTipoImpuesto}, {If(PrecioSobredia, 1, 0)}, 0, NULL, 0.00, {If(AplicarSobreConsumo, 1, 0)}, NULL, {If(AplicarPrecioConsumo, 1, 0)}, NULL, NULL);"
             Dim comando = New SqlCommand(query, conexion)
             FilfasAfectadas = comando.ExecuteNonQuery
             conexion.Close()
@@ -1504,21 +1509,72 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
         Dim conexion = New SqlConnection(connectionString)
 
         Dim FacturaByte As Byte() = Nothing
+        Dim IdDocumento As Long = 0
         Try
             conexion.Open()
-            Dim query = $" select  IdFacturaVentaCabecera, d.DocumentoData from FacturaVentaCabecera fv
+            Dim query = $" select  IdFacturaVentaCabecera, d.DocumentoData, d.iddocumento from FacturaVentaCabecera fv
  left join contratodocumento cd on fv.IdContratoDocumento = cd.IdContratoDocumento
  left join Documento d on cd.IdDocumento = d.IdDocumento
  where CONCAT(seriefactura,numerofactura) ='{Facs}'"
             Dim comando = New SqlCommand(query, conexion)
             Dim readerQuery As SqlDataReader = comando.ExecuteReader()
 
-             ' Se lee cada fila del SqlDataReader y se crea un objeto Agente
-        If readerQuery.Read() Then
+            ' Se lee cada fila del SqlDataReader y se crea un objeto Documento
+            If readerQuery.Read() Then
                 ' Leemos los datos binarios del campo DocumentoData
                 If Not readerQuery.IsDBNull(readerQuery.GetOrdinal("DocumentoData")) Then
                     ' Leer los datos binarios del campo DocumentoData
                     FacturaByte = DirectCast(readerQuery("DocumentoData"), Byte())
+
+                End If
+                If Not readerQuery.IsDBNull(readerQuery.GetOrdinal("iddocumento")) Then
+                    IdDocumento = DirectCast(readerQuery("iddocumento"), Long)
+                End If
+            End If
+            readerQuery.Close()
+            conexion.Close()
+
+            'Comprobamos si ha traido el documento de BD
+            If FacturaByte Is Nothing AndAlso IdDocumento > 0 Then ' si no lo ha traido, lo buscamos en disco
+                DocumentDataFromCopiaAnioSiNulo(FacturaByte, IdDocumento)
+            End If
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return FacturaByte
+    End Function
+
+    Public Sub DocumentDataFromCopiaAnioSiNulo(ByRef ret As Byte(), IdDocumento As Long)
+        'data source=172.31.100.12;initial catalog=SigeTotal; User ID=Sige;Password=SigeNew; integrated security=False;Connection Timeout=120;Persist Security Info=True;MultipleActiveResultSets=True;
+        If ret Is Nothing AndAlso IdDocumento > 0 AndAlso API_DOCUMENTOS_ACTIVA AndAlso If(URL_API_DOCUMENTOS, "").Trim <> String.Empty Then
+            Try
+                'urlApiDocumento= "https://localhost:8046/Documentos/"
+                Dim urlDocumento = $"{URL_API_DOCUMENTOS}{IdDocumento}"
+                Dim token = SysMainControl("TOKEN_DOCUMENTOS_API")
+                Dim binario64 = UrlGetString(urlDocumento, token)
+                ret = Convert.FromBase64String(binario64)
+            Catch ex As Exception
+
+            End Try
+        End If
+    End Sub
+
+    Public Function SysMainControl(CodigoControlS As String) As String
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim Value As String = 0
+        Try
+            conexion.Open()
+            Dim query = $"select Value from SysMainControl where CodigoControl like '%{CodigoControlS}%'"
+            Dim comando = New SqlCommand(query, conexion)
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+
+            ' Se lee cada fila del SqlDataReader
+            If readerQuery.Read() Then
+                ' Leemos los datos binarios del campo Value
+                If Not readerQuery.IsDBNull(readerQuery.GetOrdinal("Value")) Then
+                    ' Leer los datos binarios del campo Value
+                    Value = DirectCast(readerQuery("Value"), String)
                 End If
             End If
             readerQuery.Close()
@@ -1526,9 +1582,34 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
         Catch ex As Exception
             Console.WriteLine(ex)
         End Try
-        Return FacturaByte
+        Return Value
     End Function
 
+    Public Function UrlGetString(url As String, token As String) As String
+        Dim ret As String = String.Empty
+        Try
+            Using wb = New WebClient()
+                'Dim user As String = ""
+                'Dim pwd As String = ""
+
+                'Dim datos() As Byte = System.Text.UTF8Encoding.UTF8.GetBytes($"user={user};pwd={pwd}")
+
+                If token Is Nothing Then
+                    token = ""
+                End If
+
+                wb.Headers.Add("token", token)
+                'Dim response = wb.UploadData(url, "POST", datos)
+                Dim response = wb.DownloadData(url) 'Funciona en http
+                ret = Text.Encoding.UTF8.GetString(response)
+            End Using
+
+        Catch ex As Exception
+            ret = ex.ToString
+        End Try
+
+        Return ret
+    End Function
 
     Public Function CodPostalCups(IdCups As Long) As String
         Dim conexion = New SqlConnection(connectionString)
@@ -1554,6 +1635,68 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
             Console.WriteLine(ex)
         End Try
         Return IdCupss
+    End Function
+
+    Public Function InsertTarifaPrecioContrato(tarifasPrecioContratoGuardar As List(Of TarifaPrecioContrato)) As Long
+        Dim FilfasAfectadas As Long
+        Try
+            Dim conexion = New SqlConnection(connectionString)
+            conexion.Open()
+
+            For Each TPC In tarifasPrecioContratoGuardar
+                Dim query = $"INSERT INTO [dbo].[TarifaPrecioContrato]([Entorno]
+           ,[IdContratoTarifa]
+           ,[IdTarifaPrecio]
+           ,[IdIndexadoPrecio]
+           ,[IdIndexadoPrecioGas])
+     VALUES
+           ('{TPC.Entorno}',
+           {TPC.IdContratoTarifa},
+           {TPC.IdTarifaPrecio},
+           {TPC.IdIndexadoPrecio},
+           null)"
+                Dim comando = New SqlCommand(query, conexion)
+                FilfasAfectadas += comando.ExecuteNonQuery
+            Next
+            conexion.Close()
+        Catch ex As Exception
+            Throw
+        End Try
+        Return FilfasAfectadas
+    End Function
+
+
+    Public Function GetFacClick(Factura As String) As List(Of ClickFac)
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim ListaClickFac As New List(Of ClickFac)
+        Try
+            conexion.Open()
+            Dim query = $"select CONCAT(SerieFactura,NumeroFactura)NFactura,Descripcion, ImporteBase from facturaventalinea fl
+inner join FacturaVentaCabecera fv on fl.IdFacturaVentaCabecera = fv.IdFacturaVentaCabecera
+where CONCAT(fv.SerieFactura,fv.NumeroFactura) ='{Factura}' and FacturaConcepto = 30006"
+            Dim comando = New SqlCommand(query, conexion)
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+
+            ' Se lee cada fila del SqlDataReader y se crea un objeto Agente
+            Do While readerQuery.Read
+                Dim AClickFacC = New ClickFac
+
+                ' Controlar valores nulos y convertir al tipo de datos correcto para cada campo
+
+                AClickFacC.NFactura = GetValueOrDefault(Of String)(readerQuery, 0, "")
+                AClickFacC.Descripcion = GetValueOrDefault(Of String)(readerQuery, 1, "")
+                AClickFacC.ImporteBase = GetValueOrDefault(Of Decimal)(readerQuery, 2, 0.0D)
+
+                ListaClickFac.Add(AClickFacC)
+            Loop
+
+            readerQuery.Close()
+            conexion.Close()
+        Catch ex As Exception
+            Throw
+        End Try
+        Return ListaClickFac
     End Function
 End Class
 
