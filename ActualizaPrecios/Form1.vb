@@ -6,21 +6,22 @@ Imports System.Text.RegularExpressions
 Public Class Form1
     Dim complementos As New Complementos()
     Dim LoadingWF As New LoadingWF
-    Private ReadOnly Property ipDB As String = "data source=172.31.100.12;"
+    Private Property ipDB As String = "data source=172.31.100.12"
     'Private ReadOnly Property ipDB As String = "data source=172.31.100.50\TOTALUAT;"
-    Private ReadOnly Property nameDB As String = "initial catalog=SigeTotal;"
+    Private Property nameDB As String = "initial catalog=SigeTotal;"
     'Private ReadOnly Property nameDB As String = "initial catalog=SigeTotalUAT;"
     Private ReadOnly Property userDB As String = "User ID=Sige;"
     Private ReadOnly Property passDB As String = "Password=SigeNew;"
     Private ReadOnly Property NombreUsuarioEquipo As String = Environment.UserName
-    Private ReadOnly Property connectionString As String = $"{ipDB}{nameDB}{userDB}{passDB}"
+    Private Property connectionString As String = $"{ipDB}{nameDB}{userDB}{passDB}"
 
-    Private ReadOnly ContratoTarifaSrv As New ContratoTarifaSrv(connectionString)
+    Private ContratoTarifaSrv As New ContratoTarifaSrv(connectionString)
 
-    Private ReadOnly Funciones As New FuncionesGenericas(connectionString)
+    Private Funciones As New FuncionesGenericas(connectionString)
 
     Private Async Sub Actualizar(sender As Object, e As EventArgs) Handles Button1.Click
-
+        Dim ExcelDatos As New Excel
+        Dim Datos As New List(Of List(Of Object))()
         Try
             Dim totalContratos = 0
             Dim ContratoActualizar As New List(Of Long)
@@ -57,8 +58,11 @@ Public Class Form1
                 End If
                 If yesorNot = 6 OrElse yesorNot = 1 OrElse todoOK Then
                     LoadingWF.Show()
-                    Dim ContratosTXT = Await Task.Run(Function() ActualizarRegistros(ContratoActualizar))
+                    Dim ContratosTXT = Await Task.Run(Function() ActualizarRegistros(ContratoActualizar, Datos))
                     LoadingWF.Hide()
+                    If Not IsNothing(Datos) AndAlso Datos.Count > 0 Then
+                        ExcelDatos.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos, "PreciosErrores")
+                    End If
                     complementos.MostrarMensajePersonalizado($"{ContratosTXT}. Contratos iniciales:{ContratoActualizar.Count} contratos")
                 Else
                     complementos.MostrarMensajePersonalizado($"Se ha cancelado la actualización")
@@ -74,9 +78,11 @@ Public Class Form1
 
     End Sub
 
-    Private Function ActualizarRegistros(ListaCodigo As List(Of Long)) As String
+    Private Function ActualizarRegistros(ListaCodigo As List(Of Long), ByRef Datos As List(Of List(Of Object))) As String
         Dim Contador = 0I
         Dim ContratosSinActualizar = "Contratos sin actualizarse: "
+
+        'Dim Datos As New List(Of List(Of Object))()
         Try
             Dim ContratoTra As New List(Of ContratoTarifa)
             Dim ContratoTraMergeado As New List(Of ContratoTarifa)
@@ -204,11 +210,13 @@ Public Class Form1
                                             ElseIf elment.Entorno = "G2" AndAlso TaPrecionContrato.IdIndexadoPrecioGas > 0 Then
                                                 OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifaIndexGas(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
                                             Else
-                                                Throw New Exception("Imposible continuar, ha fallado al buscar los precios antiguos " + elment.CodigoContrato)
+                                                Datos.Add(New List(Of Object) From {$"Contrato: {elment.CodigoContrato}- idContratotarifa ={elment.IdContratoTarifa} - No actualizado - Sin precios - revisar "})
+                                                Continue For
                                             End If
                                         Else
-
-                                            Throw New Exception("El precio personalizado no existe, Imposible actualizar a la nueva tarifagrupo " + elment.CodigoContrato)
+                                            Datos.Add(New List(Of Object) From {$"Contrato: {elment.CodigoContrato} - idContratotarifa ={elment.IdContratoTarifa} - El precio personalizado no existe, Imposible actualizar a la nueva tarifagrupo"})
+                                            Continue For
+                                            'Throw New Exception("El precio personalizado no existe, Imposible actualizar a la nueva tarifagrupo " + elment.CodigoContrato)
                                         End If
 
 
@@ -218,7 +226,9 @@ Public Class Form1
                                             Funciones.UpdatePrecioContratoTarifa(tarifasPrecioContratoGuardar, OldtarifasPrecioContratoQuitar, isFijoIndex)
                                             Contador += 1
                                         Else
-                                            Throw New Exception("Imposible continuar, precios no encontrados. Contrato: " + elment.CodigoContrato)
+                                            Datos.Add(New List(Of Object) From {$"Contrato: {elment.CodigoContrato} _ idContratotarifa ={elment.IdContratoTarifa} , precios no encontrados "})
+                                            Continue For
+                                            'Throw New Exception("Imposible continuar, precios no encontrados. Contrato: " + elment.CodigoContrato)
                                         End If
                                     End If
                                     'objTarifaPerdidaCalculadaSrv.MergeUpdateTarifaPerdidaCalculadaContratoDTO(TarifaPerdidaCalculadaContratoGuardar, New ObservableCollection(Of TarifaPerdidaCalculadaContratoDTO))
@@ -243,7 +253,10 @@ Public Class Form1
             End If
 
         Catch ex As Exception
+            Datos.Add(New List(Of Object) From {$"Error: {ex.Message}"})
             Throw
+        Finally
+            'ExcelDatos.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos)
         End Try
         Return $"Se han actualizado {Contador}. {ContratosSinActualizar}"
     End Function
@@ -759,6 +772,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
     'Revisa si ha habido algún contrato que no se haya configurado bien
     Private Async Sub Button7_Click(sender As Object, e As EventArgs) Handles Button7.Click
         Try
+
             'Dim RutaArchivo = Funciones.RevisaTarifaPrecioContratoPersonalizada()
             'MessageBox.Show($"Se ha generado la revisión en la siguiente ruta:{RutaArchivo}")
             LoadingWF.Show()
@@ -773,16 +787,16 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         End Try
     End Sub
 
-    'Para saber si PRO o AUT
+    ''Para saber si PRO o AUT
     Private Sub Label5_Click(sender As Object, e As EventArgs) Handles Label5.TextChanged
 
         Try
-            If ipDB.Trim.Contains("172.31.100.12") Then
+            If ipDB.Trim.Contains("172.31.100.12") AndAlso RadioButton1.Checked Then
                 Label5.Text = "BD PRO  172.31.100.12 SigeTotal"
-            ElseIf ipDB.Trim.Contains("172.31.100.29") Then
-                Label5.Text = "BD UAT  172.31.100.29 SigeTotal_Replica"
-            Else
-                Label5.Text = "BD UAT  172.31.100.50 SigeTotalUAT"
+                'ElseIf ipDB.Trim.Contains("172.31.100.29") AndAlso RadioButton2.Checked Then
+                '    Label5.Text = "BD UAT  172.31.100.29 SigeTotal(Replica)"
+                'ElseIf RadioButton3.Checked Then
+                '    Label5.Text = "BD UAT  172.31.100.50 SigeTotalUAT"
             End If
         Catch ex As Exception
 
@@ -1157,7 +1171,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         Dim rutaArchivo = Path.Combine(rutaCarpeta, $"CSV_VA_{Date.Today.ToString("ddMMyyyy")}.csv")
         Dim contratosActualizado = 0
         Dim tiempoTranscurrido As TimeSpan
-
+        Dim creado = False
         Try
             Dim Validaciones As New ValidacionExcel(connectionString)
 
@@ -1196,7 +1210,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                 Dim stopwatch As New Stopwatch
                 stopwatch.Start() ' Iniciar el cronómetro
                 Await Task.Run(Sub() Validaciones.CSV(rutaEscogida, rutaArchivo))
-
+                creado = True
                 ' Detener el cronómetro y obtener el tiempo transcurrido
                 stopwatch.Stop()
                 tiempoTranscurrido = stopwatch.Elapsed
@@ -1206,8 +1220,9 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             complementos.MostrarMensajePersonalizado(ex.Message)
         Finally
             LoadingWF.Hide()
-            complementos.MostrarMensajePersonalizado($"Se han creado los datos en el archivo Excel en: {rutaArchivo} Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes.ToString("F2")} minutos.")
-
+            If creado Then
+                complementos.MostrarMensajePersonalizado($"Se han creado los datos en el archivo Excel en: {rutaArchivo} Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes.ToString("F2")} minutos.")
+            End If
         End Try
     End Sub
 
@@ -1293,6 +1308,79 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         Dim resultado As Double = New DataTable().Compute(expresion.Replace(",", "."), Nothing)
         Return resultado
     End Function
+
+    Private Sub RadioButton1_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton1.CheckedChanged
+        Try
+            If RadioButton1.Checked Then
+                Label5.Text = "BD PRO  172.31.100.12 SigeTotal"
+                RadioButton2.Checked = False
+                RadioButton3.Checked = False
+                ipDB = "data source=172.31.100.12;"
+                nameDB = "initial catalog=SigeTotal;"
+                connectionString = $"{ipDB}{nameDB}{userDB}{passDB}"
+                Funciones = New FuncionesGenericas(connectionString)
+                ContratoTarifaSrv = New ContratoTarifaSrv(connectionString)
+            End If
+        Catch ex As Exception
+
+        End Try
+
+    End Sub
+
+    Private Sub RadioButton2_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton2.CheckedChanged
+        Try
+            If RadioButton2.Checked Then
+                Label5.Text = "BD Replica 172.31.100.29 SigeTotal"
+                RadioButton1.Checked = False
+                RadioButton3.Checked = False
+                ipDB = "data source=172.31.100.29;"
+                nameDB = "initial catalog=SigeTotal;"
+                connectionString = $"{ipDB}{nameDB}{userDB}{passDB}"
+                Funciones = New FuncionesGenericas(connectionString)
+                ContratoTarifaSrv = New ContratoTarifaSrv(connectionString)
+                HabilitarDesHabilitarButtons(False)
+            Else
+                HabilitarDesHabilitarButtons(True)
+
+            End If
+        Catch ex As Exception
+
+        End Try
+
+    End Sub
+
+    Private Sub RadioButton3_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton3.CheckedChanged
+        Try
+            If RadioButton3.Checked Then
+                Label5.Text = "BD UAT  172.31.100.50 SigeTotalUAT"
+                RadioButton1.Checked = False
+                RadioButton2.Checked = False
+                ipDB = "data source=172.31.100.50;"
+                nameDB = "initial catalog=SigeTotalUAT;"
+                connectionString = $"{ipDB}{nameDB}{userDB}{passDB}"
+                Funciones = New FuncionesGenericas(connectionString)
+                ContratoTarifaSrv = New ContratoTarifaSrv(connectionString)
+
+            End If
+        Catch ex As Exception
+
+        End Try
+
+    End Sub
+
+    Private Sub HabilitarDesHabilitarButtons(Habilitar As Boolean)
+        Button1.Enabled = Habilitar
+        Button2.Enabled = Habilitar
+        Button3.Enabled = Habilitar
+        Button5.Enabled = Habilitar
+        Button6.Enabled = Habilitar
+        Button7.Enabled = Habilitar
+        Button8.Enabled = Habilitar
+        Button9.Enabled = Habilitar
+        Button11.Enabled = Habilitar
+    End Sub
+
+
 
 
     '    Private Sub Button12_Click(sender As Object, e As EventArgs)

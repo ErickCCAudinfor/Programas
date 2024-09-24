@@ -95,16 +95,18 @@ Public Class ActualizarCNAEFromExcel
                 Next
             End Using
             'Si hay datos escribo en el excel
-            If Datos.Count > 0 Then
-                Excel.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos)
-            End If
+            'If Datos.Count > 0 Then
+            '    Excel.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos, "CNAE")
+            'End If
 
             MessageBox.Show($"Proceso Completado")
         Catch ex As Exception
-            If Datos.Count > 0 Then
-                Excel.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos)
-            End If
+
             Throw
+        Finally
+            If Datos.Count > 0 Then
+                Excel.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos, "CNAE")
+            End If
         End Try
         Return contador
     End Function

@@ -180,8 +180,9 @@ Public Class FuncionesGenericas
             Using conexion As New SqlConnection(connectionString)
                 conexion.Open()
 
-                Dim query As String = $"SELECT IdContrato,CodigoContrato,FechaAplicacionPrecios,FechaContrato,Entorno,idcliente,idcontratosituacion,idcups
-                    FROM Contrato
+                Dim query As String = $"SELECT IdContrato,CodigoContrato,FechaAplicacionPrecios,FechaContrato,c.Entorno,idcliente,idcontratosituacion,idcups, c.IdTipoImpuesto
+                    FROM Contrato c
+					inner join TipoImpuesto on c.IdTipoImpuesto = TipoImpuesto.IdTipoImpuesto
                     WHERE codigocontrato = {CodContrato}"
 
                 Dim comando As New SqlCommand(query, conexion)
@@ -200,6 +201,7 @@ Public Class FuncionesGenericas
                         Contrato.IdCliente = readerQuery.GetValue(5).ToString
                         Contrato.IdContratoSituacion = readerQuery.GetValue(6).ToString
                         Contrato.IdCups = readerQuery.GetValue(7).ToString
+                        Contrato.IdTipoImpuesto = readerQuery.GetValue(8).ToString
                     Loop
                 End If
 
@@ -788,6 +790,7 @@ from contrato where idcups in (select idcups from iddc)"
                 Dim readerQuery As SqlDataReader = comando.ExecuteReader()
 
                 If readerQuery.HasRows Then
+                    'Productos.Add(New Producto)
                     Do While readerQuery.Read
                         Dim Pro As New Producto
                         Pro.IdProducto = readerQuery.GetValue(0).ToString
@@ -930,7 +933,7 @@ from contrato where idcups in (select idcups from iddc)"
 
             Dim query =
 $"INSERT INTO ProductoAsignacion (Entorno, IdProductoGrupo, IdProducto, TipoAsignacion, IdCliente, IdContrato, IdTarifa, IdTarifaGrupo, IdTipoCobro, IdTarifaPeaje, Desde, Hasta, IsControlFecha, FechaInicial, FechaFinal, Plazo, PlazoCargado, ImporteTotalPlazo, IsFacturado, Importe, Descuento, AntesIE, IdTipoImpuesto, PrecioDia, IsFacturaProrrateo, IdFacturaProrrateo, PorcentajeIncremento, AplicarSobreConsumo, ImportePlazo, AplicarPrecioConsumo, IsBonificacion, FechaAsignacion)
-VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '{FechaInicial}', NULL, NULL, NULL, NULL, NULL, {Importe.ToString.Replace(",", ".")}, 0.00, {If(AntesIE, 1, 0)}, {IdTipoImpuesto}, {If(PrecioSobredia, 1, 0)}, 0, NULL, 0.00, {If(AplicarSobreConsumo, 1, 0)}, NULL, {If(AplicarPrecioConsumo, 1, 0)}, NULL, NULL);"
+VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '{FechaInicial}', NULL, NULL, NULL, NULL, NULL, {Importe.ToString.Replace(",", ".")}, 0.00, {If(AntesIE, 1, 0)}, null, {If(PrecioSobredia, 1, 0)}, 0, NULL, 0.00, {If(AplicarSobreConsumo, 1, 0)}, NULL, {If(AplicarPrecioConsumo, 1, 0)}, NULL, NULL);"
             Dim comando = New SqlCommand(query, conexion)
             FilfasAfectadas = comando.ExecuteNonQuery
             conexion.Close()

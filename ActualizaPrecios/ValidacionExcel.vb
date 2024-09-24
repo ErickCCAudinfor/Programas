@@ -138,122 +138,55 @@ FacturasVentaConsulta (idfacturaventacabecera,codigocontrato) as
 where IdFacturaVentaCabecera in ({id}
 )),
 
-ConsumosReactiva(id, r1,r2,r3,r4,r5,r6,pr1,pr2,pr3,pr4,pr5,pr6)
-AS
-(
-	select facturaventacabecera.IdFacturaventaCabecera,
-	ConsumoRP1.Consumo as ConsumoP1, ConsumoRP2.Consumo as ConsumoP2, ConsumoRP3.Consumo as ConsumoP3, ConsumoRP4.Consumo as ConsumoP4, ConsumoRP5.Consumo as ConsumoP5, ConsumoRP6.Consumo as ConsumoP6, 
-	ConsumoRP1.Precio as EnergiaPrecioP1, ConsumoRP2.Precio as EnergiaPrecioP2, ConsumoRP3.Precio as EnergiaPrecioP3, ConsumoRP4.Precio as EnergiaPrecioP4, ConsumoRP5.Precio as EnergiaPrecioP5, ConsumoRP6.Precio as EnergiaPrecioP6
-	
-	from facturaventacabecera WITH (NOLOCK)
-	--Consumos reactiva
-		left join 		
-		(Select Id, Consumo, Max(Precio) as Precio from(
-		SELECT FacturaVentaLinea.IdFacturaVentaCabecera as Id, ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/ConceptoReactiva/TotConsumo)[1]', 'decimal(18,3)'), 0) AS Consumo, 
-		ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/ConceptoReactiva/PrecioMedio)[1]', 'decimal(18,6)'), 0) AS Precio,
-		FacturaVentaLinea.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer') as CodPeriodo FROM   FacturaVentaLinea WITH (NOLOCK)
-		where  FacturaConcepto like '40%')  as l where CodPeriodo=1 group by l.Id, Consumo) as ConsumoRP1 
-		on facturaventacabecera.IdFacturaVentaCabecera = ConsumoRP1.Id
-		left join 		
-		(Select Id, Consumo, Max(Precio) as Precio from(
-		SELECT FacturaVentaLinea.IdFacturaVentaCabecera as Id, ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/ConceptoReactiva/TotConsumo)[1]', 'decimal(18,3)'), 0) AS Consumo, 
-		ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/ConceptoReactiva/PrecioMedio)[1]', 'decimal(18,6)'), 0) AS Precio,
-		FacturaVentaLinea.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer') as CodPeriodo FROM   FacturaVentaLinea WITH (NOLOCK)
-		where  FacturaConcepto like '40%')  as l where CodPeriodo=2 group by l.Id, Consumo) as ConsumoRP2 
-		on facturaventacabecera.IdFacturaVentaCabecera = ConsumoRP2.Id
-		left join 		
-		(Select Id, Consumo, Max(Precio) as Precio from(
-		SELECT FacturaVentaLinea.IdFacturaVentaCabecera as Id, ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/ConceptoReactiva/TotConsumo)[1]', 'decimal(18,3)'), 0) AS Consumo, 
-		ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/ConceptoReactiva/PrecioMedio)[1]', 'decimal(18,6)'), 0) AS Precio,
-		FacturaVentaLinea.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer') as CodPeriodo FROM   FacturaVentaLinea WITH (NOLOCK)
-		where  FacturaConcepto like '40%')  as l where CodPeriodo=3 group by l.Id, Consumo) as ConsumoRP3 
-		on facturaventacabecera.IdFacturaVentaCabecera = ConsumoRP3.Id
-		left join 		
-		(Select Id, Consumo, Max(Precio) as Precio from(
-		SELECT FacturaVentaLinea.IdFacturaVentaCabecera as Id, ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/ConceptoReactiva/TotConsumo)[1]', 'decimal(18,3)'), 0) AS Consumo, 
-		ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/ConceptoReactiva/PrecioMedio)[1]', 'decimal(18,6)'), 0) AS Precio,
-		FacturaVentaLinea.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer') as CodPeriodo FROM   FacturaVentaLinea WITH (NOLOCK)
-		where  FacturaConcepto like '40%')  as l where CodPeriodo=4 group by l.Id, Consumo) as ConsumoRP4 
-		on facturaventacabecera.IdFacturaVentaCabecera = ConsumoRP4.Id
-		left join 		
-		(Select Id, Consumo, Max(Precio) as Precio from(
-		SELECT FacturaVentaLinea.IdFacturaVentaCabecera as Id, ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/ConceptoReactiva/TotConsumo)[1]', 'decimal(18,3)'), 0) AS Consumo, 
-		ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/ConceptoReactiva/PrecioMedio)[1]', 'decimal(18,6)'), 0) AS Precio,
-		FacturaVentaLinea.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer') as CodPeriodo FROM   FacturaVentaLinea WITH (NOLOCK)
-		where  FacturaConcepto like '40%')  as l where CodPeriodo=5 group by l.Id, Consumo) as ConsumoRP5 
-		on facturaventacabecera.IdFacturaVentaCabecera = ConsumoRP5.Id
-		left join 		
-		(Select Id, Consumo, Max(Precio) as Precio from(
-		SELECT FacturaVentaLinea.IdFacturaVentaCabecera as Id, ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/ConceptoReactiva/TotConsumo)[1]', 'decimal(18,3)'), 0) AS Consumo, 
-		ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/ConceptoReactiva/PrecioMedio)[1]', 'decimal(18,6)'), 0) AS Precio,
-		FacturaVentaLinea.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer') as CodPeriodo FROM   FacturaVentaLinea WITH (NOLOCK)
-		where  FacturaConcepto like '40%')  as l where CodPeriodo=6 group by l.Id, Consumo) as ConsumoRP6 
-		on facturaventacabecera.IdFacturaVentaCabecera = ConsumoRP6.Id
-	WHERE facturaventacabecera.IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta)),
-PreseleccionContratos as (
-select IdContrato, CodigoContrato, TipoImprimir, IdGrupoImprimir, IdModeloFactura, IdModeloFacturaGestinel, IdTarifa, IdCliente from Contrato 
-where Entorno = 'E1' and Contrato.CodigoContrato in (select codigocontrato from FacturasVentaConsulta)
-),
-PreseleccionFacturas as (
-select IdFacturaVentaCabecera, FacturaVentaCabecera.SerieFactura, NumeroFactura, FacturaCategoria, PreseleccionContratos.CodigoContrato, FechaFactura, FacturaVentaCabecera.IdFacturaTipo,facturaventacabecera.fechalecturaactualxml,facturaventacabecera.fechalecturaanteriorxml
-,IdTipoImpuesto, PreseleccionContratos.IdTarifa,
-IdFacturaRectificativa, IdFacturaAbono, IdFacturaOrigen, cast(isnull(InfoCabeceraXML.value('(//ConsumoActiva)[1]', 'nvarchar(max)'), '0') as decimal(18,2)) as Consumo, IsGestinel, IdContratoDocumento,
-PreseleccionContratos.IdContrato, PreseleccionContratos.IdCliente, IdCanal, PreseleccionContratos.IdModeloFactura, PreseleccionContratos.IdModeloFacturaGestinel, FacturaTipo.TextoFacturaTipo
-from PreseleccionContratos with(nolock)
-inner join FacturaVentaCabecera on PreseleccionContratos.IdContrato = FacturaVentaCabecera.IdContrato 
-left join FacturaTipo on FacturaTipo.IdFacturaTipo = FacturaVentaCabecera.IdFacturaTipo
-where FacturaVentaCabecera.Entorno = 'E1' and IsFactura = 1
-)
-,
-Lineas as (
-select PreseleccionFacturas.IdFacturaVentaCabecera, FacturaConcepto, ImporteBase  from PreseleccionFacturas
-inner join FacturaVentaLinea on FacturaVentaLinea.IdFacturaVentaCabecera = PreseleccionFacturas.IdFacturaVentaCabecera
-),
-ImportesPotencia as (
-select Lineas.IdFacturaVentaCabecera, sum(Lineas.ImporteBase) as Importe from Lineas
-where (FacturaConcepto between 10000 and 19999 or FacturaConcepto in (130001,130002, 131001)) or 
-(FacturaConcepto in (90003, 90018, 90035,90036,90039,90040, 90042, 90043, 90044, 90045, 90049, 90050, 90053, 90054, 90056, 90057, 90058, 90059, 90070))
-group by Lineas.IdFacturaVentaCabecera
-),
-ImportesEnergia as (
-Select Lineas.IdFacturaVentacabecera, sum(Lineas.ImporteBase) as Importe from Lineas 
-where (FacturaConcepto between 30000 and 39999 or FacturaConcepto in (130003,130004, 131003)) or 
-(FacturaConcepto in (90001,90002,90012,90031,90032,90062,90038,90048,90052))
-group by Lineas.IdFacturaVentaCabecera
-),
-ImportesReactiva as (
-Select Lineas.IdFacturaVentacabecera, sum(Lineas.ImporteBase) as Importe from Lineas 
-where FacturaConcepto between 40000 and 49999 
-group by Lineas.IdFacturaVentaCabecera
-),
-ImportesExcesos as (
-Select Lineas.IdFacturaVentacabecera, sum(Lineas.ImporteBase) as Importe from Lineas 
-where (FacturaConcepto between 20000 and 29999) or (FacturaConcepto in (90037,90041,90051,90055))
-group by Lineas.IdFacturaVentaCabecera
-),
-DescuentosPotencia as (
-Select Lineas.IdFacturaVentacabecera, sum(Lineas.ImporteBase) as Importe from Lineas 
-where (FacturaConcepto in (120001, 120004)) or (FacturaConcepto in (120006, 90007))
-group by Lineas.IdFacturaVentaCabecera
-),
-DescuentosEnergia as (
-Select Lineas.IdFacturaVentacabecera, sum(Lineas.ImporteBase) as Importe from Lineas 
-where (FacturaConcepto in (120002, 120005)) or (FacturaConcepto in (120007, 90006))
-group by Lineas.IdFacturaVentaCabecera
-),
-ImportesAlquileres as (
-Select Lineas.IdFacturaVentacabecera, sum(Lineas.ImporteBase) as Importe from Lineas 
-where (FacturaConcepto between 50000 and 59999) or (FacturaConcepto in (120007, 90006))
-group by Lineas.IdFacturaVentaCabecera
-),
-ImportesProductos as (
-Select Lineas.IdFacturaVentacabecera, sum(Lineas.ImporteBase) as Importe from Lineas 
-where FacturaConcepto in (100001, 100002, 110001, 90009)
-group by Lineas.IdFacturaVentaCabecera
+ PotenciaReemplazadaP1 AS (
+    SELECT 
+        c.idcontrato,
+        REPLACE(cp1.PotenciaContratada, '.', ',') AS PotContratadaP1
+    FROM contrato c
+left join ContratoPotencia cp1 with (nolock) on cp1.idcontrato = c.idcontrato and cp1.IdTarifaPeriodo in (20202001,20203001,20206101,20206201,20206301,20206401,20208001,20208101)
+
 )
 
+, PotenciaReemplazadaP2 AS (
+    SELECT 
+		c.idcontrato,
+        REPLACE(cp2.PotenciaContratada, '.', ',') AS PotContratadaP2
 
+    FROM contrato c
+left join ContratoPotencia cp2 with (nolock) on cp2.idcontrato = c.idcontrato and cp2.IdTarifaPeriodo in (20202002,20203002,20206102,20206202,20206302,20206402,20208002,20208102)
 
+)
+, PotenciaReemplazadaP3 AS (
+    SELECT 
+        c.idcontrato,
+        REPLACE(cp3.PotenciaContratada, '.', ',') AS PotContratadaP3
+    FROM contrato c
+left join ContratoPotencia cp3 with (nolock) on cp3.idcontrato = c.idcontrato and cp3.IdTarifaPeriodo in (20202003,20203003,20206103,20206203,20206303,20206403,20208003,20208103)
+)
+, PotenciaReemplazadaP4 AS (
+    SELECT 
+        c.idcontrato,
+
+        REPLACE(cp4.PotenciaContratada, '.', ',') AS PotContratadaP4
+    FROM contrato c
+left join ContratoPotencia cp4 with (nolock) on cp4.idcontrato = c.idcontrato and cp4.IdTarifaPeriodo in (20203004,20206104,20206204,20206304,20206404,20208004,20208104)
+
+)
+, PotenciaReemplazadaP5 AS (
+    SELECT 
+        c.idcontrato,
+        REPLACE(cp5.PotenciaContratada, '.', ',') AS PotContratadaP5
+    FROM contrato c
+left join ContratoPotencia cp5 with (nolock) on cp5.idcontrato = c.idcontrato and cp5.IdTarifaPeriodo in (20203005,20206105,20206205,20206305,20206405,20208005,20208105)
+
+)
+, PotenciaReemplazadaP6 AS (
+    SELECT 
+        c.idcontrato,
+        REPLACE(cp6.PotenciaContratada, '.', ',') AS PotContratadaP6
+    FROM contrato c
+left join ContratoPotencia cp6 with (nolock) on cp6.idcontrato = c.idcontrato and cp6.IdTarifaPeriodo in (20203006,20206106,20206206,20206306,20206406,20208006,20208106)
+)
 
 Select 
 --,CODIGOPROYECTO (VACIO)
@@ -268,12 +201,12 @@ cl.Identidad as CIFDNI
 ,pv.TextoProvincia as Provincia
 ,c.codigocontrato
 , case when c.Entorno ='E1' then 'Electricidad' else 'Gas' end Sector
-,replace(cp1.PotenciaContratada,'.',',') as PotContratadaP1
-,replace(cp2.PotenciaContratada,'.',',') as PotContratadaP2
-,replace(cp3.PotenciaContratada,'.',',') as PotContratadaP3
-,replace(cp4.PotenciaContratada,'.',',') as PotContratadaP4
-,replace(cp5.PotenciaContratada,'.',',') as PotContratadaP5
-,replace(cp6.PotenciaContratada,'.',',') as PotContratadaP6
+, pr.PotContratadaP1
+, pr2.PotContratadaP2
+, pr3.PotContratadaP3
+, pr4.PotContratadaP4
+, pr5.PotContratadaP5
+, pr6.PotContratadaP6
 ,t.textotarifa as Tarifa
 ,d.NombreFiscal as Distribuidora
 ,fvc.FechaFactura
@@ -294,22 +227,20 @@ inner join CUPS with (nolock) on c.idcups = cups.idcups
 inner join callejero cll with (nolock) on cll.IdCallejero = cups.IdCallejero
 inner join Ciudad ciu with (nolock) on ciu.idciudad = cups.idciudad
 inner join provincia pv with (nolock) on ciu.idprovincia=pv.idprovincia
-left join ContratoPotencia cp1 with (nolock) on cp1.idcontrato = c.idcontrato and cp1.IdTarifaPeriodo in (20202001,20203001,20206101,20206201,20206301,20206401,20208001,20208101)
-left join ContratoPotencia cp2 with (nolock) on cp2.idcontrato = c.idcontrato and cp2.IdTarifaPeriodo in (20202002,20203002,20206102,20206202,20206302,20206402,20208002,20208102)
-left join ContratoPotencia cp3 with (nolock) on cp3.idcontrato = c.idcontrato and cp3.IdTarifaPeriodo in (20202003,20203003,20206103,20206203,20206303,20206403,20208003,20208103)
-left join ContratoPotencia cp4 with (nolock) on cp4.idcontrato = c.idcontrato and cp4.IdTarifaPeriodo in (20203004,20206104,20206204,20206304,20206404,20208004,20208104)
-left join ContratoPotencia cp5 with (nolock) on cp5.idcontrato = c.idcontrato and cp5.IdTarifaPeriodo in (20203005,20206105,20206205,20206305,20206405,20208005,20208105)
-left join ContratoPotencia cp6 with (nolock) on cp6.idcontrato = c.idcontrato and cp6.IdTarifaPeriodo in (20203006,20206106,20206206,20206306,20206406,20208006,20208106)
-left join FacturaVentaCabecera fvc with (nolock) on (fvc.idcliente = c.idcliente or fvc.CodigoContrato = c.CodigoContrato)
+LEFT JOIN PotenciaReemplazadaP1 pr  ON pr.idcontrato = c.idcontrato
+LEFT JOIN PotenciaReemplazadaP2 pr2 ON pr2.idcontrato = c.idcontrato
+LEFT JOIN PotenciaReemplazadaP3 pr3 ON pr3.idcontrato = c.idcontrato
+LEFT JOIN PotenciaReemplazadaP4 pr4 ON pr4.idcontrato = c.idcontrato
+LEFT JOIN PotenciaReemplazadaP5 pr5 ON pr5.idcontrato = c.idcontrato
+LEFT JOIN PotenciaReemplazadaP6 pr6 ON pr6.idcontrato = c.idcontrato
+LEFT JOIN FacturaVentaCabecera fvc WITH (NOLOCK) ON
+    CASE WHEN fvc.CodigoContrato IS NULL THEN fvc.IdCliente END =  cl.idcliente OR fvc.CodigoContrato = c.CodigoContrato
 left join FacturaVentaTotal fvt with (nolock) on fvc.idfacturaventacabecera = fvt.idfacturaventacabecera
 left join CarteraCobro cc with (nolock) on fvc.idfacturaventacabecera = cc.idfacturaventacabecera
 left join clientepago clp on c.idclientepago = clp.idclientepago
 left join tipocobro tip on clp.idtipocobro = tip.idtipocobro
 left join Tarifa t with (nolock) on c.idtarifa = t.IdTarifa
 left join Distribuidora d with (nolock) on CUPS.iddistribuidora = d.iddistribuidora
-left join facturaventalinea fvlIE with (nolock) on fvc.idfacturaventacabecera = fvlIE.idfacturaventacabecera and fvlIE.Facturaconcepto=60001
-left join facturaventalinea fvlCON with (nolock) on fvc.idfacturaventacabecera = fvlCON.idfacturaventacabecera and fvlCON.Facturaconcepto=50002
-left join facturaventalinea fvlMAX with (nolock) on fvc.idfacturaventacabecera = fvlMAX.idfacturaventacabecera and fvlMAX.Facturaconcepto=20006
 
 
 where fvc.idfacturaventacabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta)
@@ -332,7 +263,7 @@ where fvc.idfacturaventacabecera in (select IdFacturaVentaCabecera from Facturas
                                     End While
                                 End Using
                                 'End Using
-                                Console.WriteLine($"Factura {Contador} _ Id -> {id}")
+                                'Console.WriteLine($"Factura {Contador} _ Id -> {id}")
                             End If
                         Next
                         ' Conexión se cierra automáticamente al final del bloque Using

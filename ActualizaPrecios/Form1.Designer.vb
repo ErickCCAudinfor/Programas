@@ -50,6 +50,8 @@ Partial Class Form1
         CheckBox4 = New CheckBox()
         TextBox3 = New TextBox()
         Panel1 = New Panel()
+        RadioButton2 = New RadioButton()
+        RadioButton1 = New RadioButton()
         Panel2 = New Panel()
         Button15 = New Button()
         Button14 = New Button()
@@ -63,6 +65,7 @@ Partial Class Form1
         ToolTop1 = New ToolTip(components)
         Timer1 = New Timer(components)
         Button10 = New Button()
+        RadioButton3 = New RadioButton()
         Panel1.SuspendLayout()
         Panel2.SuspendLayout()
         CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
@@ -265,11 +268,36 @@ Partial Class Form1
         ' 
         ' Panel1
         ' 
+        Panel1.Controls.Add(RadioButton2)
+        Panel1.Controls.Add(RadioButton1)
         Panel1.Controls.Add(Label5)
         Panel1.Location = New Point(12, 398)
         Panel1.Name = "Panel1"
         Panel1.Size = New Size(561, 22)
         Panel1.TabIndex = 21
+        ' 
+        ' RadioButton2
+        ' 
+        RadioButton2.AutoSize = True
+        RadioButton2.Location = New Point(497, 0)
+        RadioButton2.Name = "RadioButton2"
+        RadioButton2.Size = New Size(63, 19)
+        RadioButton2.TabIndex = 27
+        RadioButton2.TabStop = True
+        RadioButton2.Text = "Replica"
+        RadioButton2.UseVisualStyleBackColor = True
+        ' 
+        ' RadioButton1
+        ' 
+        RadioButton1.AutoSize = True
+        RadioButton1.Location = New Point(405, 0)
+        RadioButton1.Name = "RadioButton1"
+        RadioButton1.Size = New Size(86, 19)
+        RadioButton1.TabIndex = 26
+        RadioButton1.TabStop = True
+        RadioButton1.Text = "Producción"
+        RadioButton1.UseVisualStyleBackColor = True
+        RadioButton1.Checked = True
         ' 
         ' Panel2
         ' 
@@ -298,7 +326,7 @@ Partial Class Form1
         Button15.Name = "Button15"
         Button15.Size = New Size(180, 23)
         Button15.TabIndex = 26
-        Button15.Text = "Evaluar"
+        Button15.Text = "Desglosar click Luz"
         Button15.UseVisualStyleBackColor = True
         ' 
         ' Button14
@@ -391,12 +419,24 @@ Partial Class Form1
         Button10.Text = "Limpiar"
         Button10.UseVisualStyleBackColor = True
         ' 
+        ' RadioButton3
+        ' 
+        RadioButton3.AutoSize = True
+        RadioButton3.Location = New Point(579, 398)
+        RadioButton3.Name = "RadioButton3"
+        RadioButton3.Size = New Size(46, 19)
+        RadioButton3.TabIndex = 28
+        RadioButton3.TabStop = True
+        RadioButton3.Text = "UAT"
+        RadioButton3.UseVisualStyleBackColor = True
+        ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.White
         ClientSize = New Size(641, 424)
+        Controls.Add(RadioButton3)
         Controls.Add(Button10)
         Controls.Add(Panel4)
         Controls.Add(Panel3)
@@ -472,4 +512,7 @@ Partial Class Form1
     Friend WithEvents Button13 As Button
     Friend WithEvents Button14 As Button
     Friend WithEvents Button15 As Button
+    Friend WithEvents RadioButton2 As RadioButton
+    Friend WithEvents RadioButton1 As RadioButton
+    Friend WithEvents RadioButton3 As RadioButton
 End Class

@@ -31,20 +31,23 @@ Partial Class LoadingWF
         ' 
         Load.BackgroundImageLayout = ImageLayout.Center
         Load.Image = CType(resources.GetObject("Load.Image"), Image)
-        Load.Location = New Point(-104, -157)
+        Load.Location = New Point(12, -5)
+        Load.Margin = New Padding(3, 4, 3, 4)
         Load.Name = "Load"
-        Load.Size = New Size(545, 287)
+        Load.Size = New Size(131, 96)
         Load.TabIndex = 0
         Load.TabStop = False
         ' 
         ' LoadingWF
         ' 
-        AutoScaleDimensions = New SizeF(7F, 15F)
+        AutoScaleDimensions = New SizeF(8F, 20F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(341, 118)
+        BackColor = SystemColors.Window
+        ClientSize = New Size(142, 85)
         Controls.Add(Load)
         FormBorderStyle = FormBorderStyle.None
         Icon = CType(resources.GetObject("$this.Icon"), Icon)
+        Margin = New Padding(3, 4, 3, 4)
         Name = "LoadingWF"
         Opacity = 0.7R
         StartPosition = FormStartPosition.CenterScreen

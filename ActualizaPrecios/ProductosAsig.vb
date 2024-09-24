@@ -80,11 +80,9 @@ Public Class ProductosAsig
             Dim PrecioSobredia = CheckBox3.Checked
             For Each elemnt In Contratos
                 Dim Contrato = Funciones.GetContrato(elemnt)
-                'TipoImpuesto Según codpostal
-                Dim CodPostal = Funciones.CodPostalCups(Contrato.IdCups)
-                Dim id = getImpuestoCanariasbyCodPostal(CodPostal)
-                'Añadiremos el impuesto de canarias según el codigo de postal 35 o 38
-                IdTipoImpuesto = If(id > 0, id, IdTipoImpuesto)
+                If If(Contrato.IdTipoImpuesto, 0) <> 0 Then
+                    IdTipoImpuesto = Contrato.IdTipoImpuesto
+                End If
                 If CheckBox2.Checked Then 'Insertar
                     Dim ok = Await Task.Run(Function() Funciones.InsertProductoAsignacion(Contrato.Entorno, productoSeleccionado.IdProductoGrupo, productoSeleccionado.IdProducto, Contrato.IdContrato, Fecha, importe, IdTipoImpuesto, AntesIe, SobreConsumo, PrecioSobreConsumo, PrecioSobredia))
                 End If
@@ -133,6 +131,5 @@ Public Class ProductosAsig
 
         Return IdImpuesto
     End Function
-
 
 End Class

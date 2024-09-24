@@ -2,7 +2,7 @@
 Imports OfficeOpenXml
 
 Public Class Excel
-    Public Sub EscribirEnExcel(rutaCarpeta As String, datos As List(Of List(Of Object)))
+    Public Sub EscribirEnExcel(rutaCarpeta As String, datos As List(Of List(Of Object)), NombreArchivo As String)
         Try
             Using excelPackage As New ExcelPackage()
                 ' Agregar una hoja de trabajo al libro de Excel
@@ -16,8 +16,8 @@ Public Class Excel
                 Next
 
 
-                Dim nombreArchivo = $"LogExcel{Date.Today.ToString("ddMMyyyy")}.xlsx"
-                Dim rutaArchivo As String = Path.Combine(rutaCarpeta, nombreArchivo)
+                Dim NombreArch = $"{NombreArchivo}_LogExcel_{Date.Today.ToString("ddMMyyyy")}.xlsx"
+                Dim rutaArchivo As String = Path.Combine(rutaCarpeta, NombreArch)
                 If Not Directory.Exists(rutaCarpeta) Then
                     Directory.CreateDirectory(rutaCarpeta)
                 End If
