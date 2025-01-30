@@ -1,5 +1,4 @@
-﻿Imports EnvioAutomaticoFirmaDigital
-
+﻿
 Public Class TarifaGrupo
     Inherits BaseGenericDTO
     Implements IEquatable(Of TarifaGrupo)

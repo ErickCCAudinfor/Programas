@@ -67,6 +67,7 @@ Public Class ProductosAsig
 
     Private Async Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         Try
+            Dim NFilasAfectadas = 0L
             LoadingWF.Show()
             Dim Funciones As New FuncionesGenericas(Me.connectionString)
             Dim productoSeleccionado As Producto = TryCast(ComboBox1.SelectedItem, Producto)
@@ -84,7 +85,7 @@ Public Class ProductosAsig
                     IdTipoImpuesto = Contrato.IdTipoImpuesto
                 End If
                 If CheckBox2.Checked Then 'Insertar
-                    Dim ok = Await Task.Run(Function() Funciones.InsertProductoAsignacion(Contrato.Entorno, productoSeleccionado.IdProductoGrupo, productoSeleccionado.IdProducto, Contrato.IdContrato, Fecha, importe, IdTipoImpuesto, AntesIe, SobreConsumo, PrecioSobreConsumo, PrecioSobredia))
+                    NFilasAfectadas = Await Task.Run(Function() Funciones.InsertProductoAsignacion(Contrato.Entorno, productoSeleccionado.IdProductoGrupo, productoSeleccionado.IdProducto, Contrato.IdContrato, Fecha, importe, IdTipoImpuesto, AntesIe, SobreConsumo, PrecioSobreConsumo, PrecioSobredia))
                 End If
                 'If Not CheckBox2.Checked Then 'Insertar
                 '    Funciones.UpdateProductoAsignacion(Contrato.Entorno, productoSeleccionado.IdProductoGrupo, productoSeleccionado.IdProducto, Contrato.IdContrato, Fecha, importe, IdTipoImpuesto, AntesIe, SobreConsumo, PrecioSobreConsumo)
@@ -92,7 +93,9 @@ Public Class ProductosAsig
 
             Next
             LoadingWF.Hide()
-            MessageBox.Show($"Se han escrito todos los datos en el archivo correctamente.")
+            If NFilasAfectadas > 0 Then
+                MessageBox.Show($"Se han insertado {NFilasAfectadas} registros.")
+            End If
         Catch ex As Exception
             LoadingWF.Hide()
             Throw

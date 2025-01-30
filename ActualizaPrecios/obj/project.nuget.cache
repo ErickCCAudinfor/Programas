@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "qR54cild9pCIOW72kO7vpnK6/+IS/2gW5s9pYGVSfPHYqMhwO7jn3cbRfGbleA4+mQAt5Ot5yj3moUf4y1w05g==",
+  "dgSpecHash": "TkEAf/itfPRk9+H3GN1XJZ6bAFAvPXVJkeE+Q3e8cCqYQNdu1fpiF6kZcNvghWptt2H+AL+2/Pj+25eXv44cAA==",
   "success": true,
   "projectFilePath": "C:\\Users\\ErickCC\\Documents\\TotalDoc\\Programas\\ActualizaPrecios\\ActualizaPrecios.vbproj",
   "expectedPackageFiles": [
@@ -122,7 +122,7 @@
       "code": "NU1803",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "Está ejecutando la operación \"restore\" con un origen \"HTTP\", \"http://192.168.10.225:8090/nuget\". El acceso que no sea HTTPS se quitará en una versión futura. Considere la posibilidad de migrar a un origen \"HTTPS\"."
+      "message": "Está ejecutando la operación \"restore\" con un origen \"HTTP\", \"http://SRVDEVAPI02.audin.local:8090/Nuget\". El acceso que no sea HTTPS se quitará en una versión futura. Considere la posibilidad de migrar a un origen \"HTTPS\"."
     },
     {
       "code": "NU1701",

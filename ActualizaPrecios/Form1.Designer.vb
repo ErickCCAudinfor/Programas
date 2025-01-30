@@ -53,19 +53,25 @@ Partial Class Form1
         RadioButton2 = New RadioButton()
         RadioButton1 = New RadioButton()
         Panel2 = New Panel()
-        Button15 = New Button()
+        Button18 = New Button()
         Button14 = New Button()
         Button13 = New Button()
         Button12 = New Button()
         Button11 = New Button()
         Button9 = New Button()
         PictureBox1 = New PictureBox()
+        Button15 = New Button()
         Panel3 = New Panel()
+        Label6 = New Label()
+        DateTimePicker1 = New DateTimePicker()
         Panel4 = New Panel()
         ToolTop1 = New ToolTip(components)
         Timer1 = New Timer(components)
         Button10 = New Button()
         RadioButton3 = New RadioButton()
+        Button17 = New Button()
+        Button16 = New Button()
+        Button19 = New Button()
         Panel1.SuspendLayout()
         Panel2.SuspendLayout()
         CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
@@ -271,7 +277,7 @@ Partial Class Form1
         Panel1.Controls.Add(RadioButton2)
         Panel1.Controls.Add(RadioButton1)
         Panel1.Controls.Add(Label5)
-        Panel1.Location = New Point(12, 398)
+        Panel1.Location = New Point(13, 416)
         Panel1.Name = "Panel1"
         Panel1.Size = New Size(561, 22)
         Panel1.TabIndex = 21
@@ -290,6 +296,7 @@ Partial Class Form1
         ' RadioButton1
         ' 
         RadioButton1.AutoSize = True
+        RadioButton1.Checked = True
         RadioButton1.Location = New Point(405, 0)
         RadioButton1.Name = "RadioButton1"
         RadioButton1.Size = New Size(86, 19)
@@ -297,11 +304,11 @@ Partial Class Form1
         RadioButton1.TabStop = True
         RadioButton1.Text = "Producción"
         RadioButton1.UseVisualStyleBackColor = True
-        RadioButton1.Checked = True
         ' 
         ' Panel2
         ' 
-        Panel2.Controls.Add(Button15)
+        Panel2.Controls.Add(Button19)
+        Panel2.Controls.Add(Button18)
         Panel2.Controls.Add(Button14)
         Panel2.Controls.Add(Button13)
         Panel2.Controls.Add(Button12)
@@ -320,14 +327,14 @@ Partial Class Form1
         Panel2.Size = New Size(617, 167)
         Panel2.TabIndex = 22
         ' 
-        ' Button15
+        ' Button18
         ' 
-        Button15.Location = New Point(229, 141)
-        Button15.Name = "Button15"
-        Button15.Size = New Size(180, 23)
-        Button15.TabIndex = 26
-        Button15.Text = "Desglosar click Luz"
-        Button15.UseVisualStyleBackColor = True
+        Button18.Location = New Point(229, 58)
+        Button18.Name = "Button18"
+        Button18.Size = New Size(180, 23)
+        Button18.TabIndex = 27
+        Button18.Text = "Consulta TOP"
+        Button18.UseVisualStyleBackColor = True
         ' 
         ' Button14
         ' 
@@ -384,8 +391,19 @@ Partial Class Form1
         PictureBox1.TabStop = False
         ToolTop1.SetToolTip(PictureBox1, resources.GetString("PictureBox1.ToolTip"))
         ' 
+        ' Button15
+        ' 
+        Button15.Location = New Point(442, 384)
+        Button15.Name = "Button15"
+        Button15.Size = New Size(180, 23)
+        Button15.TabIndex = 26
+        Button15.Text = "Desglosar click Luz"
+        Button15.UseVisualStyleBackColor = True
+        ' 
         ' Panel3
         ' 
+        Panel3.Controls.Add(Label6)
+        Panel3.Controls.Add(DateTimePicker1)
         Panel3.Controls.Add(Label1)
         Panel3.Controls.Add(Button1)
         Panel3.Controls.Add(TextBox1)
@@ -395,8 +413,24 @@ Partial Class Form1
         Panel3.Controls.Add(Label4)
         Panel3.Location = New Point(12, 77)
         Panel3.Name = "Panel3"
-        Panel3.Size = New Size(547, 128)
+        Panel3.Size = New Size(617, 128)
         Panel3.TabIndex = 23
+        ' 
+        ' Label6
+        ' 
+        Label6.AutoSize = True
+        Label6.Location = New Point(315, 79)
+        Label6.Name = "Label6"
+        Label6.Size = New Size(295, 15)
+        Label6.TabIndex = 22
+        Label6.Text = "Aplicación de Precios (según tarifa grupo configurada)"
+        ' 
+        ' DateTimePicker1
+        ' 
+        DateTimePicker1.Location = New Point(315, 96)
+        DateTimePicker1.Name = "DateTimePicker1"
+        DateTimePicker1.Size = New Size(200, 23)
+        DateTimePicker1.TabIndex = 21
         ' 
         ' Panel4
         ' 
@@ -422,7 +456,7 @@ Partial Class Form1
         ' RadioButton3
         ' 
         RadioButton3.AutoSize = True
-        RadioButton3.Location = New Point(579, 398)
+        RadioButton3.Location = New Point(580, 416)
         RadioButton3.Name = "RadioButton3"
         RadioButton3.Size = New Size(46, 19)
         RadioButton3.TabIndex = 28
@@ -430,12 +464,43 @@ Partial Class Form1
         RadioButton3.Text = "UAT"
         RadioButton3.UseVisualStyleBackColor = True
         ' 
+        ' Button17
+        ' 
+        Button17.Enabled = False
+        Button17.Location = New Point(533, 173)
+        Button17.Name = "Button17"
+        Button17.Size = New Size(96, 23)
+        Button17.TabIndex = 21
+        Button17.Text = "Aplicar Precios"
+        Button17.UseVisualStyleBackColor = True
+        ' 
+        ' Button16
+        ' 
+        Button16.Location = New Point(36, 387)
+        Button16.Name = "Button16"
+        Button16.Size = New Size(180, 23)
+        Button16.TabIndex = 26
+        Button16.Text = "Penalizaciones"
+        Button16.UseVisualStyleBackColor = True
+        ' 
+        ' Button19
+        ' 
+        Button19.Location = New Point(229, 87)
+        Button19.Name = "Button19"
+        Button19.Size = New Size(180, 23)
+        Button19.TabIndex = 29
+        Button19.Text = "Verificar Licitacion"
+        Button19.UseVisualStyleBackColor = True
+        ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.White
-        ClientSize = New Size(641, 424)
+        ClientSize = New Size(641, 447)
+        Controls.Add(Button16)
+        Controls.Add(Button15)
+        Controls.Add(Button17)
         Controls.Add(RadioButton3)
         Controls.Add(Button10)
         Controls.Add(Panel4)
@@ -515,4 +580,10 @@ Partial Class Form1
     Friend WithEvents RadioButton2 As RadioButton
     Friend WithEvents RadioButton1 As RadioButton
     Friend WithEvents RadioButton3 As RadioButton
+    Friend WithEvents Button17 As Button
+    Friend WithEvents Label6 As Label
+    Friend WithEvents DateTimePicker1 As DateTimePicker
+    Friend WithEvents Button16 As Button
+    Friend WithEvents Button18 As Button
+    Friend WithEvents Button19 As Button
 End Class

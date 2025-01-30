@@ -1,7 +1,7 @@
 ﻿
 Imports System.IO
-Imports System.Net.FtpClient
 Imports System.Text.RegularExpressions
+Imports System.Xml
 
 Public Class Form1
     Dim complementos As New Complementos()
@@ -19,9 +19,11 @@ Public Class Form1
 
     Private Funciones As New FuncionesGenericas(connectionString)
 
+    Private isExpanded As Boolean = False ' Para rastrear si la pestaña está expandida o contraída
+
     Private Async Sub Actualizar(sender As Object, e As EventArgs) Handles Button1.Click
         Dim ExcelDatos As New Excel
-        Dim Datos As New List(Of List(Of Object))()
+        Dim Datos As New List(Of List(Of Object))
         Try
             Dim totalContratos = 0
             Dim ContratoActualizar As New List(Of Long)
@@ -60,6 +62,7 @@ Public Class Form1
                     LoadingWF.Show()
                     Dim ContratosTXT = Await Task.Run(Function() ActualizarRegistros(ContratoActualizar, Datos))
                     LoadingWF.Hide()
+
                     If Not IsNothing(Datos) AndAlso Datos.Count > 0 Then
                         ExcelDatos.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos, "PreciosErrores")
                     End If
@@ -198,6 +201,7 @@ Public Class Form1
                                     If elment.TextoTarifa.Contains("TDVE") Then
 
                                         Funciones.InsertTarifaPrecioContrato(tarifasPrecioContratoGuardar)
+                                        Contador += 1
                                     Else
 
                                         'Compruebo si el contratotarifaviejo es fijo o indexado
@@ -313,10 +317,12 @@ Public Class Form1
         If TextBox2.Enabled AndAlso TextBox2.Text.Trim.Length >= 1 Then
             ' Si CheckBox3 está marcado, deshabilitar CheckBox1 y CheckBox2
             TextBox1.Enabled = True
+            Button17.Enabled = True
             'TextBox2.Height = TextRenderer.MeasureText(TextBox2.Text, TextBox2.Font, New Size(TextBox2.Width, Int32.MaxValue), TextFormatFlags.WordBreak).Height + 5 ' Añade un pequeño margen
         Else
             ' Si CheckBox3 no está marcado, habilitar CheckBox1 y CheckBox2
             TextBox1.Enabled = False
+            Button17.Enabled = False
         End If
 
     End Sub
@@ -615,8 +621,8 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             'where Solicitud.FechaApertura >= convert(date,Getdate(),3)
             ' Ruta del archivo CSV
             'Dim rutaArchivo As String = $"C:\Users\ErickCC\Documents\TotalDoc\Validaciones\Validaciones{Date.Today.ToString("ddMMyyyy")}.xlsx"
-            Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\Validaciones"
-            Dim rutaArchivo = Path.Combine(rutaCarpeta, $"Validaciones_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+            Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO"
+            Dim rutaArchivo = IO.Path.Combine(rutaCarpeta, $"Validaciones_{Date.Today.ToString("ddMMyyyy")}.xlsx")
             ' Verificar si la carpeta existe, y si no, crearla
             If Not Directory.Exists(rutaCarpeta) Then
                 Directory.CreateDirectory(rutaCarpeta)
@@ -941,7 +947,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                 Dim Cups = GetConSinSplitCupsCIFS(TextBox2.Text)
                 If Cups.Count > 0 Then
                     For Each cps In Cups
-                        Dim cps20 As String = Replace(cps, " ", "").Substring(0, Math.Min(20, cps.Length)) 'saco los primeros 20 caracteres
+                        Dim cps20 = Replace(cps, " ", "").Substring(0, Math.Min(20, cps.Length)) 'saco los primeros 20 caracteres
 
                         Dim ListContratos = Funciones.GetListContratobyCUPS(Replace(cps20.Trim, " ", "")).ToList
                         If ListContratos.Count > 0 Then
@@ -1015,7 +1021,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         Try
             Dim listaFacs = GetFacsSinSplit(TextBox2.Text)
             If listaFacs.Count > 0 Then
-                Dim Destino = $"C:\Users\{NombreUsuarioEquipo}\Desktop\PDFFacturas"
+                Dim Destino = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO\PDFFacturas"
                 If Not IO.Directory.Exists(Destino) Then
                     IO.Directory.CreateDirectory(Destino)
                 End If
@@ -1028,7 +1034,8 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                                            Continue For
                                        End If
                                        ComprobarFacs.Add(elemnt)
-                                       Dim originalFileName As String = $"{elemnt}.PDF"
+                                       Dim NameFac = Replace(elemnt, "FELEC", "FELEC_")
+                                       Dim originalFileName As String = $"{NameFac}.PDF"
                                        Dim nameWithoutExtension As String = System.IO.Path.GetFileNameWithoutExtension(originalFileName)
                                        Dim newFileName As String = Mid(nameWithoutExtension, 1, 100) & System.IO.Path.GetExtension(originalFileName)
                                        Dim TempFileName As String = Path.Combine(Destino, newFileName)
@@ -1100,12 +1107,12 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
 
             'Muevo primero el archivo a una ruta local
             ' Definir las rutas de origen y destino
-            Dim origen As String = rutaArchivo
-            Dim destino As String = $"\\172.31.100.13\Total\FicherosExport\Import\OriginalItems"
-            Dim NameFile As String = Path.GetFileName(origen)
+            Dim origen = rutaArchivo
+            Dim destino = $"\\172.31.100.13\Total\FicherosExport\Import\OriginalItems"
+            Dim NameFile = Path.GetFileName(origen)
             'Compruebo si existe el destino
-            If Not IO.Directory.Exists(destino) Then
-                IO.Directory.CreateDirectory(destino)
+            If Not Directory.Exists(destino) Then
+                Directory.CreateDirectory(destino)
             End If
 
             ' Verificar si el archivo existe en la ruta de origen
@@ -1209,7 +1216,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                 LoadingWF.Show()
                 Dim stopwatch As New Stopwatch
                 stopwatch.Start() ' Iniciar el cronómetro
-                Await Task.Run(Sub() Validaciones.CSV(rutaEscogida, rutaArchivo))
+                Await Task.Run(Sub() Validaciones.CSV3(rutaEscogida, rutaArchivo))
                 creado = True
                 ' Detener el cronómetro y obtener el tiempo transcurrido
                 stopwatch.Stop()
@@ -1227,6 +1234,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
     End Sub
 
     ' Desglosar la descripcion del click de cada factura
+#Region "Desglosado Click"
     Private Async Sub Button15_Click(sender As Object, e As EventArgs) Handles Button15.Click
         Try
             Dim ListaFClicks As New List(Of ClickFac)
@@ -1238,47 +1246,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             If listaFacs.Count > 0 Then
                 LoadingWF.Show()
                 Await Task.Run(Sub()
-                                   For Each facs In listaFacs
-                                       Dim fClicks = Funciones.GetFacClick(facs)
-                                       Dim pepe = 0
-                                       'Dim regex As New Regex("=\s*\d+\*(.*)")
-                                       Dim regex As New Regex("(\d+)%.*\((Coste P\d+) = (\d+)\*(.*)")
-                                       Dim regexPorcentaje As New Regex("(\d+(?:,\d+)?)%")
-
-                                       For Each f In fClicks
-                                           Dim texto As String = f.Descripcion
-                                           Dim match As Match = regex.Match(texto)
-
-                                           If match.Success Then
-                                               'Dim porcentaje As Decimal = Convert.ToDecimal(match.Groups(1).Value)
-                                               Dim periodo As String = match.Groups(2).Value
-                                               Dim consumo As Decimal = Convert.ToDecimal(match.Groups(3).Value)
-                                               Dim expresion As String = match.Groups(4).Value.Trim()
-
-                                               ' Calcular el valor de la expresión
-                                               Try
-                                                   Dim resultado As Decimal = EvaluarExpresion(expresion)
-                                                   'Console.WriteLine($"Resultado: {resultado}")
-                                                   f.ClickCalculado = resultado
-                                                   f.ConsumokWh = consumo
-                                                   'f.Porcentaje = porcentaje
-                                                   f.Periodo = Replace(periodo, "Coste", "")
-
-                                               Catch ex As Exception
-                                                   Throw
-                                               End Try
-                                           End If
-                                           Dim matchPorcentaje As Match = regexPorcentaje.Match(f.Descripcion)
-                                           If matchPorcentaje.Success Then
-                                               f.Porcentaje = Convert.ToDecimal(matchPorcentaje.Groups(1).Value.Trim())
-                                           Else
-                                               f.Porcentaje = 0.0
-                                           End If
-                                           ListaFClicks.Add(f)
-                                       Next
-
-                                   Next
-
+                                   GetClickDesglosado(listaFacs)
                                    ' Verificar si la carpeta existe, y si no, crearla
                                    If Not Directory.Exists(rutaCarpeta) Then
                                        Directory.CreateDirectory(rutaCarpeta)
@@ -1305,9 +1273,63 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         End Try
     End Sub
     Function EvaluarExpresion(expresion As String) As Double
-        Dim resultado As Double = New DataTable().Compute(expresion.Replace(",", "."), Nothing)
+        Dim resultado As Double = New DataTable().Compute(expresion, Nothing)
         Return resultado
     End Function
+
+    Private Sub GetClickDesglosado(ByRef listaFacs As List(Of String))
+        Dim ListaFClicks As New List(Of ClickFac)
+        Try
+            For Each facs In listaFacs
+                Dim fClicks = Funciones.GetFacClick(facs)
+                Dim pepe = 0
+                'Dim regex As New Regex("=\s*\d+\*(.*)")
+                Dim regex As New Regex("(\d+)%.*\((Coste P\d+) = (\d+)\*(.*)")
+                Dim regexPorcentaje As New Regex("(\d+(?:,\d+)?)%")
+
+                For Each f In fClicks
+                    Dim texto As String = f.Descripcion
+                    Dim match As Match = regex.Match(texto)
+
+                    If match.Success Then
+                        'Dim porcentaje As Decimal = Convert.ToDecimal(match.Groups(1).Value)
+                        Dim periodo As String = match.Groups(2).Value
+                        Dim consumo As Decimal = Convert.ToDecimal(match.Groups(3).Value)
+                        Dim expresion As String = match.Groups(4).Value.Trim()
+
+                        ' Calcular el valor de la expresión
+                        Try
+                            Dim resultado As Decimal = EvaluarExpresion(expresion)
+                            'Console.WriteLine($"Resultado: {resultado}")
+                            f.ClickCalculado = resultado
+                            f.ConsumokWh = consumo
+                            'f.Porcentaje = porcentaje
+                            f.Periodo = Replace(periodo, "Coste", "")
+
+                        Catch ex As Exception
+                            Throw
+                        End Try
+                    End If
+                    Dim matchPorcentaje As Match = regexPorcentaje.Match(f.Descripcion)
+                    If matchPorcentaje.Success Then
+                        f.Porcentaje = Convert.ToDecimal(matchPorcentaje.Groups(1).Value.Trim())
+                    Else
+                        f.Porcentaje = 0.0
+                    End If
+                    ListaFClicks.Add(f)
+                Next
+
+            Next
+        Catch ex As Exception
+            Throw
+        End Try
+
+    End Sub
+#End Region
+
+#Region "Apuntado BD"
+
+
 
     Private Sub RadioButton1_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton1.CheckedChanged
         Try
@@ -1367,7 +1389,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         End Try
 
     End Sub
-
+#End Region
     Private Sub HabilitarDesHabilitarButtons(Habilitar As Boolean)
         Button1.Enabled = Habilitar
         Button2.Enabled = Habilitar
@@ -1380,81 +1402,237 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         Button11.Enabled = Habilitar
     End Sub
 
+    'Para leer los nombres de los pdfs
+    'Private Sub Button16_Click(sender As Object, e As EventArgs) Handles Button16.Click
+    '    Dim folderPath = "C:\Users\ErickCC\Desktop\PDFFacturas"
 
+    '    ' Archivo donde se guardarán los nombres de los PDFs
+    '    Dim outputFile = "C:\Users\ErickCC\Desktop\PDFFacturas\NombresPDF.txt"
 
+    '    Try
+    '        ' Obtén la lista de archivos PDF en el directorio especificado
+    '        Dim pdfFiles = Directory.GetFiles(folderPath, "*.pdf")
 
-    '    Private Sub Button12_Click(sender As Object, e As EventArgs)
-    '        Try
-    '            Dim listas As New List(Of String)
-    '            Dim Validaciones As New ValidacionExcel(connectionString)
-    '#Region "Consulta 1"
-    '            Dim resultadoConsulta1 = "select top 50 fvc.IdFacturaVentaCabecera
-    ',cl.Identidad
-    ',CUPS.codigocups
-    ',c.codigocontrato
-    ',t.TextoTarifa
-    ',tg.TextoTarifaGrupo
-    ',fvc.SerieFactura
-    ',fvc.NumeroFactura
-    ',fvc.FechaFactura
-    ',fvc.FechaLecturaAnteriorXML
-    ',fvc.FechaLecturaActualXML
-    ',replace(max(l.InfoLecturaXML.value('(//LecturaInfoDTO/ConsumoGasKwh) [1]', 'decimal(18,6)')),'.',',') As ConsumoGasKwh
-    ',STRING_AGG(CONVERT(NVARCHAR(max),ISNULL(fvl.Descripcion,'N/A')), '||') AS Descripcion
-    ',STRING_AGG(CONVERT(NVARCHAR(max),ISNULL(convert(nvarchar(max),fvl.ImporteBase),'N/A')), '||') AS ImporteBase
-    ',max(mcc.FechaDesde) as FechaInicioClic
-    ',max(mcc.FechaHasta) as FechaHastaClic
-    'from FacturaVentaCabecera fvc with (nolock)
-    'inner join contrato c with (nolock)  on c.CodigoContrato = fvc.CodigoContrato
-    'inner join cups with (nolock) on cups.IdCups =c.IdCups
-    'inner join Cliente cl with(nolock) on cl.IdCliente = c.IdCliente
-    'inner join FacturaVentaLinea fvl with (nolock) on fvl.idfacturaventacabecera = fvc.idfacturaventacabecera and FacturaConcepto=90032
-    'left join lectura l with (nolock) on l.idfacturaventacabecerasectorc = fvc.idfacturaventacabecera
-    'inner join contratotarifa ct with (nolock) on ct.codigocontrato = c.codigocontrato and fvc.InfoCabeceraXML.value('(FacturaInfoCabeceraDTO/FacturaInfoCabeceralectura/IdTarifaGrupo)[1]', 'integer')= ct.IdTarifaGrupo
-    'inner join tarifagrupo tg with (nolock) on tg.idtarifagrupo = ct.idtarifagrupo  
-    'inner join tarifa t with (nolock) on ct.idtarifa = t.idtarifa
-    'left join MultiClickCabecera mcc with (nolock) on mcc.IdCliente = cl.IdCliente
+    '        ' Usar StreamWriter para escribir los nombres de los archivos en el .txt
+    '        Using writer As New StreamWriter(outputFile, False) ' False para sobrescribir si ya existe
+    '            For Each pdfFile In pdfFiles
+    '                ' Obtener solo el nombre del archivo (sin la ruta completa)
+    '                Dim fileName = Path.GetFileNameWithoutExtension(pdfFile)
 
-    'where fvc.Entorno='E2' and fvc.fechafactura >= '01/01/2023' and l.Facturado=1 and SerieFactura is not null 
+    '                ' Escribir el nombre en el archivo de texto
+    '                writer.WriteLine(fileName)
+    '            Next
+    '        End Using
 
-    'group by fvc.IdFacturaVentaCabecera
-    ',cl.Identidad
-    ',CUPS.codigocups
-    ',c.codigocontrato
-    ',t.TextoTarifa
-    ',tg.TextoTarifaGrupo
-    ',fvc.SerieFactura
-    ',fvc.NumeroFactura
-    ',fvc.FechaFactura
-    ',fvc.FechaLecturaAnteriorXML
-    ',fvc.FechaLecturaActualXML
-    ',mcc.FechaDesde
-    ',mcc.FechaHasta
-    'order by fvc.FechaFactura"
-    '#End Region
-
-    '            listas.Add(resultadoConsulta1)
-
-    '            ' Ruta del archivo CSV
-    '            'Dim rutaArchivo As String = $"C:\Users\ErickCC\Documents\TotalDoc\Validaciones\Validaciones{Date.Today.ToString("ddMMyyyy")}.xlsx"
-    '            Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\Variable"
-    '            Dim rutaArchivo = Path.Combine(rutaCarpeta, $"Variables{Date.Today.ToString("ddMMyyyy")}.xlsx")
-    '            ' Verificar si la carpeta existe, y si no, crearla
-    '            If Not Directory.Exists(rutaCarpeta) Then
-    '                Directory.CreateDirectory(rutaCarpeta)
-    '            End If
-
-    '            ' Verificar si el archivo existe, y si no, crearlo
-    '            If Not File.Exists(rutaArchivo) Then
-    '                File.Create(rutaArchivo).Close()
-    '            End If
-
-    '            Validaciones.EjecutarConsultasYGuardarEnExcelVariableGas(listas, rutaArchivo)
-    '            complementos.MostrarMensajePersonalizado($"Se han creado los datos en el archivo Excel en: {rutaArchivo}")
-
-    '            'MessageBox.Show($"Se han creado los datos en el archivo Excel en: {rutaArchivo}")
-    '        Catch ex As Exception
-    '            complementos.MostrarMensajePersonalizado(ex.Message)
-    '        End Try
+    '        Console.WriteLine("Los nombres de los archivos PDF se han guardado correctamente.")
+    '    Catch ex As Exception
+    '        Console.WriteLine("Ocurrió un error: " & ex.Message)
+    '    End Try
     'End Sub
+
+    ' Aplicar Precios
+    Private Async Sub Button17_Click(sender As Object, e As EventArgs) Handles Button17.Click
+        Try
+            Dim ListaContratos = GetConSinSplit(TextBox2.Text)
+            Dim yesorNot1 = MsgBox($"Hay {ListaContratos.Count} contratos, ¿Aplicar precios con fecha {DateTimePicker1.Value.Date}?", vbYesNo)
+            If yesorNot1 = 6 OrElse yesorNot1 = 1 Then
+
+                LoadingWF.Show()
+                Await Task.Run(Sub()
+                                   Dim ContratosC = Funciones.GetContratoTarifaPersonalizado(ListaContratos)
+                                   For Each c In ContratosC
+                                       Dim FechaVigencia = DateTimePicker1.Value
+                                       Funciones.AplicarPrecios(c.CodigoContrato, FechaVigencia)
+                                   Next
+                               End Sub)
+
+            End If
+        Catch ex As Exception
+        Finally
+            LoadingWF.Hide()
+        End Try
+    End Sub
+
+    ' Sin más
+    'Private Sub Button18_Click(sender As Object, e As EventArgs) Handles Button18.Click
+    '    Try
+    '        Dim rutaCarpeta As String = "C:\Audinfor\Sige\Total\EFactura\Export\20241204" ' Cambia esta ruta según corresponda
+    '        Dim archivoSalida As String = "C:\Users\ErickCC\Desktop\Erick\facturas_extraidas.txt"
+
+    '        ' Lista para almacenar los números de factura
+    '        Dim numerosFactura As New List(Of String)
+
+    '        ' Recorrer los archivos de la carpeta
+    '        For Each archivo In Directory.GetFiles(rutaCarpeta, "*.xml")
+    '            Try
+    '                ' Cargar el archivo XML
+    '                Dim xmlDoc As New XmlDocument()
+    '                xmlDoc.Load(archivo)
+
+    '                ' Recorrer manualmente los nodos para encontrar <BatchIdentifier>
+    '                Dim nodoBatchIdentifier As XmlNode = BuscarNodo(xmlDoc.DocumentElement, "BatchIdentifier")
+
+    '                ' Si el nodo se encuentra, procesar el contenido
+    '                If nodoBatchIdentifier IsNot Nothing Then
+    '                    Dim identificador As String = nodoBatchIdentifier.InnerText
+
+    '                    ' Separar el identificador para encontrar los números de factura
+    '                    Dim indiceFactura As Integer = identificador.IndexOf("2400")
+    '                    If indiceFactura >= 0 Then
+    '                        ' Extraer todo desde "2400" en adelante
+    '                        Dim numeroFactura As String = identificador.Substring(indiceFactura)
+    '                        numerosFactura.Add(numeroFactura)
+    '                    End If
+    '                Else
+    '                    Console.WriteLine($"No se encontró <BatchIdentifier> en el archivo {Path.GetFileName(archivo)}.")
+    '                End If
+    '            Catch ex As Exception
+    '                Console.WriteLine($"Error procesando el archivo {Path.GetFileName(archivo)}: {ex.Message}")
+    '            End Try
+    '        Next
+
+    '        ' Guardar los números de factura en un archivo de texto
+    '        File.WriteAllLines(archivoSalida, numerosFactura)
+
+    '        Console.WriteLine($"Se han extraído {numerosFactura.Count} números de factura. Guardados en {archivoSalida}.")
+    '    Catch ex As Exception
+
+    '    End Try
+    'End Sub
+
+    ' Método para buscar nodos recursivamente por nombre (sin considerar espacios de nombres)
+    Function BuscarNodo(ByVal nodo As XmlNode, ByVal nombre As String) As XmlNode
+        If nodo.Name = nombre Then
+            Return nodo
+        End If
+
+        For Each hijo As XmlNode In nodo.ChildNodes
+            Dim resultado As XmlNode = BuscarNodo(hijo, nombre)
+            If resultado IsNot Nothing Then
+                Return resultado
+            End If
+        Next
+
+        Return Nothing
+    End Function
+
+    'Penalizaciones
+    Private Async Sub Button16_Click(sender As Object, e As EventArgs) Handles Button16.Click
+        Dim PenaOk = False
+        Dim RutaFinal = ""
+        Try
+            Dim Con = GetConSinSplit(TextBox2.Text)
+            If Con.Count > 0 Then
+                Dim Validaciones As New ValidacionExcel(connectionString)
+                Dim listaCodLuz As New List(Of Long)
+                Dim listaCodGas As New List(Of Long)
+                LoadingWF.Show()
+
+                For Each ConFor In Con
+                    Dim ContratoBBDD = Funciones.GetContrato(ConFor)
+                    If Not IsNothing(ContratoBBDD) AndAlso ContratoBBDD.CodigoContrato > 0 AndAlso ContratoBBDD.Entorno = "E1" Then
+                        listaCodLuz.Add(ContratoBBDD.CodigoContrato)
+                    End If
+                    If Not IsNothing(ContratoBBDD) AndAlso ContratoBBDD.CodigoContrato > 0 AndAlso ContratoBBDD.Entorno = "E2" Then
+                        listaCodGas.Add(ContratoBBDD.CodigoContrato)
+                    End If
+                Next
+                Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO"
+                Dim rutaArchivo = Path.Combine(rutaCarpeta, $"Penalizaciones_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                ' Verificar si la carpeta existe, y si no, crearla
+                If Not Directory.Exists(rutaCarpeta) Then
+                    Directory.CreateDirectory(rutaCarpeta)
+                End If
+
+                ' Verificar si el archivo existe, y si no, crearlo
+                If Not File.Exists(rutaArchivo) Then
+                    File.Create(rutaArchivo).Close()
+                End If
+                RutaFinal = rutaArchivo
+                If listaCodLuz.Count > 0 Then
+                    Await Task.Run(Sub() Validaciones.PenalizacionesLuz(listaCodLuz, rutaArchivo))
+                    PenaOk = True
+                End If
+                If listaCodGas.Count > 0 Then
+                    Await Task.Run(Sub() Validaciones.PenalizacionesGas(listaCodGas, rutaArchivo))
+                    PenaOk = True
+                End If
+            Else
+                complementos.MostrarMensajePersonalizado($"Ingrese al menos un contrato")
+            End If
+        Catch ex As Exception
+            complementos.MostrarMensajePersonalizado($"{ex.Message}")
+        Finally
+            LoadingWF.Hide()
+
+            If PenaOk Then
+                complementos.MostrarMensajePersonalizado($"Penalizaciones Generadas en {RutaFinal}")
+            Else
+                complementos.MostrarMensajePersonalizado($"Penalizaciones No realizada")
+            End If
+        End Try
+    End Sub
+    'Consulta Top
+    Private Async Sub Button18_Click(sender As Object, e As EventArgs) Handles Button18.Click
+        Dim PenaOk = False
+        Dim RutaFinal = ""
+        Try
+            Dim Facs = GetConSinSplitCupsCIFS(TextBox2.Text)
+            If Facs.Count > 0 Then
+                Dim Validaciones As New ValidacionExcel(connectionString)
+                LoadingWF.Show()
+
+                Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO"
+                Dim rutaArchivo = Path.Combine(rutaCarpeta, $"ConsultaTopLidia_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                ' Verificar si la carpeta existe, y si no, crearla
+                If Not Directory.Exists(rutaCarpeta) Then
+                    Directory.CreateDirectory(rutaCarpeta)
+                End If
+
+                ' Verificar si el archivo existe, y si no, crearlo
+                If Not File.Exists(rutaArchivo) Then
+                    File.Create(rutaArchivo).Close()
+                End If
+                RutaFinal = rutaArchivo
+                If Facs.Count > 0 Then
+                    Await Task.Run(Sub() Validaciones.ConsultaTopLidia(Facs, rutaArchivo))
+                    PenaOk = True
+                End If
+            Else
+                complementos.MostrarMensajePersonalizado($"No hay registros a buscar")
+            End If
+        Catch ex As Exception
+            LoadingWF.Hide()
+            complementos.MostrarMensajePersonalizado($"{ex.Message}")
+        Finally
+            LoadingWF.Hide()
+
+            If PenaOk Then
+                complementos.MostrarMensajePersonalizado($"Consultas Generadas en {RutaFinal}")
+            Else
+                complementos.MostrarMensajePersonalizado($"Consultas No realizada")
+            End If
+        End Try
+    End Sub
+    'Verifica si los contratos tienes licitacion
+    Private Async Sub Button19_Click(sender As Object, e As EventArgs) Handles Button19.Click
+        Try
+            Dim ListaContratos = GetConSinSplit(TextBox2.Text)
+            If ListaContratos.Count > 0 Then
+                LoadingWF.Show()
+                Dim Resultados = Await Task.Run(Function() Funciones.VerificarLicitacion(ListaContratos))
+                LoadingWF.Hide()
+
+                If Resultados.Count > 0 Then
+                    Dim cod = Resultados.Select(Function(s) s.CodigoContrato).ToList
+                    complementos.Complementos_MostrarMensajePersonalizadoCopiar($"Los siguientes contratos tienen el check de licitacion: {String.Join(",", cod)} ", $"{String.Join(",", cod)}")
+                Else
+                    complementos.MostrarMensajePersonalizado("No hay contratos con el check de licitacion")
+                End If
+            End If
+        Catch ex As Exception
+            LoadingWF.Hide()
+            complementos.MostrarMensajePersonalizado($"{ex.Message}")
+        End Try
+    End Sub
 End Class

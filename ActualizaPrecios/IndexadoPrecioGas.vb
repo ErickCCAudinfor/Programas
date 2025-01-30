@@ -32,4 +32,5 @@ End Class
 
 Partial Class IndexadoPrecioGas
     Public Property TextoTarifaPeriodo As String
+    Public Property TarifaPeriodo As TarifaPeriodo
 End Class

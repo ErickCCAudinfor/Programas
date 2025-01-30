@@ -1,4 +1,6 @@
-﻿Public Class TarifaPrecio
+﻿Imports System.Runtime.Serialization
+
+Public Class TarifaPrecio
     Public Property IdTarifaPrecio As Long
     Public Property Entorno As String
     Public Property IdTarifa As Nullable(Of Long)
@@ -52,4 +54,7 @@ End Class
 
 Partial Class TarifaPrecio
     Public Property TextoTarifaPeriodo As String
+
+    Public Property TarifaPeriodo As TarifaPeriodo
+
 End Class

@@ -228,6 +228,47 @@ Public Class ContratoTarifaSrv
         Catch ex As Exception
             Console.WriteLine(ex)
         End Try
-
     End Sub
+
+
+    Public Function GetContratoTarifaByCodigoContratoLista(Cod As Long) As List(Of ContratoTarifa)
+        Dim conexion = New SqlConnection(connectionString)
+        Dim funciones As New FuncionesGenericas(Me.connectionString)
+        Dim ret As New ContratoTarifa
+        Dim ContratoTarifaB As New List(Of ContratoTarifa)
+        Try
+            conexion.Open()
+            Dim query = $"select ct.*,tg.textotarifagrupo, pf.TextoPerfilFacturacion,t.TextoTarifa from contratotarifa ct
+            left join TarifaGrupo tg on ct.idtarifagrupo = tg.idtarifagrupo
+            left join perfilfacturacion pf on ct.idperfilfacturacion = pf.idperfilfacturacion
+            left join tarifa t  on ct.idtarifa = t.idtarifa
+            where codigocontrato={Cod}"
+            Dim comando = New SqlCommand(query, conexion)
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+            'Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+            Do While readerQuery.Read
+                Dim ContratoTarifaA As New ContratoTarifa
+                'Dim ContratoTarifaB = New ContratoTarifa
+                ContratoTarifaA.IdContratoTarifa = funciones.ObtenerValor("IdContratoTarifa", readerQuery)
+                ContratoTarifaA.Entorno = funciones.ObtenerValor("Entorno", readerQuery)
+                ContratoTarifaA.CodigoContrato = funciones.ObtenerValor("CodigoContrato", readerQuery)
+                ContratoTarifaA.IdTarifa = funciones.ObtenerValor("IdTarifa", readerQuery)
+                ContratoTarifaA.IdTarifaGrupo = funciones.ObtenerValor("IdTarifaGrupo", readerQuery)
+                ContratoTarifaA.IdPerfilFacturacion = funciones.ObtenerValor("IdPerfilFacturacion", readerQuery)
+                ContratoTarifaA.FechaDesde = funciones.ObtenerValor("FechaDesde", readerQuery)
+                ContratoTarifaA.FechaHasta = funciones.ObtenerValor("FechaHasta", readerQuery)
+                ContratoTarifaA.TextoTarifa = funciones.ObtenerValor("TextoTarifa", readerQuery)
+                ContratoTarifaA.textotarifagrupo = funciones.ObtenerValor("textotarifagrupo", readerQuery)
+                ContratoTarifaA.TextoPerfilFacturacion = funciones.ObtenerValor("TextoPerfilFacturacion", readerQuery)
+                ContratoTarifaB.Add(ContratoTarifaA)
+                'ListaContratoTipo.Add(contratoTipo)
+                'ListaContratoTarifa.Add(ContratoTarifaB)
+            Loop
+            readerQuery.Close()
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return ContratoTarifaB
+    End Function
 End Class

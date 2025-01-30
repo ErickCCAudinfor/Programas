@@ -2,6 +2,8 @@
 Imports System.Data.SqlClient
 Imports System.IO
 Imports System.Net
+Imports System.Net.Http
+Imports DocumentFormat.OpenXml.Drawing
 
 Public Class FuncionesGenericas
 
@@ -17,6 +19,8 @@ Public Class FuncionesGenericas
     Private ReadOnly Property URL_API_DOCUMENTOS As String = "http://172.31.100.31:8045/documentos/"
 
     Private ReadOnly Property API_DOCUMENTOS_ACTIVA As Boolean = True
+
+    'Private HelperSQL As New Helper
 
     Public Function ObtenerValor(ByVal strNombreColumna As String,
                                  ByRef oReader As SqlDataReader) As Object
@@ -105,34 +109,24 @@ Public Class FuncionesGenericas
     End Function
     Public Function BuscarbyCodigocontrato(ListaContratos As List(Of Long)) As List(Of Long)
         Dim ListaContrato As New List(Of Long)
-
+        Dim ListaContratov2 As New List(Of Integer)
         Try
-            'Dim connectionString As String = $"{ipDB}{nameDB}{userDB}{passDB}"
-            Using conexion As New SqlConnection(Me.connectionString)
-                conexion.Open()
-
-                For Each CodigoCon In ListaContratos
-                    Dim query As String = $"SELECT CodigoContrato
+            For Each CodigoCon In ListaContratos
+                Dim query As String = $"SELECT CodigoContrato
                     FROM Contrato
                     WHERE codigocontrato = {CodigoCon}"
+                Dim result = Helper.QuerySelect(query, connectionString)
+                Dim errores = Helper.GetError(result)
+                If errores.HasError Then
+                    'Escribir errores en un log'
+                Else
+                    Dim lista = Helper.FillObjectFromDatatable(result.Tables(0), GetType(Contrato)).Cast(Of Contrato).FirstOrDefault
+                    If Not IsNothing(lista) AndAlso lista.CodigoContrato > 0 Then
+                        ListaContrato.Add(lista.CodigoContrato)
 
-                    Dim comando As New SqlCommand(query, conexion)
-                    comando.CommandTimeout = 3600
-                    Dim readerQuery As SqlDataReader = comando.ExecuteReader()
-
-                    If readerQuery.HasRows Then
-                        Do While readerQuery.Read
-                            Dim pepe = 0
-                            Dim CodigoContrato As Long
-                            CodigoContrato = readerQuery.GetValue(0).ToString
-                            'CodigoContrato = funciones.ObtenerValor("CodigoContrato", readerQuery)
-                            ListaContrato.Add(CodigoContrato)
-                        Loop
                     End If
-
-                    readerQuery.Close()
-                Next
-            End Using
+                End If
+            Next
         Catch ex As Exception
             Console.WriteLine(ex)
             Console.WriteLine(ex.StackTrace)
@@ -180,7 +174,7 @@ Public Class FuncionesGenericas
             Using conexion As New SqlConnection(connectionString)
                 conexion.Open()
 
-                Dim query As String = $"SELECT IdContrato,CodigoContrato,FechaAplicacionPrecios,FechaContrato,c.Entorno,idcliente,idcontratosituacion,idcups, c.IdTipoImpuesto
+                Dim query As String = $"SELECT IdContrato,CodigoContrato,FechaAplicacionPrecios,FechaContrato,c.Entorno,idcliente,idcontratosituacion,idcups, c.IdTipoImpuesto, c.fechaalta
                     FROM Contrato c
 					inner join TipoImpuesto on c.IdTipoImpuesto = TipoImpuesto.IdTipoImpuesto
                     WHERE codigocontrato = {CodContrato}"
@@ -202,6 +196,7 @@ Public Class FuncionesGenericas
                         Contrato.IdContratoSituacion = readerQuery.GetValue(6).ToString
                         Contrato.IdCups = readerQuery.GetValue(7).ToString
                         Contrato.IdTipoImpuesto = readerQuery.GetValue(8).ToString
+                        Contrato.FechaAlta = readerQuery.GetValue(9).ToString
                     Loop
                 End If
 
@@ -456,6 +451,81 @@ from contrato where idcups in (select idcups from iddc)"
         Return IndexadoPrecioGas
     End Function
 
+    Public Function GetDTOAllPeriodosIndxGasByFechaFinPresupuesto(Entorno As String, IdTarifa As Long?, IdTarifaGrupo As Long?, FechaPresupuesto As DateTime?) As List(Of IndexadoPrecioGas)
+        Dim IndexadoPrecioGas As New List(Of IndexadoPrecioGas)
+        Dim TarifaPeriodoSrv As New TarifaPeriodoSrv(connectionString)
+        Dim ret As New List(Of IndexadoPrecioGas)
+        Dim IndexPrecioGas = GetDTOIndexadoPreciobyFechaPresupuesto(Entorno, IdTarifa, IdTarifaGrupo, FechaPresupuesto)
+        Try
+            Dim IndexadoPrecioGasBBDD As New List(Of IndexadoPrecioGas)
+            If Not IsNothing(IndexPrecioGas) AndAlso IndexPrecioGas.IdIndexadoPrecioGas > 0 Then
+                Dim Query = $"SELECT *
+FROM IndexadoPrecioGas TP
+WHERE TP.Entorno = '{Entorno}'
+  AND ISNULL(TP.IdTarifa, 0) = ISNULL({IdTarifa}, 0)
+  AND ISNULL(TP.IdTarifaGrupo, 0) = ISNULL({IdTarifaGrupo}, 0)
+  AND ISNULL(TP.FechaVigencia, '31-12-9999') = ISNULL('{IndexPrecioGas.FechaVigencia}', GETDATE());
+
+"
+                Dim result = Helper.QuerySelect(Query, connectionString)
+                Dim errores = Helper.GetError(result)
+                If Not errores.HasError Then
+                    Dim TIndexadoPrecioGas = Helper.FillObjectFromDatatable(result.Tables(0), GetType(IndexadoPrecioGas)).Cast(Of IndexadoPrecioGas).ToList
+                    If Not IsNothing(TIndexadoPrecioGas) AndAlso TIndexadoPrecioGas.Count > 0 Then
+                        IndexadoPrecioGas = TIndexadoPrecioGas
+                    End If
+                End If
+            End If
+
+            Dim objIndexadoPrecioGas As IndexadoPrecioGas
+            For Each ele In IndexadoPrecioGas
+                objIndexadoPrecioGas = ele
+                objIndexadoPrecioGas.TarifaPeriodo = TarifaPeriodoSrv.GetDTO(If(objIndexadoPrecioGas.IdTarifaPeriodo, 0L))
+                ret.Add(objIndexadoPrecioGas)
+            Next
+
+        Catch ex As Exception
+            Throw
+        End Try
+
+        Return ret
+    End Function
+
+    Public Function GetDTOIndexadoPreciobyFechaPresupuesto(Entorno As String, IdTarifa As Long?, IdTarifaGrupo As Long?, FechaPresupuesto As DateTime?) As IndexadoPrecioGas
+        Try
+            Dim ret As New IndexadoPrecioGas
+
+            Dim Query = $"SELECT *
+FROM IndexadoPrecioGas tp
+WHERE tp.Entorno = '{Entorno}'
+  AND tp.IdTarifa IS NOT NULL
+  AND {IdTarifa} IS NOT NULL
+  AND tp.IdTarifa = {IdTarifa}
+  AND tp.IdTarifaGrupo IS NOT NULL
+  AND {IdTarifaGrupo} IS NOT NULL
+  AND tp.IdTarifaGrupo = {IdTarifaGrupo}
+  AND tp.FechaVigencia IS NOT NULL
+  AND '{FechaPresupuesto}' IS NOT NULL
+  AND tp.FechaVigencia >= '{FechaPresupuesto}';
+"
+            Dim result = Helper.QuerySelect(Query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If Not errores.HasError Then
+                Dim Tp = Helper.FillObjectFromDatatable(result.Tables(0), GetType(IndexadoPrecioGas)).Cast(Of IndexadoPrecioGas).ToList
+                If Not IsNothing(Tp) AndAlso Tp.Count > 0 Then
+                    ret = Tp.OrderBy(Function(f) f.FechaVigencia.Value).FirstOrDefault
+                End If
+            End If
+
+            Return ret
+        Catch ex As Exception
+            Throw
+        End Try
+    End Function
+
+
+
+
     Public Function GetDTOAllPeriodosTarifaPrecio(IdTarifa As Long?, IdTarifaGrupo As Long?, FechaPresupuesto As DateTime?) As List(Of TarifaPrecio)
         Dim TarifaPrecio As New List(Of TarifaPrecio)
 
@@ -494,6 +564,80 @@ from contrato where idcups in (select idcups from iddc)"
         End Try
 
         Return TarifaPrecio
+    End Function
+
+    Public Function GetDTOAllPeriodosTarifaPrecioByFechaPresupuesto(Entorno As String, IdTarifa As Long?, IdTarifaGrupo As Long?, FechaPresupuesto As DateTime?) As List(Of TarifaPrecio)
+        Dim TarifaPeriodoSrv As New TarifaPeriodoSrv(connectionString)
+        Dim TarifaPrecio As New List(Of TarifaPrecio)
+        Dim ret As New List(Of TarifaPrecio)
+        Dim TarifaPrecioBD As New TarifaPrecio
+        TarifaPrecioBD = GetDTOTarifaPreciobyFechaPresupuesto(Entorno, IdTarifa, IdTarifaGrupo, If(FechaPresupuesto, DateAndTime.Now))
+
+        Try
+            Dim TarifasPreciosBBDD As New List(Of TarifaPrecio)
+            If Not IsNothing(TarifaPrecioBD) AndAlso TarifaPrecioBD.IdTarifaPrecio > 0 Then
+                Dim Query = $"SELECT *
+FROM TarifaPrecio TP
+WHERE TP.Entorno = '{Entorno}'
+  AND ISNULL(TP.IdTarifa, 0) = ISNULL({IdTarifa}, 0)
+  AND ISNULL(TP.IdTarifaGrupo, 0) = ISNULL({IdTarifaGrupo}, 0)
+  AND ISNULL(TP.FechaFinPresupuesto, '31-12-9999') = ISNULL('{TarifaPrecioBD.FechaFinPresupuesto}', GETDATE());
+
+"
+                Dim result = Helper.QuerySelect(Query, connectionString)
+                Dim errores = Helper.GetError(result)
+                If Not errores.HasError Then
+                    Dim TTarifasPreciop = Helper.FillObjectFromDatatable(result.Tables(0), GetType(TarifaPrecio)).Cast(Of TarifaPrecio).ToList
+                    If Not IsNothing(TTarifasPreciop) AndAlso TTarifasPreciop.Count > 0 Then
+                        TarifasPreciosBBDD = TTarifasPreciop
+                    End If
+                End If
+
+            End If
+
+            Dim objTarifaPrecio As TarifaPrecio
+            For Each ele In TarifasPreciosBBDD
+                objTarifaPrecio = ele
+                objTarifaPrecio.TarifaPeriodo = TarifaPeriodoSrv.GetDTO(If(objTarifaPrecio.IdTarifaPeriodo, 0L))
+                ret.Add(objTarifaPrecio)
+            Next
+
+        Catch ex As Exception
+            Throw
+        End Try
+
+        Return ret
+    End Function
+    Public Function GetDTOTarifaPreciobyFechaPresupuesto(Entorno As String, IdTarifa As Long?, IdTarifaGrupo As Long?, FechaPresupuesto As DateTime?) As TarifaPrecio
+        Try
+            Dim ret As New TarifaPrecio
+
+            Dim Query = $"SELECT *
+FROM TarifaPrecio tp
+WHERE tp.Entorno = '{Entorno}'
+  AND tp.IdTarifa IS NOT NULL
+  AND {IdTarifa} IS NOT NULL
+  AND tp.IdTarifa = {IdTarifa}
+  AND tp.IdTarifaGrupo IS NOT NULL
+  AND {IdTarifaGrupo} IS NOT NULL
+  AND tp.IdTarifaGrupo = {IdTarifaGrupo}
+  AND tp.FechaFinPresupuesto IS NOT NULL
+  AND '{FechaPresupuesto}' IS NOT NULL
+  AND tp.FechaFinPresupuesto >= '{FechaPresupuesto}';
+"
+            Dim result = Helper.QuerySelect(Query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If Not errores.HasError Then
+                Dim Tp = Helper.FillObjectFromDatatable(result.Tables(0), GetType(TarifaPrecio)).Cast(Of TarifaPrecio).ToList
+                If Not IsNothing(Tp) AndAlso Tp.Count > 0 Then
+                    ret = Tp.OrderBy(Function(f) f.FechaFinPresupuesto.Value).FirstOrDefault
+                End If
+            End If
+
+            Return ret
+        Catch ex As Exception
+            Throw
+        End Try
     End Function
 
 
@@ -929,7 +1073,7 @@ from contrato where idcups in (select idcups from iddc)"
             conexion.Open()
             'Dim Codigos = String.Join(",", Contratos)
             'Dim query = $"INSERT INTO ProductoAsignacion(Entorno,IdProductoGrupo,IdProducto,TipoAsignacion,IdContrato,FechaInicial,Importe,IdTipoImpuesto,AntesIE,AplicarSobreConsumo,AplicarPrecioConsumo) 
-            '                values('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO',{IdContrato},'{FechaInicial}',{Importe.ToString.Replace(",", ".")},{IdTipoImpuesto},{If(AntesIE, 1, 0)},{If(AplicarSobreConsumo, 1, 0)},{If(AplicarPrecioConsumo, 1, 0)})"
+            '                values('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO',{IdContrato},'{FechaInicial}',{Importe.ToString},{IdTipoImpuesto},{If(AntesIE, 1, 0)},{If(AplicarSobreConsumo, 1, 0)},{If(AplicarPrecioConsumo, 1, 0)})"
 
             Dim query =
 $"INSERT INTO ProductoAsignacion (Entorno, IdProductoGrupo, IdProducto, TipoAsignacion, IdCliente, IdContrato, IdTarifa, IdTarifaGrupo, IdTipoCobro, IdTarifaPeaje, Desde, Hasta, IsControlFecha, FechaInicial, FechaFinal, Plazo, PlazoCargado, ImporteTotalPlazo, IsFacturado, Importe, Descuento, AntesIE, IdTipoImpuesto, PrecioDia, IsFacturaProrrateo, IdFacturaProrrateo, PorcentajeIncremento, AplicarSobreConsumo, ImportePlazo, AplicarPrecioConsumo, IsBonificacion, FechaAsignacion)
@@ -938,7 +1082,7 @@ VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, 
             FilfasAfectadas = comando.ExecuteNonQuery
             conexion.Close()
         Catch ex As Exception
-            Console.WriteLine(ex)
+            Throw
         End Try
         Return FilfasAfectadas
     End Function
@@ -954,11 +1098,11 @@ VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, 
             conexion.Open()
             'Dim Codigos = String.Join(",", Contratos)
             'Dim query = $"INSERT INTO ProductoAsignacion(Entorno,IdProductoGrupo,IdProducto,TipoAsignacion,IdContrato,FechaInicial,Importe,IdTipoImpuesto,AntesIE,AplicarSobreConsumo,AplicarPrecioConsumo) 
-            '                values('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO',{IdContrato},'{FechaInicial}',{Importe.ToString.Replace(",", ".")},{IdTipoImpuesto},{If(AntesIE, 1, 0)},{If(AplicarSobreConsumo, 1, 0)},{If(AplicarPrecioConsumo, 1, 0)})"
+            '                values('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO',{IdContrato},'{FechaInicial}',{Importe.ToString},{IdTipoImpuesto},{If(AntesIE, 1, 0)},{If(AplicarSobreConsumo, 1, 0)},{If(AplicarPrecioConsumo, 1, 0)})"
 
             Dim query =
 $"INSERT INTO ProductoAsignacion (Entorno, IdProductoGrupo, IdProducto, TipoAsignacion, IdCliente, IdContrato, IdTarifa, IdTarifaGrupo, IdTipoCobro, IdTarifaPeaje, Desde, Hasta, IsControlFecha, FechaInicial, FechaFinal, Plazo, PlazoCargado, ImporteTotalPlazo, IsFacturado, Importe, Descuento, AntesIE, IdTipoImpuesto, PrecioDia, IsFacturaProrrateo, IdFacturaProrrateo, PorcentajeIncremento, AplicarSobreConsumo, ImportePlazo, AplicarPrecioConsumo, IsBonificacion, FechaAsignacion)
-VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '{FechaInicial}', NULL, NULL, NULL, NULL, NULL, {Importe.ToString.Replace(",", ".")}, 0.00, {If(AntesIE, 1, 0)}, {IdTipoImpuesto}, 0, 0, NULL, 0.00, {If(AplicarSobreConsumo, 1, 0)}, NULL, {If(AplicarPrecioConsumo, 1, 0)}, NULL, NULL);"
+VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '{FechaInicial}', NULL, NULL, NULL, NULL, NULL, {Importe.ToString}, 0.00, {If(AntesIE, 1, 0)}, {IdTipoImpuesto}, 0, 0, NULL, 0.00, {If(AplicarSobreConsumo, 1, 0)}, NULL, {If(AplicarPrecioConsumo, 1, 0)}, NULL, NULL);"
             Dim comando = New SqlCommand(query, conexion)
             FilfasAfectadas = comando.ExecuteNonQuery
             conexion.Close()
@@ -1063,7 +1207,7 @@ where ct.idcontratotarifa in ({CodTJoin}) order by t.IdTarifa"
             listasQuerys.Add(query2)
 
             Dim rutaCarpeta As String = $"C:\Users\{Environment.UserName}\Desktop\Precios"
-            Dim rutaArchivo As String = Path.Combine(rutaCarpeta, $"ContratTarifaAntesActualizacion_{Date.Now.ToString("ddMMyyyyHHmmss")}.xlsx")
+            Dim rutaArchivo As String = IO.Path.Combine(rutaCarpeta, $"ContratTarifaAntesActualizacion_{Date.Now.ToString("ddMMyyyyHHmmss")}.xlsx")
 
             ' Verificar si la carpeta existe, y si no, crearla
             If Not Directory.Exists(rutaCarpeta) Then
@@ -1106,7 +1250,7 @@ group by IdContratoTarifa,tg.TextoTarifaGrupo,tg.IdTarifaGrupo
             listasQuerys.Add(query)
 
             Dim rutaCarpeta As String = $"C:\Users\{Environment.UserName}\Desktop\PreciosPersonalizados"
-            Dim rutaArchivo As String = Path.Combine(rutaCarpeta, $"RevisaPreciosPersonalizados_{Date.Now.ToString("ddMMyyyyHHmmss")}.xlsx")
+            Dim rutaArchivo As String = IO.Path.Combine(rutaCarpeta, $"RevisaPreciosPersonalizados_{Date.Now.ToString("ddMMyyyyHHmmss")}.xlsx")
             ' Verificar si la carpeta existe, y si no, crearla
             If Not Directory.Exists(rutaCarpeta) Then
                 Directory.CreateDirectory(rutaCarpeta)
@@ -1142,7 +1286,7 @@ where idcontratotarifa in (select IdContratoTarifa from idcl) order by tg.TextoT
             listasQuerys.Add(query)
 
             Dim rutaCarpeta As String = $"C:\Users\{Environment.UserName}\Desktop\PreciosPersonalizados"
-            Dim rutaArchivo As String = Path.Combine(rutaCarpeta, $"RevisaPreciosPersonalizadosGas_{Date.Now.ToString("ddMMyyyyHHmmss")}.xlsx")
+            Dim rutaArchivo As String = IO.Path.Combine(rutaCarpeta, $"RevisaPreciosPersonalizadosGas_{Date.Now.ToString("ddMMyyyyHHmmss")}.xlsx")
             ' Verificar si la carpeta existe, y si no, crearla
             If Not Directory.Exists(rutaCarpeta) Then
                 Directory.CreateDirectory(rutaCarpeta)
@@ -1555,8 +1699,18 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
                 'urlApiDocumento= "https://localhost:8046/Documentos/"
                 Dim urlDocumento = $"{URL_API_DOCUMENTOS}{IdDocumento}"
                 Dim token = SysMainControl("TOKEN_DOCUMENTOS_API")
-                Dim binario64 = UrlGetString(urlDocumento, token)
-                ret = Convert.FromBase64String(binario64)
+                Using client As New HttpClient()
+                    If Not String.IsNullOrEmpty(token) Then
+                        client.DefaultRequestHeaders.Add("token", token)
+                    End If
+
+                    ' Obtener los datos de manera síncrona
+                    Dim response As HttpResponseMessage = client.GetAsync(urlDocumento).Result ' Bloqueo síncrono
+                    If response.IsSuccessStatusCode Then
+                        Dim binario64 As String = response.Content.ReadAsStringAsync().Result ' Bloqueo síncrono
+                        ret = Convert.FromBase64String(binario64)
+                    End If
+                End Using
             Catch ex As Exception
 
             End Try
@@ -1589,31 +1743,35 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
         Return Value
     End Function
 
-    Public Function UrlGetString(url As String, token As String) As String
+
+
+    Public Async Function UrlGetString(url As String, token As String) As Task(Of String)
         Dim ret As String = String.Empty
         Try
-            Using wb = New WebClient()
-                'Dim user As String = ""
-                'Dim pwd As String = ""
-
-                'Dim datos() As Byte = System.Text.UTF8Encoding.UTF8.GetBytes($"user={user};pwd={pwd}")
-
-                If token Is Nothing Then
-                    token = ""
+            Using client As New HttpClient()
+                ' Si hay token, agrégalo al header
+                If Not String.IsNullOrEmpty(token) Then
+                    client.DefaultRequestHeaders.Add("token", token)
                 End If
 
-                wb.Headers.Add("token", token)
-                'Dim response = wb.UploadData(url, "POST", datos)
-                Dim response = wb.DownloadData(url) 'Funciona en http
-                ret = Text.Encoding.UTF8.GetString(response)
+                ' Realiza la petición GET a la URL
+                Dim response As HttpResponseMessage = Await client.GetAsync(url)
+
+                ' Asegúrate de que la petición fue exitosa
+                response.EnsureSuccessStatusCode()
+
+                ' Lee el contenido como string usando la codificación UTF-8
+                ret = Await response.Content.ReadAsStringAsync()
             End Using
 
         Catch ex As Exception
-            ret = ex.ToString
+            ' Captura la excepción y devuélvela como string
+            ret = ex.ToString()
         End Try
 
         Return ret
     End Function
+
 
     Public Function CodPostalCups(IdCups As Long) As String
         Dim conexion = New SqlConnection(connectionString)
@@ -1662,6 +1820,13 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
                 Dim comando = New SqlCommand(query, conexion)
                 FilfasAfectadas += comando.ExecuteNonQuery
             Next
+            'Borro las linea de tarifas personalizadas
+            Dim query2 = $"delete TarifaPrecioContrato 
+where IdContratoTarifa= {tarifasPrecioContratoGuardar.FirstOrDefault.IdContratoTarifa} and IdIndexadoPrecio in (select ipf.IdIndexadoPrecio from IndexadoPrecio ipf
+															inner join tarifagrupo tg on ipf.idtarifagrupo = tg.idtarifagrupo
+															and tg.TextoTarifaGrupo like '%personalizada%')"
+            Dim comando2 = New SqlCommand(query2, conexion)
+            Dim FilfasAfectadas2 = comando2.ExecuteNonQuery
             conexion.Close()
         Catch ex As Exception
             Throw
@@ -1702,5 +1867,202 @@ where CONCAT(fv.SerieFactura,fv.NumeroFactura) ='{Factura}' and FacturaConcepto 
         End Try
         Return ListaClickFac
     End Function
+
+
+    Public Function GetFacVenta(idFacturaVenta As Long) As FacturaVentaCabecera
+        Dim FacturaVentaC As New FacturaVentaCabecera
+        'Dim ListaContratov2 As New List(Of Integer)
+        Try
+
+            Dim query As String = $"SELECT IdFacturaVentaCabecera,CodigoContrato
+                    FROM FacturaVentaCabecera
+                    WHERE IdFacturaVentaCabecera in ( {idFacturaVenta})"
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim Fac = Helper.FillObjectFromDatatable(result.Tables(0), GetType(FacturaVentaCabecera)).Cast(Of FacturaVentaCabecera).FirstOrDefault
+                If Not IsNothing(Fac) AndAlso Fac.IdFacturaVentaCabecera > 0 Then
+                    FacturaVentaC = Fac
+
+                End If
+            End If
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return FacturaVentaC
+    End Function
+
+    Public Function GetFacVentaLista(idFacturaVenta As String) As List(Of FacturaVentaCabecera)
+        Dim FacturaVentaC As New List(Of FacturaVentaCabecera)
+        'Dim ListaContratov2 As New List(Of Integer)
+        Try
+
+            Dim query As String = $"SELECT IdFacturaVentaCabecera,CodigoContrato
+                    FROM FacturaVentaCabecera
+                    WHERE IdFacturaVentaCabecera in ({idFacturaVenta})"
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim Fac = Helper.FillObjectFromDatatable(result.Tables(0), GetType(FacturaVentaCabecera)).Cast(Of FacturaVentaCabecera).ToList
+                If Not IsNothing(Fac) AndAlso Fac.Count > 0 Then
+                    FacturaVentaC = Fac
+
+                End If
+            End If
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return FacturaVentaC
+    End Function
+
+    Public Function GetContratoTarifaPersonalizado(CodContrato As List(Of Long)) As List(Of ContratoTarifaPersonalizado)
+        Dim ContratoTarifaPersonalizadoC As New List(Of ContratoTarifaPersonalizado)
+        Dim JoinContrato = String.Join(",", CodContrato)
+        Try
+
+            Dim query As String = $"select ct.idcontratotarifa, ct.codigocontrato,tg.IdTarifaGrupo,tg.textotarifagrupo, pf.TextoPerfilFacturacion, t.IdTarifa,t.TextoTarifa
+from contratotarifa ct
+left join TarifaGrupo tg on ct.idtarifagrupo = tg.idtarifagrupo
+left join perfilfacturacion pf on ct.idperfilfacturacion = pf.idperfilfacturacion
+left join tarifa t  on ct.idtarifa = t.idtarifa
+left join contrato c on ct.CodigoContrato = c.CodigoContrato
+where c.codigocontrato in (
+{JoinContrato}
+)
+and ct.FechaHasta is null
+order by c.CodigoContrato
+
+"
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ResultC = Helper.FillObjectFromDatatable(result.Tables(0), GetType(ContratoTarifaPersonalizado)).Cast(Of ContratoTarifaPersonalizado).ToList
+                If Not IsNothing(ResultC) AndAlso ResultC.Count > 0 Then
+                    ContratoTarifaPersonalizadoC = ResultC.GroupBy(Function(f) f.TextoPerfilFacturacion).SelectMany(Function(grupo) grupo).ToList()
+                End If
+            End If
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return ContratoTarifaPersonalizadoC
+    End Function
+
+    Public Sub AplicarPrecios(CodContrato As Long, FechaVigencia As Date?)
+        Try
+            Dim ContratoTarifaSrv As New ContratoTarifaSrv(connectionString)
+            Dim TarifaPrecioContratoSrv As New TarifaPrecioContratoSrv(connectionString)
+
+            Dim TarifasPrecioContrato = GetDTOAllByCodigosContrato(CodContrato)
+            Dim objDatosContratos As New List(Of Contrato)
+            Dim IdsContratoTarifa As New List(Of Long)
+
+            'Actualizaba solo los que tenian precio asignado, entonces no aplicaba a nuevos si estos no habian cogido bien el precio de primeras. 
+
+            Dim objContratosTarifa = ContratoTarifaSrv.GetContratoTarifaByCodigoContratoLista(CodContrato)
+            IdsContratoTarifa.AddRange(objContratosTarifa.
+    Where(Function(f) f.FechaHasta Is Nothing).
+    Select(Function(f) f.IdContratoTarifa).ToList())
+
+
+            If IsNothing(IdsContratoTarifa) Then 'Dejo de todas formas lo de buscar por tarifapreciocontrato por si no encuentra de primeras, abajo ya filtra solo las nuevas. 
+                If Not IsNothing(TarifasPrecioContrato) AndAlso TarifasPrecioContrato.Count > 0 Then
+                    IdsContratoTarifa.AddRange(TarifasPrecioContrato.Select(Function(f) If(f.IdContratoTarifa, 0L)).Distinct.ToList)
+                End If
+            End If
+
+            For Each idcontratoT In IdsContratoTarifa
+                Dim PreciosOriginales = New List(Of TarifaPrecioContrato)(TarifasPrecioContrato.Where(Function(f) If(f.IdContratoTarifa = idcontratoT, False)))
+                Try
+                    Dim objContratoTarifa As ContratoTarifa = ContratoTarifaSrv.GetContratoTarifaByIdContratotarifa(idcontratoT)
+                    Dim Contrato = GetContrato(objContratoTarifa.CodigoContrato)
+                    'Dim fechacontrato = objDatosContratos.Select(Function(f) f.IdContratoTarifa).Distinct.ToList
+                    Dim ContratoTarifaEnFechas As Boolean = If(objContratoTarifa.FechaDesde >= Contrato.FechaAlta, False)
+                    If ContratoTarifaEnFechas = True Then
+                        Dim TarPrecioContrato = TarifaPrecioContratoSrv.ActualizarPreciosVigentes(idcontratoT, PreciosOriginales, If(FechaVigencia, Date.MinValue))
+                    End If
+                    'Fin de comprobacion 351
+                Catch ex As Exception
+                    'Dim ContratoTarifa = objContratoTarifaSrv.GetDTO(ID)
+                    'ContratosErroneos.Add(If(ContratoTarifa.CodigoContrato, 0L))
+                    Throw
+                End Try
+            Next
+
+            'If ContratosErroneos.Count > 0 Then
+            '    Dim Codigos As String = String.Empty
+            '    If (Not IsNothing(ContratosErroneos)) Then
+            '        Codigos = String.Join(",", ContratosErroneos.Distinct.ToArray())
+            '    End If
+            '    SigeMessageBox.SigeShowInformation(String.Format("No se han podido actualizar los precios de los siguientes contratos: {0}", Codigos))
+            'End If
+        Catch ex As Exception
+            Throw
+        End Try
+    End Sub
+
+    Public Function GetDTOAllByCodigosContrato(CodigosContrato As Long) As List(Of TarifaPrecioContrato)
+        Try
+            Dim ret As New List(Of TarifaPrecioContrato)
+
+            Dim query As String = $"select *
+	from TarifaPrecioContrato
+	where IdContratoTarifa in (
+		select IdContratoTarifa
+		from ContratoTarifa where codigocontrato in (
+{CodigosContrato}))
+
+"
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ResultC = Helper.FillObjectFromDatatable(result.Tables(0), GetType(TarifaPrecioContrato)).Cast(Of TarifaPrecioContrato).ToList
+                If Not IsNothing(ResultC) AndAlso ResultC.Count > 0 Then
+                    ret.AddRange(ResultC)
+                End If
+            End If
+            Return ret
+        Catch ex As Exception
+            Throw
+        End Try
+    End Function
+
+    Public Function VerificarLicitacion(CodigosContrato As List(Of Long)) As List(Of Contrato)
+        Try
+            Dim ret As New List(Of Contrato)
+            Dim CodJoin = String.Join(",", CodigosContrato)
+            Dim query As String = $"select codigocontrato  from Contrato where IsLicitacion=1 and CodigoContrato in ({CodJoin})"
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ResultC = Helper.FillObjectFromDatatable(result.Tables(0), GetType(Contrato)).Cast(Of Contrato).ToList
+                If Not IsNothing(ResultC) AndAlso ResultC.Count > 0 Then
+                    ret.AddRange(ResultC)
+                End If
+            End If
+            Return ret
+        Catch ex As Exception
+            Throw
+        End Try
+    End Function
+
 End Class
 
