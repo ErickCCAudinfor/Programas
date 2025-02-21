@@ -53,6 +53,9 @@ Partial Class Form1
         RadioButton2 = New RadioButton()
         RadioButton1 = New RadioButton()
         Panel2 = New Panel()
+        Button21 = New Button()
+        Button20 = New Button()
+        Button19 = New Button()
         Button18 = New Button()
         Button14 = New Button()
         Button13 = New Button()
@@ -71,7 +74,6 @@ Partial Class Form1
         RadioButton3 = New RadioButton()
         Button17 = New Button()
         Button16 = New Button()
-        Button19 = New Button()
         Panel1.SuspendLayout()
         Panel2.SuspendLayout()
         CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
@@ -307,6 +309,8 @@ Partial Class Form1
         ' 
         ' Panel2
         ' 
+        Panel2.Controls.Add(Button21)
+        Panel2.Controls.Add(Button20)
         Panel2.Controls.Add(Button19)
         Panel2.Controls.Add(Button18)
         Panel2.Controls.Add(Button14)
@@ -324,8 +328,37 @@ Partial Class Form1
         Panel2.Controls.Add(Button6)
         Panel2.Location = New Point(12, 211)
         Panel2.Name = "Panel2"
-        Panel2.Size = New Size(617, 167)
+        Panel2.Size = New Size(617, 204)
         Panel2.TabIndex = 22
+        ' 
+        ' Button21
+        ' 
+        Button21.Enabled = False
+        Button21.Location = New Point(229, 145)
+        Button21.Name = "Button21"
+        Button21.Size = New Size(180, 23)
+        Button21.TabIndex = 31
+        Button21.Text = "Aña. Masv. Calendario Tarifa"
+        Button21.UseVisualStyleBackColor = True
+        ' 
+        ' Button20
+        ' 
+        Button20.Enabled = False
+        Button20.Location = New Point(229, 116)
+        Button20.Name = "Button20"
+        Button20.Size = New Size(180, 23)
+        Button20.TabIndex = 30
+        Button20.Text = "ConsultaCAE"
+        Button20.UseVisualStyleBackColor = True
+        ' 
+        ' Button19
+        ' 
+        Button19.Location = New Point(229, 87)
+        Button19.Name = "Button19"
+        Button19.Size = New Size(180, 23)
+        Button19.TabIndex = 29
+        Button19.Text = "Verificar Licitacion"
+        Button19.UseVisualStyleBackColor = True
         ' 
         ' Button18
         ' 
@@ -393,7 +426,7 @@ Partial Class Form1
         ' 
         ' Button15
         ' 
-        Button15.Location = New Point(442, 384)
+        Button15.Location = New Point(446, 384)
         Button15.Name = "Button15"
         Button15.Size = New Size(180, 23)
         Button15.TabIndex = 26
@@ -482,15 +515,6 @@ Partial Class Form1
         Button16.TabIndex = 26
         Button16.Text = "Penalizaciones"
         Button16.UseVisualStyleBackColor = True
-        ' 
-        ' Button19
-        ' 
-        Button19.Location = New Point(229, 87)
-        Button19.Name = "Button19"
-        Button19.Size = New Size(180, 23)
-        Button19.TabIndex = 29
-        Button19.Text = "Verificar Licitacion"
-        Button19.UseVisualStyleBackColor = True
         ' 
         ' Form1
         ' 
@@ -586,4 +610,6 @@ Partial Class Form1
     Friend WithEvents Button16 As Button
     Friend WithEvents Button18 As Button
     Friend WithEvents Button19 As Button
+    Friend WithEvents Button20 As Button
+    Friend WithEvents Button21 As Button
 End Class

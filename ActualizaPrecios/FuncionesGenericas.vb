@@ -2014,6 +2014,63 @@ order by c.CodigoContrato
             Throw
         End Try
     End Sub
+    Public Sub AplicarPreciosV2(CodContrato As Long, FechaVigencia As Date?)
+        Try
+            Dim objContratoTarifa = GetContratoTarifabyCodContratoFechaVigencia(CodContrato, FechaVigencia)
+
+            If Not IsNothing(objContratoTarifa.IdPerfilFacturacion) Then
+                objContratoTarifa.PerfilFacturacion = GetPerfilFacturacion(If(objContratoTarifa.IdPerfilFacturacion, 0))
+
+                Dim tarifasPrecioContratoGuardar As New List(Of TarifaPrecioContrato)
+
+                Dim isFijoIndex As Boolean = False
+                If objContratoTarifa.PerfilFacturacion.isPerfilIndexado() Then
+                    isFijoIndex = True
+                    If objContratoTarifa.Entorno = "G1" Then
+                        ' IndexadoPrecioSrv
+                        Dim indexadosPrecios As List(Of IndexadoPrecio) = GetDTOAllPeriodosIndx(objContratoTarifa.IdTarifa, objContratoTarifa.IdTarifaGrupo, FechaVigencia)
+                        ''Avisar si no hay precios para grabar
+                        If Not IsNothing(indexadosPrecios) AndAlso indexadosPrecios.Count > 0 Then
+                            For Each indexadoPrecio As IndexadoPrecio In indexadosPrecios
+                                Dim tarifaPrecioContrato As New TarifaPrecioContrato
+
+                                tarifaPrecioContrato.IdContratoTarifa = objContratoTarifa.IdContratoTarifa
+                                tarifaPrecioContrato.IdIndexadoPrecio = indexadoPrecio.IdIndexadoPrecio
+                                tarifaPrecioContrato.Entorno = indexadoPrecio.Entorno
+                                tarifasPrecioContratoGuardar.Add(tarifaPrecioContrato)
+                            Next
+                        End If
+                    End If
+                End If
+                If tarifasPrecioContratoGuardar.Count > 0 Then
+                    For Each tpc In tarifasPrecioContratoGuardar
+                        InsertTarifaPrecioContrato(tpc.Entorno, tpc.IdContratoTarifa, tpc.IdTarifaPrecio, tpc.IdIndexadoPrecio, If(tpc.IdIndexadoPrecioGas, 0))
+                    Next
+                End If
+            End If
+        Catch ex As Exception
+            Throw
+        End Try
+    End Sub
+    Public Function InsertTarifaPrecioContrato(entorno As String, idcontratotarifa As Long, idtarifaprecio As Long, idindexadoprecio As Long, idindexadopreciogas As Long) As Long
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim FilfasAfectadas As Long
+        Try
+
+            conexion.Open()
+            Dim query = $"INSERT INTO [dbo].[TarifaPrecioContrato] 
+    ([Entorno], [IdContratoTarifa], [IdTarifaPrecio], [IdIndexadoPrecio], [IdIndexadoPrecioGas]) 
+VALUES 
+    ('{entorno}', {idcontratotarifa}, {idtarifaprecio}, {idindexadoprecio}, {idindexadopreciogas})"
+            Dim comando = New SqlCommand(query, conexion)
+            FilfasAfectadas = comando.ExecuteNonQuery
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return FilfasAfectadas
+    End Function
 
     Public Function GetDTOAllByCodigosContrato(CodigosContrato As Long) As List(Of TarifaPrecioContrato)
         Try
@@ -2064,5 +2121,110 @@ order by c.CodigoContrato
         End Try
     End Function
 
+
+    Public Function InsertTarifaGrupoCalendario(Entorno As String, Codigocontrato As Long, IdTarifaGrupo As Long, idtarifa As Long, idperfilfacturacion As Long, fechaDesdeAplicar As Date) As Long
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim FilfasAfectadas As Long
+        Try
+
+            conexion.Open()
+            Dim query = $"INSERT INTO [dbo].[ContratoTarifa] 
+    ([Entorno], [CodigoContrato], [IdTarifa], [IdTarifaGrupo], 
+     [IdPerfilFacturacion], [FechaDesde], [FechaHasta], [Aviso], 
+     [IdContratoTarifaOld], [IsAjusteCAPGas], [FechaRegistroEntraEnRango]) 
+VALUES 
+    ('{Entorno}', {Codigocontrato}, {idtarifa}, {IdTarifaGrupo}, 
+     {idperfilfacturacion}, '{fechaDesdeAplicar}', null, null, 
+     null,1, null)"
+            Dim comando = New SqlCommand(query, conexion)
+            FilfasAfectadas = comando.ExecuteNonQuery
+            conexion.Close()
+
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return FilfasAfectadas
+    End Function
+
+    Public Function GetCalendarioNuevoTarifa(ListaIdContratoTarifa As Long) As TarifaGrupo
+        Dim TarifaGrupoRet As New TarifaGrupo
+        Try
+            Dim query As String = $"; with GrupoViejo as ( select ct.entorno,idcontratotarifa,ct.idtarifa idtarifaOld,tg.idtarifagrupo idtarifagrupoOld, TextoTarifaGrupo textoGrupoOld, ct.idperfilfacturacion idperfilfacturacionOld from ContratoTarifa ct
+inner join tarifagrupo  tg on ct.idtarifagrupo = tg.idtarifagrupo
+where idcontratotarifa ={ListaIdContratoTarifa})
+
+select tgN.entorno,tgN.idtarifagrupo,tgN.idtarifa,grupoviejo.idperfilfacturacionold idperfilfacturacion  from TarifaGrupo tgN
+inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagrupo = replace(GrupoViejo.textoGrupoOld,'MADRID','MADRID 2025')" 'CAM
+            'inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagrupo = replace(GrupoViejo.textoGrupoOld,'2024','2025') SUEZ
+            'inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagrupo = replace(GrupoViejo.textoGrupoOld,'MADRID','MADRID 2025') CAM
+            'tgn.entorno,idtarifa,textotarifagrupo textotarifagrupoNuevo,tgn.idperfilfacturacion, textoGrupoOld, idperfilfacturacionOld
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim TGBBDD = Helper.FillObjectFromDatatable(result.Tables(0), GetType(TarifaGrupo)).Cast(Of TarifaGrupo).FirstOrDefault
+                If Not IsNothing(TGBBDD) AndAlso TGBBDD.IdTarifaGrupo > 0 Then
+                    TarifaGrupoRet = TGBBDD
+
+                End If
+            End If
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return TarifaGrupoRet
+    End Function
+
+
+    Public Function GetOnlyCodigoContratobyIdContratoTarifa(idContratoTarifa As Long) As Long
+        Dim CodContrato As New Long
+        Try
+            Dim query As String = $"select codigocontrato from Contratotarifa where idcontratotarifa ={idContratoTarifa} group by codigocontrato"
+            'tgn.entorno,idtarifa,textotarifagrupo textotarifagrupoNuevo,tgn.idperfilfacturacion, textoGrupoOld, idperfilfacturacionOld
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim TGBBDD = Helper.FillObjectFromDatatable(result.Tables(0), GetType(ContratoTarifa)).Cast(Of ContratoTarifa).FirstOrDefault
+                If Not IsNothing(TGBBDD) AndAlso TGBBDD.CodigoContrato > 0 Then
+                    CodContrato = TGBBDD.CodigoContrato
+
+                End If
+            End If
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return CodContrato
+    End Function
+    Public Function GetContratoTarifabyCodContratoFechaVigencia(codigocontrato As Long, fechaBuscar As Date) As ContratoTarifa
+        Dim ContratoTarifaBD As New ContratoTarifa
+        Try
+            Dim query As String = $"select * from ContratoTarifa where CodigoContrato={codigocontrato} and fechadesde >='{fechaBuscar}'  and FechaHasta is null"
+            'tgn.entorno,idtarifa,textotarifagrupo textotarifagrupoNuevo,tgn.idperfilfacturacion, textoGrupoOld, idperfilfacturacionOld
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim TGBBDD = Helper.FillObjectFromDatatable(result.Tables(0), GetType(ContratoTarifa)).Cast(Of ContratoTarifa).FirstOrDefault
+                If Not IsNothing(TGBBDD) AndAlso TGBBDD.CodigoContrato > 0 Then
+                    ContratoTarifaBD = TGBBDD
+
+                End If
+            End If
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return ContratoTarifaBD
+    End Function
 End Class
 

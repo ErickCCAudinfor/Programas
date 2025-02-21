@@ -2,6 +2,7 @@
 Imports System.IO
 Imports System.Text.RegularExpressions
 Imports System.Xml
+Imports OfficeOpenXml
 
 Public Class Form1
     Dim complementos As New Complementos()
@@ -1053,31 +1054,6 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             Else
                 complementos.MostrarMensajePersonalizado("No hay facturas a en los filtros")
             End If
-            'Dim folderPath As String = "C:\Users\ErickCC\Desktop\PDFFacturas"
-
-            '' Ruta del archivo de texto donde se guardarán los nombres de los PDF
-            'Dim outputPath As String = "C:\Users\ErickCC\Desktop\nombresPDF.txt"
-
-            'Try
-            '    ' Obtener todos los archivos PDF en la carpeta
-            '    Dim pdfFiles As String() = Directory.GetFiles(folderPath, "*.pdf")
-
-            '    ' Crear o sobrescribir el archivo de texto
-            '    Using writer As StreamWriter = New StreamWriter(outputPath)
-            '        ' Escribir cada nombre de archivo PDF en el archivo de texto
-            '        For Each file As String In pdfFiles
-            '            writer.WriteLine(Path.GetFileName(file))
-            '        Next
-            '    End Using
-
-            '    'Console.WriteLine("Los nombres de los archivos PDF se han guardado correctamente en: " & outputPath)
-            'Catch ex As Exception
-            '    'Console.WriteLine("Ocurrió un error: " & ex.Message)
-            'End Try
-
-            '' Esperar a que el usuario presione una tecla antes de cerrar
-            ''Console.WriteLine("Presiona cualquier tecla para salir...")
-            ''Console.ReadKey()
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
@@ -1246,7 +1222,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             If listaFacs.Count > 0 Then
                 LoadingWF.Show()
                 Await Task.Run(Sub()
-                                   GetClickDesglosado(listaFacs)
+                                   GetClickDesglosado(listaFacs, ListaFClicks)
                                    ' Verificar si la carpeta existe, y si no, crearla
                                    If Not Directory.Exists(rutaCarpeta) Then
                                        Directory.CreateDirectory(rutaCarpeta)
@@ -1273,58 +1249,64 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         End Try
     End Sub
     Function EvaluarExpresion(expresion As String) As Double
+        ' Reemplazar comas por puntos para evitar errores en cálculos
+        expresion = expresion.Replace(",", ".")
+        expresion = expresion.TrimEnd(")"c)
         Dim resultado As Double = New DataTable().Compute(expresion, Nothing)
         Return resultado
     End Function
 
-    Private Sub GetClickDesglosado(ByRef listaFacs As List(Of String))
-        Dim ListaFClicks As New List(Of ClickFac)
+    Private Sub GetClickDesglosado(ByRef listaFacs As List(Of String), ByRef ListaFClicks As List(Of ClickFac))
+        'Dim ListaFClicks As New List(Of ClickFac)
         Try
             For Each facs In listaFacs
                 Dim fClicks = Funciones.GetFacClick(facs)
-                Dim pepe = 0
-                'Dim regex As New Regex("=\s*\d+\*(.*)")
-                Dim regex As New Regex("(\d+)%.*\((Coste P\d+) = (\d+)\*(.*)")
-                Dim regexPorcentaje As New Regex("(\d+(?:,\d+)?)%")
+
+                ' Expresión regular corregida para capturar toda la ecuación
+                Dim regex As New Regex("(\d+(?:,\d+)?)%.*\((Coste P\d+) = (\d+(?:,\d+)?)\*\((.+)\)?")
+
+                Dim regexPorcentaje As New Regex("(\d{1,3}(?:,\d{1,3})?)%")
+
 
                 For Each f In fClicks
                     Dim texto As String = f.Descripcion
                     Dim match As Match = regex.Match(texto)
 
                     If match.Success Then
-                        'Dim porcentaje As Decimal = Convert.ToDecimal(match.Groups(1).Value)
+                        ' Capturar valores
                         Dim periodo As String = match.Groups(2).Value
-                        Dim consumo As Decimal = Convert.ToDecimal(match.Groups(3).Value)
+                        Dim consumo As Decimal = Convert.ToDecimal(match.Groups(3).Value.Replace(",", ".")) ' Evita errores con decimales
                         Dim expresion As String = match.Groups(4).Value.Trim()
 
                         ' Calcular el valor de la expresión
                         Try
                             Dim resultado As Decimal = EvaluarExpresion(expresion)
-                            'Console.WriteLine($"Resultado: {resultado}")
                             f.ClickCalculado = resultado
                             f.ConsumokWh = consumo
-                            'f.Porcentaje = porcentaje
                             f.Periodo = Replace(periodo, "Coste", "")
 
                         Catch ex As Exception
                             Throw
                         End Try
                     End If
+
+                    ' Extraer porcentaje
                     Dim matchPorcentaje As Match = regexPorcentaje.Match(f.Descripcion)
                     If matchPorcentaje.Success Then
-                        f.Porcentaje = Convert.ToDecimal(matchPorcentaje.Groups(1).Value.Trim())
+                        f.Porcentaje = Convert.ToDecimal(matchPorcentaje.Groups(1).Value.Replace(",", "."))
                     Else
                         f.Porcentaje = 0.0
                     End If
+
                     ListaFClicks.Add(f)
                 Next
-
             Next
         Catch ex As Exception
             Throw
         End Try
-
     End Sub
+
+
 #End Region
 
 #Region "Apuntado BD"
@@ -1633,6 +1615,146 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         Catch ex As Exception
             LoadingWF.Hide()
             complementos.MostrarMensajePersonalizado($"{ex.Message}")
+        End Try
+    End Sub
+
+    Private Async Sub Button20_Click(sender As Object, e As EventArgs) Handles Button20.Click
+        Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultaCAE"
+        Dim rutaArchivo = ""
+        Dim contratosActualizado = 0
+        Dim tiempoTranscurrido As TimeSpan
+        Dim creado = False
+        Try
+            Dim Validaciones As New ValidacionExcel(connectionString)
+
+
+            ' Verificar si la carpeta existe, y si no, crearla
+            If Not Directory.Exists(rutaCarpeta) Then
+                Directory.CreateDirectory(rutaCarpeta)
+            End If
+
+
+            ' Crear una instancia de OpenFileDialog
+            Dim openFileDialog1 As New OpenFileDialog
+
+            ' Configurar propiedades del diálogo
+            openFileDialog1.Title = "Seleccionar archivos"
+            openFileDialog1.Multiselect = True ' Permitir la selección múltiple de archivos
+            openFileDialog1.Filter = "Todos los archivos (*.*)|*.*" ' Filtro de archivos
+            Dim rutaEscogida = ""
+            ' Mostrar el diálogo y verificar si el usuario hizo clic en OK
+            If openFileDialog1.ShowDialog = DialogResult.OK Then
+                ' Obtener la ruta de cada archivo seleccionado y mostrarla en la consola
+                For Each filename In openFileDialog1.FileNames
+                    rutaEscogida = filename
+                Next
+            End If
+
+
+            'Dim Empieza As TimeSpan = stopwatch.Elapsed
+            Dim ActualizarEmail As New ActualizarEmailFromExcel(connectionString)
+            If rutaEscogida.Length > 0 Then
+                rutaArchivo = rutaEscogida
+                LoadingWF.Show()
+                Dim stopwatch As New Stopwatch
+                stopwatch.Start() ' Iniciar el cronómetro
+                Await Task.Run(Sub() Validaciones.BuscarCAEMasivo(rutaEscogida))
+                creado = True
+                ' Detener el cronómetro y obtener el tiempo transcurrido
+                stopwatch.Stop()
+                tiempoTranscurrido = stopwatch.Elapsed
+            End If
+        Catch ex As Exception
+            LoadingWF.Hide()
+            complementos.MostrarMensajePersonalizado(ex.Message)
+        Finally
+            LoadingWF.Hide()
+
+            If creado Then
+                complementos.MostrarMensajePersonalizado($"Se han creado los datos en el archivo Excel en: {rutaArchivo} Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes.ToString("F2")} minutos.")
+            End If
+        End Try
+    End Sub
+
+    Private Async Sub Button21_Click(sender As Object, e As EventArgs) Handles Button21.Click
+        Dim ExcelDatos As New Excel
+        Dim Datos As New List(Of List(Of Object))
+        Try
+            Dim totalContratos = 0
+            Dim ContratoActualizar As New List(Of Long)
+            Dim Con As New List(Of Long)
+            'Con = GetConSinSplit(TextBox2.Text)
+            ' Crear una instancia de OpenFileDialog
+            Dim openFileDialog1 As New OpenFileDialog
+
+            ' Configurar propiedades del diálogo
+            openFileDialog1.Title = "Seleccionar archivos"
+            openFileDialog1.Multiselect = True ' Permitir la selección múltiple de archivos
+            openFileDialog1.Filter = "Todos los archivos (*.*)|*.*" ' Filtro de archivos
+            Dim rutaArchivo = ""
+            ' Mostrar el diálogo y verificar si el usuario hizo clic en OK
+            If openFileDialog1.ShowDialog = DialogResult.OK Then
+                ' Obtener la ruta de cada archivo seleccionado y mostrarla en la consola
+                For Each filename In openFileDialog1.FileNames
+                    rutaArchivo = filename
+                Next
+            End If
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial
+            Using package As New ExcelPackage(New FileInfo(rutaArchivo))
+                Dim worksheet As ExcelWorksheet = package.Workbook.Worksheets(0)
+                Dim rowCount As Integer = worksheet.Dimension.Rows
+
+                ' Leer códigos de contrato del Excel
+                Dim codigosContrato As New List(Of Long)()
+                For row As Integer = 2 To rowCount
+                    Dim CodContrato As String = worksheet.Cells(row, 1).Value?.ToString()
+                    Dim idcontratotarifa As String = worksheet.Cells(row, 2).Value?.ToString()
+                    'Dim Cups As String = worksheet.Cells(row, 3).Value?.ToString()
+                    If Not String.IsNullOrEmpty(idcontratotarifa) Then
+                        Con.Add(CLng(idcontratotarifa))
+                    End If
+                Next
+            End Using
+            Dim yesorNot As MsgBoxResult
+                Dim todoOK = False
+            'Escribo los valores que tiene ahora, para posteriormente comparar o hacer uso de este y dejarlo como esta
+            'Funciones.EscribirContratoTarifaAntesCambios(ContratoActualizar)
+            If Con.Count > 0 Then
+                If Con.Count < 0 Then
+                    yesorNot = MsgBox("Los contratos filtrados y los contratos encontrados no coinciden. ¿Actualizar de todas formas?", vbYesNo)
+                Else
+                    todoOK = True
+                End If
+                If yesorNot = 6 OrElse yesorNot = 1 OrElse todoOK Then
+                    LoadingWF.Show()
+                    Await Task.Run(Sub()
+                                       For Each c In Con
+                                           Dim tgNuevo = Funciones.GetCalendarioNuevoTarifa(c)
+                                           Dim FechaAplicar As Date = DateTimePicker1.Value.Date
+                                           Dim CodigoContrato = Funciones.GetOnlyCodigoContratobyIdContratoTarifa(c)
+                                           If Not IsNothing(CodigoContrato) AndAlso CodigoContrato <> 0 AndAlso tgNuevo.IdTarifaGrupo Then
+                                               Dim ok = Funciones.InsertTarifaGrupoCalendario(tgNuevo.Entorno, CodigoContrato, tgNuevo.IdTarifaGrupo, tgNuevo.IdTarifa, tgNuevo.IdPerfilFacturacion, FechaAplicar)
+                                               Funciones.AplicarPreciosV2(CodigoContrato, FechaAplicar)
+                                               Dim Pepe = 0
+                                           End If
+                                       Next
+                                   End Sub)
+                    LoadingWF.Hide()
+
+                                       If Not IsNothing(Datos) AndAlso Datos.Count > 0 Then
+                                           ExcelDatos.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos, "PreciosErrores")
+                                       End If
+                                       complementos.MostrarMensajePersonalizado($"Contratos iniciales:{Con.Count} contratos")
+                Else
+                    complementos.MostrarMensajePersonalizado($"Se ha cancelado la actualización")
+                End If
+            Else
+                complementos.MostrarMensajePersonalizado($"Sin Contratos")
+                End If
+
+        Catch ex As Exception
+            LoadingWF.Hide()
+            complementos.MostrarMensajePersonalizado("Exception: " + ex.Message)
         End Try
     End Sub
 End Class

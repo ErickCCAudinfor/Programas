@@ -1,6 +1,7 @@
 ﻿Imports System.Data.SqlClient
 Imports System.IO
 Imports System.Text
+Imports System.Text.RegularExpressions
 
 Imports ClosedXML.Excel
 Imports DocumentFormat.OpenXml.Office2010.Excel
@@ -1021,8 +1022,9 @@ from FacturaCompraCabecera
 where IdFacturaCompraCabecera in (select IdFacturaCompraCabecera from facturas))
 
 ,FacturasEnergiaML as (select fvl.idfacturaventacabecera
-,replace(ISNULL(fvl.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0),'.',',') as PrecioMedio
-,infolineaxml  from
+,CodigoPeriodoXML
+,infolineaxml   
+from
 FacturaCompraCabecera fcc
 inner join facturas with (nolock) on facturas.IdFacturaCompraCabecera = fcc.IdFacturaCompraCabecera
 inner join lectura l with (nolock) on l.IdFacturaCompraCabecera = fcc.IdFacturaCompraCabecera or l.IdFacturaCompraCabecera = fcc.idfacturaorigen
@@ -1042,12 +1044,12 @@ select fvc.IdFacturaVentaCabecera
 ,replace(fvlAutoP.importebase,'.',',') as ProductosAutoconsumo
 ,count(fvlAuto.ImporteBase) as LineasAutoconsumo
 ,replace(paCO.Importe,'.',',') as CO
-,replace(ISNULL(fvlP1.PrecioMedio,0),'.',',') AS TerminoEnergiaTarifaMLP1
-,replace(ISNULL(fvlP2.PrecioMedio,0),'.',',') AS TerminoEnergiaTarifaMLP2
-,replace(ISNULL(fvlP3.PrecioMedio,0),'.',',') AS TerminoEnergiaTarifaMLP3
-,replace(ISNULL(fvlP4.PrecioMedio,0),'.',',') AS TerminoEnergiaTarifaMLP4
-,replace(ISNULL(fvlP5.PrecioMedio,0),'.',',') AS TerminoEnergiaTarifaMLP5
-,replace(ISNULL(fvlP6.PrecioMedio,0),'.',',') AS TerminoEnergiaTarifaMLP6
+,REPLACE(ISNULL(MAX(CASE WHEN FacturasEnergiaML.CodigoPeriodoXML = 1 THEN  ISNULL(FacturasEnergiaML.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0), '.', ',')  TerminoEnergiaTarifaMLP1
+,REPLACE(ISNULL(MAX(CASE WHEN FacturasEnergiaML.CodigoPeriodoXML = 2 THEN  ISNULL(FacturasEnergiaML.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0), '.', ',')  TerminoEnergiaTarifaMLP2
+,REPLACE(ISNULL(MAX(CASE WHEN FacturasEnergiaML.CodigoPeriodoXML = 3 THEN  ISNULL(FacturasEnergiaML.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0), '.', ',')  TerminoEnergiaTarifaMLP3
+,REPLACE(ISNULL(MAX(CASE WHEN FacturasEnergiaML.CodigoPeriodoXML = 4 THEN  ISNULL(FacturasEnergiaML.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0), '.', ',')  TerminoEnergiaTarifaMLP4
+,REPLACE(ISNULL(MAX(CASE WHEN FacturasEnergiaML.CodigoPeriodoXML = 5 THEN  ISNULL(FacturasEnergiaML.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0), '.', ',')  TerminoEnergiaTarifaMLP5
+,REPLACE(ISNULL(MAX(CASE WHEN FacturasEnergiaML.CodigoPeriodoXML = 6 THEN  ISNULL(FacturasEnergiaML.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0), '.', ',')  TerminoEnergiaTarifaMLP6
 ,replace(paCOi.Importe,'.',',') as COinterno
 ,c.FechaContrato
 ,c.FechaAplicacionPrecios
@@ -1061,17 +1063,10 @@ left join FacturaVentaLinea fvlAutoP with (nolock) on fvlAutoP.idfacturaventacab
 left join ProductoAsignacion paCO with (nolock) on paCO.IdContrato = c.IdContrato and paCO.IdProducto in (4,30)
 left join ProductoAsignacion paCOi with (nolock) on paCOi.IdContrato = c.IdContrato  and paCOi.IdProducto in (90,133)
 left join TipoAuto with (nolock) on TipoAuto.idfacturacompracabecera = fcc.IdFacturaCompraCabecera
-left join FacturasEnergiaML fvlP1 with (nolock) on fvc.idfacturaventacabecera = fvlP1.idfacturaventacabecera and fvlP1.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=1
-left join FacturasEnergiaML fvlP2 with (nolock) on fvc.idfacturaventacabecera = fvlP2.idfacturaventacabecera and fvlP2.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=2
-left join FacturasEnergiaML fvlP3 with (nolock) on fvc.idfacturaventacabecera = fvlP3.idfacturaventacabecera and fvlP3.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=3
-left join FacturasEnergiaML fvlP4 with (nolock) on fvc.idfacturaventacabecera = fvlP4.idfacturaventacabecera and fvlP4.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=4
-left join FacturasEnergiaML fvlP5 with (nolock) on fvc.idfacturaventacabecera = fvlP5.idfacturaventacabecera and fvlP5.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=5
-left join FacturasEnergiaML fvlP6 with (nolock) on fvc.idfacturaventacabecera = fvlP6.idfacturaventacabecera and fvlP6.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=6
+left join FacturasEnergiaML  with (nolock) on fvc.idfacturaventacabecera = FacturasEnergiaML.idfacturaventacabecera 
 where fcc.IdFacturaCompraCabecera in (select IdFacturaCompraCabecera from facturas with (nolock)) 
 group by fcc.Numerofactura,fcc.CodigoContrato,fvc.IdFacturaVentaCabecera,fvc.SerieFactura,fvc.NumeroFactura,c.FechaContrato,c.FechaAplicacionPrecios,fvlAutoP.importebase,paCO.Importe,paCOi.Importe,TipoAuto.TipoAu
-,fvlP1.PrecioMedio,fvlP2.PrecioMedio,fvlP3.PrecioMedio,fvlP4.PrecioMedio,fvlP5.PrecioMedio,fvlP6.PrecioMedio
-
-
+,FacturasEnergiaML.IdFacturaVentaCabecera
 "
 
                         ' Ejecutar consulta
@@ -1203,5 +1198,271 @@ group by fcc.Numerofactura,fcc.CodigoContrato,fvc.IdFacturaVentaCabecera,fvc.Ser
             Throw
         End Try
     End Sub
+
+
+    Public Function BuscarCAEMasivo(RutaExcel As String) As Long
+        Dim contador As Long = 0
+        Dim excelFilePath As String = RutaExcel
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial
+        Dim CodigosCUPS As New List(Of String)
+        Try
+            Using package As New ExcelPackage(New FileInfo(excelFilePath))
+                Dim worksheet As ExcelWorksheet = package.Workbook.Worksheets(0)
+                Dim rowCount As Integer = worksheet.Dimension.Rows
+
+                ' Leer códigos de contrato del Excel
+                Dim codigosContrato As New List(Of Long)()
+                For row As Integer = 2 To rowCount
+                    Dim CodContrato As String = worksheet.Cells(row, 1).Value?.ToString()
+                    Dim Cups As String = worksheet.Cells(row, 3).Value?.ToString()
+                    If Cups.Length > 5 Then
+                        CodigosCUPS.Add(Cups)
+                    End If
+                    If Not String.IsNullOrEmpty(CodContrato) Then
+                        codigosContrato.Add(CodContrato)
+                    End If
+                Next
+
+                ' Procesar por lotes
+                Dim lotes As New List(Of List(Of Long))()
+                Dim tamanioLote As Integer = 20 ' Ajusta este valor según tus necesidades y recursos
+                For i As Integer = 0 To codigosContrato.Count - 1 Step tamanioLote
+                    lotes.Add(codigosContrato.Skip(i).Take(tamanioLote).ToList())
+                Next
+
+                ' Crear hoja de resultados
+                package.Workbook.Worksheets.Add("Consulta")
+                Dim hojaResultados As ExcelWorksheet = package.Workbook.Worksheets("Consulta")
+                hojaResultados.Cells(1, 1).Value = "CodigoCUPS"
+                hojaResultados.Cells(1, 2).Value = "codigocontrato"
+                hojaResultados.Cells(1, 3).Value = "fechacontrato"
+                hojaResultados.Cells(1, 4).Value = "fechaalta"
+                hojaResultados.Cells(1, 5).Value = "ConsumoEstimado"
+                hojaResultados.Cells(1, 6).Value = "Consumo_Activa_1"
+                hojaResultados.Cells(1, 7).Value = "Consumo_Activa_2"
+                hojaResultados.Cells(1, 8).Value = "Consumo_Activa_3"
+                hojaResultados.Cells(1, 9).Value = "Consumo_Activa_4"
+                hojaResultados.Cells(1, 10).Value = "Consumo_Activa_5"
+                hojaResultados.Cells(1, 11).Value = "Consumo_Activa_6"
+                hojaResultados.Cells(1, 12).Value = "TotalFacturas_Emitidas2024"
+                hojaResultados.Row(1).Style.Font.Bold = True
+                Dim currentRow As Integer = 2
+
+                Using connection As New SqlConnection(connectionString)
+                    connection.Open()
+
+                    For Each lote As List(Of Long) In lotes
+                        ' Crear tabla de parámetros para el lote actual
+                        ' Crear DataTable para TVP
+                        Dim contratoTable As New DataTable()
+                        contratoTable.Columns.Add("codigocontrato", GetType(Long))
+
+                        ' Llenar el DataTable con los contratos del lote actual
+                        For Each codigo In lote
+                            contratoTable.Rows.Add(codigo)
+                        Next
+                        ' Consulta SQL parametrizada
+                        Dim query As String = "--Consultas Erick
+WITH LineasLectura AS (
+    SELECT ll.idlectura, ll.IdTarifaPeajePeriodoLectura, SUM(ll.maximetro) AS maximetro, SUM(ll.ConsumoActiva) AS ConsumoActiva,
+           SUM(ll.ConsumoReactiva) AS ConsumoReactiva, SUM(ll.ActivaExtra) AS ActivaExtra
+    FROM LecturaLinea ll WITH (NOLOCK)
+    INNER JOIN Lectura l WITH (NOLOCK) ON l.IdLectura = ll.IdLectura
+    GROUP BY ll.idlectura, ll.IdTarifaPeajePeriodoLectura
+),
+AgrupacionFacs AS (
+    SELECT fvc.codigocontrato,
+           REPLACE(SUM(ISNULL(ll1.ConsumoActiva, 0.0) + ISNULL(ll1.ActivaExtra, 0.0)), '.', ',') AS Consumo_Activa_1,
+           REPLACE(SUM(ISNULL(ll2.ConsumoActiva, 0.0) + ISNULL(ll2.ActivaExtra, 0.0)), '.', ',') AS Consumo_Activa_2,
+           REPLACE(SUM(ISNULL(ll3.ConsumoActiva, 0.0) + ISNULL(ll3.ActivaExtra, 0.0)), '.', ',') AS Consumo_Activa_3,
+           REPLACE(SUM(ISNULL(ll4.ConsumoActiva, 0.0) + ISNULL(ll4.ActivaExtra, 0.0)), '.', ',') AS Consumo_Activa_4,
+           REPLACE(SUM(ISNULL(ll5.ConsumoActiva, 0.0) + ISNULL(ll5.ActivaExtra, 0.0)), '.', ',') AS Consumo_Activa_5,
+           REPLACE(SUM(ISNULL(ll6.ConsumoActiva, 0.0) + ISNULL(ll6.ActivaExtra, 0.0)), '.', ',') AS Consumo_Activa_6,
+           COUNT(IdFacturaVentaCabecera) AS TotalFacturas_Emitidas2024
+    FROM FacturaVentaCabecera fvc
+    LEFT JOIN Lectura l WITH (NOLOCK) ON fvc.idfacturaventacabecera = l.IdFacturaVentaCabeceraSectorC OR (fvc.IdFacturaOrigen = l.IdFacturaVentaCabeceraSectorC AND fvc.SerieFactura LIKE '%ABO%')
+    LEFT JOIN LineasLectura ll1 WITH (NOLOCK) ON l.IdLectura = ll1.IdLectura AND ll1.idtarifapeajeperiodolectura IN (20202001, 20203001, 20206101, 20206201, 20206301, 20206401, 20208001, 20208101)
+    LEFT JOIN LineasLectura ll2 WITH (NOLOCK) ON l.IdLectura = ll2.IdLectura AND ll2.idtarifapeajeperiodolectura IN (20202002, 20203002, 20206102, 20206202, 20206302, 20206402, 20208002, 20208102)
+    LEFT JOIN LineasLectura ll3 WITH (NOLOCK) ON l.IdLectura = ll3.IdLectura AND ll3.idtarifapeajeperiodolectura IN (20202003, 20203003, 20206103, 20206203, 20206303, 20206403, 20208003, 20208103)
+    LEFT JOIN LineasLectura ll4 WITH (NOLOCK) ON l.IdLectura = ll4.IdLectura AND ll4.idtarifapeajeperiodolectura IN (20203004, 20206104, 20206204, 20206304, 20206404, 20208004, 20208104)
+    LEFT JOIN LineasLectura ll5 WITH (NOLOCK) ON l.IdLectura = ll5.IdLectura AND ll5.idtarifapeajeperiodolectura IN (20203005, 20206105, 20206205, 20206305, 20206405, 20208005, 20208105)
+    LEFT JOIN LineasLectura ll6 WITH (NOLOCK) ON l.IdLectura = ll6.IdLectura AND ll6.idtarifapeajeperiodolectura IN (20203006, 20206106, 20206206, 20206306, 20206406, 20208006, 20208106)
+    WHERE fvc.seriefactura IS NOT NULL AND fvc.facturacategoria = 'EN' AND FechaFactura BETWEEN '01/01/2024' AND '31/12/2024'
+    GROUP BY fvc.CodigoContrato
+)
+SELECT CodigoCUPS,c.codigocontrato, CAST(FechaContrato AS DATE) AS fechacontrato, CAST(FechaAlta AS DATE) AS fechaalta, 
+       REPLACE(ConsumoEstimado, '.', ',') AS ConsumoEstimado, agrupacionfacs.* 
+FROM contrato c
+inner join CUPS on c.IdCups = CUPS.IdCups
+LEFT JOIN AgrupacionFacs ON c.codigocontrato = agrupacionfacs.codigocontrato
+WHERE c.codigocontrato IN (SELECT codigocontrato FROM @CodigoContratos);-- AQUI ESTA EL CAMBIO
+"
+
+                        Using command As New SqlCommand(query, connection)
+                            command.CommandTimeout = 100000
+                            Dim param As SqlParameter = command.Parameters.AddWithValue("@CodigoContratos", contratoTable)
+                            param.SqlDbType = SqlDbType.Structured
+                            param.TypeName = "CodigoContratoTableType"
+                            Using reader As SqlDataReader = command.ExecuteReader()
+                                While reader.Read()
+                                    hojaResultados.Cells(currentRow, 1).Value = reader("CodigoCUPS").ToString()
+                                    hojaResultados.Cells(currentRow, 2).Value = reader("codigocontrato").ToString()
+                                    hojaResultados.Cells(currentRow, 3).Value = reader("fechacontrato").ToString
+                                    hojaResultados.Cells(currentRow, 4).Value = reader("fechaalta").ToString
+                                    hojaResultados.Cells(currentRow, 5).Value = reader("ConsumoEstimado").ToString
+                                    hojaResultados.Cells(currentRow, 6).Value = reader("Consumo_Activa_1").ToString
+                                    hojaResultados.Cells(currentRow, 7).Value = reader("Consumo_Activa_2").ToString
+                                    hojaResultados.Cells(currentRow, 8).Value = reader("Consumo_Activa_3").ToString
+                                    hojaResultados.Cells(currentRow, 9).Value = reader("Consumo_Activa_4").ToString
+                                    hojaResultados.Cells(currentRow, 10).Value = reader("Consumo_Activa_5").ToString
+                                    hojaResultados.Cells(currentRow, 11).Value = reader("Consumo_Activa_6").ToString
+                                    hojaResultados.Cells(currentRow, 12).Value = reader("TotalFacturas_Emitidas2024").ToString
+                                    currentRow += 1
+                                End While
+                            End Using
+                        End Using
+                    Next ' Para cada lote
+                End Using ' Para la conexión
+
+                package.Save() ' Guarda los cambios en el Excel
+            End Using ' Para el paquete Excel
+
+            If CodigosCUPS.Count > 0 Then
+                BuscarCAEMasivo(RutaExcel, CodigosCUPS)
+            End If
+
+        Catch ex As Exception
+            Throw ' Re-lanza la excepción para que se maneje en otro lugar
+        Finally
+            ' No es necesario cerrar la conexión aquí, se cierra automáticamente con Using
+        End Try
+
+        Return contador
+    End Function
+    Public Function BuscarCAEMasivo(RutaExcel As String, Cups As List(Of String)) As Long
+        Dim contador As Long = 0
+        Dim excelFilePath As String = RutaExcel
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial
+        Dim CodigosCUPS As New List(Of String)
+        Try
+            Using package As New ExcelPackage(New FileInfo(excelFilePath))
+                Dim worksheet As ExcelWorksheet = package.Workbook.Worksheets(0)
+                Dim rowCount As Integer = worksheet.Dimension.Rows
+
+                ' Procesar por lotes
+                Dim lotes As New List(Of List(Of String))()
+                Dim tamanioLote As Integer = 20
+                For i As Integer = 0 To Cups.Count - 1 Step tamanioLote
+                    lotes.Add(Cups.Skip(i).Take(tamanioLote).ToList())
+                Next
+
+                ' Crear hoja de resultados
+                package.Workbook.Worksheets.Add("AgrupadoPorCUPS")
+                Dim hojaResultados As ExcelWorksheet = package.Workbook.Worksheets("AgrupadoPorCUPS")
+                hojaResultados.Cells(1, 1).Value = "CodigoCUPS"
+                hojaResultados.Cells(1, 2).Value = "Facturado_P1"
+                hojaResultados.Cells(1, 3).Value = "Facturado_P2"
+                hojaResultados.Cells(1, 4).Value = "Facturado_P3"
+                hojaResultados.Cells(1, 5).Value = "Facturado_P4"
+                hojaResultados.Cells(1, 6).Value = "Facturado_P5"
+                hojaResultados.Cells(1, 7).Value = "Facturado_P6"
+                hojaResultados.Cells(1, 8).Value = "TotalFacturasbyCups_Emitidas2024"
+                hojaResultados.Row(1).Style.Font.Bold = True
+                Dim currentRow As Integer = 2
+
+                Using connection As New SqlConnection(connectionString)
+                    connection.Open()
+
+                    For Each lote As List(Of String) In lotes
+                        Dim cupsTable As New DataTable()
+                        cupsTable.Columns.Add("CodigoCUPS", GetType(String))
+
+                        ' Llenar el DataTable con los CUPS del lote actual
+                        For Each codigo In lote
+                            cupsTable.Rows.Add(codigo)
+                        Next
+
+                        ' Consulta SQL corregida
+                        Dim query As String = "WITH 
+LineasLectura AS (
+    SELECT ll.idlectura, ll.IdTarifaPeajePeriodoLectura, 
+           SUM(ll.maximetro) AS maximetro, 
+           SUM(ll.ConsumoActiva) AS ConsumoActiva,
+           SUM(ll.ConsumoReactiva) AS ConsumoReactiva, 
+           SUM(ll.ActivaExtra) AS ActivaExtra
+    FROM LecturaLinea ll WITH (NOLOCK)
+    INNER JOIN Lectura l WITH (NOLOCK) ON l.IdLectura = ll.IdLectura
+    GROUP BY ll.idlectura, ll.IdTarifaPeajePeriodoLectura
+),
+AgrupacionFacs AS (
+    SELECT fvc.codigocontrato,
+           SUM(ISNULL(ll1.ConsumoActiva, 0.0) + ISNULL(ll1.ActivaExtra, 0.0)) AS Consumo_Activa_1,
+           SUM(ISNULL(ll2.ConsumoActiva, 0.0) + ISNULL(ll2.ActivaExtra, 0.0)) AS Consumo_Activa_2,
+           SUM(ISNULL(ll3.ConsumoActiva, 0.0) + ISNULL(ll3.ActivaExtra, 0.0)) AS Consumo_Activa_3,
+           SUM(ISNULL(ll4.ConsumoActiva, 0.0) + ISNULL(ll4.ActivaExtra, 0.0)) AS Consumo_Activa_4,
+           SUM(ISNULL(ll5.ConsumoActiva, 0.0) + ISNULL(ll5.ActivaExtra, 0.0)) AS Consumo_Activa_5,
+           SUM(ISNULL(ll6.ConsumoActiva, 0.0) + ISNULL(ll6.ActivaExtra, 0.0)) AS Consumo_Activa_6,
+           COUNT(IdFacturaVentaCabecera) AS TotalFacturas_Emitidas2024,
+           MIN(l.FechaLecturaAnterior) AS PrimeraLectura,   -- Primer lectura
+           MAX(l.FechaLectura) AS UltimaLectura       -- Última lectura
+    FROM FacturaVentaCabecera fvc
+    LEFT JOIN Lectura l WITH (NOLOCK) ON fvc.idfacturaventacabecera = l.IdFacturaVentaCabeceraSectorC 
+                                      OR (fvc.IdFacturaOrigen = l.IdFacturaVentaCabeceraSectorC 
+                                          AND fvc.SerieFactura LIKE '%ABO%')
+    LEFT JOIN LineasLectura ll1 WITH (NOLOCK) ON l.IdLectura = ll1.IdLectura 
+        AND ll1.idtarifapeajeperiodolectura IN (20202001, 20203001, 20206101, 20206201, 20206301, 20206401, 20208001, 20208101)
+    LEFT JOIN LineasLectura ll2 WITH (NOLOCK) ON l.IdLectura = ll2.IdLectura 
+        AND ll2.idtarifapeajeperiodolectura IN (20202002, 20203002, 20206102, 20206202, 20206302, 20206402, 20208002, 20208102)
+    LEFT JOIN LineasLectura ll3 WITH (NOLOCK) ON l.IdLectura = ll3.IdLectura 
+        AND ll3.idtarifapeajeperiodolectura IN (20202003, 20203003, 20206103, 20206203, 20206303, 20206403, 20208003, 20208103)
+    LEFT JOIN LineasLectura ll4 WITH (NOLOCK) ON l.IdLectura = ll4.IdLectura 
+        AND ll4.idtarifapeajeperiodolectura IN (20203004, 20206104, 20206204, 20206304, 20206404, 20208004, 20208104)
+    LEFT JOIN LineasLectura ll5 WITH (NOLOCK) ON l.IdLectura = ll5.IdLectura 
+        AND ll5.idtarifapeajeperiodolectura IN (20203005, 20206105, 20206205, 20206305, 20206405, 20208005, 20208105)
+    LEFT JOIN LineasLectura ll6 WITH (NOLOCK) ON l.IdLectura = ll6.IdLectura 
+        AND ll6.idtarifapeajeperiodolectura IN (20203006, 20206106, 20206206, 20206306, 20206406, 20208006, 20208106)
+    WHERE fvc.seriefactura IS NOT NULL 
+      AND fvc.facturacategoria = 'EN' 
+      AND FechaFactura BETWEEN '01/01/2024' AND '31/12/2024'
+    GROUP BY fvc.CodigoContrato
+)
+SELECT 
+    CUPS.CodigoCUPS, 
+    REPLACE(SUM(agrupacionfacs.Consumo_Activa_1), '.', ',') AS Facturado_P1,
+    REPLACE(SUM(agrupacionfacs.Consumo_Activa_2), '.', ',') AS Facturado_P2,
+    REPLACE(SUM(agrupacionfacs.Consumo_Activa_3), '.', ',') AS Facturado_P3,
+    REPLACE(SUM(agrupacionfacs.Consumo_Activa_4), '.', ',') AS Facturado_P4,
+    REPLACE(SUM(agrupacionfacs.Consumo_Activa_5), '.', ',') AS Facturado_P5,
+    REPLACE(SUM(agrupacionfacs.Consumo_Activa_6), '.', ',') AS Facturado_P6,
+    SUM(TotalFacturas_Emitidas2024) AS TotalFacturasbyCups_Emitidas2024,
+    MIN(agrupacionfacs.PrimeraLectura) AS PrimeraLectura,    -- Añadido para la primera lectura
+    MAX(agrupacionfacs.UltimaLectura) AS UltimaLectura       -- Añadido para la última lectura
+FROM contrato c
+INNER JOIN CUPS ON c.IdCups = CUPS.IdCups
+LEFT JOIN AgrupacionFacs ON c.codigocontrato = agrupacionfacs.codigocontrato
+INNER JOIN @CodigosCups cc ON LEFT(CUPS.CodigoCUPS, 20) = LEFT(cc.CodigoCUPS, 20)
+group by CUPS.CodigoCUPS"
+
+                        Using command As New SqlCommand(query, connection)
+                            Dim param = command.Parameters.AddWithValue("@CodigosCups", cupsTable)
+                            param.SqlDbType = SqlDbType.Structured
+                            param.TypeName = "CodigoCUPSTableType"
+                            Using reader As SqlDataReader = command.ExecuteReader()
+                                While reader.Read()
+                                    For i As Integer = 1 To 8
+                                        hojaResultados.Cells(currentRow, i).Value = reader(i - 1).ToString()
+                                    Next
+                                    currentRow += 1
+                                End While
+                            End Using
+                        End Using
+                    Next
+                End Using
+                package.Save()
+            End Using
+        Catch ex As Exception
+            Throw
+        End Try
+    End Function
 
 End Class
