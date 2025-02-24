@@ -1184,10 +1184,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                     rutaEscogida = filename
                 Next
             End If
-
-
             'Dim Empieza As TimeSpan = stopwatch.Elapsed
-            Dim ActualizarEmail As New ActualizarEmailFromExcel(connectionString)
             If rutaEscogida.Length > 0 Then
                 LoadingWF.Show()
                 Dim stopwatch As New Stopwatch
