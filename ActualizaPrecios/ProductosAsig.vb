@@ -41,7 +41,10 @@ Public Class ProductosAsig
             If Not IsNothing(productoSeleccionado) AndAlso productoSeleccionado.IdProducto > 0 Then
                 ' Cambios los valores según se seleccione
                 Dim produc = Funciones.GetProductoGrupobyById(productoSeleccionado.IdProductoGrupo)
-                Dim ImpuestosTipos = Funciones.GetTipoImpuestoBy()
+                Dim ImpuestosTipos As New List(Of TipoImpuesto)
+                ImpuestosTipos.Add(New TipoImpuesto)
+                ImpuestosTipos.AddRange(Funciones.GetTipoImpuestoBy())
+
                 TextBox1.Text = produc.TextoProductoGrupo
                 NumericUpDown1.Value = productoSeleccionado.Importe
                 CheckBox1.Checked = productoSeleccionado.AntesIE
@@ -68,7 +71,9 @@ Public Class ProductosAsig
     Private Async Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         Try
             Dim NFilasAfectadas = 0L
+            Dim TotalFilasAfectas = 0L
             LoadingWF.Show()
+            Button1.Enabled = False 'Desactivo el boton de actualizar
             Dim Funciones As New FuncionesGenericas(Me.connectionString)
             Dim productoSeleccionado As Producto = TryCast(ComboBox1.SelectedItem, Producto)
             Dim TipoImpuesto As TipoImpuesto = TryCast(ComboBox2.SelectedItem, TipoImpuesto)
@@ -81,24 +86,23 @@ Public Class ProductosAsig
             Dim PrecioSobredia = CheckBox3.Checked
             For Each elemnt In Contratos
                 Dim Contrato = Funciones.GetContrato(elemnt)
-                If If(Contrato.IdTipoImpuesto, 0) <> 0 Then
+                If If(Contrato.IdTipoImpuesto, 0) <> 0 AndAlso IdTipoImpuesto <> 0 Then
                     IdTipoImpuesto = Contrato.IdTipoImpuesto
                 End If
                 If CheckBox2.Checked Then 'Insertar
                     NFilasAfectadas = Await Task.Run(Function() Funciones.InsertProductoAsignacion(Contrato.Entorno, productoSeleccionado.IdProductoGrupo, productoSeleccionado.IdProducto, Contrato.IdContrato, Fecha, importe, IdTipoImpuesto, AntesIe, SobreConsumo, PrecioSobreConsumo, PrecioSobredia))
+                    TotalFilasAfectas += NFilasAfectadas
                 End If
-                'If Not CheckBox2.Checked Then 'Insertar
-                '    Funciones.UpdateProductoAsignacion(Contrato.Entorno, productoSeleccionado.IdProductoGrupo, productoSeleccionado.IdProducto, Contrato.IdContrato, Fecha, importe, IdTipoImpuesto, AntesIe, SobreConsumo, PrecioSobreConsumo)
-                'End If
-
             Next
             LoadingWF.Hide()
             If NFilasAfectadas > 0 Then
-                MessageBox.Show($"Se han insertado {NFilasAfectadas} registros.")
+                MessageBox.Show($"Se han insertado {TotalFilasAfectas} registros.")
             End If
         Catch ex As Exception
             LoadingWF.Hide()
             Throw
+        Finally
+            Button1.Enabled = True 'Activo el boton de actualizar
         End Try
     End Sub
 

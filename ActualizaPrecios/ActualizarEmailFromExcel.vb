@@ -1,4 +1,5 @@
 ﻿Imports OfficeOpenXml
+Imports System.Data.SqlClient
 Imports System.IO
 Imports System.Text.RegularExpressions
 
@@ -165,6 +166,48 @@ Public Class ActualizarEmailFromExcel
     End Function
 
 
+    Public Function ConsultaCNAE() As Long
+        Dim contador = 0L
+        Dim excelFilePath As String = $"{RutaExcel}"
+        Dim Excel As New Excel
+        Dim Datos As New List(Of List(Of Object))()
+
+        Try
+            'Esto por que estoy usando una licencia no comercial
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial
+            ' Abrir el archivo de Excel
+            Dim funciones As New FuncionesGenericas(connectionString)
+            Using package As New ExcelPackage(New FileInfo(excelFilePath))
+                Dim worksheet As ExcelWorksheet = package.Workbook.Worksheets(0)
+
+                Dim rowCount As Integer = worksheet.Dimension.Rows
+
+                ' Iterar sobre cada fila del archivo Excel
+                For row As Integer = 2 To rowCount ' Empezamos en la fila 2 para ignorar el encabezado
+                    Dim CodContrato As String = worksheet.Cells(row, 1).Value?.ToString()
+                    Dim query As String = $"select codigocontrato, codigocnae, textocnae from Contrato c
+left join cnae on c.idcnae = cnae.idcnae
+where codigocontrato  = {CodContrato}
+"
+                    Dim rutaArchivoCurva = IO.Path.Combine("C:\Users\ErickCC\Desktop\Erick", $"SOPTOT-10083.xlsx")
+                    ExportarConsultaAExcel(connectionString, query, rutaArchivoCurva, "Soptot10064")
+
+                Next
+            End Using
+
+            'MessageBox.Show($"Proceso Completado")
+        Catch ex As Exception
+            ' Manejo de excepciones
+            Throw
+        Finally
+            'Si hay datos escribo en el excel
+            'If Datos.Count > 0 Then
+            '    Excel.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos, "Email")
+            'End If
+        End Try
+
+        Return contador
+    End Function
 
     'Buscamos el contrato antes de seguir con los contratos
 

@@ -176,7 +176,7 @@ Public Class FuncionesGenericas
 
                 Dim query As String = $"SELECT IdContrato,CodigoContrato,FechaAplicacionPrecios,FechaContrato,c.Entorno,idcliente,idcontratosituacion,idcups, c.IdTipoImpuesto, c.fechaalta
                     FROM Contrato c
-					inner join TipoImpuesto on c.IdTipoImpuesto = TipoImpuesto.IdTipoImpuesto
+					left join TipoImpuesto on c.IdTipoImpuesto = TipoImpuesto.IdTipoImpuesto
                     WHERE codigocontrato = {CodContrato}"
 
                 Dim comando As New SqlCommand(query, conexion)
@@ -342,7 +342,7 @@ from contrato where idcups in (select idcups from iddc)"
 
                 Dim queryPerfil As String = $"SELECT *
                                                  FROM PerfilFacturacionConfiguracion
-                                                 WHERE IdPerfilFacturacion = {IdPerfilFacturacion}"
+                                                 WHERE IdPerfilFacturacion = {IdPerfilFacturacion} and codigoconcepto is not null"
 
                 Dim comandoPerfil As New SqlCommand(queryPerfil, conexion)
                 comandoPerfil.CommandTimeout = 3600
@@ -1074,11 +1074,21 @@ WHERE tp.Entorno = '{Entorno}'
             'Dim Codigos = String.Join(",", Contratos)
             'Dim query = $"INSERT INTO ProductoAsignacion(Entorno,IdProductoGrupo,IdProducto,TipoAsignacion,IdContrato,FechaInicial,Importe,IdTipoImpuesto,AntesIE,AplicarSobreConsumo,AplicarPrecioConsumo) 
             '                values('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO',{IdContrato},'{FechaInicial}',{Importe.ToString},{IdTipoImpuesto},{If(AntesIE, 1, 0)},{If(AplicarSobreConsumo, 1, 0)},{If(AplicarPrecioConsumo, 1, 0)})"
+            Dim Query = ""
 
-            Dim query =
+            If IdTipoImpuesto = 0 Then
+                Query =
 $"INSERT INTO ProductoAsignacion (Entorno, IdProductoGrupo, IdProducto, TipoAsignacion, IdCliente, IdContrato, IdTarifa, IdTarifaGrupo, IdTipoCobro, IdTarifaPeaje, Desde, Hasta, IsControlFecha, FechaInicial, FechaFinal, Plazo, PlazoCargado, ImporteTotalPlazo, IsFacturado, Importe, Descuento, AntesIE, IdTipoImpuesto, PrecioDia, IsFacturaProrrateo, IdFacturaProrrateo, PorcentajeIncremento, AplicarSobreConsumo, ImportePlazo, AplicarPrecioConsumo, IsBonificacion, FechaAsignacion)
 VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '{FechaInicial}', NULL, NULL, NULL, NULL, NULL, {Importe.ToString.Replace(",", ".")}, 0.00, {If(AntesIE, 1, 0)}, null, {If(PrecioSobredia, 1, 0)}, 0, NULL, 0.00, {If(AplicarSobreConsumo, 1, 0)}, NULL, {If(AplicarPrecioConsumo, 1, 0)}, NULL, NULL);"
-            Dim comando = New SqlCommand(query, conexion)
+
+            Else
+                Query =
+$"INSERT INTO ProductoAsignacion (Entorno, IdProductoGrupo, IdProducto, TipoAsignacion, IdCliente, IdContrato, IdTarifa, IdTarifaGrupo, IdTipoCobro, IdTarifaPeaje, Desde, Hasta, IsControlFecha, FechaInicial, FechaFinal, Plazo, PlazoCargado, ImporteTotalPlazo, IsFacturado, Importe, Descuento, AntesIE, IdTipoImpuesto, PrecioDia, IsFacturaProrrateo, IdFacturaProrrateo, PorcentajeIncremento, AplicarSobreConsumo, ImportePlazo, AplicarPrecioConsumo, IsBonificacion, FechaAsignacion)
+VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '{FechaInicial}', NULL, NULL, NULL, NULL, NULL, {Importe.ToString.Replace(",", ".")}, 0.00, {If(AntesIE, 1, 0)},  {IdTipoImpuesto}, {If(PrecioSobredia, 1, 0)}, 0, NULL, 0.00, {If(AplicarSobreConsumo, 1, 0)}, NULL, {If(AplicarPrecioConsumo, 1, 0)}, NULL, NULL);"
+
+            End If
+
+            Dim comando = New SqlCommand(Query, conexion)
             FilfasAfectadas = comando.ExecuteNonQuery
             conexion.Close()
         Catch ex As Exception
@@ -1638,12 +1648,18 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
         End Try
         Return FilfasAfectadas
     End Function
-    Public Function UpdateContratoIdAdmin(Contrato As Long, IdAdministrador As Long) As Long
+    Public Function UpdateContratoIdAdmin(Contrato As Long, IdAdministrador As Long, PermitirNULL As Boolean) As Long
         Dim FilfasAfectadas As Long
         Try
             Dim conexion = New SqlConnection(connectionString)
             conexion.Open()
-            Dim query = $"update Contrato set IdAdministrador = {IdAdministrador} where CodigoContrato ={Contrato}"
+            Dim query = ""
+            If PermitirNULL Then
+                query = $"update Contrato set IdAdministrador = null where CodigoContrato ={Contrato}"
+            Else
+                query = $"update Contrato set IdAdministrador = {IdAdministrador} where CodigoContrato ={Contrato}"
+            End If
+
             Dim comando = New SqlCommand(query, conexion)
             FilfasAfectadas = comando.ExecuteNonQuery
             conexion.Close()
@@ -2148,7 +2164,7 @@ VALUES
         Return FilfasAfectadas
     End Function
 
-    Public Function GetCalendarioNuevoTarifa(ListaIdContratoTarifa As Long) As TarifaGrupo
+    Public Function GetCalendarioNuevoTarifa(ListaIdContratoTarifa As Long, TGVIEJO As String, TGNUEVO As String) As TarifaGrupo
         Dim TarifaGrupoRet As New TarifaGrupo
         Try
             Dim query As String = $"; with GrupoViejo as ( select ct.entorno,idcontratotarifa,ct.idtarifa idtarifaOld,tg.idtarifagrupo idtarifagrupoOld, TextoTarifaGrupo textoGrupoOld, ct.idperfilfacturacion idperfilfacturacionOld from ContratoTarifa ct
@@ -2156,7 +2172,7 @@ inner join tarifagrupo  tg on ct.idtarifagrupo = tg.idtarifagrupo
 where idcontratotarifa ={ListaIdContratoTarifa})
 
 select tgN.entorno,tgN.idtarifagrupo,tgN.idtarifa,grupoviejo.idperfilfacturacionold idperfilfacturacion  from TarifaGrupo tgN
-inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagrupo = replace(GrupoViejo.textoGrupoOld,'MADRID','MADRID 2025')" 'CAM
+inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagrupo = replace(GrupoViejo.textoGrupoOld,'{TGVIEJO}','{TGVIEJO}')" 'CAM
             'inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagrupo = replace(GrupoViejo.textoGrupoOld,'2024','2025') SUEZ
             'inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagrupo = replace(GrupoViejo.textoGrupoOld,'MADRID','MADRID 2025') CAM
             'tgn.entorno,idtarifa,textotarifagrupo textotarifagrupoNuevo,tgn.idperfilfacturacion, textoGrupoOld, idperfilfacturacionOld

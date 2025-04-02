@@ -899,37 +899,38 @@ GROUP BY
 
                     For Each codigo As Integer In CodigoContrato
                         Dim query As String = "
-                    WITH FacturasVentaConsulta (NumeroFactura, CodigoContrato) AS (
-                        SELECT MAX(NumeroFactura), CodigoContrato 
-                        FROM FacturaVentaCabecera WITH (NOLOCK) 
-                        WHERE CodigoContrato = @CodigoContrato
-                        AND SerieFactura IN ('FGAS')
-                        GROUP BY CodigoContrato
-                    )
-                    SELECT 
-                        fvc.CodigoContrato,
-                        fvc.SerieFactura,
-                        fvc.NumeroFactura,
-                        REPLACE(
-                            ISNULL(
-                                ISNULL(fvl1.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoConsumoGas/PrecioMedio)[1]', 'decimal(18,6)'), 0) +
-                                ISNULL(fvl2.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoConsumoGas/PrecioMedio)[1]', 'decimal(18,6)'), 0) +
-                                ISNULL(fvl3.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoConsumoGas/PrecioMedio)[1]', 'decimal(18,6)'), 0) +
-                                ISNULL(fvl4.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoTerminoFijoGas/PrecioMedio)[1]', 'decimal(18,6)'), 0) +
-                                ISNULL(fvl5.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoConsumoGas/PrecioMedio)[1]', 'decimal(18,6)'), 0), 
-                            0), '.', ',') AS PrecioMedioTotal
-                    FROM FacturaVentaCabecera fvc WITH (NOLOCK)
-                    LEFT JOIN FacturaVentaLinea fvl1 WITH (NOLOCK) ON fvl1.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera AND fvl1.FacturaConcepto IN (90012) AND fvl1.CodigoPeriodoXML = 1
-                    LEFT JOIN FacturaVentaLinea fvl2 WITH (NOLOCK) ON fvl2.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera AND fvl2.FacturaConcepto IN (90038) AND fvl2.CodigoPeriodoXML = 1
-                    LEFT JOIN FacturaVentaLinea fvl3 WITH (NOLOCK) ON fvl3.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera AND fvl3.FacturaConcepto IN (90062) AND fvl3.CodigoPeriodoXML = 1
-                    LEFT JOIN FacturaVentaLinea fvl4 WITH (NOLOCK) ON fvl4.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera AND fvl4.FacturaConcepto IN (90066) AND fvl4.CodigoPeriodoXML = 1
-                    LEFT JOIN FacturaVentaLinea fvl5 WITH (NOLOCK) ON fvl5.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera AND fvl5.FacturaConcepto IN (90001) AND fvl5.CodigoPeriodoXML = 1
-                    WHERE fvc.IdFacturaVentaCabecera IN (
-                        SELECT IdFacturaVentaCabecera 
-                        FROM FacturaVentaCabecera 
-                        WHERE NumeroFactura IN (SELECT NumeroFactura FROM FacturasVentaConsulta) 
-                        AND SerieFactura LIKE 'FGAS'
-                    )
+                    WITH FacturasVentaConsulta AS (
+    SELECT 
+        NumeroFactura, 
+        CodigoContrato,
+        ROW_NUMBER() OVER (PARTITION BY CodigoContrato ORDER BY NumeroFactura DESC) AS rn
+    FROM FacturaVentaCabecera WITH (NOLOCK)
+    WHERE CodigoContrato =@CodigoContrato
+    AND SerieFactura = 'FGAS'
+)
+SELECT 
+    fvc.CodigoContrato,
+    fvc.SerieFactura,
+    fvc.NumeroFactura,
+    REPLACE(
+        ISNULL(SUM(
+            CASE 
+                WHEN fvl.Facturaconcepto = 90066 
+                THEN ISNULL(fvl.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoTerminoFijoGas/PrecioMedio)[1]', 'decimal(18,6)'), 0)
+                ELSE ISNULL(fvl.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoConsumoGas/PrecioMedio)[1]', 'decimal(18,6)'), 0)
+            END
+        ), 0),
+        '.', ','
+    ) AS PrecioMedioTotal
+FROM FacturaVentaCabecera fvc WITH (NOLOCK)
+JOIN FacturasVentaConsulta fvcq ON fvc.NumeroFactura = fvcq.NumeroFactura AND fvcq.rn = 1
+LEFT JOIN FacturaVentaLinea fvl WITH (NOLOCK) 
+    ON fvl.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera 
+    AND fvl.Facturaconcepto IN (90012, 90038, 90062, 90066, 90001) 
+    AND fvl.codigoperiodoXML = 1
+WHERE fvc.SerieFactura = 'FGAS'
+GROUP BY fvc.CodigoContrato, fvc.SerieFactura, fvc.NumeroFactura;
+
                     "
 
                         Using command As New SqlCommand(query, connection)

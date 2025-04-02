@@ -39,14 +39,15 @@ Public Class AdministradoresWF
                 Dim Contrato = Funciones.GetContrato(elemnt)
                 'Contrato de luz
                 If Not IsNothing(Contrato) AndAlso Contrato.IdContrato > 0 AndAlso Contrato.Entorno = "E1" AndAlso Not IsNothing(AdministradorSeleccionado) AndAlso AdministradorSeleccionado.IdAdministrador > 0 Then
-                    Dim ok = Await Task.Run(Function() Funciones.UpdateContratoIdAdmin(Contrato.CodigoContrato, AdministradorSeleccionado.IdAdministrador))
+
+                    Dim ok = Await Task.Run(Function() Funciones.UpdateContratoIdAdmin(Contrato.CodigoContrato, AdministradorSeleccionado.IdAdministrador, CheckBox1.Checked))
                     If ok > 0 Then
                         ListaOk.Add(Contrato)
                     End If
                 End If
                 'Contrato de Gas
                 If Not IsNothing(Contrato) AndAlso Contrato.IdContrato > 0 AndAlso Contrato.Entorno = "E2" AndAlso Not IsNothing(AdministradorSeleccionadoGas) AndAlso AdministradorSeleccionadoGas.IdAdministrador > 0 Then
-                    Dim ok = Await Task.Run(Function() Funciones.UpdateContratoIdAdmin(Contrato.CodigoContrato, AdministradorSeleccionadoGas.IdAdministrador))
+                    Dim ok = Await Task.Run(Function() Funciones.UpdateContratoIdAdmin(Contrato.CodigoContrato, AdministradorSeleccionadoGas.IdAdministrador, CheckBox1.Checked))
                     If ok > 0 Then
                         ListaOk.Add(Contrato)
                     End If
@@ -104,4 +105,16 @@ Public Class AdministradoresWF
         End Try
     End Sub
 
+    Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
+        Try
+            If CheckBox1.Checked Then
+                ComboBox1.Enabled = False
+                ComboBox2.Enabled = False
+            Else
+                ComboBox1.Enabled = True
+            End If
+        Catch ex As Exception
+
+        End Try
+    End Sub
 End Class

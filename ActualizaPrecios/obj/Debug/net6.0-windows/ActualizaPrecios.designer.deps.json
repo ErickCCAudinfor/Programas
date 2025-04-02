@@ -565,6 +565,14 @@
           "System.Text.Encoding": "4.3.0"
         }
       },
+      "System.Data.OleDb/9.0.2": {
+        "runtime": {
+          "lib/netstandard2.0/System.Data.OleDb.dll": {
+            "assemblyVersion": "9.0.0.2",
+            "fileVersion": "9.0.225.6610"
+          }
+        }
+      },
       "System.Data.SqlClient/4.8.6": {
         "dependencies": {
           "Microsoft.Win32.Registry": "4.7.0",
@@ -1902,6 +1910,13 @@
       "sha512": "sha512-DHDrIxiqk1h03m6khKWV2X8p/uvN79rgSqpilL6uzpmSfxfU5ng8VcPtW4qsDsQDHiTv6IPV9TmD5M/vElPNLg==",
       "path": "system.console/4.3.0",
       "hashPath": "system.console.4.3.0.nupkg.sha512"
+    },
+    "System.Data.OleDb/9.0.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-7jJf3gmMMV7MF7xe1JgpqjMuMzJ8BrHSqDKALjNKWgW4pWxX4BTbPX/p636Y++jA3FsC57tSu/gvFmyob5+wGQ==",
+      "path": "system.data.oledb/9.0.2",
+      "hashPath": "system.data.oledb.9.0.2.nupkg.sha512"
     },
     "System.Data.SqlClient/4.8.6": {
       "type": "package",

@@ -1,12 +1,15 @@
 ﻿
+Imports System.Data.OleDb
 Imports System.IO
 Imports System.Text.RegularExpressions
 Imports System.Xml
+Imports ClosedXML.Excel
+Imports DocumentFormat.OpenXml.Wordprocessing
 Imports OfficeOpenXml
 
 Public Class Form1
     Dim complementos As New Complementos()
-    Dim LoadingWF As New LoadingWF
+    'Dim LoadingWF As New LoadingWF
     Private Property ipDB As String = "data source=172.31.100.12"
     'Private ReadOnly Property ipDB As String = "data source=172.31.100.50\TOTALUAT;"
     Private Property nameDB As String = "initial catalog=SigeTotal;"
@@ -40,10 +43,10 @@ Public Class Form1
             If CheckBox2.Checked Then 'Contrato
                 Dim yesorNot1 = MsgBox($"Hay un total de {Con.Count} contratos, ¿Seguir con la actualización?", vbYesNo)
                 If yesorNot1 = 6 OrElse yesorNot1 = 1 Then
-                    LoadingWF.Show()
+                    PictureBox2.Visible = True
                     ContratoActualizar = Await Task.Run(Function() Funciones.BuscarbyCodigocontrato(Con))
                     totalContratos = Con.Count
-                    LoadingWF.Hide()
+                    PictureBox2.Visible = False
                 End If
             End If
             'If CheckBox3.Checked Then 'Cliente
@@ -60,9 +63,9 @@ Public Class Form1
                     todoOK = True
                 End If
                 If yesorNot = 6 OrElse yesorNot = 1 OrElse todoOK Then
-                    LoadingWF.Show()
+                    PictureBox2.Visible = True
                     Dim ContratosTXT = Await Task.Run(Function() ActualizarRegistros(ContratoActualizar, Datos))
-                    LoadingWF.Hide()
+                    PictureBox2.Visible = False
 
                     If Not IsNothing(Datos) AndAlso Datos.Count > 0 Then
                         ExcelDatos.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos, "PreciosErrores")
@@ -76,7 +79,7 @@ Public Class Form1
             End If
 
         Catch ex As Exception
-            LoadingWF.Hide()
+            PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado("Exception: " + ex.Message)
         End Try
 
@@ -266,6 +269,7 @@ Public Class Form1
         Return $"Se han actualizado {Contador}. {ContratosSinActualizar}"
     End Function
 
+    'CUPS
     Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
         If CheckBox1.Checked Then
             ' Si CheckBox1 está marcado, deshabilitar CheckBox2 y CheckBox3
@@ -281,7 +285,7 @@ Public Class Form1
 
         End If
     End Sub
-
+    'Contrato
     Private Sub CheckBox2_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox2.CheckedChanged
         ' Verificar si CheckBox2 está marcado
         If CheckBox2.Checked Then
@@ -296,7 +300,7 @@ Public Class Form1
             TextBox2.Enabled = False
         End If
     End Sub
-
+    'Cliente
     Private Sub CheckBox3_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox3.CheckedChanged
         ' Verificar si CheckBox3 está marcado
         If CheckBox3.Checked Then
@@ -463,7 +467,8 @@ Public Class Form1
     'Crear las validaciones
     Private Async Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
         Try
-            LoadingWF.Show()
+            'PictureBox2.Visible = True
+            PictureBox2.Visible = True
             Dim listas As New List(Of String)
             Dim Validaciones As New ValidacionExcel(connectionString)
 #Region "Consulta 1"
@@ -635,12 +640,14 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             End If
 
             Await Task.Run(Sub() Validaciones.EjecutarConsultasYGuardarEnExcel(listas, rutaArchivo))
-            LoadingWF.Hide()
+            'PictureBox2.Visible = False
+            PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado($"Se han creado los datos en el archivo Excel en: {rutaArchivo}")
 
             'MessageBox.Show($"Se han creado los datos en el archivo Excel en: {rutaArchivo}")
         Catch ex As Exception
-            LoadingWF.Hide()
+            'PictureBox2.Visible = False
+            PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado(ex.Message)
 
         End Try
@@ -691,13 +698,13 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             'Dim Empieza As TimeSpan = stopwatch.Elapsed
             Dim ActualizarCNAE As New ActualizarCNAEFromExcel(connectionString)
             If rutaArchivo.Length > 0 Then
-                LoadingWF.Show()
+                PictureBox2.Visible = True
                 ActualizarCNAE.RutaExcel = rutaArchivo
                 Dim contratosActualizado = Await ActualizarCNAE.ActualizarCNAEFromExcelAsync()
 
                 ' Detener el cronómetro y obtener el tiempo transcurrido
                 stopwatch.Stop()
-                LoadingWF.Hide()
+                PictureBox2.Visible = False
                 Dim tiempoTranscurrido As TimeSpan = stopwatch.Elapsed
 
                 complementos.MostrarMensajePersonalizado($"Se han actualizado {contratosActualizado} contratos. Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes} minutos.")
@@ -706,7 +713,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             End If
 
         Catch ex As Exception
-            LoadingWF.Hide()
+            PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
@@ -714,7 +721,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
     'Volver a RenovarContratos
     Private Async Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         Try
-            LoadingWF.Show()
+            PictureBox2.Visible = True
             Dim RenovadoANull = 0L
             'Si esta por cups
             If CheckBox1.Checked Then
@@ -763,7 +770,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                     Next
                 End If
             End If
-            LoadingWF.Hide()
+            PictureBox2.Visible = False
 
             If RenovadoANull > 0 Then
                 complementos.MostrarMensajePersonalizado($"Contratos listos para ser renovados")
@@ -771,7 +778,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                 complementos.MostrarMensajePersonalizado($"Ningún contrato renovado")
             End If
         Catch ex As Exception
-            LoadingWF.Hide()
+            PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
@@ -782,14 +789,14 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
 
             'Dim RutaArchivo = Funciones.RevisaTarifaPrecioContratoPersonalizada()
             'MessageBox.Show($"Se ha generado la revisión en la siguiente ruta:{RutaArchivo}")
-            LoadingWF.Show()
+            PictureBox2.Visible = True
             Dim table As New TablaRevisaPreciosPersonalizados(connectionString)
             Await Task.Run(Sub() table.cargar())
-            LoadingWF.Hide()
+            PictureBox2.Visible = False
             table.Show()
             'Funciones.RevisaTarifaPrecioContratoPersonalizadaGas()
         Catch ex As Exception
-            LoadingWF.Hide()
+            PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
@@ -838,7 +845,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             'Dim Empieza As TimeSpan = stopwatch.Elapsed
             Dim ActualizarEmail As New ActualizarEmailFromExcel(connectionString)
             If rutaArchivo.Length > 0 Then
-                LoadingWF.Show()
+                PictureBox2.Visible = True
                 ActualizarEmail.RutaExcel = rutaArchivo
                 contratosActualizado = Await ActualizarEmail.ActualizarEmailFromExcelAsync
 
@@ -850,7 +857,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)
         Finally
-            LoadingWF.Hide()
+            PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado($"Se han actualizado {contratosActualizado} contratos. Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes} minutos.")
         End Try
     End Sub
@@ -1027,7 +1034,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                     IO.Directory.CreateDirectory(Destino)
                 End If
                 Dim ComprobarFacs As New List(Of String)
-                LoadingWF.Show()
+                PictureBox2.Visible = True
                 Await Task.Run(Sub()
                                    For Each elemnt In listaFacs
                                        Dim Facs As Byte() = Funciones.ExtraerPDFFactura(elemnt)
@@ -1043,7 +1050,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                                        File.WriteAllBytes(TempFileName, Facs)
                                    Next
                                End Sub)
-                LoadingWF.Hide()
+                PictureBox2.Visible = False
                 If ComprobarFacs.Count > 0 Then
                     complementos.MostrarMensajePersonalizado("PDF descargados. Pulse Aceptar para abrir la carpeta contenedora")
                     Process.Start("explorer.exe", Destino)
@@ -1136,15 +1143,15 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             'Dim ActualizarEmail As New ActualizarEmailFromExcel(connectionString)
             If RutaNueva.Length > 0 Then
                 Dim OpenItms As New OpenItemsXML
-                LoadingWF.Show()
+                PictureBox2.Visible = True
                 'Pasamos la nueva ruta
                 Dim Open = Await Task.Run(Function() OpenItms.FormatearXML(RutaNueva))
-                LoadingWF.Hide()
+                PictureBox2.Visible = False
                 complementos.MostrarMensajePersonalizado($"Se han eliminado {Open} nodos del tipo <audinforContract/>.\nSe ha guardado en la siguiente ruta: {Path.GetDirectoryName(rutaArchivo)}")
             End If
 
         Catch ex As Exception
-            LoadingWF.Hide()
+            PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
@@ -1186,7 +1193,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             End If
             'Dim Empieza As TimeSpan = stopwatch.Elapsed
             If rutaEscogida.Length > 0 Then
-                LoadingWF.Show()
+                PictureBox2.Visible = True
                 Dim stopwatch As New Stopwatch
                 stopwatch.Start() ' Iniciar el cronómetro
                 Await Task.Run(Sub() Validaciones.CSV3(rutaEscogida, rutaArchivo))
@@ -1196,10 +1203,10 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                 tiempoTranscurrido = stopwatch.Elapsed
             End If
         Catch ex As Exception
-            LoadingWF.Hide()
+            PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado(ex.Message)
         Finally
-            LoadingWF.Hide()
+            PictureBox2.Visible = False
             If creado Then
                 complementos.MostrarMensajePersonalizado($"Se han creado los datos en el archivo Excel en: {rutaArchivo} Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes.ToString("F2")} minutos.")
             End If
@@ -1217,7 +1224,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             Dim listaFacs = GetFacsSinSplit(TextBox2.Text)
 
             If listaFacs.Count > 0 Then
-                LoadingWF.Show()
+                PictureBox2.Visible = True
                 Await Task.Run(Sub()
                                    GetClickDesglosado(listaFacs, ListaFClicks)
                                    ' Verificar si la carpeta existe, y si no, crearla
@@ -1233,7 +1240,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                                    Val.GuardarEnExcelClick(ListaFClicks, rutaArchivo) 'Escribo en el excel
 
                                End Sub)
-                LoadingWF.Hide()
+                PictureBox2.Visible = False
                 complementos.MostrarMensajePersonalizado($"Archivo Excel guardado en: {rutaArchivo}")
             Else
                 complementos.MostrarMensajePersonalizado("No hay facturas")
@@ -1241,7 +1248,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
 
 
         Catch ex As Exception
-            LoadingWF.Hide()
+            PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
@@ -1416,7 +1423,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             Dim yesorNot1 = MsgBox($"Hay {ListaContratos.Count} contratos, ¿Aplicar precios con fecha {DateTimePicker1.Value.Date}?", vbYesNo)
             If yesorNot1 = 6 OrElse yesorNot1 = 1 Then
 
-                LoadingWF.Show()
+                PictureBox2.Visible = True
                 Await Task.Run(Sub()
                                    Dim ContratosC = Funciones.GetContratoTarifaPersonalizado(ListaContratos)
                                    For Each c In ContratosC
@@ -1428,7 +1435,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             End If
         Catch ex As Exception
         Finally
-            LoadingWF.Hide()
+            PictureBox2.Visible = False
         End Try
     End Sub
 
@@ -1505,7 +1512,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                 Dim Validaciones As New ValidacionExcel(connectionString)
                 Dim listaCodLuz As New List(Of Long)
                 Dim listaCodGas As New List(Of Long)
-                LoadingWF.Show()
+                PictureBox2.Visible = True
 
                 For Each ConFor In Con
                     Dim ContratoBBDD = Funciones.GetContrato(ConFor)
@@ -1542,7 +1549,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado($"{ex.Message}")
         Finally
-            LoadingWF.Hide()
+            PictureBox2.Visible = False
 
             If PenaOk Then
                 complementos.MostrarMensajePersonalizado($"Penalizaciones Generadas en {RutaFinal}")
@@ -1559,7 +1566,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             Dim Facs = GetConSinSplitCupsCIFS(TextBox2.Text)
             If Facs.Count > 0 Then
                 Dim Validaciones As New ValidacionExcel(connectionString)
-                LoadingWF.Show()
+                PictureBox2.Visible = True
 
                 Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO"
                 Dim rutaArchivo = Path.Combine(rutaCarpeta, $"ConsultaTopLidia_{Date.Today.ToString("ddMMyyyy")}.xlsx")
@@ -1581,10 +1588,10 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                 complementos.MostrarMensajePersonalizado($"No hay registros a buscar")
             End If
         Catch ex As Exception
-            LoadingWF.Hide()
+            PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado($"{ex.Message}")
         Finally
-            LoadingWF.Hide()
+            PictureBox2.Visible = False
 
             If PenaOk Then
                 complementos.MostrarMensajePersonalizado($"Consultas Generadas en {RutaFinal}")
@@ -1598,9 +1605,9 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         Try
             Dim ListaContratos = GetConSinSplit(TextBox2.Text)
             If ListaContratos.Count > 0 Then
-                LoadingWF.Show()
+                PictureBox2.Visible = True
                 Dim Resultados = Await Task.Run(Function() Funciones.VerificarLicitacion(ListaContratos))
-                LoadingWF.Hide()
+                PictureBox2.Visible = False
 
                 If Resultados.Count > 0 Then
                     Dim cod = Resultados.Select(Function(s) s.CodigoContrato).ToList
@@ -1610,7 +1617,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                 End If
             End If
         Catch ex As Exception
-            LoadingWF.Hide()
+            PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado($"{ex.Message}")
         End Try
     End Sub
@@ -1652,7 +1659,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             Dim ActualizarEmail As New ActualizarEmailFromExcel(connectionString)
             If rutaEscogida.Length > 0 Then
                 rutaArchivo = rutaEscogida
-                LoadingWF.Show()
+                PictureBox2.Visible = True
                 Dim stopwatch As New Stopwatch
                 stopwatch.Start() ' Iniciar el cronómetro
                 Await Task.Run(Sub() Validaciones.BuscarCAEMasivo(rutaEscogida))
@@ -1662,10 +1669,10 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                 tiempoTranscurrido = stopwatch.Elapsed
             End If
         Catch ex As Exception
-            LoadingWF.Hide()
+            PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado(ex.Message)
         Finally
-            LoadingWF.Hide()
+            PictureBox2.Visible = False
 
             If creado Then
                 complementos.MostrarMensajePersonalizado($"Se han creado los datos en el archivo Excel en: {rutaArchivo} Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes.ToString("F2")} minutos.")
@@ -1698,22 +1705,22 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             End If
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial
             Using package As New ExcelPackage(New FileInfo(rutaArchivo))
-                Dim worksheet As ExcelWorksheet = package.Workbook.Worksheets(0)
-                Dim rowCount As Integer = worksheet.Dimension.Rows
+                Dim worksheet = package.Workbook.Worksheets(0)
+                Dim rowCount = worksheet.Dimension.Rows
 
                 ' Leer códigos de contrato del Excel
-                Dim codigosContrato As New List(Of Long)()
-                For row As Integer = 2 To rowCount
-                    Dim CodContrato As String = worksheet.Cells(row, 1).Value?.ToString()
-                    Dim idcontratotarifa As String = worksheet.Cells(row, 2).Value?.ToString()
+                Dim codigosContrato As New List(Of Long)
+                For row = 2 To rowCount
+                    Dim CodContrato = worksheet.Cells(row, 1).Value?.ToString
+                    Dim idcontratotarifa = worksheet.Cells(row, 2).Value?.ToString
                     'Dim Cups As String = worksheet.Cells(row, 3).Value?.ToString()
                     If Not String.IsNullOrEmpty(idcontratotarifa) Then
-                        Con.Add(CLng(idcontratotarifa))
+                        Con.Add(idcontratotarifa)
                     End If
                 Next
             End Using
             Dim yesorNot As MsgBoxResult
-                Dim todoOK = False
+            Dim todoOK = False
             'Escribo los valores que tiene ahora, para posteriormente comparar o hacer uso de este y dejarlo como esta
             'Funciones.EscribirContratoTarifaAntesCambios(ContratoActualizar)
             If Con.Count > 0 Then
@@ -1723,11 +1730,13 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                     todoOK = True
                 End If
                 If yesorNot = 6 OrElse yesorNot = 1 OrElse todoOK Then
-                    LoadingWF.Show()
+                    PictureBox2.Visible = True
                     Await Task.Run(Sub()
+                                       'TextBox1 TarifagrupoViejo
+                                       'TextBox3 TarifagrupoNuevo
                                        For Each c In Con
-                                           Dim tgNuevo = Funciones.GetCalendarioNuevoTarifa(c)
-                                           Dim FechaAplicar As Date = DateTimePicker1.Value.Date
+                                           Dim tgNuevo = Funciones.GetCalendarioNuevoTarifa(c, TextBox1.Text, TextBox3.Text)
+                                           Dim FechaAplicar = DateTimePicker1.Value.Date
                                            Dim CodigoContrato = Funciones.GetOnlyCodigoContratobyIdContratoTarifa(c)
                                            If Not IsNothing(CodigoContrato) AndAlso CodigoContrato <> 0 AndAlso tgNuevo.IdTarifaGrupo Then
                                                Dim ok = Funciones.InsertTarifaGrupoCalendario(tgNuevo.Entorno, CodigoContrato, tgNuevo.IdTarifaGrupo, tgNuevo.IdTarifa, tgNuevo.IdPerfilFacturacion, FechaAplicar)
@@ -1736,22 +1745,375 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                                            End If
                                        Next
                                    End Sub)
-                    LoadingWF.Hide()
+                    PictureBox2.Visible = False
 
-                                       If Not IsNothing(Datos) AndAlso Datos.Count > 0 Then
-                                           ExcelDatos.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos, "PreciosErrores")
-                                       End If
-                                       complementos.MostrarMensajePersonalizado($"Contratos iniciales:{Con.Count} contratos")
+                    If Not IsNothing(Datos) AndAlso Datos.Count > 0 Then
+                        ExcelDatos.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos, "PreciosErrores")
+                    End If
+                    complementos.MostrarMensajePersonalizado($"Contratos iniciales:{Con.Count} contratos")
                 Else
                     complementos.MostrarMensajePersonalizado($"Se ha cancelado la actualización")
                 End If
             Else
                 complementos.MostrarMensajePersonalizado($"Sin Contratos")
-                End If
+            End If
 
         Catch ex As Exception
-            LoadingWF.Hide()
+            PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado("Exception: " + ex.Message)
+        End Try
+    End Sub
+
+    Private Sub Button22_Click(sender As Object, e As EventArgs) Handles Button22.Click
+        Dim rutaExcel As String = "C:\Users\ErickCC\Downloads\Industriales_2024S1_v2.xlsx"
+        Dim rutaXML As String = "C:\Users\ErickCC\Desktop\Erick\archivoF.xml"
+
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial
+
+        ' Cargar archivo Excel
+        Dim package As New ExcelPackage(New FileInfo(rutaExcel))
+        Dim ws As ExcelWorksheet = package.Workbook.Worksheets(0) ' Primera hoja
+
+        ' Crear documento XML
+        Dim xmlDoc As New XmlDocument()
+
+        ' Agregar declaración XML con encoding utf-8
+        Dim xmlDeclaration As XmlProcessingInstruction = xmlDoc.CreateProcessingInstruction("xml", "version=""1.0"" encoding=""utf-8""")
+        xmlDoc.AppendChild(xmlDeclaration)
+
+        ' Crear el elemento raíz con el namespace
+        Dim root As XmlElement = xmlDoc.CreateElement("InformacionIndustrialAnualNR")
+        root.SetAttribute("xmlns:xsd", "http://www.w3.org/2001/XMLSchema")
+        root.SetAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
+        root.SetAttribute("xmlns", "http://tempuri.org/XMLIndustrialAnualNuevo.xsd")
+        xmlDoc.AppendChild(root)
+
+        ' Agregar el nodo EMPRESA
+        Dim empresa As XmlElement = xmlDoc.CreateElement("EMPRESA")
+        empresa.SetAttribute("xmlns", "") ' Añadir xmlns vacío
+        root.AppendChild(empresa)
+
+        ' Agregar información de la empresa
+        empresa.AppendChild(CreateElementWithText(xmlDoc, "PAIS", "ES"))
+        empresa.AppendChild(CreateElementWithText(xmlDoc, "RAZON_SOCIAL", "TOTALENERGIES ELECTRICIDAD Y GAS ESPAÑA, S.A."))
+        empresa.AppendChild(CreateElementWithText(xmlDoc, "CIF", "A87803862"))
+        empresa.AppendChild(CreateElementWithText(xmlDoc, "VAT", "900834937"))
+        empresa.AppendChild(CreateElementWithText(xmlDoc, "DOMICILIO", "MADRID"))
+        empresa.AppendChild(CreateElementWithText(xmlDoc, "DIRECCION", "CALLE RIBERA DEL LOIRA"))
+        empresa.AppendChild(CreateElementWithText(xmlDoc, "CODIGO_POSTAL", "28042"))
+        empresa.AppendChild(CreateElementWithText(xmlDoc, "PROVINCIA", "28"))
+        empresa.AppendChild(CreateElementWithText(xmlDoc, "MUNICIPIO", "079"))
+        empresa.AppendChild(CreateElementWithText(xmlDoc, "TELEFONO", "900834937"))
+        empresa.AppendChild(CreateElementWithText(xmlDoc, "FAX", String.Empty))
+        empresa.AppendChild(CreateElementWithText(xmlDoc, "MOVIL", String.Empty))
+        empresa.AppendChild(CreateElementWithText(xmlDoc, "E_MAIL", "tge.info@total.com"))
+
+        ' Agregar el nodo BANDAS
+        Dim bandas As XmlElement = xmlDoc.CreateElement("BANDAS")
+        bandas.SetAttribute("xmlns", "") ' Añadir xmlns vacío
+        root.AppendChild(bandas)
+
+        ' Leer filas y columnas de Excel
+        Dim filas As Integer = ws.Dimension.Rows
+        Dim columnas As Integer = ws.Dimension.Columns
+
+        ' Leer encabezados (asumiendo que están en la primera fila)
+        Dim headers As New List(Of String)()
+        For col As Integer = 1 To columnas
+            headers.Add(ws.Cells(1, col).Text)
+        Next
+
+        ' Leer datos y generar las bandas
+        ' Leer datos y generar las bandas
+        For fila As Integer = 2 To filas
+            Dim banda As String = ws.Cells(fila, 1).Text ' Primera columna: Banda
+
+            ' Omitir la banda "Banda_IF"
+            If banda = "IF" Then
+                Continue For
+            End If
+
+            Dim bandaElement As XmlElement = xmlDoc.CreateElement("Banda_" & banda)
+
+            ' Generar los datos de la banda
+            For col As Integer = 2 To columnas
+                Dim nodo As XmlElement = xmlDoc.CreateElement(headers(col - 1))
+                nodo.InnerText = ws.Cells(fila, col).Text
+                bandaElement.AppendChild(nodo)
+            Next
+
+            bandas.AppendChild(bandaElement)
+        Next
+
+
+        ' Agregar el nodo NOTIFICACION
+        Dim notificacion As XmlElement = xmlDoc.CreateElement("NOTIFICACION")
+        notificacion.SetAttribute("xmlns", "") ' Añadir xmlns vacío
+        root.AppendChild(notificacion)
+
+        ' Agregar campos de notificación (vacíos por defecto)
+        notificacion.AppendChild(CreateElementWithText(xmlDoc, "PAIS", String.Empty))
+        notificacion.AppendChild(CreateElementWithText(xmlDoc, "DOMICILIO", String.Empty))
+        notificacion.AppendChild(CreateElementWithText(xmlDoc, "DIRECCION", String.Empty))
+        notificacion.AppendChild(CreateElementWithText(xmlDoc, "CODIGO_POSTAL", String.Empty))
+        notificacion.AppendChild(CreateElementWithText(xmlDoc, "PROVINCIA", String.Empty))
+        notificacion.AppendChild(CreateElementWithText(xmlDoc, "MUNICIPIO", String.Empty))
+        notificacion.AppendChild(CreateElementWithText(xmlDoc, "TELEFONO", String.Empty))
+        notificacion.AppendChild(CreateElementWithText(xmlDoc, "FAX", String.Empty))
+        notificacion.AppendChild(CreateElementWithText(xmlDoc, "MOVIL", String.Empty))
+        notificacion.AppendChild(CreateElementWithText(xmlDoc, "E_MAIL", String.Empty))
+
+        ' Guardar el XML en la ruta especificada
+        xmlDoc.Save(rutaXML)
+    End Sub
+
+    ' Función para crear nodos XML auto-cerrados cuando no hay contenido
+    Private Function CreateElementWithText(doc As XmlDocument, elementName As String, text As String) As XmlElement
+        Dim element As XmlElement = doc.CreateElement(elementName)
+
+        ' Si el texto está vacío o es Nothing, se deja sin InnerText para que se genere <NODO/>
+        If Not String.IsNullOrEmpty(text.Trim()) Then
+            element.InnerText = text
+        End If
+
+        Return element
+    End Function
+
+    Private Async Sub Button23_Click(sender As Object, e As EventArgs) Handles Button23.Click
+        Try
+            Dim conexion As String = connectionString
+            Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO"
+            Dim DesdeF = DateTimePicker3.Value.Date.ToString("dd/MM/yyyy")
+            Dim HastaF = DateTimePicker2.Value.Date.ToString("dd/MM/yyyy")
+
+            ' Verificar si la carpeta existe, y si no, crearla
+            If Not Directory.Exists(rutaCarpeta) Then
+                Directory.CreateDirectory(rutaCarpeta)
+            End If
+
+            ' Lista para las tareas
+            Dim tasks As New List(Of Task)
+
+            PictureBox2.Visible = True
+            Dim RutaFinal = rutaCarpeta + ":"
+            ' Si el CheckBox5 está marcado, crear archivo para Luz y Gas
+            If CheckBox5.Checked Then
+                tasks.Add(Task.Run(Sub()
+                                       Dim Name = "Consulta_ClicksTODO" ' Nombre específico para esta consulta
+                                       Dim rutaArchivoLuzGas = IO.Path.Combine(rutaCarpeta, $"{Name}_LuzGas_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                                       Dim consultaLuz As String = ConsultasSQL.GetClickLuz
+                                       ExportarConsultaAExcel(conexion, consultaLuz, rutaArchivoLuzGas, "Luz")
+                                       Dim consultaGas As String = ConsultasSQL.GetClickGas
+                                       ExportarConsultaAExcel(conexion, consultaGas, rutaArchivoLuzGas, "Gas")
+                                       RutaFinal += " " + Name
+                                   End Sub))
+            End If
+
+            ' Si el CheckBox6 está marcado, crear archivo para Hunosa
+            If CheckBox6.Checked Then
+                tasks.Add(Task.Run(Sub()
+                                       Dim Name = "Hunosa"
+                                       Dim rutaArchivoHunosa = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                                       Dim Hunosa As String = ConsultasSQL.GetHunosa(DesdeF, HastaF)
+                                       ExportarConsultaAExcel(conexion, Hunosa, rutaArchivoHunosa, "Hunosa")
+                                       RutaFinal += " " + Name
+                                   End Sub))
+            End If
+
+            ' Si el CheckBox8 está marcado, crear archivo para Cadasa
+            If CheckBox8.Checked Then
+                tasks.Add(Task.Run(Sub()
+                                       Dim Name = "Cadasa"
+                                       Dim rutaArchivoCadasa = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                                       Dim Cadasa As String = ConsultasSQL.GetCadasa(DesdeF, HastaF)
+                                       ExportarConsultaAExcel(conexion, Cadasa, rutaArchivoCadasa, "Cadasa")
+                                       RutaFinal += " " + Name
+                                   End Sub))
+            End If
+
+            ' Si el CheckBox9 está marcado, crear archivo para Quantum
+            If CheckBox9.Checked Then
+                tasks.Add(Task.Run(Sub()
+                                       Dim Name = "Quantum"
+                                       Dim rutaArchivoQuantum = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                                       Dim Quantum As String = ConsultasSQL.GetQuantum(DesdeF, HastaF)
+                                       ExportarConsultaAExcel(conexion, Quantum, rutaArchivoQuantum, "Quantum")
+                                       RutaFinal += " " + Name
+                                   End Sub))
+            End If
+
+            ' Si el CheckBox10 está marcado, crear archivo para RechazosVeolia
+            If CheckBox10.Checked Then
+                tasks.Add(Task.Run(Sub()
+                                       Dim Name = "RechazosVeolia"
+                                       Dim rutaArchivoRechazosVeolia = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                                       Dim RechazosVeolia As String = ConsultasSQL.GetRechazosVeolia
+                                       ExportarConsultaAExcel(conexion, RechazosVeolia, rutaArchivoRechazosVeolia, "RechazosVeolia")
+                                       RutaFinal += " " + Name
+                                   End Sub))
+            End If
+
+            If CheckBox11.Checked Then
+                tasks.Add(Task.Run(Sub()
+                                       Dim Name = "GAM"
+                                       Dim rutaArchivoGAM = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                                       Dim ConsultaGAM As String = ConsultasSQL.GetGAM(DesdeF, HastaF)
+                                       ExportarConsultaAExcel(conexion, ConsultaGAM, rutaArchivoGAM, Name)
+                                       RutaFinal += " " + Name
+                                   End Sub))
+            End If
+
+            'Check Cups
+            If CheckBox1.Checked Then
+                Dim Cups = GetConSinSplitCupsCIFS(TextBox2.Text)
+                Dim conexionv2 = "data source=172.31.100.30;initial catalog=SigeTotalTM;User ID=Sige;Password=SigeNew;"
+                If CheckBox12.Checked AndAlso Cups.Count > 0 Then
+                    tasks.Add(Task.Run(Sub()
+                                           Dim Name = "CurvaHoraria"
+                                           Dim rutaArchivoCurva = IO.Path.Combine(rutaCarpeta, $"{Name}_{DateTimePicker3.Value.Date.ToString("ddMMyyyy")}_{DateTimePicker2.Value.Date.ToString("ddMMyyyy")}.xlsx")
+                                           Dim listaCups As New List(Of String)
+                                           For Each c In Cups
+                                               listaCups.Add(Replace(c, " ", "").Substring(0, Math.Min(20, c.Length)))
+                                           Next
+                                           Dim ConsultaCurva As String = ConsultasSQL.GetCurvaHoraria(DesdeF, HastaF, listaCups)
+                                           ExportarConsultaAExcel(conexionv2, ConsultaCurva, rutaArchivoCurva, Name)
+                                           RutaFinal += " " + Name
+                                       End Sub))
+                End If
+
+                If CheckBox13.Checked AndAlso Cups.Count > 0 Then
+                    tasks.Add(Task.Run(Sub()
+                                           Dim Name = "CuartoHoraria"
+                                           Dim rutaArchivoCuartoHoraria = IO.Path.Combine(rutaCarpeta, $"{Name}_{DateTimePicker3.Value.Date.ToString("ddMMyyyy")}_{DateTimePicker2.Value.Date.ToString("ddMMyyyy")}.xlsx")
+                                           Dim listaCups As New List(Of String)
+                                           For Each c In Cups
+                                               listaCups.Add(Replace(c, " ", "").Substring(0, Math.Min(20, c.Length)))
+                                           Next
+                                           Dim ConsultaCurvaCuarto As String = ConsultasSQL.GetCurvaCuartoHoraria(DesdeF, HastaF, listaCups)
+                                           ExportarConsultaAExcel(conexionv2, ConsultaCurvaCuarto, rutaArchivoCuartoHoraria, Name)
+                                           RutaFinal += " " + Name
+                                       End Sub))
+                End If
+            End If
+
+
+
+            ' Esperar a que todas las tareas se completen
+            Await Task.WhenAll(tasks)
+            PictureBox2.Visible = False
+            complementos.Complementos_MostrarMensajePersonalizadoCopiar($"Consulta generada en:{RutaFinal}", "")
+        Catch ex As Exception
+            PictureBox2.Visible = False
+            'PictureBox2.Visible = False
+            complementos.MostrarMensajePersonalizado("Exception: " + ex.Message)
+            'Finally
+            'PictureBox2.Visible = False
+            'PictureBox2.Visible = False
+        End Try
+    End Sub
+
+    Private Sub Button24_Click(sender As Object, e As EventArgs) Handles Button24.Click
+        ' Ruta de la carpeta donde están los archivos XML
+        Dim carpetaXML As String = "C:\Users\ErickCC\Documents\DEV"
+
+        ' Lista de números de factura a buscar
+        Dim facturasBuscar As New List(Of String) From {
+"FELEC1900012641", "FELEC2500002942", "FELEC2500008845", "FELEC2500009232", "FELEC2500009464", "FELEC2500013084", "FELEC2500013102", "FELEC2500017816", "FELEC2500057366", "FELEC2500063394",
+"FELEC2500116144", "FELEC2500117856", "FELEC2500131639", "FELEC2500131640", "FELEC2500133562", "FELEC2500166645", "FELEC2500167023", "FELEC2500167137", "FELEC2500167335", "FELEC2500167577",
+"FELEC2500167662", "FELEC2500168431", "FELEC2500168568", "FELEC2500168575", "FELEC2500169694", "FELEC2500169874", "FELEC2500170153", "FELEC2500170264", "FELEC2500170617", "FELEC2500170963",
+"FELEC2500171175", "FELEC2500171191", "FELEC2500171258", "FELEC2500171345", "FELEC2500171527", "FELEC2500171576", "FELEC2500171891", "FELEC2500172076", "FELEC2500172560", "FELEC2500173062",
+"FELEC2500174634", "FELEC2500174926", "FELEC2500175085", "FELEC2500175207", "FELEC2500175297", "FELEC2500175302", "FELEC2500175378", "FELEC2500175479", "FELEC2500175986", "FELEC2500176100",
+"FELEC2500176303", "FELEC2500176318", "FELEC2500176664", "FELEC2500176685", "FELEC2500178613", "FELEC2500178727", "FELEC2500178872", "FELEC2500178873", "FELEC2500179240", "FELEC2500179245",
+"FELEC2500179530", "FELEC2500179581", "FELEC2500179618", "FELEC2500179857", "FELEC2500179965", "FELEC2500180704", "FELEC2500180780", "FELEC2500181066", "FELEC2500183198", "FELEC2500183598",
+"FELEC2500184134", "FELEC2500184511", "FELEC2500184694", "FELEC2500184698", "FELEC2500185704", "FELEC2500185745", "FELEC2500185856", "FELEC2500185933", "FELEC2500186089", "FELEC2500186192",
+"FELEC2500186321", "FELEC2500186506", "FELEC2500187095", "FELEC2500187301", "FELEC2500187547", "FELEC2500187974", "FELEC2500188189", "FELEC2500188277", "FELEC2500188550", "FELEC2500188666",
+"FELEC2500188977", "FELEC2500189231", "FELEC2500189452", "FELEC2500189467", "FELEC2500189489", "FELEC2500190413", "FELEC2500190591", "FELEC2500190909", "FELEC2500191110", "FELEC2500191376",
+"FELEC2500191409", "FELEC2500191410", "FELEC2500191411", "FELEC2500191412", "FELEC2500191473", "FELEC2500191492", "FELEC2500191615", "FELEC2500191757", "FELEC2500191791", "FELEC2500191880",
+"FELEC2500192084", "FELEC2500192133", "FELEC2500192289", "FELEC2500192304", "FELEC2500192445", "FELEC2500192524", "FELEC2500192680", "FELEC2500192874", "FELEC2500193911", "FELEC2500194060",
+"FELEC2500194181", "FELEC2500194241", "FELEC2500194321", "FELEC2500194457", "FELEC2500194458", "FELEC2500194536", "FELEC2500194555", "FELEC2500194571", "FELEC2500194658", "FELEC2500194671",
+"FELEC2500194673", "FELEC2500194714", "FELEC2500194728", "FELEC2500194733", "FELEC2500194752", "FELEC2500194782", "FELEC2500194912", "FELEC2500195068", "FELEC2500195095", "FELEC2500195359",
+"FGAS2500013301", "FGAS2500013366", "FGAS2500015298", "FGAS2500015382", "FGAS2500015457", "FGAS2500015521", "FGAS2500015554", "FGAS2500016023", "FGAS2500016080", "FGAS2500016201",
+"VARIOS2500001511", "VARIOS2500001753", "VARIOS2500002528", "VARIOS2500002530", "VARIOS2500002532", "VARIOS2500002533", "VARIOS2500002547", "VARIOS2500002550", "VARIOS2500002554", "VARIOS2500002596",
+"VARIOS2500002635", "VARIOS2500003025", "VARIOS2500003039"
+        }
+
+        ' Archivo donde se guardarán los resultados
+        Dim archivoResultados As String = "C:\Users\ErickCC\Documents\DEV\resultados.txt"
+
+        ' Limpiar el archivo antes de escribir los resultados
+        File.WriteAllText(archivoResultados, "")
+
+        ' Lista para almacenar los archivos donde se encontraron facturas
+        Dim archivosEncontrados As New List(Of String)
+
+        ' Obtener todos los archivos XML en la carpeta
+        For Each archivo As String In Directory.GetFiles(carpetaXML, "*.xml")
+            ' Cargar el XML
+            Dim doc As XDocument = XDocument.Load(archivo)
+
+            ' Buscar todos los <invoiceNumber> en el archivo
+            Dim facturasEnXML = doc.Descendants().Where(Function(x) x.Name.LocalName = "invoiceNumber").Select(Function(x) x.Value)
+
+            ' Verificar si alguna factura de la lista está en este XML
+            Dim coincidencias = facturasBuscar.Intersect(facturasEnXML).ToList()
+
+            ' Si hay coincidencias, guardar el nombre del archivo
+            If coincidencias.Any() Then
+                archivosEncontrados.Add(Path.GetFileName(archivo))
+                ' Escribir en el archivo de texto
+                File.AppendAllText(archivoResultados, $"Factura(s) {String.Join(", ", coincidencias)} encontrada(s) en: {Path.GetFileName(archivo)}{Environment.NewLine}")
+            End If
+        Next
+
+        ' Mostrar mensaje final con los resultados
+        If archivosEncontrados.Any() Then
+            Console.WriteLine($"Facturas encontradas en los archivos: {String.Join(", ", archivosEncontrados)}")
+        Else
+            Console.WriteLine("No se encontraron coincidencias.")
+        End If
+    End Sub
+
+    ' Consulta CNAE
+    Private Async Sub Button25_Click(sender As Object, e As EventArgs)
+        Dim contratosActualizado = 0
+        Dim tiempoTranscurrido As TimeSpan
+        Try
+
+            ' Crear una instancia de OpenFileDialog
+            Dim openFileDialog1 As New OpenFileDialog
+
+            ' Configurar propiedades del diálogo
+            openFileDialog1.Title = "Seleccionar archivos"
+            openFileDialog1.Multiselect = True ' Permitir la selección múltiple de archivos
+            openFileDialog1.Filter = "Todos los archivos (*.*)|*.*" ' Filtro de archivos
+            Dim rutaArchivo = ""
+            ' Mostrar el diálogo y verificar si el usuario hizo clic en OK
+            If openFileDialog1.ShowDialog = DialogResult.OK Then
+                ' Obtener la ruta de cada archivo seleccionado y mostrarla en la consola
+                For Each filename In openFileDialog1.FileNames
+                    rutaArchivo = filename
+                Next
+            End If
+
+            Dim stopwatch As New Stopwatch
+            stopwatch.Start() ' Iniciar el cronómetro
+            'Dim Empieza As TimeSpan = stopwatch.Elapsed
+            Dim ActualizarEmail As New ActualizarEmailFromExcel(connectionString)
+            If rutaArchivo.Length > 0 Then
+                PictureBox2.Visible = True
+                ActualizarEmail.RutaExcel = rutaArchivo
+                contratosActualizado = Await Task.Run(Function() ActualizarEmail.ConsultaCNAE)
+
+                ' Detener el cronómetro y obtener el tiempo transcurrido
+                stopwatch.Stop()
+                tiempoTranscurrido = stopwatch.Elapsed
+            End If
+
+        Catch ex As Exception
+            complementos.MostrarMensajePersonalizado(ex.Message)
+        Finally
+            PictureBox2.Visible = False
+            complementos.MostrarMensajePersonalizado($"Se han actualizado {contratosActualizado} contratos. Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes} minutos.")
         End Try
     End Sub
 End Class

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "TkEAf/itfPRk9+H3GN1XJZ6bAFAvPXVJkeE+Q3e8cCqYQNdu1fpiF6kZcNvghWptt2H+AL+2/Pj+25eXv44cAA==",
+  "dgSpecHash": "YCJ3L6VyEB4tLK6FGjrrju5hOQfdcTxDSoqUg35ObWVp8Y1jRfD7Tn0Gp/NfiRvxIc/bD5oc42RSUWczxpg6aw==",
   "success": true,
   "projectFilePath": "C:\\Users\\ErickCC\\Documents\\TotalDoc\\Programas\\ActualizaPrecios\\ActualizaPrecios.vbproj",
   "expectedPackageFiles": [
@@ -55,6 +55,7 @@
     "C:\\Users\\ErickCC\\.nuget\\packages\\system.collections.concurrent\\4.3.0\\system.collections.concurrent.4.3.0.nupkg.sha512",
     "C:\\Users\\ErickCC\\.nuget\\packages\\system.componentmodel.annotations\\5.0.0\\system.componentmodel.annotations.5.0.0.nupkg.sha512",
     "C:\\Users\\ErickCC\\.nuget\\packages\\system.console\\4.3.0\\system.console.4.3.0.nupkg.sha512",
+    "C:\\Users\\ErickCC\\.nuget\\packages\\system.data.oledb\\9.0.2\\system.data.oledb.9.0.2.nupkg.sha512",
     "C:\\Users\\ErickCC\\.nuget\\packages\\system.data.sqlclient\\4.8.6\\system.data.sqlclient.4.8.6.nupkg.sha512",
     "C:\\Users\\ErickCC\\.nuget\\packages\\system.diagnostics.debug\\4.3.0\\system.diagnostics.debug.4.3.0.nupkg.sha512",
     "C:\\Users\\ErickCC\\.nuget\\packages\\system.diagnostics.diagnosticsource\\4.3.0\\system.diagnostics.diagnosticsource.4.3.0.nupkg.sha512",
