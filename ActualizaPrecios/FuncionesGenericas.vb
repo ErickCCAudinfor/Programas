@@ -2172,7 +2172,7 @@ inner join tarifagrupo  tg on ct.idtarifagrupo = tg.idtarifagrupo
 where idcontratotarifa ={ListaIdContratoTarifa})
 
 select tgN.entorno,tgN.idtarifagrupo,tgN.idtarifa,grupoviejo.idperfilfacturacionold idperfilfacturacion  from TarifaGrupo tgN
-inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagrupo = replace(GrupoViejo.textoGrupoOld,'{TGVIEJO}','{TGVIEJO}')" 'CAM
+inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagrupo = replace(GrupoViejo.textoGrupoOld,'{TGVIEJO}','{TGNUEVO}')" 'CAM
             'inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagrupo = replace(GrupoViejo.textoGrupoOld,'2024','2025') SUEZ
             'inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagrupo = replace(GrupoViejo.textoGrupoOld,'MADRID','MADRID 2025') CAM
             'tgn.entorno,idtarifa,textotarifagrupo textotarifagrupoNuevo,tgn.idperfilfacturacion, textoGrupoOld, idperfilfacturacionOld

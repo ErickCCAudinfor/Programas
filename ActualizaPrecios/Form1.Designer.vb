@@ -375,7 +375,6 @@ Partial Class Form1
         ' 
         ' Button21
         ' 
-        Button21.Enabled = False
         Button21.Location = New Point(229, 145)
         Button21.Name = "Button21"
         Button21.Size = New Size(180, 23)
@@ -756,7 +755,7 @@ Partial Class Form1
         Icon = CType(resources.GetObject("$this.Icon"), Icon)
         Name = "Form1"
         StartPosition = FormStartPosition.CenterScreen
-        Text = "Gestor de Datos SIGE"
+        Text = "Gestor de Datos SIGE (versión 1.0)"
         TransparencyKey = Color.YellowGreen
         Panel1.ResumeLayout(False)
         Panel1.PerformLayout()

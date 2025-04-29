@@ -1735,7 +1735,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                                        'TextBox1 TarifagrupoViejo
                                        'TextBox3 TarifagrupoNuevo
                                        For Each c In Con
-                                           Dim tgNuevo = Funciones.GetCalendarioNuevoTarifa(c, TextBox1.Text, TextBox3.Text)
+                                           Dim tgNuevo = Funciones.GetCalendarioNuevoTarifa(c, TextBox3.Text, TextBox1.Text)
                                            Dim FechaAplicar = DateTimePicker1.Value.Date
                                            Dim CodigoContrato = Funciones.GetOnlyCodigoContratobyIdContratoTarifa(c)
                                            If Not IsNothing(CodigoContrato) AndAlso CodigoContrato <> 0 AndAlso tgNuevo.IdTarifaGrupo Then

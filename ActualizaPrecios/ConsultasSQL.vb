@@ -56,9 +56,188 @@ With XMLNAMESPACES('http://localhost/elegibilidad' as ""XS"")
 (Select idfacturaventacabecera,Codigocontrato from FacturaVentaCabecera with(nolock) where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturaVentaCabecera where idcliente=50320 and SerieFactura is not null and Entorno='E1'
 and FechaFactura>='{DesdeFecha.ToString("dd/MM/yyyy")}' and FechaFactura<='{hastaFecha.ToString("dd/MM/yyyy")}')),
 LineasFactura as (
-select IdFacturaVentaCabecera,IdFacturaVentaLinea,Entorno,FacturaConcepto,InfoLineaXML,ImporteBase,IsAjusteCAPGas
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,InfoLineaXML,ImporteBase,IsAjusteCAPGas
 from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta)
+--group by  IdFacturaVentaCabecera,
+),LineaPrecioCargosEN1 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0) pv1
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=130004 and CodigoPeriodoXML=1)
+,LineaAgrupadoPrecioCargosEN1 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(pv1) PCE1 from LineaPrecioCargosEN1
+group  by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+),LineaPrecioCargosEN2 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0) pv2
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=130004 and CodigoPeriodoXML=2)
+,LineaAgrupadoPrecioCargosEN2 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(pv2) PCE2 from LineaPrecioCargosEN2
+group  by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+),LineaPrecioCargosEN3 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0) pv3
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=130004 and CodigoPeriodoXML=3)
+,LineaAgrupadoPrecioCargosEN3 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(pv3) PCE3 from LineaPrecioCargosEN3
+group  by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+),LineaPrecioCargosEN4 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0) pv4
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=130004 and CodigoPeriodoXML=4)
+,LineaAgrupadoPrecioCargosEN4 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(pv4) PCE4 from LineaPrecioCargosEN4
+group  by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+),LineaPrecioCargosEN5 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0) pv5
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=130004 and CodigoPeriodoXML=5)
+,LineaAgrupadoPrecioCargosEN5 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(pv5) PCE5 from LineaPrecioCargosEN5
+group  by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+),LineaPrecioCargosEN6 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0) pv6
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=130004 and CodigoPeriodoXML=6)
+,LineaAgrupadoPrecioCargosEN6 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(pv6) PCE6 from LineaPrecioCargosEN6
+group  by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+),LineaPrecioCargosPotencia1 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0) pv1
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=130002 and CodigoPeriodoXML=1)
+,LineaAgrupadoPrecioCargosPotencia1 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(pv1) PCP1 from LineaPrecioCargosPotencia1
+group  by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+),LineaPrecioCargosPotencia2 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0) pv2
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=130002 and CodigoPeriodoXML=2)
+,LineaAgrupadoPrecioCargosPotencia2 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(pv2) PCP2 from LineaPrecioCargosPotencia2
+group  by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+),LineaPrecioCargosPotencia3 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0) pv3
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=130002 and CodigoPeriodoXML=3)
+,LineaAgrupadoPrecioCargosPotencia3 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(pv3) PCP3 from LineaPrecioCargosPotencia3
+group  by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+),LineaPrecioCargosPotencia4 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0) pv4
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=130002 and CodigoPeriodoXML=4)
+,LineaAgrupadoPrecioCargosPotencia4 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(pv4) PCP4 from LineaPrecioCargosPotencia4
+group  by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+),LineaPrecioCargosPotencia5 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0) pv5
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=130002 and CodigoPeriodoXML=5)
+,LineaAgrupadoPrecioCargosPotencia5 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(pv5) PCP5 from LineaPrecioCargosPotencia5
+group  by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+),LineaPrecioCargosPotencia6 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0) pv6
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=130002 and CodigoPeriodoXML=6)
+,LineaAgrupadoPrecioCargosPotencia6 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(pv6) PCP6 from LineaPrecioCargosPotencia6
+group  by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
 ),
+LineaCapGas as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(ImporteBase) ImporteCapGas
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=30004 and IsAjusteCAPGas=1
+group by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+)
+,LineaPrecioVariableP1 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0) pv1
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=30004 and CodigoPeriodoXML=1)
+,LineaAgrupadoPrecioVariableP1 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(pv1) pv1 from LineaPrecioVariableP1
+group  by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+)
+,LineaPrecioVariableP2 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0) pv2
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=30004 and CodigoPeriodoXML=2)
+,LineaAgrupadoPrecioVariableP2 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(pv2) pv2 from LineaPrecioVariableP2
+group  by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+)
+,LineaPrecioVariableP3 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0) pv3
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=30004 and CodigoPeriodoXML=3)
+,LineaAgrupadoPrecioVariableP3 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(pv3) pv3 from LineaPrecioVariableP3
+group  by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+)
+,LineaPrecioVariableP4 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0) pv4
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=30004 and CodigoPeriodoXML=4)
+,LineaAgrupadoPrecioVariableP4 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(pv4) pv4 from LineaPrecioVariableP4
+group  by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+)
+,LineaPrecioVariableP5 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0) pv5
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=30004 and CodigoPeriodoXML=5)
+,LineaAgrupadoPrecioVariableP5 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(pv5) pv5 from LineaPrecioVariableP5
+group  by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+)
+,LineaPrecioVariableP6 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,ISNULL(InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0) pv6
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=30004 and CodigoPeriodoXML=6)
+,LineaAgrupadoPrecioVariableP6 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(pv6) pv6 from LineaPrecioVariableP6
+group  by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+)
+--left join LineasFactura fvlpP1 with (nolock) on fvc.idfacturaventacabecera = fvlpP1.idfacturaventacabecera and fvlpP1.Facturaconcepto=130002 and fvlpP1.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=1
+--,replace(ISNULL(fvlP1.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0),'.',',') AS PrecioVariableP1
+,LineasVariable as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,
+case when CodigoPeriodoXML =1 then sum(ImporteBase) else 0 end  ImporteVariableP1
+--sum(ImporteBase) 
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=30004 and CodigoPeriodoXML=1
+group by  IdFacturaVentaCabecera,Entorno,FacturaConcepto,CodigoPeriodoXML),
+LineasVariable2 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,
+case when CodigoPeriodoXML =2 then sum(ImporteBase) else 0 end  ImporteVariableP2
+--sum(ImporteBase) 
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=30004 and CodigoPeriodoXML=2
+group by  IdFacturaVentaCabecera,Entorno,FacturaConcepto,CodigoPeriodoXML
+),
+LineasVariable3 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,
+case when CodigoPeriodoXML =3 then sum(ImporteBase) else 0 end  ImporteVariableP3
+--sum(ImporteBase) 
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=30004 and CodigoPeriodoXML=3
+group by  IdFacturaVentaCabecera,Entorno,FacturaConcepto,CodigoPeriodoXML),
+LineasVariable4 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,
+case when CodigoPeriodoXML =4 then sum(ImporteBase) else 0 end  ImporteVariableP4
+--sum(ImporteBase) 
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=30004 and CodigoPeriodoXML=4
+group by  IdFacturaVentaCabecera,Entorno,FacturaConcepto,CodigoPeriodoXML),
+LineasVariable5 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,
+case when CodigoPeriodoXML =5 then sum(ImporteBase) else 0 end  ImporteVariableP5
+--sum(ImporteBase) 
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=30004 and CodigoPeriodoXML=5
+group by  IdFacturaVentaCabecera,Entorno,FacturaConcepto,CodigoPeriodoXML),
+LineasVariable6 as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,
+case when CodigoPeriodoXML =6 then sum(ImporteBase) else 0 end  ImporteVariableP6
+--sum(ImporteBase) 
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=30004 and CodigoPeriodoXML=6
+group by  IdFacturaVentaCabecera,Entorno,FacturaConcepto,CodigoPeriodoXML
+)
+,
+LineaAlquiler as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(ImporteBase) ImporteBaseAlquiler
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=50002
+group by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+),
+LineaImpuestoElectrico as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(ImporteBase) ImporteBaseElectrico
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=60001
+group by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+)
+,
+LineaMaximetro as (
+select IdFacturaVentaCabecera,Entorno,FacturaConcepto,sum(ImporteBase) ImporteBaseMaximetro
+from FacturaVentaLinea where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta) and FacturaConcepto=20006
+group by  IdFacturaVentaCabecera,Entorno,FacturaConcepto
+)
+
+,
 ConsumosReactiva(id, r1,r2,r3,r4,r5,r6,pr1,pr2,pr3,pr4,pr5,pr6)
 AS
 (
@@ -199,8 +378,8 @@ cl.Identidad as CIFDNI
 ,convert(varchar, fvc.FechaLecturaAnteriorXML, 103) as FechaDesde
 ,convert(varchar,fvc.FechaLecturaActualXML, 103) as FechaHasta
 ,ISNULL(fvc.InfoCabeceraXML.value('(FacturaInfoCabeceraDTO/FacturaInfoCabeceraHistorialConsumos/PeriodoConsumo/FacturaInfoCabeceraHistorialPeriodoConsumoDTO/ConsumoActiva)[1]', 'decimal(18,3)'), 0) as ConsumoTotalKwh
-,replace(fvlIE.ImporteBase,'.',',') As ImpuestoElectrico
-,replace(fvlCON.ImporteBase,'.',',') As AlquilerContador
+,replace(LElectrico.ImporteBaseElectrico,'.',',') As ImpuestoElectrico
+,replace(LAlquiler.ImporteBaseAlquiler,'.',',') As AlquilerContador
 ,fvt.PorcentajeImpuesto As PorcentajeIVA
 ,replace(fvt.ImporteBase,'.',',') As BaseIVA
 ,replace(fvt.ImporteImpuesto,'.',',') As ImporteIVA
@@ -234,7 +413,7 @@ cl.Identidad as CIFDNI
 ,replace(tpp5a.CargoEnergiaPrecio,'.',',') as PrecioCargoEnergiaP5A
 ,replace(tpp6a.EnergiaPrecio,'.',',') as PrecioEnergiaP6A
 ,replace(tpp6a.CargoEnergiaPrecio,'.',',') as PrecioCargoEnergiaP6A
-,replace(fvlMAX.ImporteBase,'.',',') as ImporteMaximetro
+,replace(LMaxi.ImporteBaseMaximetro,'.',',') as ImporteMaximetro
 ,replace(ll1.ConsumoActiva,'.',',') as ConsumoActivaP1
 ,replace(ll1.ActivaExtra,'.',',') as ActivaExtraP1
 ,replace(ll2.ConsumoActiva,'.',',') as ConsumoActivaP2
@@ -300,31 +479,31 @@ cl.Identidad as CIFDNI
 ,replace(isnull(DescuentosEnergia.Importe, 0),'.',',') as DescuentoEnergiaContratacion
 ,replace(isnull(ImportesAlquileres.Importe, 0),'.',',') as ImporteAlquilerContratacion
 ,replace(isnull(ImportesProductos.Importe, 0),'.',',') as ImporteProductosContratacion
-,replace(fvlP1.importebase,'.',',') as ImporteVariableP1
-,replace(fvlP2.importebase,'.',',') as ImporteVariableP2
-,replace(fvlP3.importebase,'.',',') as ImporteVariableP3
-,replace(fvlP4.importebase,'.',',') as ImporteVariableP4
-,replace(fvlP5.importebase,'.',',') as ImporteVariableP5
-,replace(fvlP6.importebase,'.',',') as ImporteVariableP6
-,replace(fvlCAP.importebase,'.',',') as ImporteCAPGAS
-,replace(ISNULL(fvlP1.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0),'.',',') AS PrecioVariableP1
-,replace(ISNULL(fvlP2.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0),'.',',') AS PrecioVariableP2
-,replace(ISNULL(fvlP3.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0),'.',',') AS PrecioVariableP3
-,replace(ISNULL(fvlP4.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0),'.',',') AS PrecioVariableP4
-,replace(ISNULL(fvlP5.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0),'.',',') AS PrecioVariableP5
-,replace(ISNULL(fvlP6.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0),'.',',') AS PrecioVariableP6
-,replace(ISNULL(fvlpP1.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0),'.',',') AS PrecioCargoPontenciaP1
-,replace(ISNULL(fvlpP2.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0),'.',',') AS PrecioCargoPontenciaP2
-,replace(ISNULL(fvlpP3.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0),'.',',') AS PrecioCargoPontenciaP3
-,replace(ISNULL(fvlpP4.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0),'.',',') AS PrecioCargoPontenciaP4
-,replace(ISNULL(fvlpP5.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0),'.',',') AS PrecioCargoPontenciaP5
-,replace(ISNULL(fvlpP6.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0),'.',',') AS PrecioCargoPontenciaP6
-,replace(ISNULL(fvleP1.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0),'.',',') AS PrecioCargoEnergiaP1
-,replace(ISNULL(fvleP2.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0),'.',',') AS PrecioCargoEnergiaP2
-,replace(ISNULL(fvleP3.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0),'.',',') AS PrecioCargoEnergiaP3
-,replace(ISNULL(fvleP4.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0),'.',',') AS PrecioCargoEnergiaP4
-,replace(ISNULL(fvleP5.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0),'.',',') AS PrecioCargoEnergiaP5
-,replace(ISNULL(fvleP6.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0),'.',',') AS PrecioCargoEnergiaP6
+,replace(ISNULL(LineasVariable.ImporteVariableP1,0),'.',',') as ImporteVariableP1
+,replace(ISNULL(LineasVariable2.ImporteVariableP2,0),'.',',') as ImporteVariableP2
+,replace(ISNULL(LineasVariable3.ImporteVariableP3,0),'.',',') as ImporteVariableP3
+,replace(ISNULL(LineasVariable4.ImporteVariableP4,0),'.',',') as ImporteVariableP4
+,replace(ISNULL(LineasVariable5.ImporteVariableP5,0),'.',',') as ImporteVariableP5
+,replace(ISNULL(LineasVariable6.ImporteVariableP6,0),'.',',') as ImporteVariableP6
+,replace(ISNULL(LineaCapGas.ImporteCapGas,0),'.',',') as ImporteCAPGAS
+,replace(ISNULL(LAPV1.pv1, 0),'.',',') AS PrecioVariableP1
+,replace(ISNULL(LAPV2.pv2, 0),'.',',') AS PrecioVariableP2
+,replace(ISNULL(LAPV3.pv3, 0),'.',',') AS PrecioVariableP3
+,replace(ISNULL(LAPV4.pv4, 0),'.',',') AS PrecioVariableP4
+,replace(ISNULL(LAPV5.pv5, 0),'.',',') AS PrecioVariableP5
+,replace(ISNULL(LAPV6.pv6, 0),'.',',') AS PrecioVariableP6
+,replace(ISNULL(LCP1.PCP1,0),'.',',') AS PrecioCargoPontenciaP1
+,replace(ISNULL(LCP2.PCP2,0),'.',',')  AS PrecioCargoPontenciaP2
+,replace(ISNULL(LCP3.PCP3,0),'.',',')  AS PrecioCargoPontenciaP3
+,replace(ISNULL(LCP4.PCP4,0),'.',',')  AS PrecioCargoPontenciaP4
+,replace(ISNULL(LCP5.PCP5,0),'.',',')  AS PrecioCargoPontenciaP5
+,replace(ISNULL(LCP6.PCP6,0),'.',',')  AS PrecioCargoPontenciaP6
+,replace(ISNULL(LCEN1.PCE1,0),'.',',') AS PrecioCargoEnergiaP1
+,replace(ISNULL(LCEN2.PCE2,0),'.',',') AS PrecioCargoEnergiaP2
+,replace(ISNULL(LCEN3.PCE3,0),'.',',') AS PrecioCargoEnergiaP3
+,replace(ISNULL(LCEN4.PCE4,0),'.',',') AS PrecioCargoEnergiaP4
+,replace(ISNULL(LCEN5.PCE5,0),'.',',') AS PrecioCargoEnergiaP5
+,replace(ISNULL(LCEN6.PCE6,0),'.',',') AS PrecioCargoEnergiaP6
 ,Replace(fcc.FacturaXML.value('(//XS:Periodo/XS:ValorEnergiaCapacitiva)[1]', 'nvarchar(max)'),'.',',') As EnergiaCapacitiva
 from contrato c with (nolock)
 inner join cliente cl with (nolock) on cl.idcliente = c.idcliente
@@ -341,11 +520,8 @@ left join ContratoPotencia cp6 with (nolock) on cp6.idcontrato = c.idcontrato an
 inner join FacturaVentaCabecera fvc with (nolock) on fvc.codigocontrato = c.codigocontrato
 inner join FacturaVentaTotal fvt with (nolock) on fvc.idfacturaventacabecera = fvt.idfacturaventacabecera
 inner join CarteraCobro cc with (nolock) on fvc.idfacturaventacabecera = cc.idfacturaventacabecera
-inner join Tarifa t with (nolock) on fvc.IdTarifaPeajeXML = t.IdTarifa
+inner join Tarifa t with (nolock) on cast(fvc.IdTarifaPeajeXML as bigint) = t.IdTarifa
 inner join Distribuidora d with (nolock) on CUPS.iddistribuidora = d.iddistribuidora
-left join LineasFactura fvlIE with (nolock) on fvc.idfacturaventacabecera = fvlIE.idfacturaventacabecera and fvlIE.Facturaconcepto=60001
-left join LineasFactura fvlCON with (nolock) on fvc.idfacturaventacabecera = fvlCON.idfacturaventacabecera and fvlCON.Facturaconcepto=50002
-left join LineasFactura fvlMAX with (nolock) on fvc.idfacturaventacabecera = fvlMAX.idfacturaventacabecera and fvlMAX.Facturaconcepto=20006
 inner join lectura l  with (nolock) on fvc.idfacturaventacabecera = l.IdFacturaVentaCabeceraSectorC or (fvc.IdFacturaOrigen = l.IdFacturaVentaCabeceraSectorC and fvc.SerieFactura like '%ABO%')
 left join FacturaCompraCabecera fcc on l.IdFacturaCompraCabecera = fcc.IdFacturaCompraCabecera
 left join LecturaLinea ll1 with (nolock) on l.IdLectura = ll1.IdLectura and ll1.idtarifapeajeperiodolectura in (20202001,20203001,20206101,20206201,20206301,20206401,20208001,20208101)
@@ -369,25 +545,34 @@ left join DescuentosPotencia on DescuentosPotencia.IdFacturaVentaCabecera = fvc.
 left join DescuentosEnergia on DescuentosEnergia.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera
 left join ImportesAlquileres on ImportesAlquileres.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera
 left join ImportesProductos on ImportesProductos.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera
-left join LineasFactura fvlP1 with (nolock) on fvc.idfacturaventacabecera = fvlP1.idfacturaventacabecera and fvlP1.Facturaconcepto=30004 and fvlp1.Entorno='E1' and fvlP1.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=1
-left join LineasFactura fvlP2 with (nolock) on fvc.idfacturaventacabecera = fvlP2.idfacturaventacabecera and fvlP2.Facturaconcepto=30004 and fvlP2.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=2
-left join LineasFactura fvlP3 with (nolock) on fvc.idfacturaventacabecera = fvlP3.idfacturaventacabecera and fvlP3.Facturaconcepto=30004 and fvlP3.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=3
-left join LineasFactura fvlP4 with (nolock) on fvc.idfacturaventacabecera = fvlP4.idfacturaventacabecera and fvlP4.Facturaconcepto=30004 and fvlP4.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=4
-left join LineasFactura fvlP5 with (nolock) on fvc.idfacturaventacabecera = fvlP5.idfacturaventacabecera and fvlP5.Facturaconcepto=30004 and fvlP5.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=5
-left join LineasFactura fvlP6 with (nolock) on fvc.idfacturaventacabecera = fvlP6.idfacturaventacabecera and fvlP6.Facturaconcepto=30004 and fvlP6.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=6
-left join LineasFactura fvlCAP with (nolock) on fvc.idfacturaventacabecera = fvlCAP.idfacturaventacabecera and fvlCAP.Facturaconcepto=30004 and fvlCAP.IsAjusteCAPGas=1
-left join LineasFactura fvlpP1 with (nolock) on fvc.idfacturaventacabecera = fvlpP1.idfacturaventacabecera and fvlpP1.Facturaconcepto=130002 and fvlpP1.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=1
-left join LineasFactura fvlpP2 with (nolock) on fvc.idfacturaventacabecera = fvlpP2.idfacturaventacabecera and fvlpP2.Facturaconcepto=130002 and fvlpP2.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=2
-left join LineasFactura fvlpP3 with (nolock) on fvc.idfacturaventacabecera = fvlpP3.idfacturaventacabecera and fvlpP3.Facturaconcepto=130002 and fvlpP3.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=3
-left join LineasFactura fvlpP4 with (nolock) on fvc.idfacturaventacabecera = fvlpP4.idfacturaventacabecera and fvlpP4.Facturaconcepto=130002 and fvlpP4.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=4
-left join LineasFactura fvlpP5 with (nolock) on fvc.idfacturaventacabecera = fvlpP5.idfacturaventacabecera and fvlpP5.Facturaconcepto=130002 and fvlpP5.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=5
-left join LineasFactura fvlpP6 with (nolock) on fvc.idfacturaventacabecera = fvlpP6.idfacturaventacabecera and fvlpP6.Facturaconcepto=130002 and fvlpP6.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=6
-left join LineasFactura fvleP1 with (nolock) on fvc.idfacturaventacabecera = fvleP1.idfacturaventacabecera and fvleP1.Facturaconcepto=130004 and fvleP1.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=1
-left join LineasFactura fvleP2 with (nolock) on fvc.idfacturaventacabecera = fvleP2.idfacturaventacabecera and fvleP2.Facturaconcepto=130004 and fvleP2.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=2
-left join LineasFactura fvleP3 with (nolock) on fvc.idfacturaventacabecera = fvleP3.idfacturaventacabecera and fvleP3.Facturaconcepto=130004 and fvleP3.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=3
-left join LineasFactura fvleP4 with (nolock) on fvc.idfacturaventacabecera = fvleP4.idfacturaventacabecera and fvleP4.Facturaconcepto=130004 and fvleP4.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=4
-left join LineasFactura fvleP5 with (nolock) on fvc.idfacturaventacabecera = fvleP5.idfacturaventacabecera and fvleP5.Facturaconcepto=130004 and fvleP5.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=5
-left join LineasFactura fvleP6 with (nolock) on fvc.idfacturaventacabecera = fvleP6.idfacturaventacabecera and fvleP6.Facturaconcepto=130004 and fvleP6.InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=6
+left join LineasVariable on fvc.IdFacturaVentaCabecera = LineasVariable.IdFacturaVentaCabecera
+left join LineasVariable2 on fvc.IdFacturaVentaCabecera = LineasVariable2.IdFacturaVentaCabecera
+left join LineasVariable3 on fvc.IdFacturaVentaCabecera = LineasVariable3.IdFacturaVentaCabecera
+left join LineasVariable4 on fvc.IdFacturaVentaCabecera = LineasVariable4.IdFacturaVentaCabecera
+left join LineasVariable5 on fvc.IdFacturaVentaCabecera = LineasVariable5.IdFacturaVentaCabecera
+left join LineasVariable6 on fvc.IdFacturaVentaCabecera = LineasVariable6.IdFacturaVentaCabecera
+left join LineaCapGas on fvc.IdFacturaVentaCabecera = LineaCapGas.IdFacturaVentaCabecera
+left join LineaAgrupadoPrecioVariableP1 LAPV1 on fvc.IdFacturaVentaCabecera = LAPV1.IdFacturaVentaCabecera
+left join LineaAgrupadoPrecioVariableP2 LAPV2 on fvc.IdFacturaVentaCabecera = LAPV2.IdFacturaVentaCabecera
+left join LineaAgrupadoPrecioVariableP3 LAPV3 on fvc.IdFacturaVentaCabecera = LAPV3.IdFacturaVentaCabecera
+left join LineaAgrupadoPrecioVariableP4 LAPV4 on fvc.IdFacturaVentaCabecera = LAPV4.IdFacturaVentaCabecera
+left join LineaAgrupadoPrecioVariableP5 LAPV5 on fvc.IdFacturaVentaCabecera = LAPV5.IdFacturaVentaCabecera
+left join LineaAgrupadoPrecioVariableP6 LAPV6 on fvc.IdFacturaVentaCabecera = LAPV6.IdFacturaVentaCabecera
+left join LineaAgrupadoPrecioCargosPotencia1 LCP1 on fvc.IdFacturaVentaCabecera = LCP1.IdFacturaVentaCabecera
+left join LineaAgrupadoPrecioCargosPotencia2 LCP2 on fvc.IdFacturaVentaCabecera = LCP2.IdFacturaVentaCabecera
+left join LineaAgrupadoPrecioCargosPotencia3 LCP3 on fvc.IdFacturaVentaCabecera = LCP3.IdFacturaVentaCabecera
+left join LineaAgrupadoPrecioCargosPotencia4 LCP4 on fvc.IdFacturaVentaCabecera = LCP4.IdFacturaVentaCabecera
+left join LineaAgrupadoPrecioCargosPotencia5 LCP5 on fvc.IdFacturaVentaCabecera = LCP5.IdFacturaVentaCabecera
+left join LineaAgrupadoPrecioCargosPotencia6 LCP6 on fvc.IdFacturaVentaCabecera = LCP6.IdFacturaVentaCabecera
+left join LineaAgrupadoPrecioCargosEN1 LCEN1 on fvc.IdFacturaVentaCabecera = LCEN1.IdFacturaVentaCabecera
+left join LineaAgrupadoPrecioCargosEN2 LCEN2 on fvc.IdFacturaVentaCabecera = LCEN2.IdFacturaVentaCabecera
+left join LineaAgrupadoPrecioCargosEN3 LCEN3 on fvc.IdFacturaVentaCabecera = LCEN3.IdFacturaVentaCabecera
+left join LineaAgrupadoPrecioCargosEN4 LCEN4 on fvc.IdFacturaVentaCabecera = LCEN4.IdFacturaVentaCabecera
+left join LineaAgrupadoPrecioCargosEN5 LCEN5 on fvc.IdFacturaVentaCabecera = LCEN5.IdFacturaVentaCabecera
+left join LineaAgrupadoPrecioCargosEN6 LCEN6 on fvc.IdFacturaVentaCabecera = LCEN6.IdFacturaVentaCabecera
+left join LineaAlquiler LAlquiler with (nolock) on fvc.idfacturaventacabecera =LAlquiler.IdFacturaVentaCabecera
+left join LineaImpuestoElectrico LElectrico with (nolock) on fvc.idfacturaventacabecera =LElectrico.IdFacturaVentaCabecera
+left join LineaMaximetro LMaxi  with (nolock) on fvc.idfacturaventacabecera =LMaxi.IdFacturaVentaCabecera
 where fvc.idfacturaventacabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta)
 "
 	End Function
