@@ -102,13 +102,14 @@ Partial Class Form1
         ' 
         ' Button1
         ' 
+        Button1.BackColor = Color.CornflowerBlue
         Button1.Enabled = False
         Button1.Location = New Point(363, 53)
         Button1.Name = "Button1"
         Button1.Size = New Size(75, 23)
         Button1.TabIndex = 0
         Button1.Text = "Actualizar"
-        Button1.UseVisualStyleBackColor = True
+        Button1.UseVisualStyleBackColor = False
         ' 
         ' CheckBox1
         ' 
@@ -375,6 +376,7 @@ Partial Class Form1
         ' 
         ' Button21
         ' 
+        Button21.Enabled = False
         Button21.Location = New Point(229, 145)
         Button21.Name = "Button21"
         Button21.Size = New Size(180, 23)
@@ -502,6 +504,7 @@ Partial Class Form1
         ' 
         ' Button24
         ' 
+        Button24.Enabled = False
         Button24.Location = New Point(521, 9)
         Button24.Name = "Button24"
         Button24.Size = New Size(75, 23)
@@ -571,12 +574,13 @@ Partial Class Form1
         ' 
         ' Button23
         ' 
+        Button23.BackColor = Color.CornflowerBlue
         Button23.Location = New Point(543, 46)
         Button23.Name = "Button23"
         Button23.Size = New Size(86, 21)
         Button23.TabIndex = 29
         Button23.Text = "Consultar"
-        Button23.UseVisualStyleBackColor = True
+        Button23.UseVisualStyleBackColor = False
         ' 
         ' CheckBox5
         ' 
