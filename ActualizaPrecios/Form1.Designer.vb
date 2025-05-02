@@ -725,7 +725,7 @@ Partial Class Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        BackColor = Color.White
+        BackColor = Color.SkyBlue
         ClientSize = New Size(641, 515)
         Controls.Add(CheckBox13)
         Controls.Add(CheckBox12)
