@@ -170,38 +170,51 @@ Public Class FuncionesGenericas
         Dim Contrato As New Contrato
 
         Try
-
-            Using conexion As New SqlConnection(connectionString)
-                conexion.Open()
-
-                Dim query As String = $"SELECT IdContrato,CodigoContrato,FechaAplicacionPrecios,FechaContrato,c.Entorno,idcliente,idcontratosituacion,idcups, c.IdTipoImpuesto, c.fechaalta
+            Dim query As String = $"SELECT IdContrato,CodigoContrato,FechaAplicacionPrecios,FechaContrato,c.Entorno,idcliente,idcontratosituacion,idcups, c.IdTipoImpuesto, c.fechaalta
                     FROM Contrato c
 					left join TipoImpuesto on c.IdTipoImpuesto = TipoImpuesto.IdTipoImpuesto
                     WHERE codigocontrato = {CodContrato}"
 
-                Dim comando As New SqlCommand(query, conexion)
-                comando.CommandTimeout = 3600
-                Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ContratoBD = Helper.FillObjectFromDatatable(result.Tables(0), GetType(Contrato)).Cast(Of Contrato).FirstOrDefault
+                If Not IsNothing(ContratoBD) AndAlso ContratoBD.IdContrato > 0 Then
+                    Contrato = ContratoBD
 
-                If readerQuery.HasRows Then
-                    Do While readerQuery.Read
-                        Contrato.IdContrato = readerQuery.GetValue(0).ToString
-                        Contrato.CodigoContrato = readerQuery.GetValue(1).ToString
-                        If Not readerQuery.IsDBNull(2) Then
-                            Contrato.FechaAplicacionPrecios = readerQuery.GetValue(2).ToString()
-                        End If
-                        Contrato.FechaContrato = readerQuery.GetValue(3).ToString
-                        Contrato.Entorno = readerQuery.GetValue(4).ToString
-                        Contrato.IdCliente = readerQuery.GetValue(5).ToString
-                        Contrato.IdContratoSituacion = readerQuery.GetValue(6).ToString
-                        Contrato.IdCups = readerQuery.GetValue(7).ToString
-                        Contrato.IdTipoImpuesto = readerQuery.GetValue(8).ToString
-                        Contrato.FechaAlta = readerQuery.GetValue(9).ToString
-                    Loop
                 End If
+            End If
 
-                readerQuery.Close()
-            End Using
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return Contrato
+    End Function
+
+    Public Function GetContratoMasivo(CodContrato As List(Of Long)) As List(Of Contrato)
+        Dim Contrato As New List(Of Contrato)
+
+        Try
+            Dim joinContrato = String.Join(",", CodContrato)
+            Dim query As String = $"SELECT IdContrato,CodigoContrato,FechaAplicacionPrecios,FechaContrato,c.Entorno,idcliente,idcontratosituacion,idcups, c.IdTipoImpuesto, c.fechaalta
+                    FROM Contrato c
+					left join TipoImpuesto on c.IdTipoImpuesto = TipoImpuesto.IdTipoImpuesto
+                    WHERE codigocontrato in ({joinContrato})"
+
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ContratoBD = Helper.FillObjectFromDatatable(result.Tables(0), GetType(Contrato)).Cast(Of Contrato).ToList
+                If Not IsNothing(ContratoBD) AndAlso ContratoBD.Count > 0 Then
+                    Contrato = ContratoBD
+                End If
+            End If
         Catch ex As Exception
             Console.WriteLine(ex)
             Console.WriteLine(ex.StackTrace)
@@ -2241,6 +2254,185 @@ inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagr
         End Try
 
         Return ContratoTarifaBD
+    End Function
+    Public Function GetContratoSituacion() As List(Of ContratoSituacion)
+        Dim SituacionesContratos As New List(Of ContratoSituacion)
+        'Dim ListaContratov2 As New List(Of Integer)
+        Try
+
+            Dim query As String = $"SELECT * FROM ContratoSituacion"
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ListaContratosSituaciones = Helper.FillObjectFromDatatable(result.Tables(0), GetType(ContratoSituacion)).Cast(Of ContratoSituacion).ToList
+                If Not IsNothing(ListaContratosSituaciones) AndAlso ListaContratosSituaciones.Count > 0 Then
+                    SituacionesContratos = ListaContratosSituaciones
+
+                End If
+            End If
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return SituacionesContratos
+    End Function
+
+    Public Function GetModelosImpresion() As List(Of ModeloDeImpresion)
+        Dim ModelosFacs As New List(Of ModeloDeImpresion)
+        'Dim ListaContratov2 As New List(Of Integer)
+        Try
+
+            Dim query As String = $"select idmodelodeimpresion, Entorno,DescripcionModeloDeImpresion, CodigoTipoModeloDeImpresion from ModeloDeImpresion where CodigoTipoModeloDeImpresion  in (1,9,4)"
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ListaModelosFacs = Helper.FillObjectFromDatatable(result.Tables(0), GetType(ModeloDeImpresion)).Cast(Of ModeloDeImpresion).ToList
+                If Not IsNothing(ListaModelosFacs) AndAlso ListaModelosFacs.Count > 0 Then
+                    ModelosFacs = ListaModelosFacs
+
+                End If
+            End If
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return ModelosFacs
+    End Function
+
+    Public Function GetCNAE() As List(Of CNAE)
+        Dim CANES As New List(Of CNAE)
+        'Dim ListaContratov2 As New List(Of Integer)
+        Try
+
+            Dim query As String = $"select * from cnae"
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ListaCNAE = Helper.FillObjectFromDatatable(result.Tables(0), GetType(CNAE)).Cast(Of CNAE).ToList
+                If Not IsNothing(ListaCNAE) AndAlso ListaCNAE.Count > 0 Then
+                    CANES = ListaCNAE
+
+                End If
+            End If
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return CANES
+    End Function
+
+    Public Function GetColectivos() As List(Of Colectivo)
+        Dim Colectivos As New List(Of Colectivo)
+        'Dim ListaContratov2 As New List(Of Integer)
+        Try
+
+            Dim query As String = $"select * from Colectivo"
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ListaColectivos = Helper.FillObjectFromDatatable(result.Tables(0), GetType(Colectivo)).Cast(Of Colectivo).ToList
+                If Not IsNothing(ListaColectivos) AndAlso ListaColectivos.Count > 0 Then
+                    Colectivos = ListaColectivos
+
+                End If
+            End If
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return Colectivos
+    End Function
+
+    Public Function UpdateContratosMasivo(QueryContratos As String) As Long
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim FilfasAfectadas As Long
+        Try
+
+            conexion.Open()
+            Dim query = $"{QueryContratos}"
+            Dim comando = New SqlCommand(query, conexion)
+            FilfasAfectadas = comando.ExecuteNonQuery
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return FilfasAfectadas
+    End Function
+
+    Public Function GetSituacionesScoring() As List(Of SituacionScoring)
+        Dim SituacionScoring As New List(Of SituacionScoring)
+        'Dim ListaContratov2 As New List(Of Integer)
+        Try
+
+            Dim query As String = $"SELECT * FROM SituacionScoring"
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ListaSituacionScoring = Helper.FillObjectFromDatatable(result.Tables(0), GetType(SituacionScoring)).Cast(Of SituacionScoring).ToList
+                If Not IsNothing(ListaSituacionScoring) AndAlso ListaSituacionScoring.Count > 0 Then
+                    SituacionScoring = ListaSituacionScoring
+
+                End If
+            End If
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return SituacionScoring
+    End Function
+
+    Public Function GetClientePago(identidad As String) As List(Of ClientePago)
+        Dim ClientePago As New List(Of ClientePago)
+        'Dim ListaContratov2 As New List(Of Integer)
+        Try
+
+            Dim query As String = $"select idclientepago, cp.idcliente,NombreP,IdentidadPago,TextoColectivo,TextoTipoCobro,IBAN,TextoBanco
+,isnull(NombreP,'???')+'/'+isnull(IdentidadPago,'???')+'/'+isnull(TextoColectivo,'???')+'/'+isnull(TextoTipoCobro,'???')+'/'+isnull(IBAN,'???')+'/'+isnull(TextoBanco,'???') ClientePagoUnificado
+from clientepago cp
+left join tipocobro tc on cp.idtipocobro = tc.idtipocobro
+left join Colectivo c on cp.IdColectivo=c.IdColectivo
+left join Banco b on cp.IdBanco=b.IdBanco
+left join cliente cl on cp.idcliente= cl.idcliente
+where cl.Identidad='{identidad}'"
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ListaClientePago = Helper.FillObjectFromDatatable(result.Tables(0), GetType(ClientePago)).Cast(Of ClientePago).ToList
+                If Not IsNothing(ListaClientePago) AndAlso ListaClientePago.Count > 0 Then
+                    ClientePago = ListaClientePago
+
+                End If
+            End If
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return ClientePago
     End Function
 End Class
 

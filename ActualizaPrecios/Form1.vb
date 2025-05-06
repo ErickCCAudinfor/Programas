@@ -1765,31 +1765,31 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
     End Sub
 
     Private Sub Button22_Click(sender As Object, e As EventArgs) Handles Button22.Click
-        Dim rutaExcel As String = "C:\Users\ErickCC\Downloads\Industriales_2024S1_v2.xlsx"
-        Dim rutaXML As String = "C:\Users\ErickCC\Desktop\Erick\archivoF.xml"
+        Dim rutaExcel = "C:\Users\ErickCC\Downloads\Industriales_2024S1_v2.xlsx"
+        Dim rutaXML = "C:\Users\ErickCC\Desktop\Erick\archivoF.xml"
 
         ExcelPackage.LicenseContext = LicenseContext.NonCommercial
 
         ' Cargar archivo Excel
         Dim package As New ExcelPackage(New FileInfo(rutaExcel))
-        Dim ws As ExcelWorksheet = package.Workbook.Worksheets(0) ' Primera hoja
+        Dim ws = package.Workbook.Worksheets(0) ' Primera hoja
 
         ' Crear documento XML
-        Dim xmlDoc As New XmlDocument()
+        Dim xmlDoc As New XmlDocument
 
         ' Agregar declaración XML con encoding utf-8
-        Dim xmlDeclaration As XmlProcessingInstruction = xmlDoc.CreateProcessingInstruction("xml", "version=""1.0"" encoding=""utf-8""")
+        Dim xmlDeclaration = xmlDoc.CreateProcessingInstruction("xml", "version=""1.0"" encoding=""utf-8""")
         xmlDoc.AppendChild(xmlDeclaration)
 
         ' Crear el elemento raíz con el namespace
-        Dim root As XmlElement = xmlDoc.CreateElement("InformacionIndustrialAnualNR")
+        Dim root = xmlDoc.CreateElement("InformacionIndustrialAnualNR")
         root.SetAttribute("xmlns:xsd", "http://www.w3.org/2001/XMLSchema")
         root.SetAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
         root.SetAttribute("xmlns", "http://tempuri.org/XMLIndustrialAnualNuevo.xsd")
         xmlDoc.AppendChild(root)
 
         ' Agregar el nodo EMPRESA
-        Dim empresa As XmlElement = xmlDoc.CreateElement("EMPRESA")
+        Dim empresa = xmlDoc.CreateElement("EMPRESA")
         empresa.SetAttribute("xmlns", "") ' Añadir xmlns vacío
         root.AppendChild(empresa)
 
@@ -1809,35 +1809,35 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         empresa.AppendChild(CreateElementWithText(xmlDoc, "E_MAIL", "tge.info@total.com"))
 
         ' Agregar el nodo BANDAS
-        Dim bandas As XmlElement = xmlDoc.CreateElement("BANDAS")
+        Dim bandas = xmlDoc.CreateElement("BANDAS")
         bandas.SetAttribute("xmlns", "") ' Añadir xmlns vacío
         root.AppendChild(bandas)
 
         ' Leer filas y columnas de Excel
-        Dim filas As Integer = ws.Dimension.Rows
-        Dim columnas As Integer = ws.Dimension.Columns
+        Dim filas = ws.Dimension.Rows
+        Dim columnas = ws.Dimension.Columns
 
         ' Leer encabezados (asumiendo que están en la primera fila)
-        Dim headers As New List(Of String)()
-        For col As Integer = 1 To columnas
+        Dim headers As New List(Of String)
+        For col = 1 To columnas
             headers.Add(ws.Cells(1, col).Text)
         Next
 
         ' Leer datos y generar las bandas
         ' Leer datos y generar las bandas
-        For fila As Integer = 2 To filas
-            Dim banda As String = ws.Cells(fila, 1).Text ' Primera columna: Banda
+        For fila = 2 To filas
+            Dim banda = ws.Cells(fila, 1).Text ' Primera columna: Banda
 
             ' Omitir la banda "Banda_IF"
             If banda = "IF" Then
                 Continue For
             End If
 
-            Dim bandaElement As XmlElement = xmlDoc.CreateElement("Banda_" & banda)
+            Dim bandaElement = xmlDoc.CreateElement("Banda_" & banda)
 
             ' Generar los datos de la banda
-            For col As Integer = 2 To columnas
-                Dim nodo As XmlElement = xmlDoc.CreateElement(headers(col - 1))
+            For col = 2 To columnas
+                Dim nodo = xmlDoc.CreateElement(headers(col - 1))
                 nodo.InnerText = ws.Cells(fila, col).Text
                 bandaElement.AppendChild(nodo)
             Next
@@ -1847,7 +1847,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
 
 
         ' Agregar el nodo NOTIFICACION
-        Dim notificacion As XmlElement = xmlDoc.CreateElement("NOTIFICACION")
+        Dim notificacion = xmlDoc.CreateElement("NOTIFICACION")
         notificacion.SetAttribute("xmlns", "") ' Añadir xmlns vacío
         root.AppendChild(notificacion)
 
@@ -2114,6 +2114,33 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         Finally
             PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado($"Se han actualizado {contratosActualizado} contratos. Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes} minutos.")
+        End Try
+    End Sub
+
+    Private Sub Button25_Click_1(sender As Object, e As EventArgs) Handles Button25.Click
+        Try
+            Dim ListaCodContrato As New List(Of Long)
+
+            'Check Cups
+            If CheckBox2.Checked Then
+                Dim Con = GetConSinSplit(TextBox2.Text)
+                If Con.Count > 0 Then
+                    Dim contrato = Funciones.GetContratoMasivo(Con)
+                    For Each elemnt In contrato
+                        If elemnt.IdContrato > 0 Then
+                            ListaCodContrato.Add(elemnt.CodigoContrato)
+                        End If
+                    Next
+                End If
+            End If
+            If ListaCodContrato.Count > 0 Then
+                Dim ContratoForm As New ContratoForm(ListaCodContrato, connectionString, NombreUsuarioEquipo)
+                ContratoForm.Show()
+            Else
+                complementos.MostrarMensajePersonalizado($"No hay contratos")
+            End If
+        Catch ex As Exception
+
         End Try
     End Sub
 End Class
