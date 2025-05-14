@@ -508,6 +508,7 @@ WHERE TP.Entorno = '{Entorno}'
         Try
             Dim ret As New IndexadoPrecioGas
 
+            Dim fechaSinHora As String = FechaPresupuesto.Value.Date.ToString("yyyy-MM-dd")
             Dim Query = $"SELECT *
 FROM IndexadoPrecioGas tp
 WHERE tp.Entorno = '{Entorno}'
@@ -518,8 +519,8 @@ WHERE tp.Entorno = '{Entorno}'
   AND {IdTarifaGrupo} IS NOT NULL
   AND tp.IdTarifaGrupo = {IdTarifaGrupo}
   AND tp.FechaVigencia IS NOT NULL
-  AND '{FechaPresupuesto}' IS NOT NULL
-  AND tp.FechaVigencia >= '{FechaPresupuesto}';
+  AND '{fechaSinHora}' IS NOT NULL
+  AND tp.FechaVigencia >= '{fechaSinHora}';
 "
             Dim result = Helper.QuerySelect(Query, connectionString)
             Dim errores = Helper.GetError(result)
@@ -625,7 +626,10 @@ WHERE TP.Entorno = '{Entorno}'
         Try
             Dim ret As New TarifaPrecio
 
-            Dim Query = $"SELECT *
+           Dim fechaSinHora As String = FechaPresupuesto.Value.Date.ToString("yyyy-MM-dd")
+
+            Dim Query = $"
+SELECT *
 FROM TarifaPrecio tp
 WHERE tp.Entorno = '{Entorno}'
   AND tp.IdTarifa IS NOT NULL
@@ -635,9 +639,8 @@ WHERE tp.Entorno = '{Entorno}'
   AND {IdTarifaGrupo} IS NOT NULL
   AND tp.IdTarifaGrupo = {IdTarifaGrupo}
   AND tp.FechaFinPresupuesto IS NOT NULL
-  AND '{FechaPresupuesto}' IS NOT NULL
-  AND tp.FechaFinPresupuesto >= '{FechaPresupuesto}';
-"
+  AND '{fechaSinHora}' IS NOT NULL
+  AND tp.FechaFinPresupuesto >= '{fechaSinHora}';"
             Dim result = Helper.QuerySelect(Query, connectionString)
             Dim errores = Helper.GetError(result)
             If Not errores.HasError Then

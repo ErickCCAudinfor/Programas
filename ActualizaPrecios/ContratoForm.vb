@@ -88,13 +88,15 @@ Public Class ContratoForm
     End Function
 
     'Actualizamos de forma masiva los contratos
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+    Private Async Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         Try
             Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO"
             Dim JoinContratos = String.Join(",", Contratos)
             Dim UpdateContrato = "Update contrato set"
             Dim WhereContrato = $"Where codigocontrato in({JoinContratos})"
-
+            Dim ContratosModificados = 0
+            ' Lista para las tareas
+            Dim tasks As New List(Of Task)
             Dim ValoresF = GetParameters()
 
             If ValoresF.Length > 0 Then
@@ -104,24 +106,31 @@ Public Class ContratoForm
                 'Obtengo la consulta antes de la modificacion
                 Dim consultaAntes = ConsultasSQL.GetConsultaContrato(Contratos)
                 'Exporto los contratos antes de la modificacion
-                ExportarConsultaAExcel(connectionString, consultaAntes, rutaArchivoAntesModificacion, "Contratos")
-                'Unificamos la query
-                Dim QueryFinal = $"{UpdateContrato} {ValoresF} {WhereContrato}"
-                'Ejecutamos la query
-                Dim funciones2 As New FuncionesGenericas(connectionString)
-                Dim ContratosModificados = funciones2.UpdateContratosMasivo(QueryFinal)
+                PictureBox2.Visible = True
+                tasks.Add(Task.Run(Sub()
+                                       ExportarConsultaAExcel(connectionString, consultaAntes, rutaArchivoAntesModificacion, "Contratos")
+                                       'Unificamos la query
+                                       Dim QueryFinal = $"{UpdateContrato} {ValoresF} {WhereContrato}"
+                                       'Ejecutamos la query
+                                       Dim funciones2 As New FuncionesGenericas(connectionString)
+                                       ContratosModificados = funciones2.UpdateContratosMasivo(QueryFinal)
+
+                                       Dim consultaDespues = ConsultasSQL.GetConsultaContrato(Contratos)
+                                       ExportarConsultaAExcel(connectionString, consultaAntes, rutaArchivoDespuesModificacion, "Contratos")
+                                   End Sub))
+                Dim pepe = 0
+                Await Task.WhenAll(tasks)
+                PictureBox2.Visible = False
                 If ContratosModificados > 0 Then
                     complementos.MostrarMensajePersonalizado($"Compare los resultados en los excels generados.{rutaArchivoAntesModificacion} y {rutaArchivoDespuesModificacion}")
                 Else
                     complementos.MostrarMensajePersonalizado($"No se ha actualizado ningún contrato.")
                 End If
                 'Vuelvo a consultar los contratos esten o no esten modificados
-                Dim consultaDespues = ConsultasSQL.GetConsultaContrato(Contratos)
-                ExportarConsultaAExcel(connectionString, consultaAntes, rutaArchivoDespuesModificacion, "Contratos")
-                Dim pepe = 0
             End If
         Catch ex As Exception
-
+            PictureBox2.Visible = False
+            complementos.MostrarMensajePersonalizado($"{ex.Message}")
         End Try
     End Sub
     Private Function getDiasVencimiento() As String
@@ -266,7 +275,7 @@ Public Class ContratoForm
             'Scoring
             If CheckBox4.Checked Then
                 Dim SituacionScoringSelect As SituacionScoring = TryCast(ComboBox9.SelectedItem, SituacionScoring)
-                camposUpdate.Add($"SituacionScoring={SituacionScoringSelect.IdSituacionScoring}")
+                camposUpdate.Add($"SituacionScoring='{SituacionScoringSelect.Nombre}'")
             End If
 
             'ClientePago

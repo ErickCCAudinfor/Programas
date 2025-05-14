@@ -1948,7 +1948,7 @@ WHERE left(cups,20) in( {joinCups})  AND FechaMedida between  '{DesdeFecha.ToStr
 	End Function
 	Public Shared Function GetConsultaContrato(codCntrato As List(Of Long)) As String
 		Dim codCntratojoin = String.Join(",", codCntrato)
-		Return $"select c.Entorno,codigocontrato,c.idcontratosituacion, cs.textosituacion, c.SituacionScoring, scg.Nombre
+		Return $"select c.Entorno,codigocontrato,c.idcontratosituacion, cs.textosituacion, c.SituacionScoring
 ,cast(FechaAlta as date) fechaalta, cast(FechaVto as date) fechavto
 ,DiasVencimiento
 ,Observaciones
@@ -1985,7 +1985,7 @@ when TipoImprimir ='F' then 'FACE' end TipoImprimirTexto
 ,isnull(NombreP,'???')+'/'+isnull(IdentidadPago,'???')+'/'+isnull(colecClientePago.TextoColectivo,'???')+'/'+isnull(TextoTipoCobro,'???')+'/'+isnull(IBAN,'???')+'/'+isnull(TextoBanco,'???') ClientePagoUnificado
 from contrato c
 inner join contratosituacion cs on c.idcontratosituacion = cs.idcontratosituacion
-left join SituacionScoring scg on c.SituacionScoring=scg.IdSituacionScoring
+left join SituacionScoring scg on c.SituacionScoring=scg.Nombre
 left join TipoImpuesto ti on c.IdTipoImpuesto = ti.IdTipoImpuesto
 left join ModeloDeImpresion mifactura on (c.IdModeloFactura = mifactura.IdModeloDeImpresion )
 left join ModeloDeImpresion mivarios on (c.IdModeloFacturaVarios = mivarios.IdModeloDeImpresion)

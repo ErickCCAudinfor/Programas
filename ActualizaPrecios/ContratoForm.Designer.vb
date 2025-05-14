@@ -77,6 +77,8 @@ Partial Class ContratoForm
         TextBox7 = New TextBox()
         Label7 = New Label()
         Button2 = New Button()
+        PictureBox2 = New PictureBox()
+        CType(PictureBox2, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
         ' Label1
@@ -343,7 +345,7 @@ Partial Class ContratoForm
         ' 
         Button1.BackColor = SystemColors.MenuHighlight
         Button1.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
-        Button1.Location = New Point(367, 579)
+        Button1.Location = New Point(367, 587)
         Button1.Name = "Button1"
         Button1.Size = New Size(182, 31)
         Button1.TabIndex = 26
@@ -606,13 +608,24 @@ Partial Class ContratoForm
         Button2.Text = "Buscar Cliente Pago"
         Button2.UseVisualStyleBackColor = False
         ' 
+        ' PictureBox2
+        ' 
+        PictureBox2.Image = CType(resources.GetObject("PictureBox2.Image"), Image)
+        PictureBox2.Location = New Point(555, 582)
+        PictureBox2.Name = "PictureBox2"
+        PictureBox2.Size = New Size(54, 36)
+        PictureBox2.TabIndex = 62
+        PictureBox2.TabStop = False
+        PictureBox2.Visible = False
+        ' 
         ' ContratoForm
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = SystemColors.GradientInactiveCaption
         BackgroundImageLayout = ImageLayout.Center
-        ClientSize = New Size(951, 609)
+        ClientSize = New Size(951, 624)
+        Controls.Add(PictureBox2)
         Controls.Add(Button2)
         Controls.Add(Label7)
         Controls.Add(TextBox7)
@@ -671,6 +684,7 @@ Partial Class ContratoForm
         Icon = CType(resources.GetObject("$this.Icon"), Icon)
         Name = "ContratoForm"
         Text = "Modificar Contrato Masivo"
+        CType(PictureBox2, ComponentModel.ISupportInitialize).EndInit()
         ResumeLayout(False)
         PerformLayout()
     End Sub
@@ -729,4 +743,5 @@ Partial Class ContratoForm
     Friend WithEvents TextBox7 As TextBox
     Friend WithEvents Label7 As Label
     Friend WithEvents Button2 As Button
+    Friend WithEvents PictureBox2 As PictureBox
 End Class
