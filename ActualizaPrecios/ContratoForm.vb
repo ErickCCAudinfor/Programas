@@ -90,7 +90,7 @@ Public Class ContratoForm
     'Actualizamos de forma masiva los contratos
     Private Async Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         Try
-            Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO"
+            Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO\LogContratos"
             Dim JoinContratos = String.Join(",", Contratos)
             Dim UpdateContrato = "Update contrato set"
             Dim WhereContrato = $"Where codigocontrato in({JoinContratos})"
@@ -101,8 +101,8 @@ Public Class ContratoForm
 
             If ValoresF.Length > 0 Then
                 ''Antes de la actualizacion
-                Dim rutaArchivoAntesModificacion = IO.Path.Combine(rutaCarpeta, $"ContratosAntesActualizacion_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                Dim rutaArchivoDespuesModificacion = IO.Path.Combine(rutaCarpeta, $"ContratosDespuesActualizacion_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                Dim rutaArchivoAntesModificacion = IO.Path.Combine(rutaCarpeta, $"ContratosAntesActualizacion_{Now.ToString("ddMMyyyy_HHmmss")}.xlsx")
+                Dim rutaArchivoDespuesModificacion = IO.Path.Combine(rutaCarpeta, $"ContratosDespuesActualizacion_{Now.ToString("ddMMyyyy_HHmmss")}.xlsx")
                 'Obtengo la consulta antes de la modificacion
                 Dim consultaAntes = ConsultasSQL.GetConsultaContrato(Contratos)
                 'Exporto los contratos antes de la modificacion

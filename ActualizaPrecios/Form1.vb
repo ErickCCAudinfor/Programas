@@ -251,7 +251,8 @@ Public Class Form1
                             End If
                         End If
                     Else
-                        Throw New Exception("Se cancela, no hay registros a actualizar")
+                        'Throw New Exception("Se cancela, no hay registros a actualizar")
+                        Datos.Add(New List(Of Object) From {$"Contrato: {elment.CodigoContrato} _ idContratotarifa ={elment.IdContratoTarifa} , ContratoTarifa Vacio "})
                     End If
 
                 Next
@@ -1030,23 +1031,23 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             Dim listaFacs = GetFacsSinSplit(TextBox2.Text)
             If listaFacs.Count > 0 Then
                 Dim Destino = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO\PDFFacturas"
-                If Not IO.Directory.Exists(Destino) Then
-                    IO.Directory.CreateDirectory(Destino)
+                If Not Directory.Exists(Destino) Then
+                    Directory.CreateDirectory(Destino)
                 End If
                 Dim ComprobarFacs As New List(Of String)
                 PictureBox2.Visible = True
                 Await Task.Run(Sub()
                                    For Each elemnt In listaFacs
-                                       Dim Facs As Byte() = Funciones.ExtraerPDFFactura(elemnt)
+                                       Dim Facs = Funciones.ExtraerPDFFactura(elemnt)
                                        If IsNothing(Facs) Then
                                            Continue For
                                        End If
                                        ComprobarFacs.Add(elemnt)
                                        Dim NameFac = Replace(elemnt, "FELEC", "FELEC_")
-                                       Dim originalFileName As String = $"{NameFac}.PDF"
-                                       Dim nameWithoutExtension As String = System.IO.Path.GetFileNameWithoutExtension(originalFileName)
-                                       Dim newFileName As String = Mid(nameWithoutExtension, 1, 100) & System.IO.Path.GetExtension(originalFileName)
-                                       Dim TempFileName As String = Path.Combine(Destino, newFileName)
+                                       Dim originalFileName = $"{NameFac}.PDF"
+                                       Dim nameWithoutExtension = Path.GetFileNameWithoutExtension(originalFileName)
+                                       Dim newFileName = Mid(nameWithoutExtension, 1, 100) & Path.GetExtension(originalFileName)
+                                       Dim TempFileName = Path.Combine(Destino, newFileName)
                                        File.WriteAllBytes(TempFileName, Facs)
                                    Next
                                End Sub)
@@ -1059,7 +1060,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                 End If
 
             Else
-                complementos.MostrarMensajePersonalizado("No hay facturas a en los filtros")
+                complementos.MostrarMensajePersonalizado("No hay facturas en los filtros")
             End If
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)
@@ -1279,7 +1280,9 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                     If match.Success Then
                         ' Capturar valores
                         Dim periodo As String = match.Groups(2).Value
-                        Dim consumo As Decimal = Convert.ToDecimal(match.Groups(3).Value.Replace(",", ".")) ' Evita errores con decimales
+                        Dim cultura As New Globalization.CultureInfo("es-ES")
+                        Dim consumo As Decimal = Convert.ToDecimal(match.Groups(3).Value, cultura)
+
                         Dim expresion As String = match.Groups(4).Value.Trim()
 
                         ' Calcular el valor de la expresión
@@ -1415,6 +1418,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
     '        Console.WriteLine("Ocurrió un error: " & ex.Message)
     '    End Try
     'End Sub
+
 
     ' Aplicar Precios
     Private Async Sub Button17_Click(sender As Object, e As EventArgs) Handles Button17.Click
@@ -1558,6 +1562,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             End If
         End Try
     End Sub
+
     'Consulta Top
     Private Async Sub Button18_Click(sender As Object, e As EventArgs) Handles Button18.Click
         Dim PenaOk = False
@@ -1600,6 +1605,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             End If
         End Try
     End Sub
+
     'Verifica si los contratos tienes licitacion
     Private Async Sub Button19_Click(sender As Object, e As EventArgs) Handles Button19.Click
         Try
@@ -1622,6 +1628,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         End Try
     End Sub
 
+    'CAE
     Private Async Sub Button20_Click(sender As Object, e As EventArgs) Handles Button20.Click
         Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultaCAE"
         Dim rutaArchivo = ""
@@ -1680,6 +1687,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         End Try
     End Sub
 
+    'Actualiza el calendario masivamente, añade el nuevo y  cierra el calendario anterior, ademas de mantener el mismo perfil
     Private Async Sub Button21_Click(sender As Object, e As EventArgs) Handles Button21.Click
         Dim ExcelDatos As New Excel
         Dim Datos As New List(Of List(Of Object))
@@ -1725,7 +1733,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             'Funciones.EscribirContratoTarifaAntesCambios(ContratoActualizar)
             If Con.Count > 0 Then
                 If Con.Count < 0 Then
-                    yesorNot = MsgBox("Los contratos filtrados y los contratos encontrados no coinciden. ¿Actualizar de todas formas?", vbYesNo)
+                    yesorNot = MsgBox("No hay contratos a actualizar. ¿Actualizar de todas formas?", vbYesNo)
                 Else
                     todoOK = True
                 End If
@@ -1734,6 +1742,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                     Await Task.Run(Sub()
                                        'TextBox1 TarifagrupoViejo
                                        'TextBox3 TarifagrupoNuevo
+                                       'Podemos añadir una funcación para cerrar el calendario viejo antes de añadir el nuevo, pendiente implementar
                                        For Each c In Con
                                            Dim tgNuevo = Funciones.GetCalendarioNuevoTarifa(c, TextBox3.Text, TextBox1.Text)
                                            Dim FechaAplicar = DateTimePicker1.Value.Date
@@ -1879,6 +1888,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         Return element
     End Function
 
+    'buscar Consultas checks
     Private Async Sub Button23_Click(sender As Object, e As EventArgs) Handles Button23.Click
         Try
             Dim conexion As String = connectionString
@@ -2012,9 +2022,10 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         End Try
     End Sub
 
-    Private Sub Button24_Click(sender As Object, e As EventArgs) Handles Button24.Click
+    'DEVS
+    Private Sub Button24_Click(sender As Object, e As EventArgs)
         ' Ruta de la carpeta donde están los archivos XML
-        Dim carpetaXML As String = "C:\Users\ErickCC\Documents\DEV"
+        Dim carpetaXML = "C:\Users\ErickCC\Documents\DEV"
 
         ' Lista de números de factura a buscar
         Dim facturasBuscar As New List(Of String) From {
@@ -2038,7 +2049,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         }
 
         ' Archivo donde se guardarán los resultados
-        Dim archivoResultados As String = "C:\Users\ErickCC\Documents\DEV\resultados.txt"
+        Dim archivoResultados = "C:\Users\ErickCC\Documents\DEV\resultados.txt"
 
         ' Limpiar el archivo antes de escribir los resultados
         File.WriteAllText(archivoResultados, "")
@@ -2047,18 +2058,18 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         Dim archivosEncontrados As New List(Of String)
 
         ' Obtener todos los archivos XML en la carpeta
-        For Each archivo As String In Directory.GetFiles(carpetaXML, "*.xml")
+        For Each archivo In Directory.GetFiles(carpetaXML, "*.xml")
             ' Cargar el XML
-            Dim doc As XDocument = XDocument.Load(archivo)
+            Dim doc = XDocument.Load(archivo)
 
             ' Buscar todos los <invoiceNumber> en el archivo
-            Dim facturasEnXML = doc.Descendants().Where(Function(x) x.Name.LocalName = "invoiceNumber").Select(Function(x) x.Value)
+            Dim facturasEnXML = doc.Descendants.Where(Function(x) x.Name.LocalName = "invoiceNumber").Select(Function(x) x.Value)
 
             ' Verificar si alguna factura de la lista está en este XML
-            Dim coincidencias = facturasBuscar.Intersect(facturasEnXML).ToList()
+            Dim coincidencias = facturasBuscar.Intersect(facturasEnXML).ToList
 
             ' Si hay coincidencias, guardar el nombre del archivo
-            If coincidencias.Any() Then
+            If coincidencias.Any Then
                 archivosEncontrados.Add(Path.GetFileName(archivo))
                 ' Escribir en el archivo de texto
                 File.AppendAllText(archivoResultados, $"Factura(s) {String.Join(", ", coincidencias)} encontrada(s) en: {Path.GetFileName(archivo)}{Environment.NewLine}")
@@ -2066,14 +2077,14 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         Next
 
         ' Mostrar mensaje final con los resultados
-        If archivosEncontrados.Any() Then
+        If archivosEncontrados.Any Then
             Console.WriteLine($"Facturas encontradas en los archivos: {String.Join(", ", archivosEncontrados)}")
         Else
             Console.WriteLine("No se encontraron coincidencias.")
         End If
     End Sub
 
-    ' Consulta CNAE
+    ' Consulta CNAE by contratos
     Private Async Sub Button25_Click(sender As Object, e As EventArgs)
         Dim contratosActualizado = 0
         Dim tiempoTranscurrido As TimeSpan
@@ -2117,6 +2128,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         End Try
     End Sub
 
+    ' Actualiza masivamente contratos 
     Private Sub Button25_Click_1(sender As Object, e As EventArgs) Handles Button25.Click
         Try
             Dim ListaCodContrato As New List(Of Long)
@@ -2141,6 +2153,84 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             End If
         Catch ex As Exception
 
+        End Try
+    End Sub
+
+    'Extrae documentos
+    Private Async Sub Button24_Click_1(sender As Object, e As EventArgs) Handles Button24.Click
+        Dim ExcelDatos As New Excel
+        Dim Datos As New List(Of List(Of Object))
+        Try
+            Dim totalContratos = 0
+            Dim ContratoActualizar As New List(Of Long)
+            Dim IdDocumentos As New List(Of Long)
+            'Con = GetConSinSplit(TextBox2.Text)
+            ' Crear una instancia de OpenFileDialog
+            Dim openFileDialog1 As New OpenFileDialog
+            Dim Destino = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO\DocumentosGenerales"
+            If Not Directory.Exists(Destino) Then
+                Directory.CreateDirectory(Destino)
+            End If
+            ' Configurar propiedades del diálogo
+            openFileDialog1.Title = "Seleccionar archivos"
+            openFileDialog1.Multiselect = True ' Permitir la selección múltiple de archivos
+            openFileDialog1.Filter = "Todos los archivos (*.*)|*.*" ' Filtro de archivos
+            Dim rutaArchivo = ""
+            ' Mostrar el diálogo y verificar si el usuario hizo clic en OK
+            If openFileDialog1.ShowDialog = DialogResult.OK Then
+                ' Obtener la ruta de cada archivo seleccionado y mostrarla en la consola
+                For Each filename In openFileDialog1.FileNames
+                    rutaArchivo = filename
+                Next
+            End If
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial
+            If rutaArchivo.Length > 0 Then
+                Using package As New ExcelPackage(New FileInfo(rutaArchivo))
+                    Dim worksheet = package.Workbook.Worksheets(0)
+                    Dim rowCount = worksheet.Dimension.Rows
+
+                    ' Leer códigos de contrato del Excel
+                    Dim codigosContrato As New List(Of Long)
+                    For row = 2 To rowCount
+                        Dim IdDocumento = worksheet.Cells(row, 1).Value?.ToString
+                        'Dim idcontratotarifa = worksheet.Cells(row, 2).Value?.ToString
+                        'Dim Cups As String = worksheet.Cells(row, 3).Value?.ToString()
+                        If Not String.IsNullOrEmpty(IdDocumento) Then
+                            IdDocumentos.Add(IdDocumento)
+                        End If
+                    Next
+                End Using
+
+                If IdDocumentos.Count > 0 Then
+                    PictureBox2.Visible = True
+                    Await Task.Run(Sub()
+
+                                       For Each c In IdDocumentos
+                                           'Comprobamos si ha traido el documento de BD
+                                           Dim Doc As Byte() = Nothing
+                                           If Doc Is Nothing Then ' si no lo ha traido, lo buscamos en disco
+                                               Funciones.DocumentDataFromCopiaAnioSiNulo(Doc, c)
+                                           End If
+                                           If Doc Is Nothing Then
+                                               Continue For
+                                           End If
+                                           Dim originalFileName = $"Documento_{c}.PDF"
+                                           Dim nameWithoutExtension = Path.GetFileNameWithoutExtension(originalFileName)
+                                           Dim newFileName = Mid(nameWithoutExtension, 1, 100) & Path.GetExtension(originalFileName)
+                                           Dim TempFileName = Path.Combine(Destino, newFileName)
+                                           File.WriteAllBytes(TempFileName, Doc)
+                                       Next
+                                   End Sub)
+
+                Else
+                    complementos.MostrarMensajePersonalizado($"Sin Documentos")
+                End If
+                PictureBox2.Visible = False
+            End If
+
+        Catch ex As Exception
+            PictureBox2.Visible = False
+            complementos.MostrarMensajePersonalizado("Exception: " + ex.Message)
         End Try
     End Sub
 End Class

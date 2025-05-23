@@ -71,7 +71,6 @@ Partial Class Form1
         Label1 = New Label()
         DateTimePicker1 = New DateTimePicker()
         Label6 = New Label()
-        Button24 = New Button()
         Button25 = New Button()
         Panel3 = New Panel()
         Button6 = New Button()
@@ -93,6 +92,7 @@ Partial Class Form1
         Button21 = New Button()
         Button22 = New Button()
         Panel2 = New Panel()
+        Button24 = New Button()
         Panel1.SuspendLayout()
         CType(PictureBox2, ComponentModel.ISupportInitialize).BeginInit()
         Panel4.SuspendLayout()
@@ -432,7 +432,7 @@ Partial Class Form1
         CheckBox4.AutoSize = True
         CheckBox4.Checked = True
         CheckBox4.CheckState = CheckState.Checked
-        CheckBox4.Location = New Point(444, 52)
+        CheckBox4.Location = New Point(356, 40)
         CheckBox4.Name = "CheckBox4"
         CheckBox4.Size = New Size(98, 19)
         CheckBox4.TabIndex = 19
@@ -470,7 +470,7 @@ Partial Class Form1
         ' 
         Button1.BackColor = Color.CornflowerBlue
         Button1.Enabled = False
-        Button1.Location = New Point(363, 53)
+        Button1.Location = New Point(451, 36)
         Button1.Name = "Button1"
         Button1.Size = New Size(75, 23)
         Button1.TabIndex = 0
@@ -504,16 +504,6 @@ Partial Class Form1
         Label6.TabIndex = 22
         Label6.Text = "Aplicación de Precios (según tarifa grupo configurada)"
         ' 
-        ' Button24
-        ' 
-        Button24.Enabled = False
-        Button24.Location = New Point(521, 9)
-        Button24.Name = "Button24"
-        Button24.Size = New Size(75, 23)
-        Button24.TabIndex = 23
-        Button24.Text = "Buscar DEV"
-        Button24.UseVisualStyleBackColor = True
-        ' 
         ' Button25
         ' 
         Button25.Location = New Point(14, 202)
@@ -525,7 +515,6 @@ Partial Class Form1
         ' 
         ' Panel3
         ' 
-        Panel3.Controls.Add(Button24)
         Panel3.Controls.Add(Label6)
         Panel3.Controls.Add(DateTimePicker1)
         Panel3.Controls.Add(Label1)
@@ -687,7 +676,6 @@ Partial Class Form1
         ' 
         ' Button21
         ' 
-        Button21.Enabled = False
         Button21.Location = New Point(229, 145)
         Button21.Name = "Button21"
         Button21.Size = New Size(180, 23)
@@ -707,6 +695,7 @@ Partial Class Form1
         ' 
         ' Panel2
         ' 
+        Panel2.Controls.Add(Button24)
         Panel2.Controls.Add(Button25)
         Panel2.Controls.Add(Button22)
         Panel2.Controls.Add(Button21)
@@ -731,6 +720,15 @@ Partial Class Form1
         Panel2.Name = "Panel2"
         Panel2.Size = New Size(617, 225)
         Panel2.TabIndex = 22
+        ' 
+        ' Button24
+        ' 
+        Button24.Location = New Point(434, 202)
+        Button24.Name = "Button24"
+        Button24.Size = New Size(180, 23)
+        Button24.TabIndex = 34
+        Button24.Text = "Extraer Documentos Generales"
+        Button24.UseVisualStyleBackColor = True
         ' 
         ' Form1
         ' 
@@ -837,7 +835,6 @@ Partial Class Form1
     Friend WithEvents Label1 As Label
     Friend WithEvents DateTimePicker1 As DateTimePicker
     Friend WithEvents Label6 As Label
-    Friend WithEvents Button24 As Button
     Friend WithEvents Button25 As Button
     Friend WithEvents Panel3 As Panel
     Friend WithEvents Button6 As Button
@@ -860,4 +857,5 @@ Partial Class Form1
     Friend WithEvents Button21 As Button
     Friend WithEvents Button22 As Button
     Friend WithEvents Panel2 As Panel
+    Friend WithEvents Button24 As Button
 End Class

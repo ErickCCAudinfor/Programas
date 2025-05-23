@@ -1744,7 +1744,7 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
                     End If
                 End Using
             Catch ex As Exception
-
+                Throw
             End Try
         End If
     End Sub

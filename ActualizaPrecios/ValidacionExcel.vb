@@ -1200,7 +1200,7 @@ group by fcc.Numerofactura,fcc.CodigoContrato,fvc.IdFacturaVentaCabecera,fvc.Ser
         End Try
     End Sub
 
-
+    'CAE
     Public Function BuscarCAEMasivo(RutaExcel As String) As Long
         Dim contador As Long = 0
         Dim excelFilePath As String = RutaExcel
