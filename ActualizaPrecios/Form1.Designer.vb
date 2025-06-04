@@ -667,7 +667,7 @@ Partial Class Form1
         ' Button20
         ' 
         Button20.Enabled = False
-        Button20.Location = New Point(229, 116)
+        Button20.Location = New Point(229, 144)
         Button20.Name = "Button20"
         Button20.Size = New Size(180, 23)
         Button20.TabIndex = 30
@@ -676,7 +676,8 @@ Partial Class Form1
         ' 
         ' Button21
         ' 
-        Button21.Location = New Point(229, 145)
+        Button21.Enabled = False
+        Button21.Location = New Point(229, 173)
         Button21.Name = "Button21"
         Button21.Size = New Size(180, 23)
         Button21.TabIndex = 31
@@ -686,7 +687,7 @@ Partial Class Form1
         ' Button22
         ' 
         Button22.Enabled = False
-        Button22.Location = New Point(229, 173)
+        Button22.Location = New Point(229, 201)
         Button22.Name = "Button22"
         Button22.Size = New Size(180, 23)
         Button22.TabIndex = 32

@@ -271,7 +271,7 @@
 Excel EMAIL: Codigo Contrato columna 1 y el email en la columna 2.
 Extraer PDF_ Facs: Escribir serie_numero, en el primer texbox y cualquier checkbox.
 Extraer CSV VA: La id de la fac deben empezar desde la segunda fila, columna A
-</value>
+Extraer Documentos Generales: En Excel columna 1, fila 2, poner la id del documento</value>
   </data>
   <metadata name="Timer1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>118, 17</value>
