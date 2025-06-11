@@ -1955,10 +1955,10 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             ' Si el CheckBox10 está marcado, crear archivo para RechazosVeolia
             If CheckBox10.Checked Then
                 tasks.Add(Task.Run(Sub()
-                                       Dim Name = "RechazosVeolia"
+                                       Dim Name = "Contratos"
                                        Dim rutaArchivoRechazosVeolia = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
                                        Dim RechazosVeolia As String = ConsultasSQL.GetRechazosVeolia
-                                       ExportarConsultaAExcel(conexion, RechazosVeolia, rutaArchivoRechazosVeolia, "RechazosVeolia")
+                                       ExportarConsultaAExcel(conexion, RechazosVeolia, rutaArchivoRechazosVeolia, "Veolia")
                                        RutaFinal += " " + Name
                                    End Sub))
             End If

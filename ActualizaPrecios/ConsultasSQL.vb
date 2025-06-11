@@ -982,7 +982,7 @@ Else 'GAS' End as Negocio
 ,cs.textosituacion
 ,s.IdSolicitud
 ,mr.TextoRechazo
-,replace(c.consumoestimado,'.',',') as ConsumoEstimado
+,consumoestimado
 ,c.FechaVto 
 from contrato c
 inner join cups on cups.IdCups = c.IdCups
