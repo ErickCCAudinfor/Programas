@@ -19,6 +19,9 @@
     <Compile Update="Form1.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="IAAssistance.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="LoadingWF.vb">
       <SubType>Form</SubType>
     </Compile>

@@ -39,6 +39,7 @@ Partial Class Form1
         PictureBox2 = New PictureBox()
         RadioButton2 = New RadioButton()
         RadioButton1 = New RadioButton()
+        ComboBoxConsultas = New ComboBox()
         Button15 = New Button()
         Panel4 = New Panel()
         ToolTop1 = New ToolTip(components)
@@ -48,18 +49,11 @@ Partial Class Form1
         RadioButton3 = New RadioButton()
         Button17 = New Button()
         Button23 = New Button()
-        CheckBox5 = New CheckBox()
         Label7 = New Label()
         DateTimePicker2 = New DateTimePicker()
         DateTimePicker3 = New DateTimePicker()
         Label8 = New Label()
         Label9 = New Label()
-        CheckBox6 = New CheckBox()
-        CheckBox7 = New CheckBox()
-        CheckBox8 = New CheckBox()
-        CheckBox9 = New CheckBox()
-        CheckBox10 = New CheckBox()
-        CheckBox11 = New CheckBox()
         CheckBox12 = New CheckBox()
         CheckBox13 = New CheckBox()
         Label4 = New Label()
@@ -84,15 +78,15 @@ Partial Class Form1
         Button11 = New Button()
         Button12 = New Button()
         Button16 = New Button()
-        Button13 = New Button()
         Button14 = New Button()
         Button18 = New Button()
         Button19 = New Button()
         Button20 = New Button()
         Button21 = New Button()
-        Button22 = New Button()
         Panel2 = New Panel()
+        Button22 = New Button()
         Button24 = New Button()
+        Button26 = New Button()
         Panel1.SuspendLayout()
         CType(PictureBox2, ComponentModel.ISupportInitialize).BeginInit()
         Panel4.SuspendLayout()
@@ -208,6 +202,14 @@ Partial Class Form1
         RadioButton1.Text = "Producción"
         RadioButton1.UseVisualStyleBackColor = True
         ' 
+        ' ComboBoxConsultas
+        ' 
+        ComboBoxConsultas.FormattingEnabled = True
+        ComboBoxConsultas.Location = New Point(165, 44)
+        ComboBoxConsultas.Name = "ComboBoxConsultas"
+        ComboBoxConsultas.Size = New Size(136, 23)
+        ComboBoxConsultas.TabIndex = 44
+        ' 
         ' Button15
         ' 
         Button15.Location = New Point(446, 440)
@@ -272,22 +274,12 @@ Partial Class Form1
         ' Button23
         ' 
         Button23.BackColor = Color.CornflowerBlue
-        Button23.Location = New Point(543, 46)
+        Button23.Location = New Point(492, 26)
         Button23.Name = "Button23"
-        Button23.Size = New Size(86, 21)
+        Button23.Size = New Size(136, 21)
         Button23.TabIndex = 29
-        Button23.Text = "Consultar"
+        Button23.Text = "Consultar CURVAS"
         Button23.UseVisualStyleBackColor = False
-        ' 
-        ' CheckBox5
-        ' 
-        CheckBox5.AutoSize = True
-        CheckBox5.Location = New Point(163, 5)
-        CheckBox5.Name = "CheckBox5"
-        CheckBox5.Size = New Size(91, 19)
-        CheckBox5.TabIndex = 30
-        CheckBox5.Text = "Clicks TODO"
-        CheckBox5.UseVisualStyleBackColor = True
         ' 
         ' Label7
         ' 
@@ -303,10 +295,11 @@ Partial Class Form1
         DateTimePicker2.CustomFormat = "dd/MM/yyyy"
         DateTimePicker2.Font = New Font("Arial Narrow", 9F, FontStyle.Regular, GraphicsUnit.Point)
         DateTimePicker2.Format = DateTimePickerFormat.Custom
-        DateTimePicker2.Location = New Point(543, 22)
+        DateTimePicker2.Location = New Point(260, 22)
         DateTimePicker2.Name = "DateTimePicker2"
         DateTimePicker2.Size = New Size(86, 21)
         DateTimePicker2.TabIndex = 23
+        DateTimePicker2.Value = New Date(2000, 1, 31, 0, 0, 0, 0)
         ' 
         ' DateTimePicker3
         ' 
@@ -314,15 +307,16 @@ Partial Class Form1
         DateTimePicker3.CustomFormat = "dd/MM/yyyy"
         DateTimePicker3.Font = New Font("Arial Narrow", 9F, FontStyle.Regular, GraphicsUnit.Point)
         DateTimePicker3.Format = DateTimePickerFormat.Custom
-        DateTimePicker3.Location = New Point(446, 22)
+        DateTimePicker3.Location = New Point(166, 22)
         DateTimePicker3.Name = "DateTimePicker3"
         DateTimePicker3.Size = New Size(92, 21)
         DateTimePicker3.TabIndex = 32
+        DateTimePicker3.Value = New Date(2000, 1, 1, 0, 0, 0, 0)
         ' 
         ' Label8
         ' 
         Label8.AutoSize = True
-        Label8.Location = New Point(446, 4)
+        Label8.Location = New Point(163, 4)
         Label8.Name = "Label8"
         Label8.Size = New Size(73, 15)
         Label8.TabIndex = 33
@@ -331,77 +325,16 @@ Partial Class Form1
         ' Label9
         ' 
         Label9.AutoSize = True
-        Label9.Location = New Point(543, 4)
+        Label9.Location = New Point(260, 4)
         Label9.Name = "Label9"
         Label9.Size = New Size(71, 15)
         Label9.TabIndex = 34
         Label9.Text = "Hasta Fecha"
         ' 
-        ' CheckBox6
-        ' 
-        CheckBox6.AutoSize = True
-        CheckBox6.Location = New Point(260, 6)
-        CheckBox6.Name = "CheckBox6"
-        CheckBox6.Size = New Size(67, 19)
-        CheckBox6.TabIndex = 35
-        CheckBox6.Text = "Hunosa"
-        CheckBox6.UseVisualStyleBackColor = True
-        ' 
-        ' CheckBox7
-        ' 
-        CheckBox7.AutoSize = True
-        CheckBox7.Enabled = False
-        CheckBox7.Location = New Point(163, 25)
-        CheckBox7.Name = "CheckBox7"
-        CheckBox7.Size = New Size(53, 19)
-        CheckBox7.TabIndex = 36
-        CheckBox7.Text = "CAM"
-        CheckBox7.UseVisualStyleBackColor = True
-        ' 
-        ' CheckBox8
-        ' 
-        CheckBox8.AutoSize = True
-        CheckBox8.Location = New Point(260, 26)
-        CheckBox8.Name = "CheckBox8"
-        CheckBox8.Size = New Size(64, 19)
-        CheckBox8.TabIndex = 37
-        CheckBox8.Text = "Cadasa"
-        CheckBox8.UseVisualStyleBackColor = True
-        ' 
-        ' CheckBox9
-        ' 
-        CheckBox9.AutoSize = True
-        CheckBox9.Location = New Point(163, 46)
-        CheckBox9.Name = "CheckBox9"
-        CheckBox9.Size = New Size(77, 19)
-        CheckBox9.TabIndex = 38
-        CheckBox9.Text = "Quantum"
-        CheckBox9.UseVisualStyleBackColor = True
-        ' 
-        ' CheckBox10
-        ' 
-        CheckBox10.AutoSize = True
-        CheckBox10.Location = New Point(260, 46)
-        CheckBox10.Name = "CheckBox10"
-        CheckBox10.Size = New Size(86, 19)
-        CheckBox10.TabIndex = 39
-        CheckBox10.Text = "Rech.Veolia"
-        CheckBox10.UseVisualStyleBackColor = True
-        ' 
-        ' CheckBox11
-        ' 
-        CheckBox11.AutoSize = True
-        CheckBox11.Location = New Point(163, 68)
-        CheckBox11.Name = "CheckBox11"
-        CheckBox11.Size = New Size(53, 19)
-        CheckBox11.TabIndex = 40
-        CheckBox11.Text = "GAM"
-        CheckBox11.UseVisualStyleBackColor = True
-        ' 
         ' CheckBox12
         ' 
         CheckBox12.AutoSize = True
-        CheckBox12.Location = New Point(260, 68)
+        CheckBox12.Location = New Point(420, 8)
         CheckBox12.Name = "CheckBox12"
         CheckBox12.Size = New Size(99, 19)
         CheckBox12.TabIndex = 41
@@ -411,7 +344,7 @@ Partial Class Form1
         ' CheckBox13
         ' 
         CheckBox13.AutoSize = True
-        CheckBox13.Location = New Point(355, 69)
+        CheckBox13.Location = New Point(525, 8)
         CheckBox13.Name = "CheckBox13"
         CheckBox13.Size = New Size(104, 19)
         CheckBox13.TabIndex = 42
@@ -628,15 +561,6 @@ Partial Class Form1
         Button16.Text = "Penalizaciones"
         Button16.UseVisualStyleBackColor = True
         ' 
-        ' Button13
-        ' 
-        Button13.Location = New Point(229, 27)
-        Button13.Name = "Button13"
-        Button13.Size = New Size(180, 23)
-        Button13.TabIndex = 24
-        Button13.Text = "OpenItems"
-        Button13.UseVisualStyleBackColor = True
-        ' 
         ' Button14
         ' 
         Button14.Location = New Point(434, 116)
@@ -667,7 +591,7 @@ Partial Class Form1
         ' Button20
         ' 
         Button20.Enabled = False
-        Button20.Location = New Point(229, 144)
+        Button20.Location = New Point(229, 172)
         Button20.Name = "Button20"
         Button20.Size = New Size(180, 23)
         Button20.TabIndex = 30
@@ -677,34 +601,23 @@ Partial Class Form1
         ' Button21
         ' 
         Button21.Enabled = False
-        Button21.Location = New Point(229, 173)
+        Button21.Location = New Point(229, 201)
         Button21.Name = "Button21"
         Button21.Size = New Size(180, 23)
         Button21.TabIndex = 31
         Button21.Text = "Aña. Masv. Calendario Tarifa"
         Button21.UseVisualStyleBackColor = True
         ' 
-        ' Button22
-        ' 
-        Button22.Enabled = False
-        Button22.Location = New Point(229, 201)
-        Button22.Name = "Button22"
-        Button22.Size = New Size(180, 23)
-        Button22.TabIndex = 32
-        Button22.Text = "GenerarXML"
-        Button22.UseVisualStyleBackColor = True
-        ' 
         ' Panel2
         ' 
+        Panel2.Controls.Add(Button22)
         Panel2.Controls.Add(Button24)
         Panel2.Controls.Add(Button25)
-        Panel2.Controls.Add(Button22)
         Panel2.Controls.Add(Button21)
         Panel2.Controls.Add(Button20)
         Panel2.Controls.Add(Button19)
         Panel2.Controls.Add(Button18)
         Panel2.Controls.Add(Button14)
-        Panel2.Controls.Add(Button13)
         Panel2.Controls.Add(Button16)
         Panel2.Controls.Add(Button12)
         Panel2.Controls.Add(Button11)
@@ -722,6 +635,16 @@ Partial Class Form1
         Panel2.Size = New Size(617, 225)
         Panel2.TabIndex = 22
         ' 
+        ' Button22
+        ' 
+        Button22.BackColor = Color.LightSkyBlue
+        Button22.Location = New Point(229, 29)
+        Button22.Name = "Button22"
+        Button22.Size = New Size(180, 23)
+        Button22.TabIndex = 35
+        Button22.Text = "IA Gestor SIGE"
+        Button22.UseVisualStyleBackColor = False
+        ' 
         ' Button24
         ' 
         Button24.Location = New Point(434, 202)
@@ -731,26 +654,30 @@ Partial Class Form1
         Button24.Text = "Extraer Documentos Generales"
         Button24.UseVisualStyleBackColor = True
         ' 
+        ' Button26
+        ' 
+        Button26.Location = New Point(164, 67)
+        Button26.Name = "Button26"
+        Button26.Size = New Size(137, 23)
+        Button26.TabIndex = 35
+        Button26.Text = "Consulta dinamica"
+        Button26.UseVisualStyleBackColor = True
+        ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.LightBlue
         ClientSize = New Size(640, 539)
+        Controls.Add(Button26)
+        Controls.Add(ComboBoxConsultas)
         Controls.Add(CheckBox13)
         Controls.Add(CheckBox12)
-        Controls.Add(CheckBox11)
-        Controls.Add(CheckBox10)
-        Controls.Add(CheckBox9)
-        Controls.Add(CheckBox8)
-        Controls.Add(CheckBox7)
-        Controls.Add(CheckBox6)
         Controls.Add(Label9)
         Controls.Add(Label8)
         Controls.Add(DateTimePicker3)
         Controls.Add(DateTimePicker2)
         Controls.Add(Label7)
-        Controls.Add(CheckBox5)
         Controls.Add(Button23)
         Controls.Add(Button15)
         Controls.Add(Button17)
@@ -812,18 +739,11 @@ Partial Class Form1
     Friend WithEvents RadioButton3 As RadioButton
     Friend WithEvents Button17 As Button
     Friend WithEvents Button23 As Button
-    Friend WithEvents CheckBox5 As CheckBox
     Friend WithEvents Label7 As Label
     Friend WithEvents DateTimePicker2 As DateTimePicker
     Friend WithEvents DateTimePicker3 As DateTimePicker
     Friend WithEvents Label8 As Label
     Friend WithEvents Label9 As Label
-    Friend WithEvents CheckBox6 As CheckBox
-    Friend WithEvents CheckBox7 As CheckBox
-    Friend WithEvents CheckBox8 As CheckBox
-    Friend WithEvents CheckBox9 As CheckBox
-    Friend WithEvents CheckBox10 As CheckBox
-    Friend WithEvents CheckBox11 As CheckBox
     Friend WithEvents CheckBox12 As CheckBox
     Friend WithEvents CheckBox13 As CheckBox
     Friend WithEvents PictureBox2 As PictureBox
@@ -850,13 +770,14 @@ Partial Class Form1
     Friend WithEvents Button11 As Button
     Friend WithEvents Button12 As Button
     Friend WithEvents Button16 As Button
-    Friend WithEvents Button13 As Button
     Friend WithEvents Button14 As Button
     Friend WithEvents Button18 As Button
     Friend WithEvents Button19 As Button
     Friend WithEvents Button20 As Button
     Friend WithEvents Button21 As Button
-    Friend WithEvents Button22 As Button
     Friend WithEvents Panel2 As Panel
     Friend WithEvents Button24 As Button
+    Friend WithEvents Button26 As Button
+    Friend WithEvents ComboBoxConsultas As ComboBox
+    Friend WithEvents Button22 As Button
 End Class

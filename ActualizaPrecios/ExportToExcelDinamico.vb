@@ -1,8 +1,10 @@
 ﻿Imports System.Data.SqlClient
 Imports System.IO
 Imports ClosedXML.Excel
+Imports OfficeOpenXml
 
 Module ExportToExcelDinamico
+    'Pinta Todos los datos recibidos del la consulta 
     Sub ExportarConsultaAExcel(connectionString As String, consultaSQL As String, rutaArchivo As String, hojaNombre As String)
         Try
             ' 1. Conectar a la base de datos y ejecutar la consulta
@@ -94,4 +96,278 @@ Module ExportToExcelDinamico
         End Try
 
     End Sub
+
+    'Pinta los datos por databla en excel
+    Sub ExportarConsultaAExcelV2(ListatablaDatos As List(Of DataTable), rutaArchivo As String, hojaNombre As String)
+        Try
+            If ListatablaDatos Is Nothing OrElse ListatablaDatos.Count = 0 Then Exit Sub
+
+            Dim workbook As XLWorkbook
+
+            If File.Exists(rutaArchivo) Then
+                Try
+                    workbook = New XLWorkbook(rutaArchivo)
+                Catch ex As Exception
+                    workbook = New XLWorkbook()
+                End Try
+            Else
+                workbook = New XLWorkbook()
+            End If
+
+            Using workbook
+                Dim hoja As IXLWorksheet
+                If workbook.Worksheets.Any(Function(ws) ws.Name = hojaNombre) Then
+                    hoja = workbook.Worksheet(hojaNombre)
+                Else
+                    hoja = workbook.Worksheets.Add(hojaNombre)
+                End If
+
+                ' Escribir encabezados una sola vez si no existen
+                If hoja.Cell(1, 1).IsEmpty Then
+                    For i As Integer = 0 To ListatablaDatos(0).Columns.Count - 1
+                        hoja.Cell(1, i + 1).Value = ListatablaDatos(0).Columns(i).ColumnName
+                        hoja.Cell(1, i + 1).Style.Font.Bold = True
+                    Next
+                End If
+
+                ' Calcular la fila de inicio (para no sobrescribir)
+                Dim filaExcel As Integer = hoja.LastRowUsed()?.RowNumber() + 1
+                If filaExcel <= 1 Then filaExcel = 2 ' Si no hay datos, empezar en la fila 2
+
+                ' Insertar todos los registros uno debajo del otro
+                For Each tabladatos In ListatablaDatos
+                    For Each fila As DataRow In tabladatos.Rows
+                        For columnaIndex As Integer = 0 To tabladatos.Columns.Count - 1
+                            Dim valorCelda As Object = fila(columnaIndex)
+                            If IsDBNull(valorCelda) Then
+                                hoja.Cell(filaExcel, columnaIndex + 1).SetValue("")
+                            Else
+                                Select Case valorCelda.GetType()
+                                    Case GetType(Int16), GetType(Int32), GetType(Int64)
+                                        hoja.Cell(filaExcel, columnaIndex + 1).SetValue(Convert.ToInt64(valorCelda))
+                                    Case GetType(Single), GetType(Double), GetType(Decimal)
+                                        hoja.Cell(filaExcel, columnaIndex + 1).SetValue(Convert.ToDouble(valorCelda)).Style.NumberFormat.Format = "#,##0.0"
+                                    Case GetType(DateTime)
+                                        hoja.Cell(filaExcel, columnaIndex + 1).SetValue(Convert.ToDateTime(valorCelda))
+                                        hoja.Cell(filaExcel, columnaIndex + 1).Style.DateFormat.Format = "dd/MM/yyyy"
+                                    Case GetType(Boolean)
+                                        hoja.Cell(filaExcel, columnaIndex + 1).SetValue(Convert.ToBoolean(valorCelda))
+                                    Case Else
+                                        hoja.Cell(filaExcel, columnaIndex + 1).SetValue(valorCelda.ToString())
+                                End Select
+                            End If
+                        Next
+                        filaExcel += 1
+                    Next
+                Next
+
+                hoja.Columns().AdjustToContents()
+                workbook.SaveAs(rutaArchivo)
+            End Using
+
+        Catch ex As Exception
+            Throw
+        End Try
+    End Sub
+
+    Public Async Function ProcesarConsultaDesdeExcelAsync(
+    subcarpetaDestino As String,
+    nombreArchivoSalida As String,
+    nombreHoja As Object,
+    columnaId As Integer,
+    accionPorId As Func(Of Long, DataTable),
+    NombreUsuarioEquipo As String,
+    UsarExcel As Boolean) As Task
+
+        Try
+            Dim IdDocumentos As New List(Of Long)
+            Dim rutaArchivo As String = ""
+
+            Dim rutaBase = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO"
+            Dim Destino = Path.Combine(rutaBase, subcarpetaDestino)
+
+            If Not Directory.Exists(Destino) Then
+                Directory.CreateDirectory(Destino)
+            End If
+
+            ' Si es true, leemos desde el Excel las IDs
+            If UsarExcel Then
+                Using openFileDialog1 As New OpenFileDialog
+                    openFileDialog1.Title = "Seleccionar archivos"
+                    openFileDialog1.Multiselect = False
+                    openFileDialog1.Filter = "Todos los archivos (*.*)|*.*"
+
+                    If openFileDialog1.ShowDialog = DialogResult.OK Then
+                        rutaArchivo = openFileDialog1.FileName
+                    End If
+                End Using
+
+                If String.IsNullOrEmpty(rutaArchivo) Then Return
+
+                ' Leer IDs desde Excel
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial
+                Using package As New ExcelPackage(New FileInfo(rutaArchivo))
+                    Dim worksheet = If(TypeOf nombreHoja Is Integer,
+                                   package.Workbook.Worksheets(CInt(nombreHoja)),
+                                   package.Workbook.Worksheets(nombreHoja.ToString()))
+
+                    Dim rowCount = worksheet.Dimension.Rows
+                    For row = 2 To rowCount
+                        Dim idTexto = worksheet.Cells(row, columnaId).Value?.ToString()
+                        If Not String.IsNullOrEmpty(idTexto) AndAlso Long.TryParse(idTexto, Nothing) Then
+                            IdDocumentos.Add(Convert.ToInt64(idTexto))
+                        End If
+                    Next
+                End Using
+
+                If IdDocumentos.Count = 0 Then
+                    Throw New Exception("Sin registros en el Excel")
+                End If
+            End If
+
+            Await Task.Run(Sub()
+                               Dim ListaTablas As New List(Of DataTable)
+                               Dim rutaSalida = Path.Combine(Destino, nombreArchivoSalida)
+
+                               If UsarExcel Then
+                                   ' PROCESAMIENTO EN PARALELO
+                                   Dim lockLista As New Object()
+                                   Dim tareas As New List(Of Task)
+
+                                   For Each id In IdDocumentos
+                                       tareas.Add(Task.Run(Sub()
+                                                               Try
+                                                                   Dim tabla As DataTable = accionPorId(id)
+                                                                   If tabla IsNot Nothing Then
+                                                                       SyncLock lockLista
+                                                                           ListaTablas.Add(tabla)
+                                                                       End SyncLock
+                                                                   End If
+                                                               Catch ex As Exception
+                                                                   ' Log o ignorar fallo por ID individual
+                                                               End Try
+                                                           End Sub))
+
+                                       ' Limitar número de tareas concurrentes
+                                       If tareas.Count >= 20 Then
+                                           Task.WaitAll(tareas.ToArray())
+                                           tareas.Clear()
+                                       End If
+                                   Next
+
+                                   ' Esperar tareas pendientes
+                                   If tareas.Count > 0 Then Task.WaitAll(tareas.ToArray())
+
+                               Else
+                                   ' Consulta sin ID desde combo
+                                   Try
+                                       Dim tabla As DataTable = accionPorId(0)
+                                       If tabla IsNot Nothing Then
+                                           ListaTablas.Add(tabla)
+                                       End If
+                                   Catch ex As Exception
+                                       Throw
+                                   End Try
+                               End If
+
+                               ' Exportar al Excel final
+                               ExportarConsultaAExcelV2(ListaTablas, rutaSalida, Path.GetFileNameWithoutExtension(nombreArchivoSalida))
+                           End Sub)
+
+        Catch ex As Exception
+            Throw
+        End Try
+    End Function
+
+
+    'Public Async Function ProcesarConsultaDesdeExcelAsync(subcarpetaDestino As String, nombreArchivoSalida As String, nombreHoja As Object, columnaId As Integer, accionPorId As Func(Of Long, DataTable), NombreUsuarioEquipo As String, UsarExcel As Boolean) As Task
+    '    Try
+
+
+    '        Dim IdDocumentos As New List(Of Long)
+    '        Dim rutaArchivo As String = ""
+
+    '        Dim rutaBase = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO"
+    '        Dim Destino = Path.Combine(rutaBase, subcarpetaDestino)
+
+    '        If Not Directory.Exists(Destino) Then
+    '            Directory.CreateDirectory(Destino)
+    '        End If
+    '        'Si es true, leemos desde el excel las ids
+    '        If UsarExcel Then
+
+
+    '            ' Selección de archivo
+    '            Using openFileDialog1 As New OpenFileDialog
+    '                openFileDialog1.Title = "Seleccionar archivos"
+    '                openFileDialog1.Multiselect = False
+    '                openFileDialog1.Filter = "Todos los archivos (*.*)|*.*"
+
+    '                If openFileDialog1.ShowDialog = DialogResult.OK Then
+    '                    rutaArchivo = openFileDialog1.FileName
+    '                End If
+    '            End Using
+
+    '            If String.IsNullOrEmpty(rutaArchivo) Then Return
+
+    '            ' Leer IDs desde Excel
+    '            ExcelPackage.LicenseContext = LicenseContext.NonCommercial
+    '            Using package As New ExcelPackage(New FileInfo(rutaArchivo))
+    '                Dim worksheet = If(TypeOf nombreHoja Is Integer,
+    '                               package.Workbook.Worksheets(CInt(nombreHoja)),
+    '                               package.Workbook.Worksheets(nombreHoja.ToString()))
+
+    '                Dim rowCount = worksheet.Dimension.Rows
+    '                For row = 2 To rowCount
+    '                    Dim idTexto = worksheet.Cells(row, columnaId).Value?.ToString()
+    '                    If Not String.IsNullOrEmpty(idTexto) AndAlso Long.TryParse(idTexto, Nothing) Then
+    '                        IdDocumentos.Add(Convert.ToInt64(idTexto))
+    '                    End If
+    '                Next
+    '            End Using
+
+    '            If IdDocumentos.Count = 0 Then
+    '                Throw New Exception("Sin registros en el excel")
+    '            End If
+    '        End If
+    '        'PictureBox2.Visible = True
+
+    '        Await Task.Run(Sub()
+    '                           Dim ListaTablas As New List(Of DataTable)
+    '                           Dim rutaSalida = Path.Combine(Destino, nombreArchivoSalida)
+    '                           'si es true  se recorre la lista de iddocumentos
+    '                           If UsarExcel Then
+    '                               For Each id In IdDocumentos
+    '                                   Try
+    '                                       Dim tabla As DataTable = accionPorId(id)
+    '                                       If tabla IsNot Nothing Then
+    '                                           ListaTablas.Add(tabla)
+    '                                       End If
+    '                                   Catch ex As Exception
+    '                                       ' Manejo de error por ID
+    '                                   End Try
+    '                               Next
+    '                           Else
+    '                               'si no, le pasamos directamente el datatable, lo añadimos a la lista y exportamos
+    '                               Try
+    '                                   ' le paso cero para que ignore la id
+    '                                   Dim tabla As DataTable = accionPorId(0)
+    '                                   If tabla IsNot Nothing Then
+    '                                       ListaTablas.Add(tabla)
+    '                                   End If
+    '                               Catch ex As Exception
+    '                                   Throw
+    '                               End Try
+    '                           End If
+    '                           ExportarConsultaAExcelV2(ListaTablas, rutaSalida, Path.GetFileNameWithoutExtension(nombreArchivoSalida))
+
+    '                       End Sub)
+
+    '        'PictureBox2.Visible = False
+    '    Catch ex As Exception
+    '        Throw
+    '    End Try
+    'End Function
+
+
 End Module

@@ -1,5 +1,6 @@
 ﻿
 Imports System.Data.OleDb
+Imports System.Data.SqlClient
 Imports System.IO
 Imports System.Text.RegularExpressions
 Imports System.Xml
@@ -1069,7 +1070,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
     End Sub
 
     ' Open Items
-    Private Async Sub Button13_Click(sender As Object, e As EventArgs) Handles Button13.Click
+    Private Async Sub Button13_Click(sender As Object, e As EventArgs)
         Try
 
             ' Crear una instancia de OpenFileDialog
@@ -1773,7 +1774,8 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         End Try
     End Sub
 
-    Private Sub Button22_Click(sender As Object, e As EventArgs) Handles Button22.Click
+    'ClientesInduestriales
+    Private Sub Button22_Click_(sender As Object, e As EventArgs)
         Dim rutaExcel = "C:\Users\ErickCC\Downloads\Industriales_2024S1_v2.xlsx"
         Dim rutaXML = "C:\Users\ErickCC\Desktop\Erick\archivoF.xml"
 
@@ -1904,77 +1906,81 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             ' Lista para las tareas
             Dim tasks As New List(Of Task)
 
-            PictureBox2.Visible = True
+
             Dim RutaFinal = rutaCarpeta + ":"
+#Region "Codigo Antiguo"
+
+
             ' Si el CheckBox5 está marcado, crear archivo para Luz y Gas
-            If CheckBox5.Checked Then
-                tasks.Add(Task.Run(Sub()
-                                       Dim Name = "Consulta_ClicksTODO" ' Nombre específico para esta consulta
-                                       Dim rutaArchivoLuzGas = IO.Path.Combine(rutaCarpeta, $"{Name}_LuzGas_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim consultaLuz As String = ConsultasSQL.GetClickLuz
-                                       ExportarConsultaAExcel(conexion, consultaLuz, rutaArchivoLuzGas, "Luz")
-                                       Dim consultaGas As String = ConsultasSQL.GetClickGas
-                                       ExportarConsultaAExcel(conexion, consultaGas, rutaArchivoLuzGas, "Gas")
-                                       RutaFinal += " " + Name
-                                   End Sub))
-            End If
+            'If CheckBox5.Checked Then
+            '    tasks.Add(Task.Run(Sub()
+            '                           Dim Name = "Consulta_ClicksTODO" ' Nombre específico para esta consulta
+            '                           Dim rutaArchivoLuzGas = IO.Path.Combine(rutaCarpeta, $"{Name}_LuzGas_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+            '                           Dim consultaLuz As String = ConsultasSQL.GetClickLuz
+            '                           ExportarConsultaAExcel(conexion, consultaLuz, rutaArchivoLuzGas, "Luz")
+            '                           Dim consultaGas As String = ConsultasSQL.GetClickGas
+            '                           ExportarConsultaAExcel(conexion, consultaGas, rutaArchivoLuzGas, "Gas")
+            '                           RutaFinal += " " + Name
+            '                       End Sub))
+            'End If
 
-            ' Si el CheckBox6 está marcado, crear archivo para Hunosa
-            If CheckBox6.Checked Then
-                tasks.Add(Task.Run(Sub()
-                                       Dim Name = "Hunosa"
-                                       Dim rutaArchivoHunosa = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim Hunosa As String = ConsultasSQL.GetHunosa(DesdeF, HastaF)
-                                       ExportarConsultaAExcel(conexion, Hunosa, rutaArchivoHunosa, "Hunosa")
-                                       RutaFinal += " " + Name
-                                   End Sub))
-            End If
+            '' Si el CheckBox6 está marcado, crear archivo para Hunosa
+            'If CheckBox6.Checked Then
+            '    tasks.Add(Task.Run(Sub()
+            '                           Dim Name = "Hunosa"
+            '                           Dim rutaArchivoHunosa = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+            '                           Dim Hunosa As String = ConsultasSQL.GetHunosa(DesdeF, HastaF)
+            '                           ExportarConsultaAExcel(conexion, Hunosa, rutaArchivoHunosa, "Hunosa")
+            '                           RutaFinal += " " + Name
+            '                       End Sub))
+            'End If
 
-            ' Si el CheckBox8 está marcado, crear archivo para Cadasa
-            If CheckBox8.Checked Then
-                tasks.Add(Task.Run(Sub()
-                                       Dim Name = "Cadasa"
-                                       Dim rutaArchivoCadasa = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim Cadasa As String = ConsultasSQL.GetCadasa(DesdeF, HastaF)
-                                       ExportarConsultaAExcel(conexion, Cadasa, rutaArchivoCadasa, "Cadasa")
-                                       RutaFinal += " " + Name
-                                   End Sub))
-            End If
+            '' Si el CheckBox8 está marcado, crear archivo para Cadasa
+            'If CheckBox8.Checked Then
+            '    tasks.Add(Task.Run(Sub()
+            '                           Dim Name = "Cadasa"
+            '                           Dim rutaArchivoCadasa = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+            '                           Dim Cadasa As String = ConsultasSQL.GetCadasa(DesdeF, HastaF)
+            '                           ExportarConsultaAExcel(conexion, Cadasa, rutaArchivoCadasa, "Cadasa")
+            '                           RutaFinal += " " + Name
+            '                       End Sub))
+            'End If
 
-            ' Si el CheckBox9 está marcado, crear archivo para Quantum
-            If CheckBox9.Checked Then
-                tasks.Add(Task.Run(Sub()
-                                       Dim Name = "Quantum"
-                                       Dim rutaArchivoQuantum = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim Quantum As String = ConsultasSQL.GetQuantum(DesdeF, HastaF)
-                                       ExportarConsultaAExcel(conexion, Quantum, rutaArchivoQuantum, "Quantum")
-                                       RutaFinal += " " + Name
-                                   End Sub))
-            End If
+            '' Si el CheckBox9 está marcado, crear archivo para Quantum
+            'If CheckBox9.Checked Then
+            '    tasks.Add(Task.Run(Sub()
+            '                           Dim Name = "Quantum"
+            '                           Dim rutaArchivoQuantum = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+            '                           Dim Quantum As String = ConsultasSQL.GetQuantum(DesdeF, HastaF)
+            '                           ExportarConsultaAExcel(conexion, Quantum, rutaArchivoQuantum, "Quantum")
+            '                           RutaFinal += " " + Name
+            '                       End Sub))
+            'End If
 
-            ' Si el CheckBox10 está marcado, crear archivo para RechazosVeolia
-            If CheckBox10.Checked Then
-                tasks.Add(Task.Run(Sub()
-                                       Dim Name = "Contratos"
-                                       Dim rutaArchivoRechazosVeolia = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim RechazosVeolia As String = ConsultasSQL.GetRechazosVeolia
-                                       ExportarConsultaAExcel(conexion, RechazosVeolia, rutaArchivoRechazosVeolia, "Veolia")
-                                       RutaFinal += " " + Name
-                                   End Sub))
-            End If
+            '' Si el CheckBox10 está marcado, crear archivo para RechazosVeolia
+            'If CheckBox10.Checked Then
+            '    tasks.Add(Task.Run(Sub()
+            '                           Dim Name = "Contratos"
+            '                           Dim rutaArchivoRechazosVeolia = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+            '                           Dim RechazosVeolia As String = ConsultasSQL.GetRechazosVeolia
+            '                           ExportarConsultaAExcel(conexion, RechazosVeolia, rutaArchivoRechazosVeolia, "Veolia")
+            '                           RutaFinal += " " + Name
+            '                       End Sub))
+            'End If
 
-            If CheckBox11.Checked Then
-                tasks.Add(Task.Run(Sub()
-                                       Dim Name = "GAM"
-                                       Dim rutaArchivoGAM = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim ConsultaGAM As String = ConsultasSQL.GetGAM(DesdeF, HastaF)
-                                       ExportarConsultaAExcel(conexion, ConsultaGAM, rutaArchivoGAM, Name)
-                                       RutaFinal += " " + Name
-                                   End Sub))
-            End If
-
+            'If CheckBox11.Checked Then
+            '    tasks.Add(Task.Run(Sub()
+            '                           Dim Name = "GAM"
+            '                           Dim rutaArchivoGAM = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+            '                           Dim ConsultaGAM As String = ConsultasSQL.GetGAM(DesdeF, HastaF)
+            '                           ExportarConsultaAExcel(conexion, ConsultaGAM, rutaArchivoGAM, Name)
+            '                           RutaFinal += " " + Name
+            '                       End Sub))
+            'End If
+#End Region
             'Check Cups
             If CheckBox1.Checked Then
+                PictureBox2.Visible = True
                 Dim Cups = GetConSinSplitCupsCIFS(TextBox2.Text)
                 Dim conexionv2 = "data source=172.31.100.30;initial catalog=SigeTotalTM;User ID=Sige;Password=SigeNew;"
                 If CheckBox12.Checked AndAlso Cups.Count > 0 Then
@@ -2004,14 +2010,11 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                                            RutaFinal += " " + Name
                                        End Sub))
                 End If
+                ' Esperar a que todas las tareas se completen
+                Await Task.WhenAll(tasks)
+                PictureBox2.Visible = False
+                complementos.Complementos_MostrarMensajePersonalizadoCopiar($"Consulta generada en:{RutaFinal}", "")
             End If
-
-
-
-            ' Esperar a que todas las tareas se completen
-            Await Task.WhenAll(tasks)
-            PictureBox2.Visible = False
-            complementos.Complementos_MostrarMensajePersonalizadoCopiar($"Consulta generada en:{RutaFinal}", "")
         Catch ex As Exception
             PictureBox2.Visible = False
             'PictureBox2.Visible = False
@@ -2231,6 +2234,173 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         Catch ex As Exception
             PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado("Exception: " + ex.Message)
+        End Try
+    End Sub
+
+    Private Async Sub Button26_Click_(sender As Object, e As EventArgs)
+        'Handles Button26.Click
+        Dim ExcelDatos As New Excel
+        Dim Datos As New List(Of List(Of Object))
+        Try
+            Dim totalContratos = 0
+            Dim ContratoActualizar As New List(Of Long)
+            Dim IdDocumentos As New List(Of Long)
+            'Con = GetConSinSplit(TextBox2.Text)
+            ' Crear una instancia de OpenFileDialog
+            Dim openFileDialog1 As New OpenFileDialog
+            Dim Destino = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO\Contratos"
+            If Not Directory.Exists(Destino) Then
+                Directory.CreateDirectory(Destino)
+            End If
+            ' Configurar propiedades del diálogo
+            openFileDialog1.Title = "Seleccionar archivos"
+            openFileDialog1.Multiselect = True ' Permitir la selección múltiple de archivos
+            openFileDialog1.Filter = "Todos los archivos (*.*)|*.*" ' Filtro de archivos
+            Dim rutaArchivo = ""
+            ' Mostrar el diálogo y verificar si el usuario hizo clic en OK
+            If openFileDialog1.ShowDialog = DialogResult.OK Then
+                ' Obtener la ruta de cada archivo seleccionado y mostrarla en la consola
+                For Each filename In openFileDialog1.FileNames
+                    rutaArchivo = filename
+                Next
+            End If
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial
+            If rutaArchivo.Length > 0 Then
+                Using package As New ExcelPackage(New FileInfo(rutaArchivo))
+                    Dim worksheet = package.Workbook.Worksheets(0)
+                    Dim rowCount = worksheet.Dimension.Rows
+
+                    ' Leer códigos de contrato del Excel
+                    Dim codigosContrato As New List(Of Long)
+                    For row = 2 To rowCount
+                        Dim IdDocumento = worksheet.Cells(row, 1).Value?.ToString
+                        'Dim idcontratotarifa = worksheet.Cells(row, 2).Value?.ToString
+                        'Dim Cups As String = worksheet.Cells(row, 3).Value?.ToString()
+                        If Not String.IsNullOrEmpty(IdDocumento) Then
+                            IdDocumentos.Add(IdDocumento)
+                        End If
+                    Next
+                End Using
+                Dim ListatablaDatos As New List(Of DataTable)
+                If IdDocumentos.Count > 0 Then
+                    PictureBox2.Visible = True
+                    Dim RutaContratosConsultor = IO.Path.Combine(Destino, $"V_ContratoPaginadoListado.xlsx")
+                    Await Task.Run(Sub()
+
+                                       For Each c In IdDocumentos
+                                           Dim ContratoConsultor As String = ConsultasSQL.Get_V_ContratoPaginadoListado(c)
+                                           Using conexion As New SqlConnection(connectionString)
+                                               Dim comando As New SqlCommand(ContratoConsultor, conexion)
+                                               Dim adaptador As New SqlDataAdapter(comando)
+                                               Dim tablaDatos As New DataTable()
+
+                                               conexion.Open()
+                                               comando.CommandTimeout = 10000
+                                               adaptador.Fill(tablaDatos)
+                                               conexion.Close()
+                                               ListatablaDatos.Add(tablaDatos)
+                                           End Using
+                                       Next
+
+                                       ExportarConsultaAExcelV2(ListatablaDatos, RutaContratosConsultor, "Contratos")
+                                   End Sub)
+
+
+                Else
+                    complementos.MostrarMensajePersonalizado($"Sin Documentos")
+                End If
+                PictureBox2.Visible = False
+            End If
+
+        Catch ex As Exception
+            PictureBox2.Visible = False
+            complementos.MostrarMensajePersonalizado("Exception: " + ex.Message)
+        End Try
+    End Sub
+
+    Private Async Sub Button26_Click(sender As Object, e As EventArgs) Handles Button26.Click
+        Try
+
+            Dim DesdeF = DateTimePicker3.Value.Date.ToString("dd/MM/yyyy")
+            Dim HastaF = DateTimePicker2.Value.Date.ToString("dd/MM/yyyy")
+            Dim consultaSeleccionada = DirectCast(ComboBoxConsultas.SelectedItem, KeyValuePair(Of String, String))
+            Dim nombreConsulta = consultaSeleccionada.Key
+            Dim queryBase = consultaSeleccionada.Value
+            Dim palabrasClave As String() = {"Quantum", "GAM", "Hunosa", "Cadasa"}
+
+            If palabrasClave.Any(Function(p) nombreConsulta.Contains(p)) AndAlso DesdeF = "01/01/2000" AndAlso HastaF = "31/01/2000" Then
+                complementos.MostrarMensajePersonalizado($"La consulta {nombreConsulta} necesita fechas desde y hasta mayores al año 2000")
+                Exit Sub
+            End If
+            PictureBox2.Visible = True
+            Await ProcesarConsultaDesdeExcelAsync(
+            subcarpetaDestino:="Consultas",
+            nombreArchivoSalida:=$"{nombreConsulta}_{Now:ddMMyyyyHHmmss}.xlsx",
+            nombreHoja:=0,
+            columnaId:=1,
+            accionPorId:=Function(id As Long) As DataTable
+                             Dim query As String
+                             If queryBase Is Nothing Then
+                                 If nombreConsulta.Equals("Masivo Facturas") Then
+                                     query = ConsultasSQL.Get_Masivo_Facturas_Click_byID(id) ' Consulta especial con ID MASIVO
+                                 Else
+                                     query = ConsultasSQL.Get_V_ContratoPaginadoListado(id) ' Consulta especial con ID
+                                 End If
+
+                             Else
+                                 query = queryBase
+                             End If
+
+                             Using conexion As New SqlConnection(connectionString)
+                                 Using comando As New SqlCommand(query, conexion)
+                                     Dim adaptador As New SqlDataAdapter(comando)
+                                     Dim tabla As New DataTable()
+                                     conexion.Open()
+                                     comando.CommandTimeout = 10000
+                                     adaptador.Fill(tabla)
+                                     Return tabla
+                                 End Using
+                             End Using
+                         End Function,
+            NombreUsuarioEquipo,
+            UsarExcel:=(queryBase Is Nothing) ' Solo usar Excel si se necesita ID
+        )
+
+        Catch ex As Exception
+            complementos.MostrarMensajePersonalizado("Exception: " + ex.Message)
+        Finally
+            PictureBox2.Visible = False
+        End Try
+    End Sub
+
+
+    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        Dim DesdeF = DateTimePicker3.Value.Date.ToString("dd/MM/yyyy")
+        Dim HastaF = DateTimePicker2.Value.Date.ToString("dd/MM/yyyy")
+        Dim consultas As New Dictionary(Of String, String) From {
+        {"Clicks GAS", ConsultasSQL.GetClickLuz},
+        {"Clicks Luz", ConsultasSQL.GetClickGas},
+        {"Rechazos Veolia", ConsultasSQL.GetRechazosVeolia},
+        {"Quantum", ConsultasSQL.GetQuantum(DesdeF, HastaF)},
+        {"GAM", ConsultasSQL.GetGAM(DesdeF, HastaF)},
+        {"Hunosa", ConsultasSQL.GetHunosa(DesdeF, HastaF)},
+        {"Cadasa", ConsultasSQL.GetCadasa(DesdeF, HastaF)},
+        {"Contratos Paginados", Nothing}, ' esta es especial, requiere ID
+        {"Masivo Facturas", Nothing}
+    }
+        ComboBoxConsultas.DataSource = New BindingSource(consultas, Nothing)
+        ComboBoxConsultas.DisplayMember = "Key"
+        ComboBoxConsultas.ValueMember = "Value"
+    End Sub
+
+    Private Sub Button22_Click(sender As Object, e As EventArgs) Handles Button22.Click
+        Try
+
+            Dim ModiCo As New IAAssistance()
+            ModiCo.Show()
+
+        Catch ex As Exception
+            complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
 End Class

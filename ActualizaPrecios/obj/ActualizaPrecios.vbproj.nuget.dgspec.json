@@ -54,6 +54,10 @@
               "target": "Package",
               "version": "[0.102.2, )"
             },
+            "DocX": {
+              "target": "Package",
+              "version": "[4.0.25105.5786, )"
+            },
             "EPPlus": {
               "target": "Package",
               "version": "[7.0.9, )"
@@ -73,6 +77,10 @@
             "System.Net.FtpClient": {
               "target": "Package",
               "version": "[1.0.5824.34026, )"
+            },
+            "iTextSharp": {
+              "target": "Package",
+              "version": "[5.5.13.4, )"
             }
           },
           "imports": [

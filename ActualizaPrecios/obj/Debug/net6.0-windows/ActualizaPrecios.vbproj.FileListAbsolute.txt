@@ -79,3 +79,14 @@ C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Debug\net6.0-
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Debug\net6.0-windows\ActualizaPrecios.genruntimeconfig.cache
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\ActualizaPrecios.pdb
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Debug\net6.0-windows\ref\ActualizaPrecios.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Debug\net6.0-windows\ActualizaPrecios.IAAssistance.resources
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\BouncyCastle.Cryptography.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\Xceed.Document.NET.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\Xceed.Drawing.NET.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\Xceed.Words.NET.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\itextsharp.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\SkiaSharp.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\runtimes\osx\native\libSkiaSharp.dylib
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\runtimes\win-arm64\native\libSkiaSharp.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\runtimes\win-x64\native\libSkiaSharp.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\runtimes\win-x86\native\libSkiaSharp.dll
