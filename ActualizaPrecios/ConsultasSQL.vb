@@ -2049,8 +2049,9 @@ c.codigocontrato,
 ,replace(isnull(max(case when cp.IdTarifaPeajePeriodo in  (20203005,20206105,20206205,20206305,20206405,20208005,20208105) then cp.PotenciaContratada end),0),'.',',') Cp5
 ,replace(isnull(max(case when cp.IdTarifaPeajePeriodo in (20203006,20206106,20206206,20206306,20206406,20208006,20208106) then cp.PotenciaContratada end),0),'.',',') Cp6
  from contrato c with (nolock)
+ inner join  FacturasVentaConsulta on c.codigocontrato=FacturasVentaConsulta.codigocontrato
 left join ContratoPotencia cp with (nolock) on cp.idcontrato = c.idcontrato
-where c.idcontrato=159564
+--where c.idcontrato=159564
 group by c.CodigoContrato
 )
 ,
@@ -2160,13 +2161,13 @@ from FacturaVentaLinea WITH (NOLOCK)
 inner join FacturasVentaConsulta WITH (NOLOCK) on FacturasVentaConsulta.IdFacturaVentaCabecera = FacturaVentaLinea.IdFacturaVentaCabecera 
 --where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta WITH (NOLOCK))
 )
-,ImporteClick (idfacturaventacabecera,ImporteBase) as
-(Select idfacturaventacabecera,sum(importebase) from LineasFactura with(nolock) where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta WITH (NOLOCK))
+,ImporteClick (idfacturaventacabecera,ImporteClickTotal) as
+(Select idfacturaventacabecera,replace(sum(importebase),'.',',')ImporteClickTotal from LineasFactura with(nolock) where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta WITH (NOLOCK))
 and Facturaconcepto=30006 and (isajustecapgas=0 or isajustecapgas is null)
 group by IdFacturaVentaCabecera
 )
 ,ImporteClickDesglosado AS (
-    Select lf.idfacturaventacabecera,lf.importebase,lf.descripcion,
+    Select lf.idfacturaventacabecera,replace(lf.importebase,'.',',') importebase,lf.descripcion,
         ROW_NUMBER() OVER (PARTITION BY lf.idfacturaventacabecera ORDER BY lf.idfacturaventacabecera) AS LineaNumero
     from LineasFactura lf WITH (NOLOCK)
     where 
@@ -2288,7 +2289,8 @@ group by Lineas.IdFacturaVentaCabecera
 ),
 ImportesProductosDesglosado as (
 Select IdFacturaVentaCabecera,IdProducto,sum(ImporteBase) AS Importe
-from (Select Lineas.IdFacturaVentaCabecera, Lineas.ImporteBase,       
+from (Select Lineas.IdFacturaVentaCabecera, Lineas.ImporteBase
+,       
 			CASE 
             WHEN InfoLineaXML.value('(//ConceptoProductos//IdProducto)[1]', 'int') not in (4,5,27,28,18,90,113,122,158,202) THEN 1000
             ELSE InfoLineaXML.value('(//ConceptoProductos//IdProducto)[1]', 'int')
@@ -2301,13 +2303,16 @@ group by IdFacturaVentaCabecera,IdProducto
 Select pa.IdContrato,pa.IdProducto,pa.Importe,AplicarPrecioConsumo,producto.TextoProducto from ProductoAsignacion pa WITH (NOLOCK)
 inner join producto WITH (NOLOCK) on pa.IdProducto =producto.IdProducto
 where pa.IdContrato in (select IdContrato from PreseleccionContratos)--and pa.AplicarPrecioConsumo=1
-),FacturaOrigen as (
+)
+,FacturaOrigen as (
 select FacturaVentaCabecera.IdFacturaVentaCabecera,SerieNumFactura from FacturaVentaCabecera WITH (NOLOCK) where IdFacturaVentaCabecera in 
 (select IdFacturaOrigen from FacturaVentaCabecera where IdFacturaVentaCabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta WITH (NOLOCK)))
 )
 
 
-Select distinct
+,PreConsulta as(Select distinct
+fvc.idfacturaventacabecera idf,
+fvc.idcontrato,
 cl.Identidad as CIFDNI
 ,dbo.formateardenominacion(cl.nombre,cl.apellido1,cl.apellido2,cl.razonsocial) as RazonSocial
 ,cll.NombreCalle +' '+ cups.Aclarador as Direccion
@@ -2474,76 +2479,7 @@ cl.Identidad as CIFDNI
 ,replace(PrecioCargoEnergiaP6,'.',',') AS PrecioCargoEnergiaP6
 ----,fvlClickAjuste.descripcion As DescripcionAjusteClick
 ----,replace(fvlClickAjuste.ImporteBase,'.',',') As ImporteAjusteClick
-,case ProductosContrato1.AplicarprecioConsumo when 1 then replace(ProductosContrato1.importe,'.',',') else replace(isnull(ImportesProductosDesglosado1.Importe,0),'.',',') end  as 'CO'
-,case ProductosContrato4.AplicarprecioConsumo when 1 then replace(ProductosContrato4.importe,'.',',') else replace(isnull(ImportesProductosDesglosado4.Importe,0),'.',',') end  as 'CO interno'
-,case ProductosContrato2.AplicarprecioConsumo when 1 then replace(ProductosContrato2.importe,'.',',') else replace(isnull(ImportesProductosDesglosado2.Importe,0),'.',',') end  as 'Energía Verde'
-,case ProductosContrato3.AplicarprecioConsumo when 1 then replace(ProductosContrato3.importe,'.',',') else replace(isnull(ImportesProductosDesglosado3.Importe,0),'.',',') end  as 'Impresión en Papel'
-,case ProductosContrato5.AplicarprecioConsumo when 1 then replace(ProductosContrato5.importe,'.',',') else replace(isnull(ImportesProductosDesglosado5.Importe,0),'.',',') end  as 'Servicio RAD + Diferencial de SAS'
-,case ProductosContrato6.AplicarprecioConsumo when 1 then replace(ProductosContrato6.importe,'.',',') else replace(isnull(ImportesProductosDesglosado6.Importe,0),'.',',') end  as 'Gastos - Devolucion recibo'
-,case ProductosContrato7.AplicarprecioConsumo when 1 then replace(ProductosContrato7.importe,'.',',') else replace(isnull(ImportesProductosDesglosado7.Importe,0),'.',',') end  as 'Actualización de FNEE Orden TED/268/2024 (0,000477€/kWh x Consumo)'
-,case ProductosContrato8.AplicarprecioConsumo when 1 then replace(ProductosContrato8.importe,'.',',') else replace(isnull(ImportesProductosDesglosado8.Importe,0),'.',',') end  as 'Actualización de FNEE Orden TED/197/2025 (0,000454€/kWh x Consumo)'
-,case ProductosContrato9.AplicarprecioConsumo when 1 then replace(ProductosContrato9.importe,'.',',') else replace(isnull(ImportesProductosDesglosado9.Importe,0),'.',',') end  as 'Otros Productos'
-,ImporteClickDesglosado1.descripcion as descripcionclick1
-,replace(ImporteClickDesglosado1.importebase,'.',',')  as ImporteClick1
-,ImporteClickDesglosado2.descripcion as descripcionclick2
-,replace(ImporteClickDesglosado2.importebase,'.',',')  as ImporteClick2
-,ImporteClickDesglosado3.descripcion as descripcionclick3
-,replace(ImporteClickDesglosado3.importebase,'.',',')  as ImporteClick3
-,ImporteClickDesglosado4.descripcion as descripcionclick4
-,replace(ImporteClickDesglosado4.importebase,'.',',')  as ImporteClick4
-,ImporteClickDesglosado5.descripcion as descripcionclick5
-,replace(ImporteClickDesglosado5.importebase,'.',',')  as ImporteClick5
-,ImporteClickDesglosado6.descripcion as descripcionclick6
-,replace(ImporteClickDesglosado6.importebase,'.',',')  as ImporteClick6
-,ImporteClickDesglosado7.descripcion as descripcionclick7
-,replace(ImporteClickDesglosado7.importebase,'.',',')  as ImporteClick7
-,ImporteClickDesglosado8.descripcion as descripcionclick8
-,replace(ImporteClickDesglosado8.importebase,'.',',')  as ImporteClick8
-,ImporteClickDesglosado9.descripcion as descripcionclick9
-,replace(ImporteClickDesglosado9.importebase,'.',',')  as ImporteClick9
-,ImporteClickDesglosado10.descripcion as descripcionclick10
-,replace(ImporteClickDesglosado10.importebase,'.',',')  as ImporteClick10
-,ImporteClickDesglosado11.descripcion as descripcionclick11
-,replace(ImporteClickDesglosado11.importebase,'.',',')  as ImporteClick11
-,ImporteClickDesglosado12.descripcion as descripcionclick12
-,replace(ImporteClickDesglosado12.importebase,'.',',')  as ImporteClick12
-,ImporteClickDesglosado13.descripcion as descripcionclick13
-,replace(ImporteClickDesglosado13.importebase,'.',',')  as ImporteClick13
-,ImporteClickDesglosado14.descripcion as descripcionclick14
-,replace(ImporteClickDesglosado14.importebase,'.',',')  as ImporteClick14
-,ImporteClickDesglosado15.descripcion as descripcionclick15
-,replace(ImporteClickDesglosado15.importebase,'.',',')  as ImporteClick15
-,ImporteClickDesglosado16.descripcion as descripcionclick16
-,replace(ImporteClickDesglosado16.importebase,'.',',')  as ImporteClick16
-,ImporteClickDesglosado17.descripcion as descripcionclick17
-,replace(ImporteClickDesglosado17.importebase,'.',',')  as ImporteClick17
-,ImporteClickDesglosado18.descripcion as descripcionclick18
-,replace(ImporteClickDesglosado18.importebase,'.',',')  as ImporteClick18
-,ImporteClickDesglosado19.descripcion as descripcionclick19
-,replace(ImporteClickDesglosado19.importebase,'.',',')  as ImporteClick19
-,ImporteClickDesglosado20.descripcion as descripcionclick20
-,replace(ImporteClickDesglosado20.importebase,'.',',') as ImporteClick20
-,ImporteClickDesglosado21.descripcion as descripcionclick21
-,replace(ImporteClickDesglosado21.importebase,'.',',')  as ImporteClick21
-,ImporteClickDesglosado22.descripcion as descripcionclick22
-,replace(ImporteClickDesglosado22.importebase,'.',',')  as ImporteClick22
-,ImporteClickDesglosado23.descripcion as descripcionclick23
-,replace(ImporteClickDesglosado23.importebase,'.',',')  as ImporteClick23
-,ImporteClickDesglosado24.descripcion as descripcionclick24
-,replace(ImporteClickDesglosado24.importebase,'.',',')  as ImporteClick24
-,ImporteClickDesglosado25.descripcion as descripcionclick25
-,replace(ImporteClickDesglosado25.importebase,'.',',')  as ImporteClick25
-,ImporteClickDesglosado26.descripcion as descripcionclick26
-,replace(ImporteClickDesglosado26.importebase,'.',',')  as ImporteClick26
-,ImporteClickDesglosado27.descripcion as descripcionclick27
-,replace(ImporteClickDesglosado27.importebase,'.',',')  as ImporteClick27
-,ImporteClickDesglosado28.descripcion as descripcionclick28
-,replace(ImporteClickDesglosado28.importebase,'.',',')  as ImporteClick28
-,ImporteClickDesglosado29.descripcion as descripcionclick29
-,replace(ImporteClickDesglosado29.importebase,'.',',')  as ImporteClick29
-,ImporteClickDesglosado30.descripcion as descripcionclick30
-,replace(ImporteClickDesglosado30.importebase,'.',',')  as ImporteClick30
-,replace(ISNULL(fvlclick.ImporteBase,0),'.',',') As ImporteClickTotal
+
 from contrato c with (nolock)
 inner join cliente cl with (nolock) on cl.idcliente = c.idcliente
 inner join CUPS with (nolock) on c.idcups = cups.idcups
@@ -2702,59 +2638,138 @@ left join  (select IdFacturaVentaCabecera, sum(ImporteBase) importebase, sum(ISN
      where FacturaConcepto = 130004 and InfoLineaXML.value('(FacturaConceptosDTO/Periodo/CodigoPeriodo)[1]', 'integer')=6
      group by IdFacturaVentaCabecera
     ) as fvleP6  on fvc.idfacturaventacabecera = fvleP6.idfacturaventacabecera
-left join ImporteClick fvlClick with (nolock) on fvc.idfacturaventacabecera = fvlClick.idfacturaventacabecera
-left join facturaventalinea fvlClickAjuste with (nolock) on fvc.idfacturaventacabecera = fvlClickAjuste.idfacturaventacabecera and fvlClickAjuste.Facturaconcepto=30006 and fvlClickAjuste.isajustecapgas=1
-left join ImportesProductosDesglosado  as ImportesProductosDesglosado1 with (nolock) on ImportesProductosDesglosado1.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera and ImportesProductosDesglosado1.idproducto in (4)
-left join ImportesProductosDesglosado  as ImportesProductosDesglosado2 with (nolock) on ImportesProductosDesglosado2.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera and ImportesProductosDesglosado2.idproducto in (5,27,28)
-left join ImportesProductosDesglosado  as ImportesProductosDesglosado3 with (nolock) on ImportesProductosDesglosado3.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera and ImportesProductosDesglosado3.idproducto in (18)
-left join ImportesProductosDesglosado  as ImportesProductosDesglosado4 with (nolock) on ImportesProductosDesglosado4.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera and ImportesProductosDesglosado4.idproducto in (90)
-left join ImportesProductosDesglosado  as ImportesProductosDesglosado5 with (nolock) on ImportesProductosDesglosado5.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera and ImportesProductosDesglosado5.idproducto in (113)
-left join ImportesProductosDesglosado  as ImportesProductosDesglosado6 with (nolock) on ImportesProductosDesglosado6.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera and ImportesProductosDesglosado6.idproducto in (122)
-left join ImportesProductosDesglosado  as ImportesProductosDesglosado7 with (nolock) on ImportesProductosDesglosado7.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera and ImportesProductosDesglosado7.idproducto in (158)
-left join ImportesProductosDesglosado  as ImportesProductosDesglosado8 with (nolock) on ImportesProductosDesglosado8.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera and ImportesProductosDesglosado8.idproducto in (202)
-left join ImportesProductosDesglosado  as ImportesProductosDesglosado9 with (nolock) on ImportesProductosDesglosado9.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera and ImportesProductosDesglosado9.idproducto in (1000)
-left join ProductosContrato as ProductosContrato1 with (nolock) on ProductosContrato1.IdContrato = c.idcontrato and ProductosContrato1.idproducto in (4)
-left join ProductosContrato as ProductosContrato2 with (nolock) on ProductosContrato2.IdContrato = c.idcontrato and ProductosContrato2.idproducto in (5,27,28)
-left join ProductosContrato as ProductosContrato3 with (nolock) on ProductosContrato3.IdContrato = c.idcontrato and ProductosContrato3.idproducto in (18)
-left join ProductosContrato as ProductosContrato4 with (nolock) on ProductosContrato4.IdContrato = c.idcontrato and ProductosContrato4.idproducto in (90)
-left join ProductosContrato as ProductosContrato5 with (nolock) on ProductosContrato5.IdContrato = c.idcontrato and ProductosContrato5.idproducto in (113)
-left join ProductosContrato as ProductosContrato6 with (nolock) on ProductosContrato6.IdContrato = c.idcontrato and ProductosContrato6.idproducto in (122)
-left join ProductosContrato as ProductosContrato7 with (nolock) on ProductosContrato7.IdContrato = c.idcontrato and ProductosContrato7.idproducto in (158)
-left join ProductosContrato as ProductosContrato8 with (nolock) on ProductosContrato8.IdContrato = c.idcontrato and ProductosContrato8.idproducto in (202)
-left join ProductosContrato as ProductosContrato9 with (nolock) on ProductosContrato9.IdContrato = c.idcontrato and ProductosContrato9.idproducto in (1000)
-left join ImporteClickDesglosado as ImporteClickDesglosado1 with(nolock) on ImporteClickDesglosado1.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado1.LineaNumero=1
-left join ImporteClickDesglosado as ImporteClickDesglosado2 with(nolock) on ImporteClickDesglosado2.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado2.LineaNumero=2
-left join ImporteClickDesglosado as ImporteClickDesglosado3 with(nolock) on ImporteClickDesglosado3.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado3.LineaNumero=3
-left join ImporteClickDesglosado as ImporteClickDesglosado4 with(nolock) on ImporteClickDesglosado4.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado4.LineaNumero=4
-left join ImporteClickDesglosado as ImporteClickDesglosado5 with(nolock) on ImporteClickDesglosado5.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado5.LineaNumero=5
-left join ImporteClickDesglosado as ImporteClickDesglosado6 with(nolock) on ImporteClickDesglosado6.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado6.LineaNumero=6
-left join ImporteClickDesglosado as ImporteClickDesglosado7 with(nolock) on ImporteClickDesglosado7.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado7.LineaNumero=7
-left join ImporteClickDesglosado as ImporteClickDesglosado8 with(nolock) on ImporteClickDesglosado8.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado8.LineaNumero=8
-left join ImporteClickDesglosado as ImporteClickDesglosado9 with(nolock) on ImporteClickDesglosado9.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado9.LineaNumero=9
-left join ImporteClickDesglosado as ImporteClickDesglosado10 with(nolock) on ImporteClickDesglosado10.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado10.LineaNumero=10
-left join ImporteClickDesglosado as ImporteClickDesglosado11 with(nolock) on ImporteClickDesglosado11.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado11.LineaNumero=11
-left join ImporteClickDesglosado as ImporteClickDesglosado12 with(nolock) on ImporteClickDesglosado12.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado12.LineaNumero=12
-left join ImporteClickDesglosado as ImporteClickDesglosado13 with(nolock) on ImporteClickDesglosado13.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado13.LineaNumero=13
-left join ImporteClickDesglosado as ImporteClickDesglosado14 with(nolock) on ImporteClickDesglosado14.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado14.LineaNumero=14
-left join ImporteClickDesglosado as ImporteClickDesglosado15 with(nolock) on ImporteClickDesglosado15.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado15.LineaNumero=15
-left join ImporteClickDesglosado as ImporteClickDesglosado16 with(nolock) on ImporteClickDesglosado16.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado16.LineaNumero=16
-left join ImporteClickDesglosado as ImporteClickDesglosado17 with(nolock) on ImporteClickDesglosado17.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado17.LineaNumero=17
-left join ImporteClickDesglosado as ImporteClickDesglosado18 with(nolock) on ImporteClickDesglosado18.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado18.LineaNumero=18
-left join ImporteClickDesglosado as ImporteClickDesglosado19 with(nolock) on ImporteClickDesglosado19.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado19.LineaNumero=19
-left join ImporteClickDesglosado as ImporteClickDesglosado20 with(nolock) on ImporteClickDesglosado20.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado20.LineaNumero=20
-left join ImporteClickDesglosado as ImporteClickDesglosado21 with(nolock) on ImporteClickDesglosado21.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado21.LineaNumero=21
-left join ImporteClickDesglosado as ImporteClickDesglosado22 with(nolock) on ImporteClickDesglosado22.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado22.LineaNumero=22
-left join ImporteClickDesglosado as ImporteClickDesglosado23 with(nolock) on ImporteClickDesglosado23.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado23.LineaNumero=23
-left join ImporteClickDesglosado as ImporteClickDesglosado24 with(nolock) on ImporteClickDesglosado24.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado24.LineaNumero=24
-left join ImporteClickDesglosado as ImporteClickDesglosado25 with(nolock) on ImporteClickDesglosado25.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado25.LineaNumero=25
-left join ImporteClickDesglosado as ImporteClickDesglosado26 with(nolock) on ImporteClickDesglosado26.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado26.LineaNumero=26
-left join ImporteClickDesglosado as ImporteClickDesglosado27 with(nolock) on ImporteClickDesglosado27.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado27.LineaNumero=27
-left join ImporteClickDesglosado as ImporteClickDesglosado28 with(nolock) on ImporteClickDesglosado28.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado28.LineaNumero=28
-left join ImporteClickDesglosado as ImporteClickDesglosado29 with(nolock) on ImporteClickDesglosado29.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado29.LineaNumero=29
-left join ImporteClickDesglosado as ImporteClickDesglosado30 with(nolock) on ImporteClickDesglosado30.idfacturaventacabecera = fvc.idfacturaventacabecera and ImporteClickDesglosado30.LineaNumero=30
-inner join FacturasVentaConsulta WITH (NOLOCK) on FacturasVentaConsulta.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera
---where fvc.idfacturaventacabecera in (select IdFacturaVentaCabecera from FacturasVentaConsulta WITH (NOLOCK))
-option (recompile)
+	
+
+inner join FacturasVentaConsulta WITH (NOLOCK) on FacturasVentaConsulta.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera)
+
+,PreconsultaFinal as (select fvc.*
+,case ProductosContrato1.AplicarprecioConsumo when 1 then replace(ProductosContrato1.importe,'.',',') else replace(isnull(ImportesProductosDesglosado1.Importe,0),'.',',') end  as 'CO'
+,case ProductosContrato4.AplicarprecioConsumo when 1 then replace(ProductosContrato4.importe,'.',',') else replace(isnull(ImportesProductosDesglosado4.Importe,0),'.',',') end  as 'CO interno'
+,case ProductosContrato2.AplicarprecioConsumo when 1 then replace(ProductosContrato2.importe,'.',',') else replace(isnull(ImportesProductosDesglosado2.Importe,0),'.',',') end  as 'Energía Verde'
+,case ProductosContrato3.AplicarprecioConsumo when 1 then replace(ProductosContrato3.importe,'.',',') else replace(isnull(ImportesProductosDesglosado3.Importe,0),'.',',') end  as 'Impresión en Papel'
+,case ProductosContrato5.AplicarprecioConsumo when 1 then replace(ProductosContrato5.importe,'.',',') else replace(isnull(ImportesProductosDesglosado5.Importe,0),'.',',') end  as 'Servicio RAD + Diferencial de SAS'
+,case ProductosContrato6.AplicarprecioConsumo when 1 then replace(ProductosContrato6.importe,'.',',') else replace(isnull(ImportesProductosDesglosado6.Importe,0),'.',',') end  as 'Gastos - Devolucion recibo'
+,case ProductosContrato7.AplicarprecioConsumo when 1 then replace(ProductosContrato7.importe,'.',',') else replace(isnull(ImportesProductosDesglosado7.Importe,0),'.',',') end  as 'Actualización de FNEE Orden TED/268/2024 (0,000477€/kWh x Consumo)'
+,case ProductosContrato8.AplicarprecioConsumo when 1 then replace(ProductosContrato8.importe,'.',',') else replace(isnull(ImportesProductosDesglosado8.Importe,0),'.',',') end  as 'Actualización de FNEE Orden TED/197/2025 (0,000454€/kWh x Consumo)'
+,case ProductosContrato9.AplicarprecioConsumo when 1 then replace(ProductosContrato9.importe,'.',',') else replace(isnull(ImportesProductosDesglosado9.Importe,0),'.',',') end  as 'Otros Productos'
+from preconsulta fvc
+left join facturaventalinea fvlClickAjuste with (nolock) on fvc.idf = fvlClickAjuste.idfacturaventacabecera and fvlClickAjuste.Facturaconcepto=30006 and fvlClickAjuste.isajustecapgas=1
+left join ImportesProductosDesglosado  as ImportesProductosDesglosado1 with (nolock) on ImportesProductosDesglosado1.IdFacturaVentaCabecera = fvc.idf and ImportesProductosDesglosado1.idproducto in (4)
+left join ImportesProductosDesglosado  as ImportesProductosDesglosado2 with (nolock) on ImportesProductosDesglosado2.IdFacturaVentaCabecera = fvc.idf and ImportesProductosDesglosado2.idproducto in (5,27,28)
+left join ImportesProductosDesglosado  as ImportesProductosDesglosado3 with (nolock) on ImportesProductosDesglosado3.IdFacturaVentaCabecera = fvc.idf and ImportesProductosDesglosado3.idproducto in (18)
+left join ImportesProductosDesglosado  as ImportesProductosDesglosado4 with (nolock) on ImportesProductosDesglosado4.IdFacturaVentaCabecera = fvc.idf and ImportesProductosDesglosado4.idproducto in (90)
+left join ImportesProductosDesglosado  as ImportesProductosDesglosado5 with (nolock) on ImportesProductosDesglosado5.IdFacturaVentaCabecera = fvc.idf and ImportesProductosDesglosado5.idproducto in (113)
+left join ImportesProductosDesglosado  as ImportesProductosDesglosado6 with (nolock) on ImportesProductosDesglosado6.IdFacturaVentaCabecera = fvc.idf and ImportesProductosDesglosado6.idproducto in (122)
+left join ImportesProductosDesglosado  as ImportesProductosDesglosado7 with (nolock) on ImportesProductosDesglosado7.IdFacturaVentaCabecera = fvc.idf and ImportesProductosDesglosado7.idproducto in (158)
+left join ImportesProductosDesglosado  as ImportesProductosDesglosado8 with (nolock) on ImportesProductosDesglosado8.IdFacturaVentaCabecera = fvc.idf and ImportesProductosDesglosado8.idproducto in (202)
+left join ImportesProductosDesglosado  as ImportesProductosDesglosado9 with (nolock) on ImportesProductosDesglosado9.IdFacturaVentaCabecera = fvc.idf and ImportesProductosDesglosado9.idproducto in (1000)
+left join ProductosContrato as ProductosContrato1 with (nolock) on ProductosContrato1.IdContrato = fvc.idcontrato and ProductosContrato1.idproducto in (4)
+left join ProductosContrato as ProductosContrato2 with (nolock) on ProductosContrato2.IdContrato = fvc.idcontrato and ProductosContrato2.idproducto in (5,27,28)
+left join ProductosContrato as ProductosContrato3 with (nolock) on ProductosContrato3.IdContrato = fvc.idcontrato and ProductosContrato3.idproducto in (18)
+left join ProductosContrato as ProductosContrato4 with (nolock) on ProductosContrato4.IdContrato = fvc.idcontrato and ProductosContrato4.idproducto in (90)
+left join ProductosContrato as ProductosContrato5 with (nolock) on ProductosContrato5.IdContrato = fvc.idcontrato and ProductosContrato5.idproducto in (113)
+left join ProductosContrato as ProductosContrato6 with (nolock) on ProductosContrato6.IdContrato = fvc.idcontrato and ProductosContrato6.idproducto in (122)
+left join ProductosContrato as ProductosContrato7 with (nolock) on ProductosContrato7.IdContrato = fvc.idcontrato and ProductosContrato7.idproducto in (158)
+left join ProductosContrato as ProductosContrato8 with (nolock) on ProductosContrato8.IdContrato = fvc.idcontrato and ProductosContrato8.idproducto in (202)
+left join ProductosContrato as ProductosContrato9 with (nolock) on ProductosContrato9.IdContrato = fvc.idcontrato and ProductosContrato9.idproducto in (1000)
+
+)
+
+select fvc.*
+,ImporteClickDesglosado1.descripcion as descripcionclick1
+,ImporteClickDesglosado1.importebase as ImporteClick1
+,ImporteClickDesglosado2.descripcion as descripcionclick2
+,ImporteClickDesglosado2.importebase as ImporteClick2
+,ImporteClickDesglosado3.descripcion as descripcionclick3
+,ImporteClickDesglosado3.importebase as ImporteClick3
+,ImporteClickDesglosado4.descripcion as descripcionclick4
+,ImporteClickDesglosado4.importebase as ImporteClick4
+,ImporteClickDesglosado5.descripcion as descripcionclick5
+,ImporteClickDesglosado5.importebase as ImporteClick5
+,ImporteClickDesglosado6.descripcion as descripcionclick6
+,ImporteClickDesglosado6.importebase as ImporteClick6
+,ImporteClickDesglosado7.descripcion as descripcionclick7
+,ImporteClickDesglosado7.importebase as ImporteClick7
+,ImporteClickDesglosado8.descripcion as descripcionclick8
+,ImporteClickDesglosado8.importebase as ImporteClick8
+,ImporteClickDesglosado9.descripcion as descripcionclick9
+,ImporteClickDesglosado9.importebase as ImporteClick9
+,ImporteClickDesglosado10.descripcion as descripcionclick10
+,ImporteClickDesglosado10.importebase as ImporteClick10
+,ImporteClickDesglosado11.descripcion as descripcionclick11
+,ImporteClickDesglosado11.importebase as ImporteClick11
+,ImporteClickDesglosado12.descripcion as descripcionclick12
+,ImporteClickDesglosado12.importebase as ImporteClick12
+,ImporteClickDesglosado13.descripcion as descripcionclick13
+,ImporteClickDesglosado13.importebase as ImporteClick13
+,ImporteClickDesglosado14.descripcion as descripcionclick14
+,ImporteClickDesglosado14.importebase as ImporteClick14
+,ImporteClickDesglosado15.descripcion as descripcionclick15
+,ImporteClickDesglosado15.importebase as ImporteClick15
+,ImporteClickDesglosado16.descripcion as descripcionclick16
+,ImporteClickDesglosado16.importebase as ImporteClick16
+,ImporteClickDesglosado17.descripcion as descripcionclick17
+,ImporteClickDesglosado17.importebase as ImporteClick17
+,ImporteClickDesglosado18.descripcion as descripcionclick18
+,ImporteClickDesglosado18.importebase as ImporteClick18
+,ImporteClickDesglosado19.descripcion as descripcionclick19
+,ImporteClickDesglosado19.importebase as ImporteClick19
+,ImporteClickDesglosado20.descripcion as descripcionclick20
+,ImporteClickDesglosado20.importebase as ImporteClick20
+,ImporteClickDesglosado21.descripcion as descripcionclick21
+,ImporteClickDesglosado21.importebase as ImporteClick21
+,ImporteClickDesglosado22.descripcion as descripcionclick22
+,ImporteClickDesglosado22.importebase as ImporteClick22
+,ImporteClickDesglosado23.descripcion as descripcionclick23
+,ImporteClickDesglosado23.importebase as ImporteClick23
+,ImporteClickDesglosado24.descripcion as descripcionclick24
+,ImporteClickDesglosado24.importebase as ImporteClick24
+,ImporteClickDesglosado25.descripcion as descripcionclick25
+,ImporteClickDesglosado25.importebase as ImporteClick25
+,ImporteClickDesglosado26.descripcion as descripcionclick26
+,ImporteClickDesglosado26.importebase as ImporteClick26
+,ImporteClickDesglosado27.descripcion as descripcionclick27
+,ImporteClickDesglosado27.importebase as ImporteClick27
+,ImporteClickDesglosado28.descripcion as descripcionclick28
+,ImporteClickDesglosado28.importebase as ImporteClick28
+,ImporteClickDesglosado29.descripcion as descripcionclick29
+,ImporteClickDesglosado29.importebase as ImporteClick29
+,ImporteClickDesglosado30.descripcion as descripcionclick30
+,ImporteClickDesglosado30.importebase as ImporteClick30
+
+, fvlClick.ImporteClickTotal
+from PreconsultaFinal fvc
+left join ImporteClick fvlClick with (nolock) on fvc.idf = fvlClick.idfacturaventacabecera
+left join ImporteClickDesglosado as ImporteClickDesglosado1 with(nolock) on ImporteClickDesglosado1.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado1.LineaNumero=1
+left join ImporteClickDesglosado as ImporteClickDesglosado2 with(nolock) on ImporteClickDesglosado2.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado2.LineaNumero=2
+left join ImporteClickDesglosado as ImporteClickDesglosado3 with(nolock) on ImporteClickDesglosado3.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado3.LineaNumero=3
+left join ImporteClickDesglosado as ImporteClickDesglosado4 with(nolock) on ImporteClickDesglosado4.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado4.LineaNumero=4
+left join ImporteClickDesglosado as ImporteClickDesglosado5 with(nolock) on ImporteClickDesglosado5.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado5.LineaNumero=5
+left join ImporteClickDesglosado as ImporteClickDesglosado6 with(nolock) on ImporteClickDesglosado6.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado6.LineaNumero=6
+left join ImporteClickDesglosado as ImporteClickDesglosado7 with(nolock) on ImporteClickDesglosado7.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado7.LineaNumero=7
+left join ImporteClickDesglosado as ImporteClickDesglosado8 with(nolock) on ImporteClickDesglosado8.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado8.LineaNumero=8
+left join ImporteClickDesglosado as ImporteClickDesglosado9 with(nolock) on ImporteClickDesglosado9.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado9.LineaNumero=9
+left join ImporteClickDesglosado as ImporteClickDesglosado10 with(nolock) on ImporteClickDesglosado10.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado10.LineaNumero=10
+left join ImporteClickDesglosado as ImporteClickDesglosado11 with(nolock) on ImporteClickDesglosado11.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado11.LineaNumero=11
+left join ImporteClickDesglosado as ImporteClickDesglosado12 with(nolock) on ImporteClickDesglosado12.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado12.LineaNumero=12
+left join ImporteClickDesglosado as ImporteClickDesglosado13 with(nolock) on ImporteClickDesglosado13.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado13.LineaNumero=13
+left join ImporteClickDesglosado as ImporteClickDesglosado14 with(nolock) on ImporteClickDesglosado14.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado14.LineaNumero=14
+left join ImporteClickDesglosado as ImporteClickDesglosado15 with(nolock) on ImporteClickDesglosado15.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado15.LineaNumero=15
+left join ImporteClickDesglosado as ImporteClickDesglosado16 with(nolock) on ImporteClickDesglosado16.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado16.LineaNumero=16
+left join ImporteClickDesglosado as ImporteClickDesglosado17 with(nolock) on ImporteClickDesglosado17.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado17.LineaNumero=17
+left join ImporteClickDesglosado as ImporteClickDesglosado18 with(nolock) on ImporteClickDesglosado18.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado18.LineaNumero=18
+left join ImporteClickDesglosado as ImporteClickDesglosado19 with(nolock) on ImporteClickDesglosado19.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado19.LineaNumero=19
+left join ImporteClickDesglosado as ImporteClickDesglosado20 with(nolock) on ImporteClickDesglosado20.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado20.LineaNumero=20
+left join ImporteClickDesglosado as ImporteClickDesglosado21 with(nolock) on ImporteClickDesglosado21.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado21.LineaNumero=21
+left join ImporteClickDesglosado as ImporteClickDesglosado22 with(nolock) on ImporteClickDesglosado22.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado22.LineaNumero=22
+left join ImporteClickDesglosado as ImporteClickDesglosado23 with(nolock) on ImporteClickDesglosado23.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado23.LineaNumero=23
+left join ImporteClickDesglosado as ImporteClickDesglosado24 with(nolock) on ImporteClickDesglosado24.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado24.LineaNumero=24
+left join ImporteClickDesglosado as ImporteClickDesglosado25 with(nolock) on ImporteClickDesglosado25.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado25.LineaNumero=25
+left join ImporteClickDesglosado as ImporteClickDesglosado26 with(nolock) on ImporteClickDesglosado26.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado26.LineaNumero=26
+left join ImporteClickDesglosado as ImporteClickDesglosado27 with(nolock) on ImporteClickDesglosado27.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado27.LineaNumero=27
+left join ImporteClickDesglosado as ImporteClickDesglosado28 with(nolock) on ImporteClickDesglosado28.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado28.LineaNumero=28
+left join ImporteClickDesglosado as ImporteClickDesglosado29 with(nolock) on ImporteClickDesglosado29.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado29.LineaNumero=29
+left join ImporteClickDesglosado as ImporteClickDesglosado30 with(nolock) on ImporteClickDesglosado30.idfacturaventacabecera = fvc.idf and ImporteClickDesglosado30.LineaNumero=30
 
 "
 	End Function

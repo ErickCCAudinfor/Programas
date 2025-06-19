@@ -226,13 +226,13 @@ Module ExportToExcelDinamico
             End If
 
             Await Task.Run(Sub()
-                               Dim ListaTablas As New List(Of DataTable)
                                Dim rutaSalida = Path.Combine(Destino, nombreArchivoSalida)
+                               Dim ListaTablas As New List(Of DataTable)
+                               Dim lockLista As New Object()
 
                                If UsarExcel Then
-                                   ' PROCESAMIENTO EN PARALELO
-                                   Dim lockLista As New Object()
                                    Dim tareas As New List(Of Task)
+                                   Dim contadorFacturas As Integer = 0
 
                                    For Each id In IdDocumentos
                                        tareas.Add(Task.Run(Sub()
@@ -241,25 +241,42 @@ Module ExportToExcelDinamico
                                                                    If tabla IsNot Nothing Then
                                                                        SyncLock lockLista
                                                                            ListaTablas.Add(tabla)
+                                                                           contadorFacturas += 1
                                                                        End SyncLock
                                                                    End If
                                                                Catch ex As Exception
-                                                                   ' Log o ignorar fallo por ID individual
+                                                                   ' Manejo de error individual
                                                                End Try
                                                            End Sub))
 
-                                       ' Limitar número de tareas concurrentes
-                                       If tareas.Count >= 20 Then
+                                       If tareas.Count >= 10 Then
                                            Task.WaitAll(tareas.ToArray())
                                            tareas.Clear()
+
+                                           ' Guardar si se llegó a 1000 facturas
+                                           SyncLock lockLista
+                                               If contadorFacturas >= 10 Then
+                                                   ExportarConsultaAExcelV2(New List(Of DataTable)(ListaTablas), rutaSalida, Path.GetFileNameWithoutExtension(nombreArchivoSalida))
+                                                   ListaTablas.Clear()
+                                                   contadorFacturas = 0
+                                               End If
+                                           End SyncLock
                                        End If
                                    Next
 
-                                   ' Esperar tareas pendientes
+                                   ' Esperar tareas restantes
                                    If tareas.Count > 0 Then Task.WaitAll(tareas.ToArray())
 
+                                   ' Guardar cualquier resto de facturas que no alcanzaron las 1000
+                                   SyncLock lockLista
+                                       If ListaTablas.Count > 0 Then
+                                           ExportarConsultaAExcelV2(ListaTablas, rutaSalida, Path.GetFileNameWithoutExtension(nombreArchivoSalida))
+                                           ListaTablas.Clear()
+                                       End If
+                                   End SyncLock
+
                                Else
-                                   ' Consulta sin ID desde combo
+                                   ' Consulta sin ID (por combo)
                                    Try
                                        Dim tabla As DataTable = accionPorId(0)
                                        If tabla IsNot Nothing Then
@@ -268,11 +285,11 @@ Module ExportToExcelDinamico
                                    Catch ex As Exception
                                        Throw
                                    End Try
-                               End If
 
-                               ' Exportar al Excel final
-                               ExportarConsultaAExcelV2(ListaTablas, rutaSalida, Path.GetFileNameWithoutExtension(nombreArchivoSalida))
+                                   ExportarConsultaAExcelV2(ListaTablas, rutaSalida, Path.GetFileNameWithoutExtension(nombreArchivoSalida))
+                               End If
                            End Sub)
+
 
         Catch ex As Exception
             Throw
