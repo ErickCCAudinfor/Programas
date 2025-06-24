@@ -79,3 +79,4 @@ C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Debug\net6.0-
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Debug\net6.0-windows\ActualizaPrecios.genruntimeconfig.cache
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\ActualizaPrecios.pdb
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Debug\net6.0-windows\ref\ActualizaPrecios.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Debug\net6.0-windows\ActualizaPrecios.Login.resources

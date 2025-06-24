@@ -3,9 +3,9 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
-    <StartupObject>Sub Main</StartupObject>
+    <StartupObject>ActualizaPrecios.Program</StartupObject>
     <UseWindowsForms>true</UseWindowsForms>
-    <MyType>WindowsForms</MyType>
+    <MyType>WindowsFormsWithCustomSubMain</MyType>
     <ApplicationIcon>Imagenes\office_building_company_icon_231040.ico</ApplicationIcon>
   </PropertyGroup>
 
