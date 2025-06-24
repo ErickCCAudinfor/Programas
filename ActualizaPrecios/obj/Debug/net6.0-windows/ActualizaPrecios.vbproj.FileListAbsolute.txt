@@ -90,3 +90,5 @@ C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\runtimes\win-arm64\native\libSkiaSharp.dll
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\runtimes\win-x64\native\libSkiaSharp.dll
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\runtimes\win-x86\native\libSkiaSharp.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\Newtonsoft.Json.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Debug\net6.0-windows\ActualizaPrecios.Login.resources
