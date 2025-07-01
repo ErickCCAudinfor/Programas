@@ -1403,7 +1403,44 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
 
         Return objContratoContacto
     End Function
+    Public Function GetContratoContactobyCodContratoTlfno(codContrato As Long, IsTlfono As String) As ContratoContacto
+        Dim objContratoContacto As New ContratoContacto
 
+        Try
+
+            Using conexion As New SqlConnection(connectionString)
+                conexion.Open()
+
+                Dim query As String = $"
+select IdContratoContacto,ContratoContacto.Entorno,CodigoContrato,ClienteContacto.IdClienteContacto,IdCliente,valor from ContratoContacto
+inner join ClienteContacto on ContratoContacto.IdClienteContacto = ClienteContacto.IdClienteContacto
+where TipoContacto = '{IsTlfono}' and CodigoContrato = {codContrato}"
+
+                Dim comando As New SqlCommand(query, conexion)
+                comando.CommandTimeout = 3600
+                Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+
+                If readerQuery.HasRows Then
+                    Do While readerQuery.Read
+
+                        objContratoContacto.IdContratoContacto = readerQuery.GetValue(0).ToString
+                        objContratoContacto.Entorno = readerQuery.GetValue(1).ToString
+                        objContratoContacto.CodigoContrato = readerQuery.GetValue(2).ToString
+                        objContratoContacto.IdClienteContacto = readerQuery.GetValue(3).ToString
+                        objContratoContacto.IdCliente = readerQuery.GetValue(4).ToString
+                        objContratoContacto.Valor = readerQuery.GetValue(5).ToString
+                    Loop
+                End If
+
+                readerQuery.Close()
+            End Using
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return objContratoContacto
+    End Function
 
     Public Function DeleteContratoContactobyIdContratoContacto(IdContratoContacto As Long) As Long
         Dim FilfasAfectadas As Long
@@ -1445,6 +1482,24 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
 
             conexion.Open()
             Dim query = $"INSERT INTO [dbo].[ClienteContacto]([Entorno],[IdCliente],[TipoContacto],[Valor],[Contacto],[Departamento],[PorDefecto])VALUES('U',{IdCliente},'E','{Email}','','',0)
+"
+            Dim comando = New SqlCommand(query, conexion)
+            FilfasAfectadas = comando.ExecuteNonQuery
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return FilfasAfectadas
+    End Function
+
+    Public Function InsertClienteContactoTlfnoMovil(IdCliente As Long, Email As String, IsTlfono As Boolean) As Long
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim FilfasAfectadas As Long
+        Try
+
+            conexion.Open()
+            Dim query = $"INSERT INTO [dbo].[ClienteContacto]([Entorno],[IdCliente],[TipoContacto],[Valor],[Contacto],[Departamento],[PorDefecto])VALUES('U',{IdCliente},'{If(IsTlfono, "T", "M")}','{Email}','','',0)
 "
             Dim comando = New SqlCommand(query, conexion)
             FilfasAfectadas = comando.ExecuteNonQuery

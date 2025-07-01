@@ -43,6 +43,7 @@ Public Class ActualizarEmailFromExcel
 
     Public Async Function ActualizarEmailFromExcelAsync() As Task(Of Long)
         Dim contador = 0L
+        Dim contadorTlfnoMovil = 0L
         Dim excelFilePath As String = $"{RutaExcel}"
         Dim Excel As New Excel
         Dim Datos As New List(Of List(Of Object))()
@@ -61,7 +62,7 @@ Public Class ActualizarEmailFromExcel
                 For row As Integer = 2 To rowCount ' Empezamos en la fila 2 para ignorar el encabezado
                     Dim CodContrato As String = worksheet.Cells(row, 1).Value?.ToString()
                     Dim Emails As String = If(worksheet.Cells(row, 2).Value IsNot Nothing, worksheet.Cells(row, 2).Value?.ToString(), String.Empty)
-
+                    Dim TlfnoMovil As String = If(worksheet.Cells(row, 3).Value IsNot Nothing, worksheet.Cells(row, 3).Value?.ToString(), String.Empty)
                     ' Verificar si el email está vacío
                     If String.IsNullOrEmpty(Emails) Then
                         ' Agregar un mensaje indicando que el código CNAE está vacío
@@ -123,6 +124,12 @@ Public Class ActualizarEmailFromExcel
                                     contador += 1
                                 End If
                             End If
+                        Else
+                            Dim InsertCc = Await Task.Run(Function() funciones.InsertContractoContacto(If(ContratoA.Entorno = "E1", "G1", "G2"), ContratoA.CodigoContrato, objClienteContacto.IdClienteContacto))
+                            If InsertCc > 0 Then
+                                Datos.Add(New List(Of Object) From {$"Contrato: {CodContrato} - actualizado - email: {correosConcatenados} "})
+                                contador += 1
+                            End If
                         End If
                     Else  ' no existe lo inserto
                         'Se inserta el nuevo email en clientecontacto
@@ -148,6 +155,55 @@ Public Class ActualizarEmailFromExcel
                             End If
                         End If
                     End If
+
+                    If String.IsNullOrEmpty(TlfnoMovil) Then
+                        ' Agregar un mensaje indicando que el código CNAE está vacío
+                        Datos.Add(New List(Of Object) From {$"Contrato: {CodContrato} - sin tlfno en fila {row}"})
+                        Continue For ' Saltar al siguiente ciclo
+                    End If
+                    'Busco el cliente y el tlfnoMovil en ClienteContacto de BD si existe me guardo el clientecontacto
+                    Dim objClienteContactotlfno = Await Task.Run(Function() funciones.GetClienteContacto(ContratoA.IdCliente, TlfnoMovil))
+                    If Not IsNothing(objClienteContactotlfno) AndAlso objClienteContactotlfno.IdClienteContacto > 0 Then
+                        'habra quitar el tlfno si ya habia uno marcado en el contrato
+                        Dim objContratoContactoTlfnoMovil = Await Task.Run(Function() funciones.GetContratoContactobyCodContratoTlfno(ContratoA.CodigoContrato, objClienteContactotlfno.TipoContacto))
+                        If Not IsNothing(objContratoContactoTlfnoMovil) AndAlso objContratoContactoTlfnoMovil.IdContratoContacto > 0 Then
+                            'Borro el tlfno de ContratoContacto
+                            Dim borrado = Await Task.Run(Function() funciones.DeleteContratoContactobyIdContratoContacto(objContratoContactoTlfnoMovil.IdContratoContacto))
+                            If borrado > 0 Then ' si se ha borrado hago el insert
+                                ' hago el insert en conctratocontacto
+                                Dim InsertCc = Await Task.Run(Function() funciones.InsertContractoContacto(objContratoContactoTlfnoMovil.Entorno, ContratoA.CodigoContrato, objClienteContactotlfno.IdClienteContacto))
+                                If InsertCc > 0 Then
+                                    Datos.Add(New List(Of Object) From {$"Contrato: {CodContrato} - actualizado - TlfnoMovil: {TlfnoMovil} "})
+                                    contadorTlfnoMovil += 1
+                                End If
+                            End If
+                        End If
+                    Else  ' no existe lo inserto
+                        'Se inserta el nuevo tlfnoMovil en clientecontacto
+                        Dim Istlfno = If(TipoTelefono(TlfnoMovil).Equals("T"), True, False) 'Compruebo si Movil o TLFNO
+                        Dim InsertCL = Await Task.Run(Function() funciones.InsertClienteContactoTlfnoMovil(ContratoA.IdCliente, TlfnoMovil, Istlfno))
+                        If InsertCL > 0 Then
+                            'nos obtenemos de nuevo el ClienteContacto
+                            Dim objClienteContacto3 = Await Task.Run(Function() funciones.GetClienteContacto(ContratoA.IdCliente, TlfnoMovil))
+                            If Not IsNothing(objClienteContacto3) AndAlso objClienteContacto3.IdClienteContacto > 0 Then
+                                'habra quitar el email si ya habia uno marcado en el contrato
+                                Dim objContratoContactov4 = Await Task.Run(Function() funciones.GetContratoContactobyCodContratoTlfno(ContratoA.CodigoContrato, objClienteContacto3.TipoContacto))
+                                If Not IsNothing(objContratoContactov4) AndAlso objContratoContactov4.IdContratoContacto > 0 Then
+                                    'Borro el tlfnoMovil de ContratoContacto
+                                    Dim borrado = Await Task.Run(Function() funciones.DeleteContratoContactobyIdContratoContacto(objContratoContactov4.IdContratoContacto))
+                                    If borrado > 0 Then ' si se ha borrado hago el insert
+                                        ' hago el insert en conctratocontacto
+                                        Dim InsertCc = Await Task.Run(Function() funciones.InsertContractoContacto(objContratoContactov4.Entorno, ContratoA.CodigoContrato, objClienteContacto3.IdClienteContacto))
+                                        If InsertCc > 0 Then
+                                            Datos.Add(New List(Of Object) From {$"Contrato: {CodContrato} - actualizado - TlfnoMovil: {TlfnoMovil} "})
+                                            contadorTlfnoMovil += 1
+                                        End If
+                                    End If
+                                End If
+                            End If
+                        End If
+                    End If
+
                 Next
             End Using
 
@@ -163,6 +219,23 @@ Public Class ActualizarEmailFromExcel
         End Try
 
         Return contador
+    End Function
+
+    Private Function TipoTelefono(numero As String) As String
+        numero = numero.Trim().Replace(" ", "").Replace("-", "")
+
+        If numero.Length <> 9 OrElse Not IsNumeric(numero) Then
+            Return "Número no válido"
+        End If
+
+        Select Case numero.Substring(0, 1)
+            Case "6", "7"
+                Return "M"
+            Case "8", "9"
+                Return "T"
+            Case Else
+                Return "T"
+        End Select
     End Function
 
 
