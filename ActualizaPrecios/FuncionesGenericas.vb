@@ -1414,7 +1414,7 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
                 Dim query As String = $"
 select IdContratoContacto,ContratoContacto.Entorno,CodigoContrato,ClienteContacto.IdClienteContacto,IdCliente,valor from ContratoContacto
 inner join ClienteContacto on ContratoContacto.IdClienteContacto = ClienteContacto.IdClienteContacto
-where TipoContacto = '{IsTlfono}' and CodigoContrato = {codContrato}"
+where (TipoContacto = 'T' or TipoContacto='M') and CodigoContrato = {codContrato}"
 
                 Dim comando As New SqlCommand(query, conexion)
                 comando.CommandTimeout = 3600
@@ -2491,6 +2491,32 @@ where cl.Identidad='{identidad}'"
         End Try
 
         Return ClientePago
+    End Function
+
+    Public Function GetTiposAutoconsumos() As List(Of TiposAutoconsumo)
+        Dim ListaTiposAutoconsumos As New List(Of TiposAutoconsumo)
+        'Dim ListaContratov2 As New List(Of Integer)
+        Try
+
+            Dim query As String = $"select * from TiposAutoconsumo where Entorno='U'"
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ListaTiposAutoconsumo = Helper.FillObjectFromDatatable(result.Tables(0), GetType(TiposAutoconsumo)).Cast(Of TiposAutoconsumo).ToList
+                If Not IsNothing(ListaTiposAutoconsumo) AndAlso ListaTiposAutoconsumo.Count > 0 Then
+                    ListaTiposAutoconsumos = ListaTiposAutoconsumo
+
+                End If
+            End If
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return ListaTiposAutoconsumos
     End Function
 End Class
 

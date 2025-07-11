@@ -1992,6 +1992,11 @@ when TipoImprimir ='F' then 'FACE' end TipoImprimirTexto
 ,SMSRep
 ,c.IdClientePago
 ,isnull(NombreP,'???')+'/'+isnull(IdentidadPago,'???')+'/'+isnull(colecClientePago.TextoColectivo,'???')+'/'+isnull(TextoTipoCobro,'???')+'/'+isnull(IBAN,'???')+'/'+isnull(TextoBanco,'???') ClientePagoUnificado
+,Autoconsumo
+,IsAutoconsumoNoCompensable
+,ExencionIE
+,IsLicitacion
+,IdTipoAutoconsumo
 from contrato c
 inner join contratosituacion cs on c.idcontratosituacion = cs.idcontratosituacion
 left join SituacionScoring scg on c.SituacionScoring=scg.Nombre

@@ -78,6 +78,19 @@ Partial Class ContratoForm
         Label7 = New Label()
         Button2 = New Button()
         PictureBox2 = New PictureBox()
+        ChckBlancoObservacion = New CheckBox()
+        CheckBlancoRevision = New CheckBox()
+        Label8 = New Label()
+        chkAutoconsumo = New CheckBox()
+        chkAutoconsumoSINO = New CheckBox()
+        chktipoautoconsumo = New CheckBox()
+        ComboTipoAutoconsumo = New ComboBox()
+        chkAutoconsumoNOCompesable = New CheckBox()
+        chkAutoconsumoNOCompesableSINO = New CheckBox()
+        chkLicitacion = New CheckBox()
+        chkLicitacionSINO = New CheckBox()
+        ChkExencionIESINO = New CheckBox()
+        ChkExencionIE = New CheckBox()
         CType(PictureBox2, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
@@ -139,7 +152,7 @@ Partial Class ContratoForm
         ' 
         CheckBox6.AutoSize = True
         CheckBox6.BackColor = SystemColors.Menu
-        CheckBox6.Location = New Point(25, 249)
+        CheckBox6.Location = New Point(25, 237)
         CheckBox6.Name = "CheckBox6"
         CheckBox6.Size = New Size(102, 19)
         CheckBox6.TabIndex = 6
@@ -150,7 +163,7 @@ Partial Class ContratoForm
         ' 
         CheckBox7.AutoSize = True
         CheckBox7.BackColor = SystemColors.Menu
-        CheckBox7.Location = New Point(25, 274)
+        CheckBox7.Location = New Point(25, 262)
         CheckBox7.Name = "CheckBox7"
         CheckBox7.Size = New Size(114, 19)
         CheckBox7.TabIndex = 7
@@ -161,7 +174,7 @@ Partial Class ContratoForm
         ' 
         CheckBox8.AutoSize = True
         CheckBox8.BackColor = SystemColors.Menu
-        CheckBox8.Location = New Point(24, 299)
+        CheckBox8.Location = New Point(24, 287)
         CheckBox8.Name = "CheckBox8"
         CheckBox8.Size = New Size(70, 19)
         CheckBox8.TabIndex = 8
@@ -172,7 +185,7 @@ Partial Class ContratoForm
         ' 
         CheckBox9.AutoSize = True
         CheckBox9.BackColor = SystemColors.Menu
-        CheckBox9.Location = New Point(24, 324)
+        CheckBox9.Location = New Point(24, 312)
         CheckBox9.Name = "CheckBox9"
         CheckBox9.Size = New Size(151, 19)
         CheckBox9.TabIndex = 9
@@ -183,7 +196,7 @@ Partial Class ContratoForm
         ' 
         CheckBox10.AutoSize = True
         CheckBox10.BackColor = SystemColors.Menu
-        CheckBox10.Location = New Point(25, 394)
+        CheckBox10.Location = New Point(25, 449)
         CheckBox10.Name = "CheckBox10"
         CheckBox10.Size = New Size(57, 19)
         CheckBox10.TabIndex = 10
@@ -194,7 +207,7 @@ Partial Class ContratoForm
         ' 
         Label3.AutoSize = True
         Label3.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
-        Label3.Location = New Point(26, 231)
+        Label3.Location = New Point(26, 219)
         Label3.Name = "Label3"
         Label3.Size = New Size(113, 16)
         Label3.TabIndex = 12
@@ -204,7 +217,7 @@ Partial Class ContratoForm
         ' 
         Label4.AutoSize = True
         Label4.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
-        Label4.Location = New Point(24, 375)
+        Label4.Location = New Point(24, 430)
         Label4.Name = "Label4"
         Label4.Size = New Size(99, 16)
         Label4.TabIndex = 13
@@ -214,7 +227,7 @@ Partial Class ContratoForm
         ' 
         CheckBox11.AutoSize = True
         CheckBox11.BackColor = SystemColors.Menu
-        CheckBox11.Location = New Point(25, 419)
+        CheckBox11.Location = New Point(25, 474)
         CheckBox11.Name = "CheckBox11"
         CheckBox11.Size = New Size(105, 19)
         CheckBox11.TabIndex = 14
@@ -225,7 +238,7 @@ Partial Class ContratoForm
         ' 
         CheckBox12.AutoSize = True
         CheckBox12.BackColor = SystemColors.Menu
-        CheckBox12.Location = New Point(353, 419)
+        CheckBox12.Location = New Point(353, 474)
         CheckBox12.Name = "CheckBox12"
         CheckBox12.Size = New Size(99, 19)
         CheckBox12.TabIndex = 15
@@ -236,7 +249,7 @@ Partial Class ContratoForm
         ' 
         CheckBox13.AutoSize = True
         CheckBox13.BackColor = SystemColors.Menu
-        CheckBox13.Location = New Point(353, 394)
+        CheckBox13.Location = New Point(353, 449)
         CheckBox13.Name = "CheckBox13"
         CheckBox13.Size = New Size(101, 19)
         CheckBox13.TabIndex = 16
@@ -247,7 +260,7 @@ Partial Class ContratoForm
         ' 
         CheckBox14.AutoSize = True
         CheckBox14.BackColor = SystemColors.Menu
-        CheckBox14.Location = New Point(25, 494)
+        CheckBox14.Location = New Point(25, 549)
         CheckBox14.Name = "CheckBox14"
         CheckBox14.Size = New Size(138, 19)
         CheckBox14.TabIndex = 17
@@ -258,7 +271,7 @@ Partial Class ContratoForm
         ' 
         CheckBox15.AutoSize = True
         CheckBox15.BackColor = SystemColors.Menu
-        CheckBox15.Location = New Point(25, 469)
+        CheckBox15.Location = New Point(25, 524)
         CheckBox15.Name = "CheckBox15"
         CheckBox15.Size = New Size(145, 19)
         CheckBox15.TabIndex = 18
@@ -269,7 +282,7 @@ Partial Class ContratoForm
         ' 
         CheckBox16.AutoSize = True
         CheckBox16.BackColor = SystemColors.Menu
-        CheckBox16.Location = New Point(25, 444)
+        CheckBox16.Location = New Point(25, 499)
         CheckBox16.Name = "CheckBox16"
         CheckBox16.Size = New Size(117, 19)
         CheckBox16.TabIndex = 19
@@ -280,7 +293,7 @@ Partial Class ContratoForm
         ' 
         CheckBox17.AutoSize = True
         CheckBox17.BackColor = SystemColors.Menu
-        CheckBox17.Location = New Point(353, 249)
+        CheckBox17.Location = New Point(353, 237)
         CheckBox17.Name = "CheckBox17"
         CheckBox17.Size = New Size(107, 19)
         CheckBox17.TabIndex = 20
@@ -291,7 +304,7 @@ Partial Class ContratoForm
         ' 
         CheckBox18.AutoSize = True
         CheckBox18.BackColor = SystemColors.Menu
-        CheckBox18.Location = New Point(353, 274)
+        CheckBox18.Location = New Point(353, 262)
         CheckBox18.Name = "CheckBox18"
         CheckBox18.Size = New Size(141, 19)
         CheckBox18.TabIndex = 21
@@ -302,7 +315,7 @@ Partial Class ContratoForm
         ' 
         CheckBox19.AutoSize = True
         CheckBox19.BackColor = SystemColors.Menu
-        CheckBox19.Location = New Point(353, 444)
+        CheckBox19.Location = New Point(353, 499)
         CheckBox19.Name = "CheckBox19"
         CheckBox19.Size = New Size(116, 19)
         CheckBox19.TabIndex = 22
@@ -313,7 +326,7 @@ Partial Class ContratoForm
         ' 
         CheckBox20.AutoSize = True
         CheckBox20.BackColor = SystemColors.Menu
-        CheckBox20.Location = New Point(353, 494)
+        CheckBox20.Location = New Point(353, 549)
         CheckBox20.Name = "CheckBox20"
         CheckBox20.Size = New Size(79, 19)
         CheckBox20.TabIndex = 23
@@ -324,7 +337,7 @@ Partial Class ContratoForm
         ' 
         CheckBox21.AutoSize = True
         CheckBox21.BackColor = SystemColors.Menu
-        CheckBox21.Location = New Point(353, 469)
+        CheckBox21.Location = New Point(353, 524)
         CheckBox21.Name = "CheckBox21"
         CheckBox21.Size = New Size(78, 19)
         CheckBox21.TabIndex = 24
@@ -335,7 +348,7 @@ Partial Class ContratoForm
         ' 
         Label5.AutoSize = True
         Label5.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
-        Label5.Location = New Point(353, 375)
+        Label5.Location = New Point(353, 430)
         Label5.Name = "Label5"
         Label5.Size = New Size(213, 16)
         Label5.TabIndex = 25
@@ -345,7 +358,7 @@ Partial Class ContratoForm
         ' 
         Button1.BackColor = SystemColors.MenuHighlight
         Button1.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
-        Button1.Location = New Point(367, 587)
+        Button1.Location = New Point(367, 642)
         Button1.Name = "Button1"
         Button1.Size = New Size(182, 31)
         Button1.TabIndex = 26
@@ -392,7 +405,7 @@ Partial Class ContratoForm
         ' ComboBox2
         ' 
         ComboBox2.FormattingEnabled = True
-        ComboBox2.Location = New Point(189, 245)
+        ComboBox2.Location = New Point(189, 233)
         ComboBox2.Name = "ComboBox2"
         ComboBox2.Size = New Size(157, 23)
         ComboBox2.TabIndex = 37
@@ -410,7 +423,7 @@ Partial Class ContratoForm
         ' CheckBox22
         ' 
         CheckBox22.AutoSize = True
-        CheckBox22.Location = New Point(189, 274)
+        CheckBox22.Location = New Point(189, 262)
         CheckBox22.Name = "CheckBox22"
         CheckBox22.Size = New Size(62, 19)
         CheckBox22.TabIndex = 39
@@ -420,7 +433,7 @@ Partial Class ContratoForm
         ' CheckBox23
         ' 
         CheckBox23.AutoSize = True
-        CheckBox23.Location = New Point(189, 301)
+        CheckBox23.Location = New Point(189, 289)
         CheckBox23.Name = "CheckBox23"
         CheckBox23.Size = New Size(62, 19)
         CheckBox23.TabIndex = 40
@@ -430,7 +443,7 @@ Partial Class ContratoForm
         ' CheckBox24
         ' 
         CheckBox24.AutoSize = True
-        CheckBox24.Location = New Point(189, 494)
+        CheckBox24.Location = New Point(189, 549)
         CheckBox24.Name = "CheckBox24"
         CheckBox24.Size = New Size(62, 19)
         CheckBox24.TabIndex = 41
@@ -440,7 +453,7 @@ Partial Class ContratoForm
         ' CheckBox25
         ' 
         CheckBox25.AutoSize = True
-        CheckBox25.Location = New Point(189, 469)
+        CheckBox25.Location = New Point(189, 524)
         CheckBox25.Name = "CheckBox25"
         CheckBox25.Size = New Size(62, 19)
         CheckBox25.TabIndex = 42
@@ -450,7 +463,7 @@ Partial Class ContratoForm
         ' ComboBox3
         ' 
         ComboBox3.FormattingEnabled = True
-        ComboBox3.Location = New Point(189, 390)
+        ComboBox3.Location = New Point(189, 445)
         ComboBox3.Name = "ComboBox3"
         ComboBox3.Size = New Size(157, 23)
         ComboBox3.TabIndex = 43
@@ -458,7 +471,7 @@ Partial Class ContratoForm
         ' ComboBox4
         ' 
         ComboBox4.FormattingEnabled = True
-        ComboBox4.Location = New Point(189, 415)
+        ComboBox4.Location = New Point(189, 470)
         ComboBox4.Name = "ComboBox4"
         ComboBox4.Size = New Size(157, 23)
         ComboBox4.TabIndex = 44
@@ -466,7 +479,7 @@ Partial Class ContratoForm
         ' ComboBox5
         ' 
         ComboBox5.FormattingEnabled = True
-        ComboBox5.Location = New Point(189, 440)
+        ComboBox5.Location = New Point(189, 495)
         ComboBox5.Name = "ComboBox5"
         ComboBox5.Size = New Size(157, 23)
         ComboBox5.TabIndex = 45
@@ -474,7 +487,7 @@ Partial Class ContratoForm
         ' ComboBox6
         ' 
         ComboBox6.FormattingEnabled = True
-        ComboBox6.Location = New Point(494, 245)
+        ComboBox6.Location = New Point(494, 233)
         ComboBox6.Name = "ComboBox6"
         ComboBox6.Size = New Size(157, 23)
         ComboBox6.TabIndex = 46
@@ -482,21 +495,21 @@ Partial Class ContratoForm
         ' ComboBox7
         ' 
         ComboBox7.FormattingEnabled = True
-        ComboBox7.Location = New Point(494, 272)
+        ComboBox7.Location = New Point(494, 260)
         ComboBox7.Name = "ComboBox7"
         ComboBox7.Size = New Size(157, 23)
         ComboBox7.TabIndex = 47
         ' 
         ' TextBox2
         ' 
-        TextBox2.Location = New Point(189, 320)
+        TextBox2.Location = New Point(189, 308)
         TextBox2.Name = "TextBox2"
         TextBox2.Size = New Size(601, 23)
         TextBox2.TabIndex = 48
         ' 
         ' TextBox3
         ' 
-        TextBox3.Location = New Point(475, 390)
+        TextBox3.Location = New Point(475, 445)
         TextBox3.Name = "TextBox3"
         TextBox3.Size = New Size(469, 23)
         TextBox3.TabIndex = 49
@@ -504,28 +517,28 @@ Partial Class ContratoForm
         ' ComboBox8
         ' 
         ComboBox8.FormattingEnabled = True
-        ComboBox8.Location = New Point(475, 416)
+        ComboBox8.Location = New Point(475, 471)
         ComboBox8.Name = "ComboBox8"
         ComboBox8.Size = New Size(157, 23)
         ComboBox8.TabIndex = 50
         ' 
         ' TextBox4
         ' 
-        TextBox4.Location = New Point(475, 442)
+        TextBox4.Location = New Point(475, 497)
         TextBox4.Name = "TextBox4"
         TextBox4.Size = New Size(313, 23)
         TextBox4.TabIndex = 51
         ' 
         ' TextBox5
         ' 
-        TextBox5.Location = New Point(475, 492)
+        TextBox5.Location = New Point(475, 547)
         TextBox5.Name = "TextBox5"
         TextBox5.Size = New Size(313, 23)
         TextBox5.TabIndex = 52
         ' 
         ' TextBox6
         ' 
-        TextBox6.Location = New Point(475, 467)
+        TextBox6.Location = New Point(475, 522)
         TextBox6.Name = "TextBox6"
         TextBox6.Size = New Size(313, 23)
         TextBox6.TabIndex = 53
@@ -553,7 +566,7 @@ Partial Class ContratoForm
         ' 
         ComboBox10.Font = New Font("Segoe UI", 6.75F, FontStyle.Regular, GraphicsUnit.Point)
         ComboBox10.FormattingEnabled = True
-        ComboBox10.Location = New Point(189, 555)
+        ComboBox10.Location = New Point(189, 610)
         ComboBox10.Name = "ComboBox10"
         ComboBox10.Size = New Size(750, 20)
         ComboBox10.TabIndex = 57
@@ -563,7 +576,7 @@ Partial Class ContratoForm
         CheckBox26.AutoSize = True
         CheckBox26.BackColor = SystemColors.Menu
         CheckBox26.Enabled = False
-        CheckBox26.Location = New Point(24, 555)
+        CheckBox26.Location = New Point(24, 610)
         CheckBox26.Name = "CheckBox26"
         CheckBox26.Size = New Size(93, 19)
         CheckBox26.TabIndex = 56
@@ -574,7 +587,7 @@ Partial Class ContratoForm
         ' 
         Label6.AutoSize = True
         Label6.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
-        Label6.Location = New Point(22, 530)
+        Label6.Location = New Point(22, 585)
         Label6.Name = "Label6"
         Label6.Size = New Size(120, 16)
         Label6.TabIndex = 58
@@ -582,7 +595,7 @@ Partial Class ContratoForm
         ' 
         ' TextBox7
         ' 
-        TextBox7.Location = New Point(297, 528)
+        TextBox7.Location = New Point(297, 583)
         TextBox7.Name = "TextBox7"
         TextBox7.Size = New Size(159, 23)
         TextBox7.TabIndex = 59
@@ -591,7 +604,7 @@ Partial Class ContratoForm
         ' 
         Label7.AutoSize = True
         Label7.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
-        Label7.Location = New Point(189, 530)
+        Label7.Location = New Point(189, 585)
         Label7.Name = "Label7"
         Label7.Size = New Size(102, 16)
         Label7.TabIndex = 60
@@ -601,7 +614,7 @@ Partial Class ContratoForm
         ' 
         Button2.BackColor = SystemColors.AppWorkspace
         Button2.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
-        Button2.Location = New Point(462, 528)
+        Button2.Location = New Point(462, 583)
         Button2.Name = "Button2"
         Button2.Size = New Size(144, 24)
         Button2.TabIndex = 61
@@ -611,12 +624,147 @@ Partial Class ContratoForm
         ' PictureBox2
         ' 
         PictureBox2.Image = CType(resources.GetObject("PictureBox2.Image"), Image)
-        PictureBox2.Location = New Point(555, 582)
+        PictureBox2.Location = New Point(555, 637)
         PictureBox2.Name = "PictureBox2"
         PictureBox2.Size = New Size(54, 36)
         PictureBox2.TabIndex = 62
         PictureBox2.TabStop = False
         PictureBox2.Visible = False
+        ' 
+        ' ChckBlancoObservacion
+        ' 
+        ChckBlancoObservacion.AutoSize = True
+        ChckBlancoObservacion.BackColor = SystemColors.Menu
+        ChckBlancoObservacion.Location = New Point(796, 172)
+        ChckBlancoObservacion.Name = "ChckBlancoObservacion"
+        ChckBlancoObservacion.Size = New Size(108, 19)
+        ChckBlancoObservacion.TabIndex = 63
+        ChckBlancoObservacion.Text = "Dejar en blanco"
+        ChckBlancoObservacion.UseVisualStyleBackColor = False
+        ' 
+        ' CheckBlancoRevision
+        ' 
+        CheckBlancoRevision.AutoSize = True
+        CheckBlancoRevision.BackColor = SystemColors.Menu
+        CheckBlancoRevision.Location = New Point(796, 308)
+        CheckBlancoRevision.Name = "CheckBlancoRevision"
+        CheckBlancoRevision.Size = New Size(108, 19)
+        CheckBlancoRevision.TabIndex = 64
+        CheckBlancoRevision.Text = "Dejar en blanco"
+        CheckBlancoRevision.UseVisualStyleBackColor = False
+        ' 
+        ' Label8
+        ' 
+        Label8.AutoSize = True
+        Label8.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        Label8.Location = New Point(25, 348)
+        Label8.Name = "Label8"
+        Label8.Size = New Size(134, 16)
+        Label8.TabIndex = 65
+        Label8.Text = "Sección Ténico contrato"
+        ' 
+        ' chkAutoconsumo
+        ' 
+        chkAutoconsumo.AutoSize = True
+        chkAutoconsumo.BackColor = SystemColors.Menu
+        chkAutoconsumo.Location = New Point(26, 367)
+        chkAutoconsumo.Name = "chkAutoconsumo"
+        chkAutoconsumo.Size = New Size(102, 19)
+        chkAutoconsumo.TabIndex = 66
+        chkAutoconsumo.Text = "Autoconsumo"
+        chkAutoconsumo.UseVisualStyleBackColor = False
+        ' 
+        ' chkAutoconsumoSINO
+        ' 
+        chkAutoconsumoSINO.AutoSize = True
+        chkAutoconsumoSINO.Location = New Point(229, 367)
+        chkAutoconsumoSINO.Name = "chkAutoconsumoSINO"
+        chkAutoconsumoSINO.Size = New Size(62, 19)
+        chkAutoconsumoSINO.TabIndex = 67
+        chkAutoconsumoSINO.Text = "No / Sí"
+        chkAutoconsumoSINO.UseVisualStyleBackColor = True
+        ' 
+        ' chktipoautoconsumo
+        ' 
+        chktipoautoconsumo.AutoSize = True
+        chktipoautoconsumo.BackColor = SystemColors.Menu
+        chktipoautoconsumo.Location = New Point(323, 367)
+        chktipoautoconsumo.Name = "chktipoautoconsumo"
+        chktipoautoconsumo.Size = New Size(128, 19)
+        chktipoautoconsumo.TabIndex = 68
+        chktipoautoconsumo.Text = "Tipo Autoconsumo"
+        chktipoautoconsumo.UseVisualStyleBackColor = False
+        ' 
+        ' ComboTipoAutoconsumo
+        ' 
+        ComboTipoAutoconsumo.FormattingEnabled = True
+        ComboTipoAutoconsumo.Location = New Point(457, 365)
+        ComboTipoAutoconsumo.Name = "ComboTipoAutoconsumo"
+        ComboTipoAutoconsumo.Size = New Size(157, 23)
+        ComboTipoAutoconsumo.TabIndex = 69
+        ' 
+        ' chkAutoconsumoNOCompesable
+        ' 
+        chkAutoconsumoNOCompesable.AutoSize = True
+        chkAutoconsumoNOCompesable.BackColor = SystemColors.Menu
+        chkAutoconsumoNOCompesable.Location = New Point(26, 394)
+        chkAutoconsumoNOCompesable.Name = "chkAutoconsumoNOCompesable"
+        chkAutoconsumoNOCompesable.Size = New Size(197, 19)
+        chkAutoconsumoNOCompesable.TabIndex = 70
+        chkAutoconsumoNOCompesable.Text = "Autoconsumo No Compensable"
+        chkAutoconsumoNOCompesable.UseVisualStyleBackColor = False
+        ' 
+        ' chkAutoconsumoNOCompesableSINO
+        ' 
+        chkAutoconsumoNOCompesableSINO.AutoSize = True
+        chkAutoconsumoNOCompesableSINO.Location = New Point(229, 394)
+        chkAutoconsumoNOCompesableSINO.Name = "chkAutoconsumoNOCompesableSINO"
+        chkAutoconsumoNOCompesableSINO.Size = New Size(62, 19)
+        chkAutoconsumoNOCompesableSINO.TabIndex = 71
+        chkAutoconsumoNOCompesableSINO.Text = "No / Sí"
+        chkAutoconsumoNOCompesableSINO.UseVisualStyleBackColor = True
+        ' 
+        ' chkLicitacion
+        ' 
+        chkLicitacion.AutoSize = True
+        chkLicitacion.BackColor = SystemColors.Menu
+        chkLicitacion.Location = New Point(323, 394)
+        chkLicitacion.Name = "chkLicitacion"
+        chkLicitacion.Size = New Size(74, 19)
+        chkLicitacion.TabIndex = 72
+        chkLicitacion.Text = "licitacion"
+        chkLicitacion.UseVisualStyleBackColor = False
+        ' 
+        ' chkLicitacionSINO
+        ' 
+        chkLicitacionSINO.AutoSize = True
+        chkLicitacionSINO.Location = New Point(405, 395)
+        chkLicitacionSINO.Name = "chkLicitacionSINO"
+        chkLicitacionSINO.Size = New Size(62, 19)
+        chkLicitacionSINO.TabIndex = 73
+        chkLicitacionSINO.Text = "No / Sí"
+        chkLicitacionSINO.UseVisualStyleBackColor = True
+        ' 
+        ' ChkExencionIESINO
+        ' 
+        ChkExencionIESINO.AutoSize = True
+        ChkExencionIESINO.Location = New Point(588, 394)
+        ChkExencionIESINO.Name = "ChkExencionIESINO"
+        ChkExencionIESINO.Size = New Size(62, 19)
+        ChkExencionIESINO.TabIndex = 74
+        ChkExencionIESINO.Text = "No / Sí"
+        ChkExencionIESINO.UseVisualStyleBackColor = True
+        ' 
+        ' ChkExencionIE
+        ' 
+        ChkExencionIE.AutoSize = True
+        ChkExencionIE.BackColor = SystemColors.Menu
+        ChkExencionIE.Location = New Point(493, 394)
+        ChkExencionIE.Name = "ChkExencionIE"
+        ChkExencionIE.Size = New Size(86, 19)
+        ChkExencionIE.TabIndex = 75
+        ChkExencionIE.Text = "Exención IE"
+        ChkExencionIE.UseVisualStyleBackColor = False
         ' 
         ' ContratoForm
         ' 
@@ -624,7 +772,20 @@ Partial Class ContratoForm
         AutoScaleMode = AutoScaleMode.Font
         BackColor = SystemColors.GradientInactiveCaption
         BackgroundImageLayout = ImageLayout.Center
-        ClientSize = New Size(951, 624)
+        ClientSize = New Size(951, 682)
+        Controls.Add(ChkExencionIE)
+        Controls.Add(ChkExencionIESINO)
+        Controls.Add(chkLicitacionSINO)
+        Controls.Add(chkLicitacion)
+        Controls.Add(chkAutoconsumoNOCompesableSINO)
+        Controls.Add(chkAutoconsumoNOCompesable)
+        Controls.Add(ComboTipoAutoconsumo)
+        Controls.Add(chktipoautoconsumo)
+        Controls.Add(chkAutoconsumoSINO)
+        Controls.Add(chkAutoconsumo)
+        Controls.Add(Label8)
+        Controls.Add(CheckBlancoRevision)
+        Controls.Add(ChckBlancoObservacion)
         Controls.Add(PictureBox2)
         Controls.Add(Button2)
         Controls.Add(Label7)
@@ -744,4 +905,17 @@ Partial Class ContratoForm
     Friend WithEvents Label7 As Label
     Friend WithEvents Button2 As Button
     Friend WithEvents PictureBox2 As PictureBox
+    Friend WithEvents ChckBlancoObservacion As CheckBox
+    Friend WithEvents CheckBlancoRevision As CheckBox
+    Friend WithEvents Label8 As Label
+    Friend WithEvents chkAutoconsumo As CheckBox
+    Friend WithEvents chkAutoconsumoSINO As CheckBox
+    Friend WithEvents chktipoautoconsumo As CheckBox
+    Friend WithEvents ComboTipoAutoconsumo As ComboBox
+    Friend WithEvents chkAutoconsumoNOCompesable As CheckBox
+    Friend WithEvents chkAutoconsumoNOCompesableSINO As CheckBox
+    Friend WithEvents chkLicitacion As CheckBox
+    Friend WithEvents chkLicitacionSINO As CheckBox
+    Friend WithEvents ChkExencionIESINO As CheckBox
+    Friend WithEvents ChkExencionIE As CheckBox
 End Class

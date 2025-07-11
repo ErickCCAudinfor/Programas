@@ -69,6 +69,10 @@ Public Class ContratoForm
             Me.ComboBox9.DisplayMember = "Nombre"
             Me.ComboBox9.ValueMember = "IdSituacionScoring"
 
+            'TipoAutoconsumo
+            Me.ComboTipoAutoconsumo.DataSource = funciones2.GetTiposAutoconsumos
+            Me.ComboTipoAutoconsumo.DisplayMember = "TextoAutoconsumo"
+            Me.ComboTipoAutoconsumo.ValueMember = "IdTipoAutoconsumo"
 
         Catch ex As Exception
 
@@ -100,34 +104,41 @@ Public Class ContratoForm
             Dim ValoresF = GetParameters()
 
             If ValoresF.Length > 0 Then
+
+                Dim yesorNot1 = MsgBox($"Hay un total de {Contratos.Count} contratos, ¿Seguir con la actualización?", vbYesNo)
+                If yesorNot1 <> 6 Then
+                    MsgBox("operación cancelada")
+                    Exit Sub
+                End If
+
                 ''Antes de la actualizacion
                 Dim rutaArchivoAntesModificacion = IO.Path.Combine(rutaCarpeta, $"ContratosAntesActualizacion_{Now.ToString("ddMMyyyy_HHmmss")}.xlsx")
-                Dim rutaArchivoDespuesModificacion = IO.Path.Combine(rutaCarpeta, $"ContratosDespuesActualizacion_{Now.ToString("ddMMyyyy_HHmmss")}.xlsx")
-                'Obtengo la consulta antes de la modificacion
-                Dim consultaAntes = ConsultasSQL.GetConsultaContrato(Contratos)
-                'Exporto los contratos antes de la modificacion
-                PictureBox2.Visible = True
-                tasks.Add(Task.Run(Sub()
-                                       ExportarConsultaAExcel(connectionString, consultaAntes, rutaArchivoAntesModificacion, "Contratos")
-                                       'Unificamos la query
-                                       Dim QueryFinal = $"{UpdateContrato} {ValoresF} {WhereContrato}"
-                                       'Ejecutamos la query
-                                       Dim funciones2 As New FuncionesGenericas(connectionString)
-                                       ContratosModificados = funciones2.UpdateContratosMasivo(QueryFinal)
+                    Dim rutaArchivoDespuesModificacion = IO.Path.Combine(rutaCarpeta, $"ContratosDespuesActualizacion_{Now.ToString("ddMMyyyy_HHmmss")}.xlsx")
+                    'Obtengo la consulta antes de la modificacion
+                    Dim consultaAntes = ConsultasSQL.GetConsultaContrato(Contratos)
+                    'Exporto los contratos antes de la modificacion
+                    PictureBox2.Visible = True
+                    tasks.Add(Task.Run(Sub()
+                                           ExportarConsultaAExcel(connectionString, consultaAntes, rutaArchivoAntesModificacion, "Contratos")
+                                           'Unificamos la query
+                                           Dim QueryFinal = $"{UpdateContrato} {ValoresF} {WhereContrato}"
+                                           'Ejecutamos la query
+                                           Dim funciones2 As New FuncionesGenericas(connectionString)
+                                           ContratosModificados = funciones2.UpdateContratosMasivo(QueryFinal)
 
-                                       Dim consultaDespues = ConsultasSQL.GetConsultaContrato(Contratos)
-                                       ExportarConsultaAExcel(connectionString, consultaAntes, rutaArchivoDespuesModificacion, "Contratos")
-                                   End Sub))
-                Dim pepe = 0
-                Await Task.WhenAll(tasks)
-                PictureBox2.Visible = False
-                If ContratosModificados > 0 Then
-                    complementos.MostrarMensajePersonalizado($"Compare los resultados en los excels generados.{rutaArchivoAntesModificacion} y {rutaArchivoDespuesModificacion}")
-                Else
-                    complementos.MostrarMensajePersonalizado($"No se ha actualizado ningún contrato.")
+                                           Dim consultaDespues = ConsultasSQL.GetConsultaContrato(Contratos)
+                                           ExportarConsultaAExcel(connectionString, consultaAntes, rutaArchivoDespuesModificacion, "Contratos")
+                                       End Sub))
+                    Dim pepe = 0
+                    Await Task.WhenAll(tasks)
+                    PictureBox2.Visible = False
+                    If ContratosModificados > 0 Then
+                        complementos.MostrarMensajePersonalizado($"Compare los resultados en los excels generados.{rutaArchivoAntesModificacion} y {rutaArchivoDespuesModificacion}")
+                    Else
+                        complementos.MostrarMensajePersonalizado($"No se ha actualizado ningún contrato.")
+                    End If
+                    'Vuelvo a consultar los contratos esten o no esten modificados
                 End If
-                'Vuelvo a consultar los contratos esten o no esten modificados
-            End If
         Catch ex As Exception
             PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado($"{ex.Message}")
@@ -176,8 +187,12 @@ Public Class ContratoForm
             End If
             'Observaciones Contrato
             If CheckBox5.Checked Then
+                If ChckBlancoObservacion.Checked Then
+                    camposUpdate.Add($"Observaciones=''")
+                Else
+                    camposUpdate.Add($"Observaciones=Observaciones+' | {TextBox1.Text}'")
+                End If
 
-                camposUpdate.Add($"Observaciones=Observaciones+' |{TextBox1.Text}'")
             End If
             'Tipo Impuesto
             If CheckBox6.Checked Then
@@ -204,7 +219,12 @@ Public Class ContratoForm
 
             'Texto Revision Facturas
             If CheckBox9.Checked Then
-                camposUpdate.Add($"textorevision=textorevision+' |{TextBox2.Text}'")
+                If CheckBlancoRevision.Checked Then
+                    camposUpdate.Add($"textorevision=''")
+                Else
+                    camposUpdate.Add($"textorevision=textorevision+' | {TextBox2.Text}'")
+                End If
+
             End If
             'Modelo Factura
             If CheckBox17.Checked Then
@@ -282,6 +302,44 @@ Public Class ContratoForm
             If CheckBox26.Checked Then
                 Dim ClientePagoSelect As ClientePago = TryCast(ComboBox10.SelectedItem, ClientePago)
                 camposUpdate.Add($"idclientepago={ClientePagoSelect.IdClientePago}")
+            End If
+
+
+            If chkAutoconsumo.Checked Then
+                Dim Sino = "0"
+                If chkAutoconsumoSINO.Checked Then
+                    Sino = "1"
+                End If
+                camposUpdate.Add($"autoconsumo={Sino}")
+            End If
+
+            If chkAutoconsumoNOCompesable.Checked Then
+                Dim Sino = "0"
+                If chkAutoconsumoNOCompesableSINO.Checked Then
+                    Sino = "1"
+                End If
+                camposUpdate.Add($"IsAutoconsumoNoCompensable={Sino}")
+            End If
+
+            If chkLicitacion.Checked Then
+                Dim Sino = "0"
+                If chkLicitacionSINO.Checked Then
+                    Sino = "1"
+                End If
+                camposUpdate.Add($"islicitacion={Sino}")
+            End If
+
+            If ChkExencionIE.Checked Then
+                Dim Sino = "0"
+                If ChkExencionIESINO.Checked Then
+                    Sino = "1"
+                End If
+                camposUpdate.Add($"ExencionIE={Sino}")
+            End If
+            'TiposAutoconsumo
+            If chktipoautoconsumo.Checked Then
+                Dim TiposAutoconsumoSelect As TiposAutoconsumo = TryCast(ComboTipoAutoconsumo.SelectedItem, TiposAutoconsumo)
+                camposUpdate.Add($"idtipoautoconsumo={TiposAutoconsumoSelect.IdTipoAutoconsumo}")
             End If
 
             'DiasVencimiento

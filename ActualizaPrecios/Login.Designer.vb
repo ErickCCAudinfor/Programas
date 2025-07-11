@@ -33,6 +33,7 @@ Partial Class Login
         Label4 = New Label()
         Label5 = New Label()
         PictureBox1 = New PictureBox()
+        Label1 = New Label()
         CType(ExitPicture, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
@@ -54,7 +55,7 @@ Partial Class Login
         ' LabelUsuario
         ' 
         LabelUsuario.AutoSize = True
-        LabelUsuario.Font = New Font("Segoe UI", 9.0F, FontStyle.Bold, GraphicsUnit.Point)
+        LabelUsuario.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
         LabelUsuario.ForeColor = Color.FromArgb(CByte(233), CByte(231), CByte(226))
         LabelUsuario.Location = New Point(150, 66)
         LabelUsuario.Name = "LabelUsuario"
@@ -65,7 +66,7 @@ Partial Class Login
         ' LabelClave
         ' 
         LabelClave.AutoSize = True
-        LabelClave.Font = New Font("Segoe UI", 9.0F, FontStyle.Bold, GraphicsUnit.Point)
+        LabelClave.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
         LabelClave.ForeColor = Color.FromArgb(CByte(233), CByte(231), CByte(226))
         LabelClave.Location = New Point(150, 104)
         LabelClave.Name = "LabelClave"
@@ -109,7 +110,7 @@ Partial Class Login
         ' Label4
         ' 
         Label4.AutoSize = True
-        Label4.Font = New Font("Segoe UI", 6.0F, FontStyle.Regular, GraphicsUnit.Point)
+        Label4.Font = New Font("Segoe UI", 6F, FontStyle.Regular, GraphicsUnit.Point)
         Label4.ForeColor = Color.FromArgb(CByte(233), CByte(231), CByte(226))
         Label4.Location = New Point(398, 198)
         Label4.Name = "Label4"
@@ -120,7 +121,7 @@ Partial Class Login
         ' Label5
         ' 
         Label5.AutoSize = True
-        Label5.Font = New Font("Segoe UI", 6.0F, FontStyle.Regular, GraphicsUnit.Point)
+        Label5.Font = New Font("Segoe UI", 6F, FontStyle.Regular, GraphicsUnit.Point)
         Label5.ForeColor = Color.FromArgb(CByte(233), CByte(231), CByte(226))
         Label5.Location = New Point(438, 198)
         Label5.Name = "Label5"
@@ -137,12 +138,24 @@ Partial Class Login
         PictureBox1.TabIndex = 9
         PictureBox1.TabStop = False
         ' 
+        ' Label1
+        ' 
+        Label1.AutoSize = True
+        Label1.Font = New Font("Segoe UI", 6F, FontStyle.Regular, GraphicsUnit.Point)
+        Label1.ForeColor = Color.FromArgb(CByte(233), CByte(231), CByte(226))
+        Label1.Location = New Point(7, 9)
+        Label1.Name = "Label1"
+        Label1.Size = New Size(43, 11)
+        Label1.TabIndex = 10
+        Label1.Text = "version 1.2"
+        ' 
         ' Login
         ' 
-        AutoScaleDimensions = New SizeF(7.0F, 15.0F)
+        AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.FromArgb(CByte(130), CByte(30), CByte(34))
         ClientSize = New Size(525, 219)
+        Controls.Add(Label1)
         Controls.Add(PictureBox1)
         Controls.Add(Label5)
         Controls.Add(Label4)
@@ -175,4 +188,5 @@ Partial Class Login
     Friend WithEvents Label4 As Label
     Friend WithEvents Label5 As Label
     Friend WithEvents PictureBox1 As PictureBox
+    Friend WithEvents Label1 As Label
 End Class
