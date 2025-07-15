@@ -27,7 +27,7 @@ Partial Class ProductosAsig
         TextBox1 = New TextBox()
         Label1 = New Label()
         Label2 = New Label()
-        DateTimePicker1 = New DateTimePicker()
+        FechaInicialPicker = New DateTimePicker()
         Label3 = New Label()
         CheckBox1 = New CheckBox()
         CheckBox4 = New CheckBox()
@@ -40,6 +40,8 @@ Partial Class ProductosAsig
         CheckBox2 = New CheckBox()
         Label6 = New Label()
         CheckBox3 = New CheckBox()
+        Label7 = New Label()
+        FechaFinalPicker = New DateTimePicker()
         CType(NumericUpDown1, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
@@ -77,17 +79,19 @@ Partial Class ProductosAsig
         Label2.TabIndex = 3
         Label2.Text = "Producto Grupo"
         ' 
-        ' DateTimePicker1
+        ' FechaInicialPicker
         ' 
-        DateTimePicker1.Location = New Point(172, 71)
-        DateTimePicker1.Name = "DateTimePicker1"
-        DateTimePicker1.Size = New Size(313, 23)
-        DateTimePicker1.TabIndex = 4
+        FechaInicialPicker.CustomFormat = "dd/MM/yyyy"
+        FechaInicialPicker.Format = DateTimePickerFormat.Custom
+        FechaInicialPicker.Location = New Point(172, 71)
+        FechaInicialPicker.Name = "FechaInicialPicker"
+        FechaInicialPicker.Size = New Size(100, 23)
+        FechaInicialPicker.TabIndex = 4
         ' 
         ' Label3
         ' 
         Label3.AutoSize = True
-        Label3.Location = New Point(12, 106)
+        Label3.Location = New Point(12, 101)
         Label3.Name = "Label3"
         Label3.Size = New Size(49, 15)
         Label3.TabIndex = 5
@@ -96,7 +100,7 @@ Partial Class ProductosAsig
         ' CheckBox1
         ' 
         CheckBox1.AutoSize = True
-        CheckBox1.Location = New Point(172, 144)
+        CheckBox1.Location = New Point(172, 139)
         CheckBox1.Name = "CheckBox1"
         CheckBox1.Size = New Size(68, 19)
         CheckBox1.TabIndex = 7
@@ -106,7 +110,7 @@ Partial Class ProductosAsig
         ' CheckBox4
         ' 
         CheckBox4.AutoSize = True
-        CheckBox4.Location = New Point(246, 144)
+        CheckBox4.Location = New Point(246, 139)
         CheckBox4.Name = "CheckBox4"
         CheckBox4.Size = New Size(82, 19)
         CheckBox4.TabIndex = 10
@@ -116,7 +120,7 @@ Partial Class ProductosAsig
         ' CheckBox5
         ' 
         CheckBox5.AutoSize = True
-        CheckBox5.Location = New Point(401, 144)
+        CheckBox5.Location = New Point(401, 139)
         CheckBox5.Name = "CheckBox5"
         CheckBox5.Size = New Size(84, 19)
         CheckBox5.TabIndex = 11
@@ -125,7 +129,7 @@ Partial Class ProductosAsig
         ' 
         ' Button1
         ' 
-        Button1.Location = New Point(382, 218)
+        Button1.Location = New Point(382, 213)
         Button1.Name = "Button1"
         Button1.Size = New Size(103, 23)
         Button1.TabIndex = 13
@@ -137,14 +141,14 @@ Partial Class ProductosAsig
         Label4.AutoSize = True
         Label4.Location = New Point(12, 77)
         Label4.Name = "Label4"
-        Label4.Size = New Size(38, 15)
+        Label4.Size = New Size(70, 15)
         Label4.TabIndex = 14
-        Label4.Text = "Fecha"
+        Label4.Text = "Fecha Inicio"
         ' 
         ' NumericUpDown1
         ' 
         NumericUpDown1.DecimalPlaces = 6
-        NumericUpDown1.Location = New Point(172, 106)
+        NumericUpDown1.Location = New Point(172, 101)
         NumericUpDown1.Name = "NumericUpDown1"
         NumericUpDown1.Size = New Size(120, 23)
         NumericUpDown1.TabIndex = 15
@@ -152,7 +156,7 @@ Partial Class ProductosAsig
         ' ComboBox2
         ' 
         ComboBox2.FormattingEnabled = True
-        ComboBox2.Location = New Point(172, 175)
+        ComboBox2.Location = New Point(172, 170)
         ComboBox2.Name = "ComboBox2"
         ComboBox2.Size = New Size(191, 23)
         ComboBox2.TabIndex = 16
@@ -160,7 +164,7 @@ Partial Class ProductosAsig
         ' Label5
         ' 
         Label5.AutoSize = True
-        Label5.Location = New Point(12, 183)
+        Label5.Location = New Point(12, 178)
         Label5.Name = "Label5"
         Label5.Size = New Size(83, 15)
         Label5.TabIndex = 17
@@ -172,7 +176,7 @@ Partial Class ProductosAsig
         CheckBox2.Checked = True
         CheckBox2.CheckState = CheckState.Checked
         CheckBox2.Enabled = False
-        CheckBox2.Location = New Point(310, 223)
+        CheckBox2.Location = New Point(310, 218)
         CheckBox2.Name = "CheckBox2"
         CheckBox2.Size = New Size(15, 14)
         CheckBox2.TabIndex = 18
@@ -181,7 +185,7 @@ Partial Class ProductosAsig
         ' Label6
         ' 
         Label6.AutoSize = True
-        Label6.Location = New Point(167, 222)
+        Label6.Location = New Point(167, 217)
         Label6.Name = "Label6"
         Label6.Size = New Size(137, 15)
         Label6.TabIndex = 19
@@ -190,18 +194,38 @@ Partial Class ProductosAsig
         ' CheckBox3
         ' 
         CheckBox3.AutoSize = True
-        CheckBox3.Location = New Point(334, 144)
+        CheckBox3.Location = New Point(334, 139)
         CheckBox3.Name = "CheckBox3"
         CheckBox3.Size = New Size(54, 19)
         CheckBox3.TabIndex = 20
         CheckBox3.Text = "p/día"
         CheckBox3.UseVisualStyleBackColor = True
         ' 
+        ' Label7
+        ' 
+        Label7.AutoSize = True
+        Label7.Location = New Point(310, 77)
+        Label7.Name = "Label7"
+        Label7.Size = New Size(66, 15)
+        Label7.TabIndex = 22
+        Label7.Text = "Fecha Final"
+        ' 
+        ' FechaFinalPicker
+        ' 
+        FechaFinalPicker.CustomFormat = " "
+        FechaFinalPicker.Format = DateTimePickerFormat.Custom
+        FechaFinalPicker.Location = New Point(382, 70)
+        FechaFinalPicker.Name = "FechaFinalPicker"
+        FechaFinalPicker.Size = New Size(103, 23)
+        FechaFinalPicker.TabIndex = 21
+        ' 
         ' ProductosAsig
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(493, 244)
+        ClientSize = New Size(491, 244)
+        Controls.Add(Label7)
+        Controls.Add(FechaFinalPicker)
         Controls.Add(CheckBox3)
         Controls.Add(Label6)
         Controls.Add(CheckBox2)
@@ -214,7 +238,7 @@ Partial Class ProductosAsig
         Controls.Add(CheckBox4)
         Controls.Add(CheckBox1)
         Controls.Add(Label3)
-        Controls.Add(DateTimePicker1)
+        Controls.Add(FechaInicialPicker)
         Controls.Add(Label2)
         Controls.Add(Label1)
         Controls.Add(TextBox1)
@@ -232,7 +256,7 @@ Partial Class ProductosAsig
     Friend WithEvents TextBox1 As TextBox
     Friend WithEvents Label1 As Label
     Friend WithEvents Label2 As Label
-    Friend WithEvents DateTimePicker1 As DateTimePicker
+    Friend WithEvents FechaInicialPicker As DateTimePicker
     Friend WithEvents Label3 As Label
     Friend WithEvents CheckBox1 As CheckBox
     Friend WithEvents CheckBox4 As CheckBox
@@ -245,4 +269,6 @@ Partial Class ProductosAsig
     Friend WithEvents CheckBox2 As CheckBox
     Friend WithEvents Label6 As Label
     Friend WithEvents CheckBox3 As CheckBox
+    Friend WithEvents Label7 As Label
+    Friend WithEvents FechaFinalPicker As DateTimePicker
 End Class

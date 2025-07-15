@@ -12,6 +12,7 @@ Public Class ProductosAsig
             Throw
         End Try
     End Sub
+    Dim FechaFinalSeleccionada As Nullable(Of DateTime) = Nothing
 
 
     Public Sub New(Entorno As String, Contratos As List(Of Long), connectionString As String)
@@ -78,19 +79,25 @@ Public Class ProductosAsig
             Dim productoSeleccionado As Producto = TryCast(ComboBox1.SelectedItem, Producto)
             Dim TipoImpuesto As TipoImpuesto = TryCast(ComboBox2.SelectedItem, TipoImpuesto)
             Dim importe = NumericUpDown1.Value
-            Dim Fecha = DateTimePicker1.Value.ToString("yyyy-MM-dd")
+            Dim Fecha = FechaInicialPicker.Value.ToString("yyyy-MM-dd")
             Dim IdTipoImpuesto = TipoImpuesto.IdTipoImpuesto
             Dim AntesIe = CheckBox1.Checked
             Dim SobreConsumo = CheckBox4.Checked
             Dim PrecioSobreConsumo = CheckBox5.Checked
             Dim PrecioSobredia = CheckBox3.Checked
+            Dim FechaFinal = "NULL"
+            If FechaFinalSeleccionada.HasValue Then
+                Dim FechaFormateada As String = FechaFinalSeleccionada.Value.ToString("dd/MM/yyyy HH:mm:ss")
+
+                FechaFinal = $"'{FechaFormateada}'"
+            End If
             For Each elemnt In Contratos
                 Dim Contrato = Funciones.GetContrato(elemnt)
                 If If(Contrato.IdTipoImpuesto, 0) <> 0 AndAlso IdTipoImpuesto <> 0 Then
                     IdTipoImpuesto = Contrato.IdTipoImpuesto
                 End If
                 If CheckBox2.Checked Then 'Insertar
-                    NFilasAfectadas = Await Task.Run(Function() Funciones.InsertProductoAsignacion(Contrato.Entorno, productoSeleccionado.IdProductoGrupo, productoSeleccionado.IdProducto, Contrato.IdContrato, Fecha, importe, IdTipoImpuesto, AntesIe, SobreConsumo, PrecioSobreConsumo, PrecioSobredia))
+                    NFilasAfectadas = Await Task.Run(Function() Funciones.InsertProductoAsignacion(Contrato.Entorno, productoSeleccionado.IdProductoGrupo, productoSeleccionado.IdProducto, Contrato.IdContrato, Fecha, importe, IdTipoImpuesto, AntesIe, SobreConsumo, PrecioSobreConsumo, PrecioSobredia, FechaFinal))
                     TotalFilasAfectas += NFilasAfectadas
                 End If
             Next
@@ -138,5 +145,17 @@ Public Class ProductosAsig
 
         Return IdImpuesto
     End Function
+
+    Private Sub FechaFinalPicker_ValueChanged(sender As Object, e As EventArgs) Handles FechaFinalPicker.ValueChanged
+        FechaFinalPicker.Format = DateTimePickerFormat.Short
+        FechaFinalSeleccionada = FechaFinalPicker.Value
+    End Sub
+    Private Sub DateTimePicker1_KeyDown(sender As Object, e As KeyEventArgs) Handles FechaFinalPicker.KeyDown
+        If e.KeyCode = Keys.Back OrElse e.KeyCode = Keys.Delete Then
+            FechaFinalPicker.Format = DateTimePickerFormat.Custom
+            FechaFinalPicker.CustomFormat = " "
+            FechaFinalSeleccionada = Nothing
+        End If
+    End Sub
 
 End Class

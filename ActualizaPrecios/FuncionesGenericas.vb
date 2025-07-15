@@ -1080,7 +1080,7 @@ WHERE tp.Entorno = '{Entorno}'
         Return FilfasAfectadas
     End Function
 
-    Public Function InsertProductoAsignacion(Entorno As String, IdProductoGrupo As Long, IdProducto As Long, IdContrato As Long, FechaInicial As Date, Importe As Decimal, IdTipoImpuesto As Long, AntesIE As Boolean, AplicarSobreConsumo As Boolean, AplicarPrecioConsumo As Boolean, PrecioSobredia As Boolean) As Long
+    Public Function InsertProductoAsignacion(Entorno As String, IdProductoGrupo As Long, IdProducto As Long, IdContrato As Long, FechaInicial As Date, Importe As Decimal, IdTipoImpuesto As Long, AntesIE As Boolean, AplicarSobreConsumo As Boolean, AplicarPrecioConsumo As Boolean, PrecioSobredia As Boolean, FechaFinal As String) As Long
         Dim conexion = New SqlConnection(connectionString)
 
         Dim FilfasAfectadas As Long
@@ -1095,12 +1095,12 @@ WHERE tp.Entorno = '{Entorno}'
             If IdTipoImpuesto = 0 Then
                 Query =
 $"INSERT INTO ProductoAsignacion (Entorno, IdProductoGrupo, IdProducto, TipoAsignacion, IdCliente, IdContrato, IdTarifa, IdTarifaGrupo, IdTipoCobro, IdTarifaPeaje, Desde, Hasta, IsControlFecha, FechaInicial, FechaFinal, Plazo, PlazoCargado, ImporteTotalPlazo, IsFacturado, Importe, Descuento, AntesIE, IdTipoImpuesto, PrecioDia, IsFacturaProrrateo, IdFacturaProrrateo, PorcentajeIncremento, AplicarSobreConsumo, ImportePlazo, AplicarPrecioConsumo, IsBonificacion, FechaAsignacion)
-VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '{FechaInicial}', NULL, NULL, NULL, NULL, NULL, {Importe.ToString.Replace(",", ".")}, 0.00, {If(AntesIE, 1, 0)}, null, {If(PrecioSobredia, 1, 0)}, 0, NULL, 0.00, {If(AplicarSobreConsumo, 1, 0)}, NULL, {If(AplicarPrecioConsumo, 1, 0)}, NULL, NULL);"
+VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '{FechaInicial}', {FechaFinal}, NULL, NULL, NULL, NULL, {Importe.ToString.Replace(",", ".")}, 0.00, {If(AntesIE, 1, 0)}, null, {If(PrecioSobredia, 1, 0)}, 0, NULL, 0.00, {If(AplicarSobreConsumo, 1, 0)}, NULL, {If(AplicarPrecioConsumo, 1, 0)}, NULL, NULL);"
 
             Else
                 Query =
 $"INSERT INTO ProductoAsignacion (Entorno, IdProductoGrupo, IdProducto, TipoAsignacion, IdCliente, IdContrato, IdTarifa, IdTarifaGrupo, IdTipoCobro, IdTarifaPeaje, Desde, Hasta, IsControlFecha, FechaInicial, FechaFinal, Plazo, PlazoCargado, ImporteTotalPlazo, IsFacturado, Importe, Descuento, AntesIE, IdTipoImpuesto, PrecioDia, IsFacturaProrrateo, IdFacturaProrrateo, PorcentajeIncremento, AplicarSobreConsumo, ImportePlazo, AplicarPrecioConsumo, IsBonificacion, FechaAsignacion)
-VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '{FechaInicial}', NULL, NULL, NULL, NULL, NULL, {Importe.ToString.Replace(",", ".")}, 0.00, {If(AntesIE, 1, 0)},  {IdTipoImpuesto}, {If(PrecioSobredia, 1, 0)}, 0, NULL, 0.00, {If(AplicarSobreConsumo, 1, 0)}, NULL, {If(AplicarPrecioConsumo, 1, 0)}, NULL, NULL);"
+VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '{FechaInicial}', {FechaFinal}, NULL, NULL, NULL, NULL, {Importe.ToString.Replace(",", ".")}, 0.00, {If(AntesIE, 1, 0)},  {IdTipoImpuesto}, {If(PrecioSobredia, 1, 0)}, 0, NULL, 0.00, {If(AplicarSobreConsumo, 1, 0)}, NULL, {If(AplicarPrecioConsumo, 1, 0)}, NULL, NULL);"
 
             End If
 
