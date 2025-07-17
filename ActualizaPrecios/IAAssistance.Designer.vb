@@ -58,6 +58,7 @@ Partial Class IAAssistance
         txtRespuesta.Multiline = True
         txtRespuesta.Name = "txtRespuesta"
         txtRespuesta.PlaceholderText = "🤖 Hola, soy Jade, tu asistente inteligente"
+        txtRespuesta.ScrollBars = ScrollBars.Vertical
         txtRespuesta.Size = New Size(388, 280)
         txtRespuesta.TabIndex = 2
         ' 

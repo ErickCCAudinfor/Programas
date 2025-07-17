@@ -2333,6 +2333,9 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                 Exit Sub
             End If
             PictureBox2.Visible = True
+            If consultaSeleccionada.Key.Equals("Contratos Paginados") Then
+                nombreConsulta = "ConPag"
+            End If
             Await ProcesarConsultaDesdeExcelAsync(
             subcarpetaDestino:="Consultas",
             nombreArchivoSalida:=$"{nombreConsulta}_{Now:ddMMyyyyHHmmss}.xlsx",
@@ -2343,6 +2346,8 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                              If queryBase Is Nothing Then
                                  If nombreConsulta.Equals("Masivo Facturas") Then
                                      query = ConsultasSQL.Get_Masivo_Facturas_Click_byID(id) ' Consulta especial con ID MASIVO
+                                 ElseIf nombreConsulta.Equals("MasFacTREBOL") Then
+                                     query = ConsultasSQL.Get_Masivo_Facturas_Click_byID_TREBOL(id) ' Consulta especial con ID MASIVO
                                  Else
                                      query = ConsultasSQL.Get_V_ContratoPaginadoListado(id) ' Consulta especial con ID
                                  End If
@@ -2386,7 +2391,8 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         {"Hunosa", ConsultasSQL.GetHunosa(DesdeF, HastaF)},
         {"Cadasa", ConsultasSQL.GetCadasa(DesdeF, HastaF)},
         {"Contratos Paginados", Nothing}, ' esta es especial, requiere ID
-        {"Masivo Facturas", Nothing}
+        {"Masivo Facturas", Nothing},
+        {"MasFacTREBOL", Nothing}
     }
         ComboBoxConsultas.DataSource = New BindingSource(consultas, Nothing)
         ComboBoxConsultas.DisplayMember = "Key"

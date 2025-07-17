@@ -20,7 +20,7 @@ Public Class IAChatAssistant
             client.DefaultRequestHeaders.Add("X-Title", "IAAssistance")
 
             Dim requestBody = New With {
-                .model = "openai/gpt-3.5-turbo",
+                .model = "openai/gpt-4o",
                 .messages = {
                     New With {.role = "system", .content = contexto},
                     New With {.role = "user", .content = preguntaUsuario}

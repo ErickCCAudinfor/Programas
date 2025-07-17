@@ -249,13 +249,13 @@ Module ExportToExcelDinamico
                                                                End Try
                                                            End Sub))
 
-                                       If tareas.Count >= 10 Then
+                                       If tareas.Count >= 1 Then
                                            Task.WaitAll(tareas.ToArray())
                                            tareas.Clear()
 
                                            ' Guardar si se llegó a 1000 facturas
                                            SyncLock lockLista
-                                               If contadorFacturas >= 10 Then
+                                               If contadorFacturas >= 1 Then
                                                    ExportarConsultaAExcelV2(New List(Of DataTable)(ListaTablas), rutaSalida, Path.GetFileNameWithoutExtension(nombreArchivoSalida))
                                                    ListaTablas.Clear()
                                                    contadorFacturas = 0
