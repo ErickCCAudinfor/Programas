@@ -2004,6 +2004,19 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                                            RutaFinal += " " + Name
                                        End Sub))
                 End If
+                If CheckFacturable.Checked AndAlso Cups.Count > 0 Then
+                    tasks.Add(Task.Run(Sub()
+                                           Dim Name = "Facturable"
+                                           Dim rutaArchivoFacturable = IO.Path.Combine(rutaCarpeta, $"{Name}_{DateTimePicker3.Value.Date.ToString("ddMMyyyy")}_{DateTimePicker2.Value.Date.ToString("ddMMyyyy")}.xlsx")
+                                           Dim listaCups As New List(Of String)
+                                           For Each c In Cups
+                                               listaCups.Add(Replace(c, " ", "").Substring(0, Math.Min(20, c.Length)))
+                                           Next
+                                           Dim ConsultaFacturable As String = ConsultasSQL.GetCurvaFacturable(DesdeF, HastaF, listaCups)
+                                           ExportarConsultaAExcel(conexionv2, ConsultaFacturable, rutaArchivoFacturable, Name)
+                                           RutaFinal += " " + Name
+                                       End Sub))
+                End If
             End If
 
 

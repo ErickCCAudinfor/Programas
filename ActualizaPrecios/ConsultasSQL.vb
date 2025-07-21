@@ -1955,6 +1955,45 @@ SELECT [Entorno],[CUPS],[FechaMedida],[Epoca],[ActivaEntrante],[ActivaSaliente],
 FROM [SigeTotalTM].[dbo].CurvaCuartoHoraria_H_092024
 WHERE left(cups,20) in( {joinCups})  AND FechaMedida between  '{DesdeFecha.ToString("dd/MM/yyyy")}' and '{hastaFecha.ToString("dd/MM/yyyy")}'"
 	End Function
+
+	Public Shared Function GetCurvaFacturable(DesdeFecha As Date, hastaFecha As Date, Cups As List(Of String)) As String
+		Dim joinCups = String.Join(",", Cups.Select(Function(c) $"'{c.Trim}'"))
+
+		Return $"SELECT Entorno,CUPS,FechaMedida,Epoca,ActivaEntrante,ActivaSaliente,ReactivaQ1,ReactivaQ2,ReactivaQ3,ReactivaQ4,Flags,FechaRegistro,IndicadorObtencion,Prelacion,NumFactura
+ FROM [SigeTotalTM].[dbo].CurvaFacturable
+WHERE left(cups,20) IN ( {joinCups})   AND FechaMedida BETWEEN '{DesdeFecha.ToString("dd/MM/yyyy")}' and '{hastaFecha.ToString("dd/MM/yyyy")}'
+
+UNION ALL
+
+SELECT Entorno,CUPS,FechaMedida,Epoca,ActivaEntrante,ActivaSaliente,ReactivaQ1,ReactivaQ2,ReactivaQ3,ReactivaQ4,Flags,FechaRegistro,IndicadorObtencion,Prelacion,NumFactura
+ FROM [SigeTotalTM].[dbo].CurvaFacturable_H
+WHERE left(cups,20) IN ( {joinCups})   AND FechaMedida BETWEEN '{DesdeFecha.ToString("dd/MM/yyyy")}' and '{hastaFecha.ToString("dd/MM/yyyy")}'
+
+UNION ALL
+
+SELECT Entorno,CUPS,FechaMedida,Epoca,ActivaEntrante,ActivaSaliente,ReactivaQ1,ReactivaQ2,ReactivaQ3,ReactivaQ4,Flags,FechaRegistro,IndicadorObtencion,Prelacion,NumFactura
+ FROM [SigeTotalTM].[dbo].CurvaFacturable_H_022025
+WHERE left(cups,20) IN ( {joinCups})   AND FechaMedida BETWEEN '{DesdeFecha.ToString("dd/MM/yyyy")}' and '{hastaFecha.ToString("dd/MM/yyyy")}'
+
+UNION ALL
+
+SELECT Entorno,CUPS,FechaMedida,Epoca,ActivaEntrante,ActivaSaliente,ReactivaQ1,ReactivaQ2,ReactivaQ3,ReactivaQ4,Flags,FechaRegistro,IndicadorObtencion,Prelacion,NumFactura
+ FROM [SigeTotalTM].[dbo].CurvaFacturable_H_032024
+WHERE left(cups,20) IN ( {joinCups})  AND FechaMedida BETWEEN '{DesdeFecha.ToString("dd/MM/yyyy")}' and '{hastaFecha.ToString("dd/MM/yyyy")}'
+
+UNION ALL
+
+SELECT Entorno,CUPS,FechaMedida,Epoca,ActivaEntrante,ActivaSaliente,ReactivaQ1,ReactivaQ2,ReactivaQ3,ReactivaQ4,Flags,FechaRegistro,IndicadorObtencion,Prelacion,NumFactura
+ FROM [SigeTotalTM].[dbo].CurvaFacturable_H_082024
+WHERE left(cups,20) IN ( {joinCups})   AND FechaMedida BETWEEN '{DesdeFecha.ToString("dd/MM/yyyy")}' and '{hastaFecha.ToString("dd/MM/yyyy")}'
+UNION ALL 
+
+SELECT Entorno,CUPS,FechaMedida,Epoca,ActivaEntrante,ActivaSaliente,ReactivaQ1,ReactivaQ2,ReactivaQ3,ReactivaQ4,Flags,FechaRegistro,IndicadorObtencion,Prelacion,NumFactura
+ FROM [SigeTotalTM].[dbo].CurvaFacturable_H_092024
+WHERE left(cups,20) IN ( {joinCups})   AND FechaMedida BETWEEN '{DesdeFecha.ToString("dd/MM/yyyy")}' and '{hastaFecha.ToString("dd/MM/yyyy")}'
+
+ORDER BY FechaMedida;"
+	End Function
 	Public Shared Function GetConsultaContrato(codCntrato As List(Of Long)) As String
 		Dim codCntratojoin = String.Join(",", codCntrato)
 		Return $"select c.Entorno,codigocontrato,c.idcontratosituacion, cs.textosituacion, c.SituacionScoring

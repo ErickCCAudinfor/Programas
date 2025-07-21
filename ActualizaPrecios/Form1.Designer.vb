@@ -93,6 +93,7 @@ Partial Class Form1
         Button22 = New Button()
         Panel2 = New Panel()
         Button24 = New Button()
+        CheckFacturable = New CheckBox()
         Panel1.SuspendLayout()
         CType(PictureBox2, ComponentModel.ISupportInitialize).BeginInit()
         Panel4.SuspendLayout()
@@ -314,7 +315,7 @@ Partial Class Form1
         DateTimePicker3.CustomFormat = "dd/MM/yyyy"
         DateTimePicker3.Font = New Font("Arial Narrow", 9F, FontStyle.Regular, GraphicsUnit.Point)
         DateTimePicker3.Format = DateTimePickerFormat.Custom
-        DateTimePicker3.Location = New Point(446, 22)
+        DateTimePicker3.Location = New Point(449, 22)
         DateTimePicker3.Name = "DateTimePicker3"
         DateTimePicker3.Size = New Size(92, 21)
         DateTimePicker3.TabIndex = 32
@@ -322,7 +323,7 @@ Partial Class Form1
         ' Label8
         ' 
         Label8.AutoSize = True
-        Label8.Location = New Point(446, 4)
+        Label8.Location = New Point(449, 4)
         Label8.Name = "Label8"
         Label8.Size = New Size(73, 15)
         Label8.TabIndex = 33
@@ -340,7 +341,7 @@ Partial Class Form1
         ' CheckBox6
         ' 
         CheckBox6.AutoSize = True
-        CheckBox6.Location = New Point(260, 6)
+        CheckBox6.Location = New Point(256, 6)
         CheckBox6.Name = "CheckBox6"
         CheckBox6.Size = New Size(67, 19)
         CheckBox6.TabIndex = 35
@@ -361,7 +362,7 @@ Partial Class Form1
         ' CheckBox8
         ' 
         CheckBox8.AutoSize = True
-        CheckBox8.Location = New Point(260, 26)
+        CheckBox8.Location = New Point(256, 26)
         CheckBox8.Name = "CheckBox8"
         CheckBox8.Size = New Size(64, 19)
         CheckBox8.TabIndex = 37
@@ -381,7 +382,7 @@ Partial Class Form1
         ' CheckBox10
         ' 
         CheckBox10.AutoSize = True
-        CheckBox10.Location = New Point(260, 46)
+        CheckBox10.Location = New Point(256, 46)
         CheckBox10.Name = "CheckBox10"
         CheckBox10.Size = New Size(86, 19)
         CheckBox10.TabIndex = 39
@@ -401,7 +402,7 @@ Partial Class Form1
         ' CheckBox12
         ' 
         CheckBox12.AutoSize = True
-        CheckBox12.Location = New Point(260, 68)
+        CheckBox12.Location = New Point(349, 7)
         CheckBox12.Name = "CheckBox12"
         CheckBox12.Size = New Size(99, 19)
         CheckBox12.TabIndex = 41
@@ -411,7 +412,7 @@ Partial Class Form1
         ' CheckBox13
         ' 
         CheckBox13.AutoSize = True
-        CheckBox13.Location = New Point(355, 69)
+        CheckBox13.Location = New Point(348, 46)
         CheckBox13.Name = "CheckBox13"
         CheckBox13.Size = New Size(104, 19)
         CheckBox13.TabIndex = 42
@@ -731,12 +732,23 @@ Partial Class Form1
         Button24.Text = "Extraer Documentos Generales"
         Button24.UseVisualStyleBackColor = True
         ' 
+        ' CheckFacturable
+        ' 
+        CheckFacturable.AutoSize = True
+        CheckFacturable.Location = New Point(349, 27)
+        CheckFacturable.Name = "CheckFacturable"
+        CheckFacturable.Size = New Size(81, 19)
+        CheckFacturable.TabIndex = 43
+        CheckFacturable.Text = "Facturable"
+        CheckFacturable.UseVisualStyleBackColor = True
+        ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.LightBlue
         ClientSize = New Size(640, 539)
+        Controls.Add(CheckFacturable)
         Controls.Add(CheckBox13)
         Controls.Add(CheckBox12)
         Controls.Add(CheckBox11)
@@ -859,4 +871,5 @@ Partial Class Form1
     Friend WithEvents Button22 As Button
     Friend WithEvents Panel2 As Panel
     Friend WithEvents Button24 As Button
+    Friend WithEvents CheckFacturable As CheckBox
 End Class

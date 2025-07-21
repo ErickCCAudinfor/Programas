@@ -2417,22 +2417,27 @@ inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagr
         Return Colectivos
     End Function
 
-    Public Function UpdateContratosMasivo(QueryContratos As String) As Long
-        Dim conexion = New SqlConnection(connectionString)
+    Public Function UpdateContratosMasivo(QueryContratos As String, CodigosContratos As List(Of Long)) As Long
+        Dim FilasAfectadas As Long = 0
 
-        Dim FilfasAfectadas As Long
         Try
-
-            conexion.Open()
-            Dim query = $"{QueryContratos}"
-            Dim comando = New SqlCommand(query, conexion)
-            FilfasAfectadas = comando.ExecuteNonQuery
-            conexion.Close()
+            Using conexion As New SqlConnection(connectionString)
+                conexion.Open()
+                For Each cod In CodigosContratos
+                    Dim query = $"{QueryContratos} WHERE codigocontrato = @cod"
+                    Using comando As New SqlCommand(query, conexion)
+                        comando.Parameters.AddWithValue("@cod", cod)
+                        FilasAfectadas += comando.ExecuteNonQuery()
+                    End Using
+                Next
+            End Using
         Catch ex As Exception
-            Console.WriteLine(ex)
+            Console.WriteLine("Error en UpdateContratosMasivo: " & ex.Message)
         End Try
-        Return FilfasAfectadas
+
+        Return FilasAfectadas
     End Function
+
 
     Public Function GetSituacionesScoring() As List(Of SituacionScoring)
         Dim SituacionScoring As New List(Of SituacionScoring)

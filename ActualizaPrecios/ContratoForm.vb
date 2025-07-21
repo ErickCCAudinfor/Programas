@@ -97,7 +97,7 @@ Public Class ContratoForm
             Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO\LogContratos"
             Dim JoinContratos = String.Join(",", Contratos)
             Dim UpdateContrato = "Update contrato set"
-            Dim WhereContrato = $"Where codigocontrato in({JoinContratos})"
+            'Dim WhereContrato = $"Where codigocontrato in({JoinContratos})"
             Dim ContratosModificados = 0
             ' Lista para las tareas
             Dim tasks As New List(Of Task)
@@ -121,10 +121,10 @@ Public Class ContratoForm
                     tasks.Add(Task.Run(Sub()
                                            ExportarConsultaAExcel(connectionString, consultaAntes, rutaArchivoAntesModificacion, "Contratos")
                                            'Unificamos la query
-                                           Dim QueryFinal = $"{UpdateContrato} {ValoresF} {WhereContrato}"
+                                           Dim QueryFinal = $"{UpdateContrato} {ValoresF}"
                                            'Ejecutamos la query
                                            Dim funciones2 As New FuncionesGenericas(connectionString)
-                                           ContratosModificados = funciones2.UpdateContratosMasivo(QueryFinal)
+                                           ContratosModificados = funciones2.UpdateContratosMasivo(QueryFinal, Contratos)
 
                                            Dim consultaDespues = ConsultasSQL.GetConsultaContrato(Contratos)
                                            ExportarConsultaAExcel(connectionString, consultaAntes, rutaArchivoDespuesModificacion, "Contratos")
