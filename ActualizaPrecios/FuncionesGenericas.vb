@@ -170,7 +170,7 @@ Public Class FuncionesGenericas
         Dim Contrato As New Contrato
 
         Try
-            Dim query As String = $"SELECT IdContrato,CodigoContrato,FechaAplicacionPrecios,FechaContrato,c.Entorno,idcliente,idcontratosituacion,idcups, c.IdTipoImpuesto, c.fechaalta
+            Dim query As String = $"SELECT IdContrato,CodigoContrato,FechaAplicacionPrecios,FechaContrato,c.Entorno,idcliente,idcontratosituacion,idcups, c.IdTipoImpuesto, c.fechaalta,c.entorno
                     FROM Contrato c
 					left join TipoImpuesto on c.IdTipoImpuesto = TipoImpuesto.IdTipoImpuesto
                     WHERE codigocontrato = {CodContrato}"
@@ -976,6 +976,29 @@ WHERE tp.Entorno = '{Entorno}'
         Return Productos
     End Function
 
+    Public Function GetProductosbyTextoProducto(ProductoBuscar As String) As Producto
+        Dim Producto As New Producto
+
+        Try
+            Dim query As String = $"select * from Producto where  textoproducto = '{ProductoBuscar}' "
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ProductoEncontrado = Helper.FillObjectFromDatatable(result.Tables(0), GetType(Producto)).Cast(Of Producto).FirstOrDefault
+                If Not IsNothing(ProductoEncontrado) AndAlso ProductoEncontrado.IdProducto > 0 Then
+                    Producto = ProductoEncontrado
+                End If
+            End If
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return Producto
+    End Function
+
     Public Function GetProductoGrupobyById(IdproductoGrupo As Long) As ProductoGrupo
         Dim ProductoGr As New ProductoGrupo
 
@@ -1095,7 +1118,7 @@ WHERE tp.Entorno = '{Entorno}'
             If IdTipoImpuesto = 0 Then
                 Query =
 $"INSERT INTO ProductoAsignacion (Entorno, IdProductoGrupo, IdProducto, TipoAsignacion, IdCliente, IdContrato, IdTarifa, IdTarifaGrupo, IdTipoCobro, IdTarifaPeaje, Desde, Hasta, IsControlFecha, FechaInicial, FechaFinal, Plazo, PlazoCargado, ImporteTotalPlazo, IsFacturado, Importe, Descuento, AntesIE, IdTipoImpuesto, PrecioDia, IsFacturaProrrateo, IdFacturaProrrateo, PorcentajeIncremento, AplicarSobreConsumo, ImportePlazo, AplicarPrecioConsumo, IsBonificacion, FechaAsignacion)
-VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '{FechaInicial}', {FechaFinal}, NULL, NULL, NULL, NULL, {Importe.ToString.Replace(",", ".")}, 0.00, {If(AntesIE, 1, 0)}, null, {If(PrecioSobredia, 1, 0)}, 0, NULL, 0.00, {If(AplicarSobreConsumo, 1, 0)}, NULL, {If(AplicarPrecioConsumo, 1, 0)}, NULL, NULL);"
+VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '{FechaInicial}', {FechaFinal},NULL, NULL, NULL, NULL, {Importe.ToString.Replace(",", ".")}, 0.00, {If(AntesIE, 1, 0)}, null, {If(PrecioSobredia, 1, 0)}, 0, NULL, 0.00, {If(AplicarSobreConsumo, 1, 0)}, NULL, {If(AplicarPrecioConsumo, 1, 0)}, NULL, NULL);"
 
             Else
                 Query =
@@ -1113,7 +1136,38 @@ VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, 
         Return FilfasAfectadas
     End Function
 
+    Public Function InsertProductoAsignacionV2(Entorno As String, IdProductoGrupo As Long, IdProducto As Long, IdContrato As Long, FechaInicial As String, Importe As String, IdTipoImpuesto As Long, AntesIE As String, AplicarSobreConsumo As Boolean, AplicarPrecioConsumo As Boolean, PrecioSobredia As String, FechaFinal As String, Plazo As String, PlazoCargado As String, importeTotalPlazo As String) As Long
+        Dim conexion = New SqlConnection(connectionString)
 
+        Dim FilfasAfectadas As Long
+        Try
+
+            conexion.Open()
+            'Dim Codigos = String.Join(",", Contratos)
+            'Dim query = $"INSERT INTO ProductoAsignacion(Entorno,IdProductoGrupo,IdProducto,TipoAsignacion,IdContrato,FechaInicial,Importe,IdTipoImpuesto,AntesIE,AplicarSobreConsumo,AplicarPrecioConsumo) 
+            '                values('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO',{IdContrato},'{FechaInicial}',{Importe.ToString},{IdTipoImpuesto},{If(AntesIE, 1, 0)},{If(AplicarSobreConsumo, 1, 0)},{If(AplicarPrecioConsumo, 1, 0)})"
+            Dim Query = ""
+
+            If IdTipoImpuesto = 0 Then
+                Query =
+$"INSERT INTO ProductoAsignacion (Entorno, IdProductoGrupo, IdProducto, TipoAsignacion, IdCliente, IdContrato, IdTarifa, IdTarifaGrupo, IdTipoCobro, IdTarifaPeaje, Desde, Hasta, IsControlFecha, FechaInicial, FechaFinal, Plazo, PlazoCargado, ImporteTotalPlazo, IsFacturado, Importe, Descuento, AntesIE, IdTipoImpuesto, PrecioDia, IsFacturaProrrateo, IdFacturaProrrateo, PorcentajeIncremento, AplicarSobreConsumo, ImportePlazo, AplicarPrecioConsumo, IsBonificacion, FechaAsignacion)
+VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, {FechaInicial}, {FechaFinal}, {Plazo}, {PlazoCargado},  {importeTotalPlazo.Replace(",", ".")}, NULL, {Importe.Replace(",", ".")}, 0.00, {AntesIE}, null, {PrecioSobredia}, 0, NULL, 0.00, {If(AplicarSobreConsumo, 1, 0)}, NULL, {If(AplicarPrecioConsumo, 1, 0)}, NULL, NULL);"
+
+            Else
+                Query =
+$"INSERT INTO ProductoAsignacion (Entorno, IdProductoGrupo, IdProducto, TipoAsignacion, IdCliente, IdContrato, IdTarifa, IdTarifaGrupo, IdTipoCobro, IdTarifaPeaje, Desde, Hasta, IsControlFecha, FechaInicial, FechaFinal, Plazo, PlazoCargado, ImporteTotalPlazo, IsFacturado, Importe, Descuento, AntesIE, IdTipoImpuesto, PrecioDia, IsFacturaProrrateo, IdFacturaProrrateo, PorcentajeIncremento, AplicarSobreConsumo, ImportePlazo, AplicarPrecioConsumo, IsBonificacion, FechaAsignacion)
+VALUES ('{Entorno}', {IdProductoGrupo}, {IdProducto}, 'CO', NULL, {IdContrato}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, {FechaInicial}, {FechaFinal}, {Plazo}, {PlazoCargado}, {importeTotalPlazo.Replace(",", ".")}, NULL, {Importe.Replace(",", ".")}, 0.00, {AntesIE},  {IdTipoImpuesto}, {PrecioSobredia}, 0, NULL, 0.00, {If(AplicarSobreConsumo, 1, 0)}, NULL, {If(AplicarPrecioConsumo, 1, 0)}, NULL, NULL);"
+
+            End If
+
+            Dim comando = New SqlCommand(Query, conexion)
+            FilfasAfectadas = comando.ExecuteNonQuery
+            conexion.Close()
+        Catch ex As Exception
+            Throw
+        End Try
+        Return FilfasAfectadas
+    End Function
 
     Public Function UpdateProductoAsignacion(Entorno As String, IdProductoGrupo As Long, IdProducto As Long, IdContrato As Long, FechaInicial As Date, Importe As Decimal, IdTipoImpuesto As Long, AntesIE As Boolean, AplicarSobreConsumo As Boolean, AplicarPrecioConsumo As Boolean) As Long
         Dim conexion = New SqlConnection(connectionString)
@@ -2523,5 +2577,54 @@ where cl.Identidad='{identidad}'"
 
         Return ListaTiposAutoconsumos
     End Function
+
+
+#Region "Controlar valores excel"
+    Public Function ToNullableDate(value As Object) As Date?
+        If value Is Nothing OrElse String.IsNullOrWhiteSpace(value.ToString) Then
+            Return Nothing
+        End If
+        Dim result As Date
+        If Date.TryParse(value.ToString, result) Then
+            Return result
+        End If
+        Return Nothing
+    End Function
+
+    Public Function ToNullableDecimal(value As Object) As Decimal?
+        If value Is Nothing OrElse String.IsNullOrWhiteSpace(value.ToString) Then
+            Return Nothing
+        End If
+        Dim result As Decimal
+        If Decimal.TryParse(value.ToString, result) Then
+            Return result
+        End If
+        Return Nothing
+    End Function
+
+    Public Function ToNullableInteger(value As Object) As Integer?
+        If value Is Nothing OrElse String.IsNullOrWhiteSpace(value.ToString) Then
+            Return Nothing
+        End If
+        Dim result As Integer
+        If Integer.TryParse(value.ToString, result) Then
+            Return result
+        End If
+        Return Nothing
+    End Function
+
+    Public Function ToNullableBoolean(value As Object) As Boolean?
+        If value Is Nothing OrElse String.IsNullOrWhiteSpace(value.ToString) Then
+            Return Nothing
+        End If
+        Dim result As Boolean
+        If Boolean.TryParse(value.ToString, result) Then
+            Return result
+        End If
+        ' Si vienen valores tipo "0/1", "S/N", etc. puedes mapearlos manualmente aquí
+        Return Nothing
+    End Function
+
+#End Region
 End Class
 

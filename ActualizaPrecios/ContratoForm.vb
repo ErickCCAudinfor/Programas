@@ -113,32 +113,32 @@ Public Class ContratoForm
 
                 ''Antes de la actualizacion
                 Dim rutaArchivoAntesModificacion = IO.Path.Combine(rutaCarpeta, $"ContratosAntesActualizacion_{Now.ToString("ddMMyyyy_HHmmss")}.xlsx")
-                    Dim rutaArchivoDespuesModificacion = IO.Path.Combine(rutaCarpeta, $"ContratosDespuesActualizacion_{Now.ToString("ddMMyyyy_HHmmss")}.xlsx")
-                    'Obtengo la consulta antes de la modificacion
-                    Dim consultaAntes = ConsultasSQL.GetConsultaContrato(Contratos)
-                    'Exporto los contratos antes de la modificacion
-                    PictureBox2.Visible = True
-                    tasks.Add(Task.Run(Sub()
-                                           ExportarConsultaAExcel(connectionString, consultaAntes, rutaArchivoAntesModificacion, "Contratos")
-                                           'Unificamos la query
-                                           Dim QueryFinal = $"{UpdateContrato} {ValoresF}"
-                                           'Ejecutamos la query
-                                           Dim funciones2 As New FuncionesGenericas(connectionString)
-                                           ContratosModificados = funciones2.UpdateContratosMasivo(QueryFinal, Contratos)
+                Dim rutaArchivoDespuesModificacion = IO.Path.Combine(rutaCarpeta, $"ContratosDespuesActualizacion_{Now.ToString("ddMMyyyy_HHmmss")}.xlsx")
+                'Obtengo la consulta antes de la modificacion
+                Dim consultaAntes = ConsultasSQL.GetConsultaContrato(Contratos)
+                'Exporto los contratos antes de la modificacion
+                PictureBox2.Visible = True
+                tasks.Add(Task.Run(Sub()
+                                       ExportarConsultaAExcel(connectionString, consultaAntes, rutaArchivoAntesModificacion, "Contratos")
+                                       'Unificamos la query
+                                       Dim QueryFinal = $"{UpdateContrato} {ValoresF}"
+                                       'Ejecutamos la query
+                                       Dim funciones2 As New FuncionesGenericas(connectionString)
+                                       ContratosModificados = funciones2.UpdateContratosMasivo(QueryFinal, Contratos)
 
-                                           Dim consultaDespues = ConsultasSQL.GetConsultaContrato(Contratos)
-                                           ExportarConsultaAExcel(connectionString, consultaAntes, rutaArchivoDespuesModificacion, "Contratos")
-                                       End Sub))
-                    Dim pepe = 0
-                    Await Task.WhenAll(tasks)
-                    PictureBox2.Visible = False
-                    If ContratosModificados > 0 Then
-                        complementos.MostrarMensajePersonalizado($"Compare los resultados en los excels generados.{rutaArchivoAntesModificacion} y {rutaArchivoDespuesModificacion}")
-                    Else
-                        complementos.MostrarMensajePersonalizado($"No se ha actualizado ningún contrato.")
-                    End If
-                    'Vuelvo a consultar los contratos esten o no esten modificados
+                                       Dim consultaDespues = ConsultasSQL.GetConsultaContrato(Contratos)
+                                       ExportarConsultaAExcel(connectionString, consultaAntes, rutaArchivoDespuesModificacion, "Contratos")
+                                   End Sub))
+                Dim pepe = 0
+                Await Task.WhenAll(tasks)
+                PictureBox2.Visible = False
+                If ContratosModificados > 0 Then
+                    complementos.MostrarMensajePersonalizado($"Compare los resultados en los excels generados.{rutaArchivoAntesModificacion} y {rutaArchivoDespuesModificacion}")
+                Else
+                    complementos.MostrarMensajePersonalizado($"No se ha actualizado ningún contrato.")
                 End If
+                'Vuelvo a consultar los contratos esten o no esten modificados
+            End If
         Catch ex As Exception
             PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado($"{ex.Message}")
@@ -372,6 +372,31 @@ Public Class ContratoForm
             Me.ComboBox10.ValueMember = "IdClientePago"
         End If
     End Sub
+
+    'Private Sub ContratoForm_Paint(sender As Object, e As PaintEventArgs) Handles MyBase.Paint
+
+    '    Dim rect As Rectangle = Me.ClientRectangle
+
+    '    ' Definimos los colores en RGB
+    '    Dim color1 As System.Drawing.Color = System.Drawing.Color.FromArgb(160, 30, 34)  ' Azul claro
+    '    Dim color2 As System.Drawing.Color = System.Drawing.Color.FromArgb(96, 109, 140)  ' Azul más oscuro
+    '    Dim color3 As System.Drawing.Color = System.Drawing.Color.FromArgb(233, 231, 226)  ' Azul más oscuro
+    '    ' Creamos el gradiente con un LinearGradientBrush (base)
+    '    Using brush As New System.Drawing.Drawing2D.LinearGradientBrush(rect, color1, color3, 222.0F)
+
+    '        ' Definimos la mezcla de colores
+    '        Dim blend As New System.Drawing.Drawing2D.ColorBlend()
+    '        blend.Colors = New System.Drawing.Color() {color1, color2, color3}
+    '        blend.Positions = New Single() {0.0F, 0.5F, 1.0F} ' Posición de cada color (0 = inicio, 1 = fin)
+
+    '        ' Aplicamos la mezcla al brush
+    '        brush.InterpolationColors = blend
+
+    '        ' Dibujamos el rectángulo con el degradado
+    '        e.Graphics.FillRectangle(brush, rect)
+    '    End Using
+
+    'End Sub
 End Class
 Public Class TipoImpresionItem
     Public Property Key As String

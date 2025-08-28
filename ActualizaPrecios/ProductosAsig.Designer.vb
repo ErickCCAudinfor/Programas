@@ -42,13 +42,16 @@ Partial Class ProductosAsig
         CheckBox3 = New CheckBox()
         Label7 = New Label()
         FechaFinalPicker = New DateTimePicker()
+        BotonImportarProducto = New Button()
+        BotonPlantilla = New Button()
+        CheckRedondear = New CheckBox()
         CType(NumericUpDown1, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
         ' ComboBox1
         ' 
         ComboBox1.FormattingEnabled = True
-        ComboBox1.Location = New Point(172, 12)
+        ComboBox1.Location = New Point(172, 36)
         ComboBox1.Name = "ComboBox1"
         ComboBox1.Size = New Size(313, 23)
         ComboBox1.TabIndex = 0
@@ -56,7 +59,7 @@ Partial Class ProductosAsig
         ' TextBox1
         ' 
         TextBox1.Enabled = False
-        TextBox1.Location = New Point(172, 41)
+        TextBox1.Location = New Point(172, 65)
         TextBox1.Name = "TextBox1"
         TextBox1.Size = New Size(313, 23)
         TextBox1.TabIndex = 1
@@ -64,7 +67,7 @@ Partial Class ProductosAsig
         ' Label1
         ' 
         Label1.AutoSize = True
-        Label1.Location = New Point(12, 15)
+        Label1.Location = New Point(12, 39)
         Label1.Name = "Label1"
         Label1.Size = New Size(56, 15)
         Label1.TabIndex = 2
@@ -73,7 +76,7 @@ Partial Class ProductosAsig
         ' Label2
         ' 
         Label2.AutoSize = True
-        Label2.Location = New Point(12, 44)
+        Label2.Location = New Point(12, 68)
         Label2.Name = "Label2"
         Label2.Size = New Size(92, 15)
         Label2.TabIndex = 3
@@ -83,7 +86,7 @@ Partial Class ProductosAsig
         ' 
         FechaInicialPicker.CustomFormat = "dd/MM/yyyy"
         FechaInicialPicker.Format = DateTimePickerFormat.Custom
-        FechaInicialPicker.Location = New Point(172, 71)
+        FechaInicialPicker.Location = New Point(172, 95)
         FechaInicialPicker.Name = "FechaInicialPicker"
         FechaInicialPicker.Size = New Size(100, 23)
         FechaInicialPicker.TabIndex = 4
@@ -91,7 +94,7 @@ Partial Class ProductosAsig
         ' Label3
         ' 
         Label3.AutoSize = True
-        Label3.Location = New Point(12, 101)
+        Label3.Location = New Point(12, 125)
         Label3.Name = "Label3"
         Label3.Size = New Size(49, 15)
         Label3.TabIndex = 5
@@ -100,7 +103,7 @@ Partial Class ProductosAsig
         ' CheckBox1
         ' 
         CheckBox1.AutoSize = True
-        CheckBox1.Location = New Point(172, 139)
+        CheckBox1.Location = New Point(172, 163)
         CheckBox1.Name = "CheckBox1"
         CheckBox1.Size = New Size(68, 19)
         CheckBox1.TabIndex = 7
@@ -110,7 +113,7 @@ Partial Class ProductosAsig
         ' CheckBox4
         ' 
         CheckBox4.AutoSize = True
-        CheckBox4.Location = New Point(246, 139)
+        CheckBox4.Location = New Point(246, 163)
         CheckBox4.Name = "CheckBox4"
         CheckBox4.Size = New Size(82, 19)
         CheckBox4.TabIndex = 10
@@ -120,7 +123,7 @@ Partial Class ProductosAsig
         ' CheckBox5
         ' 
         CheckBox5.AutoSize = True
-        CheckBox5.Location = New Point(401, 139)
+        CheckBox5.Location = New Point(401, 163)
         CheckBox5.Name = "CheckBox5"
         CheckBox5.Size = New Size(84, 19)
         CheckBox5.TabIndex = 11
@@ -129,7 +132,7 @@ Partial Class ProductosAsig
         ' 
         ' Button1
         ' 
-        Button1.Location = New Point(382, 213)
+        Button1.Location = New Point(382, 237)
         Button1.Name = "Button1"
         Button1.Size = New Size(103, 23)
         Button1.TabIndex = 13
@@ -139,7 +142,7 @@ Partial Class ProductosAsig
         ' Label4
         ' 
         Label4.AutoSize = True
-        Label4.Location = New Point(12, 77)
+        Label4.Location = New Point(12, 101)
         Label4.Name = "Label4"
         Label4.Size = New Size(70, 15)
         Label4.TabIndex = 14
@@ -148,7 +151,7 @@ Partial Class ProductosAsig
         ' NumericUpDown1
         ' 
         NumericUpDown1.DecimalPlaces = 6
-        NumericUpDown1.Location = New Point(172, 101)
+        NumericUpDown1.Location = New Point(172, 125)
         NumericUpDown1.Name = "NumericUpDown1"
         NumericUpDown1.Size = New Size(120, 23)
         NumericUpDown1.TabIndex = 15
@@ -156,7 +159,7 @@ Partial Class ProductosAsig
         ' ComboBox2
         ' 
         ComboBox2.FormattingEnabled = True
-        ComboBox2.Location = New Point(172, 170)
+        ComboBox2.Location = New Point(172, 194)
         ComboBox2.Name = "ComboBox2"
         ComboBox2.Size = New Size(191, 23)
         ComboBox2.TabIndex = 16
@@ -164,7 +167,7 @@ Partial Class ProductosAsig
         ' Label5
         ' 
         Label5.AutoSize = True
-        Label5.Location = New Point(12, 178)
+        Label5.Location = New Point(12, 202)
         Label5.Name = "Label5"
         Label5.Size = New Size(83, 15)
         Label5.TabIndex = 17
@@ -176,7 +179,7 @@ Partial Class ProductosAsig
         CheckBox2.Checked = True
         CheckBox2.CheckState = CheckState.Checked
         CheckBox2.Enabled = False
-        CheckBox2.Location = New Point(310, 218)
+        CheckBox2.Location = New Point(310, 242)
         CheckBox2.Name = "CheckBox2"
         CheckBox2.Size = New Size(15, 14)
         CheckBox2.TabIndex = 18
@@ -185,7 +188,7 @@ Partial Class ProductosAsig
         ' Label6
         ' 
         Label6.AutoSize = True
-        Label6.Location = New Point(167, 217)
+        Label6.Location = New Point(167, 241)
         Label6.Name = "Label6"
         Label6.Size = New Size(137, 15)
         Label6.TabIndex = 19
@@ -194,7 +197,7 @@ Partial Class ProductosAsig
         ' CheckBox3
         ' 
         CheckBox3.AutoSize = True
-        CheckBox3.Location = New Point(334, 139)
+        CheckBox3.Location = New Point(334, 163)
         CheckBox3.Name = "CheckBox3"
         CheckBox3.Size = New Size(54, 19)
         CheckBox3.TabIndex = 20
@@ -204,7 +207,7 @@ Partial Class ProductosAsig
         ' Label7
         ' 
         Label7.AutoSize = True
-        Label7.Location = New Point(310, 77)
+        Label7.Location = New Point(310, 101)
         Label7.Name = "Label7"
         Label7.Size = New Size(66, 15)
         Label7.TabIndex = 22
@@ -214,16 +217,47 @@ Partial Class ProductosAsig
         ' 
         FechaFinalPicker.CustomFormat = " "
         FechaFinalPicker.Format = DateTimePickerFormat.Custom
-        FechaFinalPicker.Location = New Point(382, 70)
+        FechaFinalPicker.Location = New Point(382, 94)
         FechaFinalPicker.Name = "FechaFinalPicker"
         FechaFinalPicker.Size = New Size(103, 23)
         FechaFinalPicker.TabIndex = 21
+        ' 
+        ' BotonImportarProducto
+        ' 
+        BotonImportarProducto.Location = New Point(226, 7)
+        BotonImportarProducto.Name = "BotonImportarProducto"
+        BotonImportarProducto.Size = New Size(133, 23)
+        BotonImportarProducto.TabIndex = 23
+        BotonImportarProducto.Text = "Importar desde excel"
+        BotonImportarProducto.UseVisualStyleBackColor = True
+        ' 
+        ' BotonPlantilla
+        ' 
+        BotonPlantilla.Location = New Point(87, 7)
+        BotonPlantilla.Name = "BotonPlantilla"
+        BotonPlantilla.Size = New Size(133, 23)
+        BotonPlantilla.TabIndex = 24
+        BotonPlantilla.Text = "Generar Plantilla"
+        BotonPlantilla.UseVisualStyleBackColor = True
+        ' 
+        ' CheckRedondear
+        ' 
+        CheckRedondear.AutoSize = True
+        CheckRedondear.Location = New Point(365, 10)
+        CheckRedondear.Name = "CheckRedondear"
+        CheckRedondear.Size = New Size(121, 19)
+        CheckRedondear.TabIndex = 25
+        CheckRedondear.Text = "Redondear a 2Dec"
+        CheckRedondear.UseVisualStyleBackColor = True
         ' 
         ' ProductosAsig
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(491, 244)
+        ClientSize = New Size(490, 265)
+        Controls.Add(CheckRedondear)
+        Controls.Add(BotonPlantilla)
+        Controls.Add(BotonImportarProducto)
         Controls.Add(Label7)
         Controls.Add(FechaFinalPicker)
         Controls.Add(CheckBox3)
@@ -271,4 +305,7 @@ Partial Class ProductosAsig
     Friend WithEvents CheckBox3 As CheckBox
     Friend WithEvents Label7 As Label
     Friend WithEvents FechaFinalPicker As DateTimePicker
+    Friend WithEvents BotonImportarProducto As Button
+    Friend WithEvents BotonPlantilla As Button
+    Friend WithEvents CheckRedondear As CheckBox
 End Class

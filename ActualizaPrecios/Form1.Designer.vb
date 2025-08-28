@@ -105,32 +105,35 @@ Partial Class Form1
         ' CheckBox1
         ' 
         CheckBox1.AutoSize = True
+        CheckBox1.BackColor = Color.Transparent
         CheckBox1.Location = New Point(25, 22)
         CheckBox1.Name = "CheckBox1"
         CheckBox1.Size = New Size(55, 19)
         CheckBox1.TabIndex = 1
         CheckBox1.Text = "CUPS"
-        CheckBox1.UseVisualStyleBackColor = True
+        CheckBox1.UseVisualStyleBackColor = False
         ' 
         ' CheckBox2
         ' 
         CheckBox2.AutoSize = True
+        CheckBox2.BackColor = Color.Transparent
         CheckBox2.Location = New Point(25, 38)
         CheckBox2.Name = "CheckBox2"
         CheckBox2.Size = New Size(73, 19)
         CheckBox2.TabIndex = 2
         CheckBox2.Text = "Contrato"
-        CheckBox2.UseVisualStyleBackColor = True
+        CheckBox2.UseVisualStyleBackColor = False
         ' 
         ' CheckBox3
         ' 
         CheckBox3.AutoSize = True
+        CheckBox3.BackColor = Color.Transparent
         CheckBox3.Location = New Point(25, 56)
         CheckBox3.Name = "CheckBox3"
         CheckBox3.Size = New Size(63, 19)
         CheckBox3.TabIndex = 3
         CheckBox3.Text = "Cliente"
-        CheckBox3.UseVisualStyleBackColor = True
+        CheckBox3.UseVisualStyleBackColor = False
         ' 
         ' TextBox2
         ' 
@@ -147,6 +150,7 @@ Partial Class Form1
         ' Label2
         ' 
         Label2.AutoSize = True
+        Label2.BackColor = Color.Transparent
         Label2.Location = New Point(20, 4)
         Label2.Name = "Label2"
         Label2.Size = New Size(42, 15)
@@ -158,7 +162,7 @@ Partial Class Form1
         Label5.AutoSize = True
         Label5.BorderStyle = BorderStyle.FixedSingle
         Label5.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
-        Label5.ForeColor = SystemColors.HotTrack
+        Label5.ForeColor = Color.Black
         Label5.Location = New Point(400, 20)
         Label5.Name = "Label5"
         Label5.Size = New Size(23, 17)
@@ -167,6 +171,7 @@ Partial Class Form1
         ' 
         ' Panel1
         ' 
+        Panel1.BackColor = Color.Transparent
         Panel1.Controls.Add(PictureBox2)
         Panel1.Controls.Add(Label5)
         Panel1.Controls.Add(RadioButton2)
@@ -220,6 +225,7 @@ Partial Class Form1
         ' 
         ' Panel4
         ' 
+        Panel4.BackColor = Color.Transparent
         Panel4.Controls.Add(TextBox2)
         Panel4.Location = New Point(12, 90)
         Panel4.Name = "Panel4"
@@ -252,13 +258,14 @@ Partial Class Form1
         ' RadioButton3
         ' 
         RadioButton3.AutoSize = True
+        RadioButton3.BackColor = Color.Transparent
         RadioButton3.Location = New Point(580, 499)
         RadioButton3.Name = "RadioButton3"
         RadioButton3.Size = New Size(46, 19)
         RadioButton3.TabIndex = 28
         RadioButton3.TabStop = True
         RadioButton3.Text = "UAT"
-        RadioButton3.UseVisualStyleBackColor = True
+        RadioButton3.UseVisualStyleBackColor = False
         ' 
         ' Button17
         ' 
@@ -272,7 +279,7 @@ Partial Class Form1
         ' 
         ' Button23
         ' 
-        Button23.BackColor = Color.CornflowerBlue
+        Button23.BackColor = Color.Silver
         Button23.Location = New Point(543, 46)
         Button23.Name = "Button23"
         Button23.Size = New Size(86, 21)
@@ -283,16 +290,18 @@ Partial Class Form1
         ' CheckBox5
         ' 
         CheckBox5.AutoSize = True
+        CheckBox5.BackColor = Color.Transparent
         CheckBox5.Location = New Point(163, 5)
         CheckBox5.Name = "CheckBox5"
         CheckBox5.Size = New Size(91, 19)
         CheckBox5.TabIndex = 30
         CheckBox5.Text = "Clicks TODO"
-        CheckBox5.UseVisualStyleBackColor = True
+        CheckBox5.UseVisualStyleBackColor = False
         ' 
         ' Label7
         ' 
         Label7.AutoSize = True
+        Label7.BackColor = Color.Transparent
         Label7.Location = New Point(95, 4)
         Label7.Name = "Label7"
         Label7.Size = New Size(62, 15)
@@ -323,6 +332,7 @@ Partial Class Form1
         ' Label8
         ' 
         Label8.AutoSize = True
+        Label8.BackColor = Color.Transparent
         Label8.Location = New Point(449, 4)
         Label8.Name = "Label8"
         Label8.Size = New Size(73, 15)
@@ -332,6 +342,7 @@ Partial Class Form1
         ' Label9
         ' 
         Label9.AutoSize = True
+        Label9.BackColor = Color.Transparent
         Label9.Location = New Point(543, 4)
         Label9.Name = "Label9"
         Label9.Size = New Size(71, 15)
@@ -341,83 +352,91 @@ Partial Class Form1
         ' CheckBox6
         ' 
         CheckBox6.AutoSize = True
+        CheckBox6.BackColor = Color.Transparent
         CheckBox6.Location = New Point(256, 6)
         CheckBox6.Name = "CheckBox6"
         CheckBox6.Size = New Size(67, 19)
         CheckBox6.TabIndex = 35
         CheckBox6.Text = "Hunosa"
-        CheckBox6.UseVisualStyleBackColor = True
+        CheckBox6.UseVisualStyleBackColor = False
         ' 
         ' CheckBox7
         ' 
         CheckBox7.AutoSize = True
+        CheckBox7.BackColor = Color.Transparent
         CheckBox7.Enabled = False
         CheckBox7.Location = New Point(163, 25)
         CheckBox7.Name = "CheckBox7"
         CheckBox7.Size = New Size(53, 19)
         CheckBox7.TabIndex = 36
         CheckBox7.Text = "CAM"
-        CheckBox7.UseVisualStyleBackColor = True
+        CheckBox7.UseVisualStyleBackColor = False
         ' 
         ' CheckBox8
         ' 
         CheckBox8.AutoSize = True
+        CheckBox8.BackColor = Color.Transparent
         CheckBox8.Location = New Point(256, 26)
         CheckBox8.Name = "CheckBox8"
         CheckBox8.Size = New Size(64, 19)
         CheckBox8.TabIndex = 37
         CheckBox8.Text = "Cadasa"
-        CheckBox8.UseVisualStyleBackColor = True
+        CheckBox8.UseVisualStyleBackColor = False
         ' 
         ' CheckBox9
         ' 
         CheckBox9.AutoSize = True
+        CheckBox9.BackColor = Color.Transparent
         CheckBox9.Location = New Point(163, 46)
         CheckBox9.Name = "CheckBox9"
         CheckBox9.Size = New Size(77, 19)
         CheckBox9.TabIndex = 38
         CheckBox9.Text = "Quantum"
-        CheckBox9.UseVisualStyleBackColor = True
+        CheckBox9.UseVisualStyleBackColor = False
         ' 
         ' CheckBox10
         ' 
         CheckBox10.AutoSize = True
+        CheckBox10.BackColor = Color.Transparent
         CheckBox10.Location = New Point(256, 46)
         CheckBox10.Name = "CheckBox10"
         CheckBox10.Size = New Size(86, 19)
         CheckBox10.TabIndex = 39
         CheckBox10.Text = "Rech.Veolia"
-        CheckBox10.UseVisualStyleBackColor = True
+        CheckBox10.UseVisualStyleBackColor = False
         ' 
         ' CheckBox11
         ' 
         CheckBox11.AutoSize = True
+        CheckBox11.BackColor = Color.Transparent
         CheckBox11.Location = New Point(163, 68)
         CheckBox11.Name = "CheckBox11"
         CheckBox11.Size = New Size(53, 19)
         CheckBox11.TabIndex = 40
         CheckBox11.Text = "GAM"
-        CheckBox11.UseVisualStyleBackColor = True
+        CheckBox11.UseVisualStyleBackColor = False
         ' 
         ' CheckBox12
         ' 
         CheckBox12.AutoSize = True
+        CheckBox12.BackColor = Color.Transparent
         CheckBox12.Location = New Point(349, 7)
         CheckBox12.Name = "CheckBox12"
         CheckBox12.Size = New Size(99, 19)
         CheckBox12.TabIndex = 41
         CheckBox12.Text = "Curva Horaria"
-        CheckBox12.UseVisualStyleBackColor = True
+        CheckBox12.UseVisualStyleBackColor = False
         ' 
         ' CheckBox13
         ' 
         CheckBox13.AutoSize = True
+        CheckBox13.BackColor = Color.Transparent
         CheckBox13.Location = New Point(348, 46)
         CheckBox13.Name = "CheckBox13"
         CheckBox13.Size = New Size(104, 19)
         CheckBox13.TabIndex = 42
         CheckBox13.Text = "Cuarto Horaria"
-        CheckBox13.UseVisualStyleBackColor = True
+        CheckBox13.UseVisualStyleBackColor = False
         ' 
         ' Label4
         ' 
@@ -469,7 +488,7 @@ Partial Class Form1
         ' 
         ' Button1
         ' 
-        Button1.BackColor = Color.CornflowerBlue
+        Button1.BackColor = Color.Silver
         Button1.Enabled = False
         Button1.Location = New Point(451, 36)
         Button1.Name = "Button1"
@@ -516,6 +535,7 @@ Partial Class Form1
         ' 
         ' Panel3
         ' 
+        Panel3.BackColor = Color.Transparent
         Panel3.Controls.Add(Label6)
         Panel3.Controls.Add(DateTimePicker1)
         Panel3.Controls.Add(Label1)
@@ -697,6 +717,7 @@ Partial Class Form1
         ' 
         ' Panel2
         ' 
+        Panel2.BackColor = Color.Transparent
         Panel2.Controls.Add(Button24)
         Panel2.Controls.Add(Button25)
         Panel2.Controls.Add(Button22)
@@ -735,12 +756,13 @@ Partial Class Form1
         ' CheckFacturable
         ' 
         CheckFacturable.AutoSize = True
+        CheckFacturable.BackColor = Color.Transparent
         CheckFacturable.Location = New Point(349, 27)
         CheckFacturable.Name = "CheckFacturable"
         CheckFacturable.Size = New Size(81, 19)
         CheckFacturable.TabIndex = 43
         CheckFacturable.Text = "Facturable"
-        CheckFacturable.UseVisualStyleBackColor = True
+        CheckFacturable.UseVisualStyleBackColor = False
         ' 
         ' Form1
         ' 

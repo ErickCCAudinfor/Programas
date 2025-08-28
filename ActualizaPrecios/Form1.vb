@@ -1,5 +1,6 @@
 ﻿
 Imports System.Data.OleDb
+Imports System.Drawing.Drawing2D
 Imports System.IO
 Imports System.Text.RegularExpressions
 Imports System.Xml
@@ -344,7 +345,7 @@ Public Class Form1
             Dim Con = GetConSinSplit(TextBox2.Text)
             If Con.Count > 0 Then
                 Dim Entorno = If(Funciones.GetContrato(Con.FirstOrDefault).Entorno = "E1", "G1", "G2")
-                Dim ModiCo As New ProductosAsig(Entorno, Con, connectionString)
+                Dim ModiCo As New ProductosAsig(Entorno, Con, connectionString, NombreUsuarioEquipo)
                 ModiCo.Show()
             Else
                 complementos.MostrarMensajePersonalizado($"Ingrese al menos un contrato")
@@ -2245,5 +2246,28 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado("Exception: " + ex.Message)
         End Try
+    End Sub
+
+    Private Sub Login_Paint(sender As Object, e As PaintEventArgs) Handles MyBase.Paint
+        Dim rect As Rectangle = Me.ClientRectangle
+
+        ' Definimos los colores en RGB
+        Dim color1 As System.Drawing.Color = System.Drawing.Color.FromArgb(160, 30, 34)  ' Azul claro
+        Dim color2 As System.Drawing.Color = System.Drawing.Color.FromArgb(96, 109, 140)  ' Azul más oscuro
+        Dim color3 As System.Drawing.Color = System.Drawing.Color.FromArgb(233, 231, 226)  ' Azul más oscuro
+        ' Creamos el gradiente con un LinearGradientBrush (base)
+        Using brush As New LinearGradientBrush(rect, color1, color3, 222.0F)
+
+            ' Definimos la mezcla de colores
+            Dim blend As New ColorBlend()
+            blend.Colors = New System.Drawing.Color() {color1, color2, color3}
+            blend.Positions = New Single() {0.0F, 0.5F, 1.0F} ' Posición de cada color (0 = inicio, 1 = fin)
+
+            ' Aplicamos la mezcla al brush
+            brush.InterpolationColors = blend
+
+            ' Dibujamos el rectángulo con el degradado
+            e.Graphics.FillRectangle(brush, rect)
+        End Using
     End Sub
 End Class
