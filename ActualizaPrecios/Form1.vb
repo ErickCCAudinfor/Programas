@@ -2251,23 +2251,30 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
     Private Sub Login_Paint(sender As Object, e As PaintEventArgs) Handles MyBase.Paint
         Dim rect As Rectangle = Me.ClientRectangle
 
-        ' Definimos los colores en RGB
-        Dim color1 As System.Drawing.Color = System.Drawing.Color.FromArgb(160, 30, 34)  ' Azul claro
-        Dim color2 As System.Drawing.Color = System.Drawing.Color.FromArgb(96, 109, 140)  ' Azul más oscuro
-        Dim color3 As System.Drawing.Color = System.Drawing.Color.FromArgb(233, 231, 226)  ' Azul más oscuro
-        ' Creamos el gradiente con un LinearGradientBrush (base)
-        Using brush As New LinearGradientBrush(rect, color1, color3, 222.0F)
+        ' Evitar error si aún no tiene tamaño válido
+        If rect.Width <= 0 OrElse rect.Height <= 0 Then
+            Exit Sub
+        End If
 
-            ' Definimos la mezcla de colores
+        ' Definimos los colores en RGB
+        Dim color1 As System.Drawing.Color = System.Drawing.Color.FromArgb(160, 30, 34)
+        Dim color2 As System.Drawing.Color = System.Drawing.Color.FromArgb(96, 109, 140)
+        Dim color3 As System.Drawing.Color = System.Drawing.Color.FromArgb(233, 231, 226)
+
+        ' Creamos el gradiente
+        Using brush As New LinearGradientBrush(rect, color1, color3, 222.0F)
             Dim blend As New ColorBlend()
             blend.Colors = New System.Drawing.Color() {color1, color2, color3}
-            blend.Positions = New Single() {0.0F, 0.5F, 1.0F} ' Posición de cada color (0 = inicio, 1 = fin)
+            blend.Positions = New Single() {0.0F, 0.5F, 1.0F}
 
-            ' Aplicamos la mezcla al brush
             brush.InterpolationColors = blend
-
-            ' Dibujamos el rectángulo con el degradado
             e.Graphics.FillRectangle(brush, rect)
         End Using
     End Sub
+
+
+    Private Sub Login_Resize(sender As Object, e As EventArgs) Handles Me.Resize
+        Me.Invalidate() ' Obliga a repintar con el tamaño correcto
+    End Sub
+
 End Class

@@ -1422,7 +1422,7 @@ where fechafactura>='{DesdeFecha.ToString("dd/MM/yyyy")}'
 and fechafactura<='{hastaFecha.ToString("dd/MM/yyyy")}' 
 and IdCliente in (select IdCliente 
 				  from cliente 
-				  where Identidad in ('B88425707','A48138051','B33382433','B88586953','B78078904','B88586953','B78078904')) 
+				  where Identidad in ('B88425707','A48138051','B33382433','B88586953','B78078904','B88586953','B78078904','A47067509')) 
 				  and SerieFactura is not null and Entorno='E1')
 ),
 LineasFactura as (
@@ -1985,6 +1985,11 @@ UNION ALL
 
 SELECT Entorno,CUPS,FechaMedida,Epoca,ActivaEntrante,ActivaSaliente,ReactivaQ1,ReactivaQ2,ReactivaQ3,ReactivaQ4,Flags,FechaRegistro,IndicadorObtencion,Prelacion,NumFactura
  FROM [SigeTotalTM].[dbo].CurvaFacturable_H_082024
+WHERE left(cups,20) IN ( {joinCups})   AND FechaMedida BETWEEN '{DesdeFecha.ToString("dd/MM/yyyy")}' and '{hastaFecha.ToString("dd/MM/yyyy")}'
+UNION ALL 
+
+SELECT Entorno,CUPS,FechaMedida,Epoca,ActivaEntrante,ActivaSaliente,ReactivaQ1,ReactivaQ2,ReactivaQ3,ReactivaQ4,Flags,FechaRegistro,IndicadorObtencion,Prelacion,NumFactura
+ FROM [SigeTotalTM].[dbo].CurvaFacturable_H_082025
 WHERE left(cups,20) IN ( {joinCups})   AND FechaMedida BETWEEN '{DesdeFecha.ToString("dd/MM/yyyy")}' and '{hastaFecha.ToString("dd/MM/yyyy")}'
 UNION ALL 
 

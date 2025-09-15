@@ -8,6 +8,8 @@ Public Class Login
     Private originalSize As Size
     Private originalLocation As Point
 
+
+
     Private Sub Login_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         originalSize = ExitPicture.Size
         originalLocation = ExitPicture.Location
@@ -24,7 +26,28 @@ Public Class Login
         ExitPicture.Location = originalLocation
     End Sub
 
+    Private Sub Login_Paint(sender As Object, e As PaintEventArgs) Handles MyBase.Paint
+        Dim rect As Rectangle = Me.ClientRectangle
 
+        ' Definimos los colores en RGB
+        Dim color1 As Color = Color.FromArgb(160, 30, 34)  ' Azul claro
+        Dim color2 As Color = Color.FromArgb(96, 109, 140)  ' Azul más oscuro
+        Dim color3 As Color = Color.FromArgb(233, 231, 226)  ' Azul más oscuro
+        ' Creamos el gradiente con un LinearGradientBrush (base)
+        Using brush As New LinearGradientBrush(rect, color1, color3, 222.0F)
+
+            ' Definimos la mezcla de colores
+            Dim blend As New ColorBlend()
+            blend.Colors = New Color() {color1, color2, color3}
+            blend.Positions = New Single() {0.0F, 0.5F, 1.0F} ' Posición de cada color (0 = inicio, 1 = fin)
+
+            ' Aplicamos la mezcla al brush
+            brush.InterpolationColors = blend
+
+            ' Dibujamos el rectángulo con el degradado
+            e.Graphics.FillRectangle(brush, rect)
+        End Using
+    End Sub
 
     Private Sub PictureBox1_Click(sender As Object, e As EventArgs) Handles ExitPicture.Click
         Application.Exit()
@@ -121,26 +144,5 @@ Public Class Login
         Console.WriteLine("Archivo generado correctamente en: " & rutaDestino)
     End Sub
 
-    Private Sub Login_Paint(sender As Object, e As PaintEventArgs) Handles MyBase.Paint
-        Dim rect As Rectangle = Me.ClientRectangle
 
-        ' Definimos los colores en RGB
-        Dim color1 As Color = Color.FromArgb(160, 30, 34)  ' Azul claro
-        Dim color2 As Color = Color.FromArgb(96, 109, 140)  ' Azul más oscuro
-        Dim color3 As Color = Color.FromArgb(233, 231, 226)  ' Azul más oscuro
-        ' Creamos el gradiente con un LinearGradientBrush (base)
-        Using brush As New LinearGradientBrush(rect, color1, color3, 222.0F)
-
-            ' Definimos la mezcla de colores
-            Dim blend As New ColorBlend()
-            blend.Colors = New Color() {color1, color2, color3}
-            blend.Positions = New Single() {0.0F, 0.5F, 1.0F} ' Posición de cada color (0 = inicio, 1 = fin)
-
-            ' Aplicamos la mezcla al brush
-            brush.InterpolationColors = blend
-
-            ' Dibujamos el rectángulo con el degradado
-            e.Graphics.FillRectangle(brush, rect)
-        End Using
-    End Sub
 End Class
