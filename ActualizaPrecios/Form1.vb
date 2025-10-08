@@ -2020,6 +2020,24 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                 End If
             End If
 
+            If Norauto.Checked Then
+                'Check Cliente
+                If CheckBox3.Checked Then
+                    Dim CIFS = GetConSinSplitCupsCIFS(TextBox2.Text)
+                    If CIFS.Count > 0 Then
+                        For Each cif In CIFS
+                            tasks.Add(Task.Run(Sub()
+                                                   Dim Name = cif
+                                                   Dim rutaArchivoNor = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                                                   Dim ConsultaNor As String = ConsultasSQL.GetConsultaNorauto(DesdeF, HastaF, cif)
+                                                   ExportarConsultaAExcel(conexion, ConsultaNor, rutaArchivoNor, Name)
+                                                   RutaFinal += " " + Name
+                                               End Sub))
+                        Next
+                    End If
+                End If
+            End If
+
 
 
             ' Esperar a que todas las tareas se completen
@@ -2275,6 +2293,116 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
 
     Private Sub Login_Resize(sender As Object, e As EventArgs) Handles Me.Resize
         Me.Invalidate() ' Obliga a repintar con el tamaño correcto
+    End Sub
+
+    Private Async Sub Button26_Click(sender As Object, e As EventArgs) Handles Button26.Click
+        Dim ExcelDatos As New Excel
+        Dim Datos As New List(Of ContratoTarifa)
+        Dim ListaErrores As New List(Of String)
+        Try
+            Dim totalContratos = 0
+            Dim ContratoActualizar As New List(Of Long)
+
+            'Con = GetConSinSplit(TextBox2.Text)
+            ' Crear una instancia de OpenFileDialog
+            Dim openFileDialog1 As New OpenFileDialog
+            Dim Destino = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO\DocumentosGenerales"
+            If Not Directory.Exists(Destino) Then
+                Directory.CreateDirectory(Destino)
+            End If
+            ' Configurar propiedades del diálogo
+            openFileDialog1.Title = "Seleccionar archivos"
+            openFileDialog1.Multiselect = True ' Permitir la selección múltiple de archivos
+            openFileDialog1.Filter = "Todos los archivos (*.*)|*.*" ' Filtro de archivos
+            Dim rutaArchivo = ""
+            ' Mostrar el diálogo y verificar si el usuario hizo clic en OK
+            If openFileDialog1.ShowDialog = DialogResult.OK Then
+                ' Obtener la ruta de cada archivo seleccionado y mostrarla en la consola
+                For Each filename In openFileDialog1.FileNames
+                    rutaArchivo = filename
+                Next
+            End If
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial
+            If rutaArchivo.Length > 0 Then
+                Using package As New ExcelPackage(New FileInfo(rutaArchivo))
+                    Dim worksheet = package.Workbook.Worksheets("Update")
+                    Dim rowCount = worksheet.Dimension.Rows
+
+                    ' Leer códigos de contrato del Excel
+                    Dim codigosContrato As New List(Of Long)
+                    For row = 2 To rowCount
+                        Dim contrat As New ContratoTarifa
+                        Dim CodContrato = worksheet.Cells(row, 1).Value?.ToString
+                        Dim FechaContrato = worksheet.Cells(row, 7).Value?.ToString
+                        Dim IdTarifagrupo = worksheet.Cells(row, 12).Value?.ToString
+                        Dim idContratoTarifa = worksheet.Cells(row, 14).Value?.ToString
+
+                        Dim FechaContratoExcel As DateTime?
+
+                        If FechaContrato IsNot Nothing Then
+                            Dim fechaTmp As DateTime
+                            If DateTime.TryParse(FechaContrato.ToString(), fechaTmp) Then
+                                FechaContratoExcel = fechaTmp
+                            End If
+                        End If
+
+                        contrat.IdContratoTarifa = idContratoTarifa
+                        contrat.CodigoContrato = CodContrato
+                        contrat.FechaDesde = FechaContratoExcel
+                        contrat.IdTarifaGrupo = IdTarifagrupo
+                        Datos.Add(contrat)
+                    Next
+                End Using
+
+                If Datos.Count > 0 Then
+                    Dim yesorNot1 = MsgBox($"Hay {Datos.Count} contratos, ¿Aplicar precios?", vbYesNo)
+                    If yesorNot1 = 6 OrElse yesorNot1 = 1 Then
+
+                        PictureBox2.Visible = True
+                        Await Task.Run(Sub()
+                                           For Each d In Datos
+                                               Dim ContratosC = Funciones.GetContratoTarifaExcel(d)
+                                               If Not ContratosC Is Nothing AndAlso ContratosC.IdContratoTarifa > 0 Then
+                                                   Dim FechaVigencia = d.FechaDesde
+                                                   Try
+                                                       Funciones.aplicapreciosFromEcel(d)
+                                                   Catch ex As Exception
+                                                       ListaErrores.Add($"{d.CodigoContrato}_ idcontratotarifa:{d.IdContratoTarifa} ->  {ex.Message} ")
+                                                   End Try
+                                               Else
+                                                   ListaErrores.Add($"{d.CodigoContrato} no se ha encontrado el tarifagrupo a aplicar precios")
+                                               End If
+                                           Next
+                                       End Sub)
+                    End If
+                Else
+                    'complementos.MostrarMensajePersonalizado($"Sin Datos")
+                End If
+                PictureBox2.Visible = False
+            End If
+
+        Catch ex As Exception
+            PictureBox2.Visible = False
+            complementos.MostrarMensajePersonalizado("Exception: " + ex.Message)
+        Finally
+            For Each er In ListaErrores
+                EscribirEnArchivo(er)
+            Next
+            complementos.MostrarMensajePersonalizado($"Contrato actualizados")
+        End Try
+    End Sub
+
+    Public Sub EscribirEnArchivo(Errores As String)
+        Try
+            ' Si el archivo no existe, se creará; de lo contrario, se anexará al archivo existente
+            Using writer As StreamWriter = New StreamWriter($"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO\archivo.txt", True)
+                ' Escribir los valores en el archivo de texto
+                writer.WriteLine($"{Errores}")
+            End Using
+        Catch ex As Exception
+            ' Manejar cualquier excepción que pueda ocurrir durante la escritura en el archivo
+            Console.WriteLine("Error al escribir en el archivo: " & ex.Message)
+        End Try
     End Sub
 
 End Class

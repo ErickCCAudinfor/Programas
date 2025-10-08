@@ -508,7 +508,7 @@ WHERE TP.Entorno = '{Entorno}'
         Try
             Dim ret As New IndexadoPrecioGas
 
-            Dim fechaSinHora As String = FechaPresupuesto.Value.Date.ToString("yyyy-MM-dd")
+            Dim fechaSinHora As String = FechaPresupuesto.Value.Date.ToString("dd-MM-yyyy")
             Dim Query = $"SELECT *
 FROM IndexadoPrecioGas tp
 WHERE tp.Entorno = '{Entorno}'
@@ -626,7 +626,7 @@ WHERE TP.Entorno = '{Entorno}'
         Try
             Dim ret As New TarifaPrecio
 
-           Dim fechaSinHora As String = FechaPresupuesto.Value.Date.ToString("yyyy-MM-dd")
+            Dim fechaSinHora As String = FechaPresupuesto.Value.Date.ToString("dd-MM-yyyy")
 
             Dim Query = $"
 SELECT *
@@ -694,13 +694,6 @@ WHERE tp.Entorno = '{Entorno}'
 
                 End If
             Next
-            'conexion.Open()
-            'Dim query = $"UPDATE tarifapreciocontrato set IdTarifaGrupo = {TarifaGrupoNueva.IdTarifaGrupo}
-            '            , IdPerfilFacturacion =  {TarifaGrupoNueva.IdPerfilFacturacion}                          
-            '            where IdContratoTarifa in ({Cont.IdContratoTarifa})"
-            'Dim comando = New SqlCommand(query, conexion)
-            'Dim readerQuery As SqlDataReader = comando.ExecuteReader
-
             conexion.Close()
             'TarifaPrecioContrato = Cont
         Catch ex As Exception
@@ -2103,6 +2096,47 @@ order by c.CodigoContrato
         Return ContratoTarifaPersonalizadoC
     End Function
 
+    Public Function GetContratoTarifaExcel(ContratTarifaParam As ContratoTarifa) As ContratoTarifa
+        Dim contratoTarifaBD As New ContratoTarifa
+        'Dim JoinContrato = String.Join(",", idcontratotarifa)
+        Try
+
+            Dim query As String = $"select ct.*
+from contratotarifa ct
+left join TarifaGrupo tg on ct.idtarifagrupo = tg.idtarifagrupo
+left join perfilfacturacion pf on ct.idperfilfacturacion = pf.idperfilfacturacion
+left join tarifa t  on ct.idtarifa = t.idtarifa
+left join contrato c on ct.CodigoContrato = c.CodigoContrato
+where ct.codigocontrato in (
+{ContratTarifaParam.CodigoContrato}
+) and ct.idtarifagrupo in ({ContratTarifaParam.IdTarifaGrupo})
+order by c.CodigoContrato
+
+"
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ResultC = Helper.FillObjectFromDatatable(result.Tables(0), GetType(ContratoTarifa)).Cast(Of ContratoTarifa).ToList
+                If Not IsNothing(ResultC) AndAlso ResultC.Count > 0 Then
+                    For Each r In ResultC
+                        If Not r Is Nothing AndAlso r.IdContratoTarifa > 0 Then
+                            contratoTarifaBD = r
+                        End If
+                    Next
+                End If
+            End If
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return contratoTarifaBD
+    End Function
+
+
     Public Sub AplicarPrecios(CodContrato As Long, FechaVigencia As Date?)
         Try
             Dim ContratoTarifaSrv As New ContratoTarifaSrv(connectionString)
@@ -2151,6 +2185,23 @@ order by c.CodigoContrato
             '    End If
             '    SigeMessageBox.SigeShowInformation(String.Format("No se han podido actualizar los precios de los siguientes contratos: {0}", Codigos))
             'End If
+        Catch ex As Exception
+            Throw
+        End Try
+    End Sub
+
+    Public Sub aplicapreciosFromEcel(contratotarifaParam As ContratoTarifa)
+        Try
+            Dim ContratoTarifaSrv As New ContratoTarifaSrv(connectionString)
+            Dim TarifaPrecioContratoSrv As New TarifaPrecioContratoSrv(connectionString)
+            Try
+                Dim TarifasPrecioContrato = GetDTOAllByCodigosContratoFromExcel(contratotarifaParam)
+                Dim objContratoTarifa As ContratoTarifa = GetContratoTarifaExcel(contratotarifaParam) ' lo busco de nuevo.. por si acaso
+                Dim PreciosOriginales = New List(Of TarifaPrecioContrato)(TarifasPrecioContrato.Where(Function(f) If(f.IdContratoTarifa = objContratoTarifa.IdContratoTarifa, False)))
+                Dim TarPrecioContrato = TarifaPrecioContratoSrv.ActualizarPreciosVigentes(objContratoTarifa.IdContratoTarifa, PreciosOriginales, contratotarifaParam.FechaDesde)
+            Catch ex As Exception
+                Throw
+            End Try
         Catch ex As Exception
             Throw
         End Try
@@ -2240,6 +2291,36 @@ VALUES
             Throw
         End Try
     End Function
+
+    Public Function GetDTOAllByCodigosContratoFromExcel(contratotarifaparam As ContratoTarifa) As List(Of TarifaPrecioContrato)
+        Try
+            Dim ret As New List(Of TarifaPrecioContrato)
+
+            Dim query As String = $"select *
+	from TarifaPrecioContrato
+	where IdContratoTarifa in (
+		select IdContratoTarifa
+		from ContratoTarifa where codigocontrato in (
+{contratotarifaparam.CodigoContrato}) and idtarifagrupo in ({contratotarifaparam.IdTarifaGrupo})
+)
+
+"
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ResultC = Helper.FillObjectFromDatatable(result.Tables(0), GetType(TarifaPrecioContrato)).Cast(Of TarifaPrecioContrato).ToList
+                If Not IsNothing(ResultC) AndAlso ResultC.Count > 0 Then
+                    ret.AddRange(ResultC)
+                End If
+            End If
+            Return ret
+        Catch ex As Exception
+            Throw
+        End Try
+    End Function
+
 
     Public Function VerificarLicitacion(CodigosContrato As List(Of Long)) As List(Of Contrato)
         Try

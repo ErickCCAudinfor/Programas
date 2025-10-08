@@ -556,7 +556,7 @@ where fvc.idfacturaventacabecera in (select IdFacturaVentaCabecera from Facturas
                 'Escribir errores en un log'
 
                 Dim Fac = Helper.FillObjectFromDatatable(Result.Tables(0), GetType(FacsCSV)).Cast(Of FacsCSV).ToList
-                If Not IsNothing(Fac) AndAlso Fac.Count > 1 Then
+                If Not IsNothing(Fac) AndAlso Fac.Count >= 1 Then
                     ResultFac = Fac
                 End If
                 Dim pepe = 0

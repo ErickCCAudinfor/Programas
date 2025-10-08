@@ -194,6 +194,9 @@ Public Class ContratoTarifaSrv
         Return ContratoTarifaB
     End Function
 
+
+
+
     Public Function UpdateContratoTarifaV2(Cont As ContratoTarifa, TarifaGrupoNueva As TarifaGrupo) As ContratoTarifa
         Dim conexion = New SqlConnection(connectionString)
         Dim ret As New ContratoTarifa

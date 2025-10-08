@@ -12,7 +12,7 @@ Public Class TarifaPrecioContratoSrv
     End Sub
 
 
-    Public Function ActualizarPreciosVigentes(IdContratoTarifa As Long, TarifasPrecioContrato As List(Of TarifaPrecioContrato), FechaVigenciaNueva As Date) As List(Of TarifaPrecioContrato)
+    Public Function ActualizarPreciosVigentes(IdContratoTarifa As Long, TarifasPrecioContratoOriginales As List(Of TarifaPrecioContrato), FechaVigenciaNueva As Date) As List(Of TarifaPrecioContrato)
         Try
             Dim ret As New List(Of TarifaPrecioContrato)
 
@@ -42,9 +42,11 @@ Public Class TarifaPrecioContratoSrv
 
                                         tarifaPrecioContrato.IdContratoTarifa = objContratoTarifa.IdContratoTarifa
                                         tarifaPrecioContrato.IdIndexadoPrecio = indexadoPrecio.IdIndexadoPrecio
-
+                                        tarifaPrecioContrato.Entorno = objContratoTarifa.Entorno
                                         tarifasPrecioContratoGuardar.Add(tarifaPrecioContrato)
                                     Next
+                                Else
+                                    Throw New Exception(String.Format("FALTA_TARIFA_PRECIO_VIGENTE_LUZ_INDEX", objContratoTarifa.CodigoContrato))
                                 End If
 
                             Else
@@ -56,9 +58,11 @@ Public Class TarifaPrecioContratoSrv
 
                                         tarifaPrecioContrato.IdContratoTarifa = objContratoTarifa.IdContratoTarifa
                                         tarifaPrecioContrato.IdIndexadoPrecioGas = indexadoPrecio.IdIndexadoPrecioGas
-
+                                        tarifaPrecioContrato.Entorno = objContratoTarifa.Entorno
                                         tarifasPrecioContratoGuardar.Add(tarifaPrecioContrato)
                                     Next
+                                Else
+                                    Throw New Exception(String.Format("FALTA_TARIFA_PRECIO_VIGENTE_GAS_INDEX", objContratoTarifa.CodigoContrato))
                                 End If
                             End If
                         Else
@@ -71,7 +75,7 @@ Public Class TarifaPrecioContratoSrv
 
                                     tarifapreciocontrato.IdContratoTarifa = objContratoTarifa.IdContratoTarifa
                                     tarifapreciocontrato.IdTarifaPrecio = tarifaPrecio.IdTarifaPrecio
-
+                                    tarifapreciocontrato.Entorno = objContratoTarifa.Entorno
                                     tarifasPrecioContratoGuardar.Add(tarifapreciocontrato)
                                 Next
                             Else
@@ -80,14 +84,16 @@ Public Class TarifaPrecioContratoSrv
                             End If
                         End If
 
-                        If Not IsNothing(tarifasPrecioContratoGuardar) AndAlso tarifasPrecioContratoGuardar.Count > 0 Then
+                        If Not IsNothing(tarifasPrecioContratoGuardar) AndAlso tarifasPrecioContratoGuardar.Count > 0 AndAlso TarifasPrecioContratoOriginales.Count > 0 Then
                             'Aqui hay que guardar la vigencia nueva
-                            Dim Query = $"update contrato set FechaAplicacionPrecios='{FechaVigenciaNueva.Date}' where codigocontrato = {objContratoTarifa.CodigoContrato};"
-                            If Query <> String.Empty Then
-                                Dim ds As DataSet = Helper.QuerySelect(Query, connectionString)
-                                Dim a As Integer = 1
-                            End If
-                            funciones.UpdatePrecioContratoTarifa(tarifasPrecioContratoGuardar, TarifasPrecioContrato, isFijoIndex)
+                            'Dim Query = $"update contrato set FechaAplicacionPrecios='{FechaVigenciaNueva.Date}' where codigocontrato = {objContratoTarifa.CodigoContrato};"
+                            'If Query <> String.Empty Then
+                            '    Dim ds As DataSet = Helper.QuerySelect(Query, connectionString)
+                            '    Dim a As Integer = 1
+                            'End If
+                            funciones.UpdatePrecioContratoTarifa(tarifasPrecioContratoGuardar, TarifasPrecioContratoOriginales, isFijoIndex)
+                        Else
+                            InsertPrecioContratoTarifa(tarifasPrecioContratoGuardar, isFijoIndex)
                         End If
 
                         ret = tarifasPrecioContratoGuardar.ToList
@@ -102,4 +108,41 @@ Public Class TarifaPrecioContratoSrv
             Throw
         End Try
     End Function
+
+    Public Function InsertPrecioContratoTarifa(Cont As List(Of TarifaPrecioContrato), IsFijoIndex As Boolean) As Long
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim FilfasAfectadas As New Long
+        Try
+            Dim numTarifaPrecioContrato As Integer = Cont.Count
+            'Dim numTarifaPrecioContratoOLD As Integer = ContOld.Count
+            'Dim minNum As Integer = Math.Min(numTarifaPrecioContrato, numTarifaPrecioContratoOLD)
+            conexion.Open()
+            For Each insertT In Cont
+                Dim query = $"INSERT INTO [dbo].[TarifaPrecioContrato]
+([Entorno],[IdContratoTarifa],[IdTarifaPrecio],[IdIndexadoPrecio],[IdIndexadoPrecioGas])
+     VALUES 
+(
+'{insertT.Entorno}',
+{If(insertT.IdContratoTarifa, 0)},
+{insertT.IdTarifaPrecio},
+{insertT.IdIndexadoPrecio},
+{If(insertT.IdIndexadoPrecioGas, 0)}
+)"
+                Dim comando = New SqlCommand(query, conexion)
+                FilfasAfectadas = comando.ExecuteNonQuery
+            Next
+            conexion.Close()
+            'TarifaPrecioContrato = Cont
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return FilfasAfectadas
+    End Function
+
+
+
+
+
+
 End Class

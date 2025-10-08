@@ -73,6 +73,7 @@ Partial Class Form1
         Label6 = New Label()
         Button25 = New Button()
         Panel3 = New Panel()
+        Button26 = New Button()
         Button6 = New Button()
         Button5 = New Button()
         Button8 = New Button()
@@ -94,6 +95,7 @@ Partial Class Form1
         Panel2 = New Panel()
         Button24 = New Button()
         CheckFacturable = New CheckBox()
+        Norauto = New CheckBox()
         Panel1.SuspendLayout()
         CType(PictureBox2, ComponentModel.ISupportInitialize).BeginInit()
         Panel4.SuspendLayout()
@@ -536,6 +538,7 @@ Partial Class Form1
         ' Panel3
         ' 
         Panel3.BackColor = Color.Transparent
+        Panel3.Controls.Add(Button26)
         Panel3.Controls.Add(Label6)
         Panel3.Controls.Add(DateTimePicker1)
         Panel3.Controls.Add(Label1)
@@ -549,6 +552,16 @@ Partial Class Form1
         Panel3.Name = "Panel3"
         Panel3.Size = New Size(617, 128)
         Panel3.TabIndex = 23
+        ' 
+        ' Button26
+        ' 
+        Button26.Enabled = False
+        Button26.Location = New Point(451, 3)
+        Button26.Name = "Button26"
+        Button26.Size = New Size(129, 23)
+        Button26.TabIndex = 44
+        Button26.Text = "Aplicar Precios Excel"
+        Button26.UseVisualStyleBackColor = True
         ' 
         ' Button6
         ' 
@@ -764,12 +777,24 @@ Partial Class Form1
         CheckFacturable.Text = "Facturable"
         CheckFacturable.UseVisualStyleBackColor = False
         ' 
+        ' Norauto
+        ' 
+        Norauto.AutoSize = True
+        Norauto.BackColor = Color.Transparent
+        Norauto.Location = New Point(256, 68)
+        Norauto.Name = "Norauto"
+        Norauto.Size = New Size(70, 19)
+        Norauto.TabIndex = 44
+        Norauto.Text = "Norauto"
+        Norauto.UseVisualStyleBackColor = False
+        ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.LightBlue
         ClientSize = New Size(640, 539)
+        Controls.Add(Norauto)
         Controls.Add(CheckFacturable)
         Controls.Add(CheckBox13)
         Controls.Add(CheckBox12)
@@ -894,4 +919,6 @@ Partial Class Form1
     Friend WithEvents Panel2 As Panel
     Friend WithEvents Button24 As Button
     Friend WithEvents CheckFacturable As CheckBox
+    Friend WithEvents Button26 As Button
+    Friend WithEvents Norauto As CheckBox
 End Class
