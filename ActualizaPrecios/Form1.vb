@@ -2164,7 +2164,9 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
     Private Sub Button25_Click_1(sender As Object, e As EventArgs) Handles Button25.Click
         Try
             Dim ListaCodContrato As New List(Of Long)
-
+            Dim EsLuz As Boolean = False
+            Dim EsGas As Boolean = False
+            Dim AmbosEntornos = False
             'Check Cups
             If CheckBox2.Checked Then
                 Dim Con = GetConSinSplit(TextBox2.Text)
@@ -2173,12 +2175,20 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                     For Each elemnt In contrato
                         If elemnt.IdContrato > 0 Then
                             ListaCodContrato.Add(elemnt.CodigoContrato)
+                            'Comprobamos el entorno
+                            If elemnt.Entorno = "E1" Then
+                                EsLuz = True
+                            ElseIf elemnt.Entorno = "E2" Then
+                                EsGas = True
+                            End If
                         End If
                     Next
                 End If
             End If
             If ListaCodContrato.Count > 0 Then
-                Dim ContratoForm As New ContratoForm(ListaCodContrato, connectionString, NombreUsuarioEquipo)
+                AmbosEntornos = (EsLuz AndAlso EsGas)
+
+                Dim ContratoForm As New ContratoForm(ListaCodContrato, connectionString, NombreUsuarioEquipo, AmbosEntornos)
                 ContratoForm.Show()
             Else
                 complementos.MostrarMensajePersonalizado($"No hay contratos")

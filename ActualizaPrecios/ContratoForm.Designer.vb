@@ -91,13 +91,15 @@ Partial Class ContratoForm
         chkLicitacionSINO = New CheckBox()
         ChkExencionIESINO = New CheckBox()
         ChkExencionIE = New CheckBox()
+        Label9 = New Label()
+        CheckSumarAñoFechavto = New CheckBox()
         CType(PictureBox2, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
         ' Label1
         ' 
         Label1.AutoSize = True
-        Label1.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        Label1.Font = New Font("Book Antiqua", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
         Label1.Location = New Point(24, 75)
         Label1.Name = "Label1"
         Label1.Size = New Size(93, 16)
@@ -206,7 +208,7 @@ Partial Class ContratoForm
         ' Label3
         ' 
         Label3.AutoSize = True
-        Label3.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        Label3.Font = New Font("Book Antiqua", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
         Label3.Location = New Point(26, 219)
         Label3.Name = "Label3"
         Label3.Size = New Size(113, 16)
@@ -216,7 +218,7 @@ Partial Class ContratoForm
         ' Label4
         ' 
         Label4.AutoSize = True
-        Label4.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        Label4.Font = New Font("Book Antiqua", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
         Label4.Location = New Point(24, 430)
         Label4.Name = "Label4"
         Label4.Size = New Size(99, 16)
@@ -347,7 +349,7 @@ Partial Class ContratoForm
         ' Label5
         ' 
         Label5.AutoSize = True
-        Label5.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        Label5.Font = New Font("Book Antiqua", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
         Label5.Location = New Point(353, 430)
         Label5.Name = "Label5"
         Label5.Size = New Size(213, 16)
@@ -357,8 +359,8 @@ Partial Class ContratoForm
         ' Button1
         ' 
         Button1.BackColor = SystemColors.MenuHighlight
-        Button1.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
-        Button1.Location = New Point(367, 642)
+        Button1.Font = New Font("Segoe UI", 9.0F, FontStyle.Bold, GraphicsUnit.Point)
+        Button1.Location = New Point(757, 636)
         Button1.Name = "Button1"
         Button1.Size = New Size(182, 31)
         Button1.TabIndex = 26
@@ -377,7 +379,7 @@ Partial Class ContratoForm
         ' 
         DateTimePicker3.CalendarMonthBackground = Color.LightBlue
         DateTimePicker3.CustomFormat = "dd/MM/yyyy"
-        DateTimePicker3.Font = New Font("Arial Narrow", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        DateTimePicker3.Font = New Font("Arial Narrow", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
         DateTimePicker3.Format = DateTimePickerFormat.Custom
         DateTimePicker3.Location = New Point(189, 118)
         DateTimePicker3.Name = "DateTimePicker3"
@@ -388,7 +390,7 @@ Partial Class ContratoForm
         ' 
         DateTimePicker1.CalendarMonthBackground = Color.LightBlue
         DateTimePicker1.CustomFormat = "dd/MM/yyyy"
-        DateTimePicker1.Font = New Font("Arial Narrow", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        DateTimePicker1.Font = New Font("Arial Narrow", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
         DateTimePicker1.Format = DateTimePickerFormat.Custom
         DateTimePicker1.Location = New Point(189, 141)
         DateTimePicker1.Name = "DateTimePicker1"
@@ -413,7 +415,7 @@ Partial Class ContratoForm
         ' Label2
         ' 
         Label2.AutoSize = True
-        Label2.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        Label2.Font = New Font("Book Antiqua", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
         Label2.Location = New Point(24, 9)
         Label2.Name = "Label2"
         Label2.Size = New Size(97, 16)
@@ -586,7 +588,7 @@ Partial Class ContratoForm
         ' Label6
         ' 
         Label6.AutoSize = True
-        Label6.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        Label6.Font = New Font("Book Antiqua", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
         Label6.Location = New Point(22, 585)
         Label6.Name = "Label6"
         Label6.Size = New Size(120, 16)
@@ -603,7 +605,7 @@ Partial Class ContratoForm
         ' Label7
         ' 
         Label7.AutoSize = True
-        Label7.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        Label7.Font = New Font("Book Antiqua", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
         Label7.Location = New Point(189, 585)
         Label7.Name = "Label7"
         Label7.Size = New Size(102, 16)
@@ -613,7 +615,7 @@ Partial Class ContratoForm
         ' Button2
         ' 
         Button2.BackColor = SystemColors.AppWorkspace
-        Button2.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        Button2.Font = New Font("Segoe UI", 9.0F, FontStyle.Bold, GraphicsUnit.Point)
         Button2.Location = New Point(462, 583)
         Button2.Name = "Button2"
         Button2.Size = New Size(144, 24)
@@ -624,7 +626,7 @@ Partial Class ContratoForm
         ' PictureBox2
         ' 
         PictureBox2.Image = CType(resources.GetObject("PictureBox2.Image"), Image)
-        PictureBox2.Location = New Point(555, 637)
+        PictureBox2.Location = New Point(697, 634)
         PictureBox2.Name = "PictureBox2"
         PictureBox2.Size = New Size(54, 36)
         PictureBox2.TabIndex = 62
@@ -656,12 +658,12 @@ Partial Class ContratoForm
         ' Label8
         ' 
         Label8.AutoSize = True
-        Label8.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        Label8.Font = New Font("Book Antiqua", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
         Label8.Location = New Point(25, 348)
         Label8.Name = "Label8"
-        Label8.Size = New Size(134, 16)
+        Label8.Size = New Size(139, 16)
         Label8.TabIndex = 65
-        Label8.Text = "Sección Ténico contrato"
+        Label8.Text = "Sección Técnico contrato"
         ' 
         ' chkAutoconsumo
         ' 
@@ -766,13 +768,35 @@ Partial Class ContratoForm
         ChkExencionIE.Text = "Exención IE"
         ChkExencionIE.UseVisualStyleBackColor = False
         ' 
+        ' Label9
+        ' 
+        Label9.AutoSize = True
+        Label9.Font = New Font("Book Antiqua", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
+        Label9.Location = New Point(25, 649)
+        Label9.Name = "Label9"
+        Label9.Size = New Size(0, 16)
+        Label9.TabIndex = 76
+        ' 
+        ' CheckSumarAñoFechavto
+        ' 
+        CheckSumarAñoFechavto.AutoSize = True
+        CheckSumarAñoFechavto.BackColor = SystemColors.Menu
+        CheckSumarAñoFechavto.Location = New Point(297, 143)
+        CheckSumarAñoFechavto.Name = "CheckSumarAñoFechavto"
+        CheckSumarAñoFechavto.Size = New Size(118, 19)
+        CheckSumarAñoFechavto.TabIndex = 77
+        CheckSumarAñoFechavto.Text = "+1 año Fecha Vto"
+        CheckSumarAñoFechavto.UseVisualStyleBackColor = False
+        ' 
         ' ContratoForm
         ' 
-        AutoScaleDimensions = New SizeF(7F, 15F)
+        AutoScaleDimensions = New SizeF(7.0F, 15.0F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = SystemColors.GradientInactiveCaption
         BackgroundImageLayout = ImageLayout.Center
         ClientSize = New Size(951, 682)
+        Controls.Add(CheckSumarAñoFechavto)
+        Controls.Add(Label9)
         Controls.Add(ChkExencionIE)
         Controls.Add(ChkExencionIESINO)
         Controls.Add(chkLicitacionSINO)
@@ -918,4 +942,6 @@ Partial Class ContratoForm
     Friend WithEvents chkLicitacionSINO As CheckBox
     Friend WithEvents ChkExencionIESINO As CheckBox
     Friend WithEvents ChkExencionIE As CheckBox
+    Friend WithEvents Label9 As Label
+    Friend WithEvents CheckSumarAñoFechavto As CheckBox
 End Class

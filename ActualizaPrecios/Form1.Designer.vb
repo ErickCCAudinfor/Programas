@@ -828,7 +828,7 @@ Partial Class Form1
         Icon = CType(resources.GetObject("$this.Icon"), Icon)
         Name = "Form1"
         StartPosition = FormStartPosition.CenterScreen
-        Text = "Gestor de Datos SIGE (versión 1.2)"
+        Text = "Gestor de Datos SIGE (versión 1.3)"
         TransparencyKey = Color.YellowGreen
         Panel1.ResumeLayout(False)
         Panel1.PerformLayout()

@@ -8,14 +8,18 @@ Public Class ContratoForm
     Private ReadOnly Property Funciones As FuncionesGenericas
 
     Private ReadOnly Property NombreUsuarioEquipo As String
+
+    Private ReadOnly Property AmbosEntornos As Boolean = False
+
     Dim LoadingWF As New LoadingWF
 
-    Public Sub New(Contratos As List(Of Long), connectionString As String, nombreUser As String)
+    Public Sub New(Contratos As List(Of Long), connectionString As String, nombreUser As String, AmbosEntornos As Boolean)
         Try
             InitializeComponent()
             Me.connectionString = connectionString
             Me.NombreUsuarioEquipo = nombreUser
             Me.Contratos = Contratos
+            Me.AmbosEntornos = AmbosEntornos
             Label2.Text = $"Para realizar una modificación masiva hay que marcar la opción que se desea actualizar en los contratos, es decir, si desea actualizar la situacion del {vbCr}contrato, debes marcar el check situado al lado izquierdo de la opción, posteriormente elegir la situación del contrato y por último darle al botón de actualizar.{vbCr}¡Ojo!, si no se marca el check situado al lado izquierdo la actualización del campo deseado no se llevara  acabo.{vbCr}Cada modificación que se realizara la APP generara una consulta antes y despues, con la finalidad para saber si se ha hecho correctamente la modificacion."
             InicializarCombos()
         Catch ex As Exception
@@ -74,6 +78,18 @@ Public Class ContratoForm
             Me.ComboTipoAutoconsumo.DisplayMember = "TextoAutoconsumo"
             Me.ComboTipoAutoconsumo.ValueMember = "IdTipoAutoconsumo"
 
+
+            If Me.AmbosEntornos Then
+                Me.ComboBox6.Enabled = False 'Deshabilito  modelo de factura energia
+                Me.ComboBox7.Enabled = False 'Deshabilito  modelo de factura de varios
+                Me.ComboBox6.Enabled = False 'Deshabilito  modelo de contrato
+                Me.CheckBox16.Enabled = False 'check box contrato
+                Me.CheckBox17.Enabled = False  'check box fac  energia
+                Me.CheckBox18.Enabled = False  'check box fac varios
+                Me.Label9.Text = "Se ha detectado contratos de ambos entornos. Se deshabilitan algunos campos"
+                Me.Label9.Font = New Font("Book Antiqua", 7.0F, FontStyle.Bold, GraphicsUnit.Point)
+                Me.Label9.ForeColor = Color.Red
+            End If
         Catch ex As Exception
 
         End Try
@@ -181,7 +197,7 @@ Public Class ContratoForm
             End If
 
             'Vto
-            If CheckBox3.Checked Then
+            If CheckBox3.Checked AndAlso DateTimePicker1.Enabled Then
                 Dim VTO = DateTimePicker1.Value.Date.ToString("dd/MM/yyyy")
                 camposUpdate.Add($"FechaVto='{VTO}'")
             End If
@@ -342,6 +358,10 @@ Public Class ContratoForm
                 camposUpdate.Add($"idtipoautoconsumo={TiposAutoconsumoSelect.IdTipoAutoconsumo}")
             End If
 
+            If CheckSumarAñoFechavto.Checked AndAlso CheckBox3.Checked Then
+                camposUpdate.Add($"FechaVto = DateAdd(Year, 1, FechaVto)")
+            End If
+
             'DiasVencimiento
             If getDiasVencimiento.Length > 0 Then
                 camposUpdate.Add($"diasvencimiento={getDiasVencimiento()}")
@@ -371,6 +391,15 @@ Public Class ContratoForm
             Me.ComboBox10.DisplayMember = "ClientePagoUnificado"
             Me.ComboBox10.ValueMember = "IdClientePago"
         End If
+    End Sub
+
+    Private Sub CheckSumarAñoFechavto_CheckedChanged(sender As Object, e As EventArgs) Handles CheckSumarAñoFechavto.CheckedChanged
+        If CheckSumarAñoFechavto.Checked Then
+            DateTimePicker1.Enabled = False
+        Else
+            DateTimePicker1.Enabled = True
+        End If
+
     End Sub
 
     'Private Sub ContratoForm_Paint(sender As Object, e As PaintEventArgs) Handles MyBase.Paint

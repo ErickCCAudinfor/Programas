@@ -90,7 +90,7 @@ Public Class ProductosAsig
             Dim PrecioSobredia = CheckBox3.Checked
             Dim FechaFinal = "NULL"
             If FechaFinalSeleccionada.HasValue Then
-                Dim FechaFormateada As String = FechaFinalSeleccionada.Value.ToString("dd/MM/yyyy HH:mm:ss")
+                Dim FechaFormateada As String = FechaFinalSeleccionada.Value.ToString("dd/MM/yyyy")
                 FechaFinal = $"'{FechaFormateada}'"
             End If
             'Dim plazo = False
