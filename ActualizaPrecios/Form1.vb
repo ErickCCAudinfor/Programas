@@ -2055,64 +2055,114 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
     End Sub
 
     'DEVS
-    Private Sub Button24_Click(sender As Object, e As EventArgs)
-        ' Ruta de la carpeta donde están los archivos XML
-        Dim carpetaXML = "C:\Users\ErickCC\Documents\DEV"
-
-        ' Lista de números de factura a buscar
-        Dim facturasBuscar As New List(Of String) From {
-"FELEC1900012641", "FELEC2500002942", "FELEC2500008845", "FELEC2500009232", "FELEC2500009464", "FELEC2500013084", "FELEC2500013102", "FELEC2500017816", "FELEC2500057366", "FELEC2500063394",
-"FELEC2500116144", "FELEC2500117856", "FELEC2500131639", "FELEC2500131640", "FELEC2500133562", "FELEC2500166645", "FELEC2500167023", "FELEC2500167137", "FELEC2500167335", "FELEC2500167577",
-"FELEC2500167662", "FELEC2500168431", "FELEC2500168568", "FELEC2500168575", "FELEC2500169694", "FELEC2500169874", "FELEC2500170153", "FELEC2500170264", "FELEC2500170617", "FELEC2500170963",
-"FELEC2500171175", "FELEC2500171191", "FELEC2500171258", "FELEC2500171345", "FELEC2500171527", "FELEC2500171576", "FELEC2500171891", "FELEC2500172076", "FELEC2500172560", "FELEC2500173062",
-"FELEC2500174634", "FELEC2500174926", "FELEC2500175085", "FELEC2500175207", "FELEC2500175297", "FELEC2500175302", "FELEC2500175378", "FELEC2500175479", "FELEC2500175986", "FELEC2500176100",
-"FELEC2500176303", "FELEC2500176318", "FELEC2500176664", "FELEC2500176685", "FELEC2500178613", "FELEC2500178727", "FELEC2500178872", "FELEC2500178873", "FELEC2500179240", "FELEC2500179245",
-"FELEC2500179530", "FELEC2500179581", "FELEC2500179618", "FELEC2500179857", "FELEC2500179965", "FELEC2500180704", "FELEC2500180780", "FELEC2500181066", "FELEC2500183198", "FELEC2500183598",
-"FELEC2500184134", "FELEC2500184511", "FELEC2500184694", "FELEC2500184698", "FELEC2500185704", "FELEC2500185745", "FELEC2500185856", "FELEC2500185933", "FELEC2500186089", "FELEC2500186192",
-"FELEC2500186321", "FELEC2500186506", "FELEC2500187095", "FELEC2500187301", "FELEC2500187547", "FELEC2500187974", "FELEC2500188189", "FELEC2500188277", "FELEC2500188550", "FELEC2500188666",
-"FELEC2500188977", "FELEC2500189231", "FELEC2500189452", "FELEC2500189467", "FELEC2500189489", "FELEC2500190413", "FELEC2500190591", "FELEC2500190909", "FELEC2500191110", "FELEC2500191376",
-"FELEC2500191409", "FELEC2500191410", "FELEC2500191411", "FELEC2500191412", "FELEC2500191473", "FELEC2500191492", "FELEC2500191615", "FELEC2500191757", "FELEC2500191791", "FELEC2500191880",
-"FELEC2500192084", "FELEC2500192133", "FELEC2500192289", "FELEC2500192304", "FELEC2500192445", "FELEC2500192524", "FELEC2500192680", "FELEC2500192874", "FELEC2500193911", "FELEC2500194060",
-"FELEC2500194181", "FELEC2500194241", "FELEC2500194321", "FELEC2500194457", "FELEC2500194458", "FELEC2500194536", "FELEC2500194555", "FELEC2500194571", "FELEC2500194658", "FELEC2500194671",
-"FELEC2500194673", "FELEC2500194714", "FELEC2500194728", "FELEC2500194733", "FELEC2500194752", "FELEC2500194782", "FELEC2500194912", "FELEC2500195068", "FELEC2500195095", "FELEC2500195359",
-"FGAS2500013301", "FGAS2500013366", "FGAS2500015298", "FGAS2500015382", "FGAS2500015457", "FGAS2500015521", "FGAS2500015554", "FGAS2500016023", "FGAS2500016080", "FGAS2500016201",
-"VARIOS2500001511", "VARIOS2500001753", "VARIOS2500002528", "VARIOS2500002530", "VARIOS2500002532", "VARIOS2500002533", "VARIOS2500002547", "VARIOS2500002550", "VARIOS2500002554", "VARIOS2500002596",
-"VARIOS2500002635", "VARIOS2500003025", "VARIOS2500003039"
-        }
-
+    Private Async Sub BotonBuscarF(sender As Object, e As EventArgs) Handles BuscarFButton.Click
+        Dim carpetaXML = "C:\Audinfor\Sige\Total\FicherosExport\Import"
+        'Dim carpetaxml As String = "C:\Users\ErickCC\Desktop\Erick\DEVOL_COPIA"
         ' Archivo donde se guardarán los resultados
-        Dim archivoResultados = "C:\Users\ErickCC\Documents\DEV\resultados.txt"
+        Dim archivoResultados = $"C:\Users\{NombreUsuarioEquipo}\Documents\resultados.txt"
+        File.WriteAllText(archivoResultados, "") ' Limpia el archivo antes de escribir
 
-        ' Limpiar el archivo antes de escribir los resultados
-        File.WriteAllText(archivoResultados, "")
+        ' Límite de fecha (formato yyyymmdd)
+        Dim stexto = TextBox2.Text
+        Dim limiteFecha As Integer = stexto ' Hasta el 30 de junio de 2025
 
-        ' Lista para almacenar los archivos donde se encontraron facturas
-        Dim archivosEncontrados As New List(Of String)
+        ' --- Seleccionar Excel ---
+        Dim openFileDialog1 As New OpenFileDialog With {
+        .Title = "Seleccionar archivo Excel con facturas",
+        .Multiselect = False,
+        .Filter = "Archivos Excel (*.xlsx)|*.xlsx|Todos los archivos (*.*)|*.*"
+    }
 
-        ' Obtener todos los archivos XML en la carpeta
-        For Each archivo In Directory.GetFiles(carpetaXML, "*.xml")
-            ' Cargar el XML
-            Dim doc = XDocument.Load(archivo)
+        If openFileDialog1.ShowDialog <> DialogResult.OK Then
+            MessageBox.Show("No se seleccionó ningún archivo.")
+            Exit Sub
+        End If
 
-            ' Buscar todos los <invoiceNumber> en el archivo
-            Dim facturasEnXML = doc.Descendants.Where(Function(x) x.Name.LocalName = "invoiceNumber").Select(Function(x) x.Value)
+        Dim rutaArchivo = openFileDialog1.FileName
+        Dim facturasBuscar As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
 
-            ' Verificar si alguna factura de la lista está en este XML
-            Dim coincidencias = facturasBuscar.Intersect(facturasEnXML).ToList
+        ' --- Leer facturas del Excel ---
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial
+        Using package As New ExcelPackage(New FileInfo(rutaArchivo))
+            Dim worksheet = package.Workbook.Worksheets(0)
+            Dim rowCount = worksheet.Dimension.Rows
 
-            ' Si hay coincidencias, guardar el nombre del archivo
-            If coincidencias.Any Then
-                archivosEncontrados.Add(Path.GetFileName(archivo))
-                ' Escribir en el archivo de texto
-                File.AppendAllText(archivoResultados, $"Factura(s) {String.Join(", ", coincidencias)} encontrada(s) en: {Path.GetFileName(archivo)}{Environment.NewLine}")
+            For row = 2 To rowCount ' asume encabezado en fila 1
+                Dim facs = worksheet.Cells(row, 1).Text.Trim
+                If facs <> "" Then facturasBuscar.Add(facs)
+            Next
+        End Using
+
+        ' --- Buscar coincidencias en los XML hasta la fecha límite ---
+        ' --- Buscar coincidencias en los XML hasta la fecha límite ---
+        Dim archivosFiltrados As New List(Of String)
+
+        Dim fechaHoy As Integer = Date.Now.ToString("yyyyMMdd")
+
+        ' --- Filtrar carpetas ---
+        For Each subcarpeta In Directory.GetDirectories(carpetaXML)
+            Dim nombreCarpeta = Path.GetFileName(subcarpeta)
+
+            If nombreCarpeta.Length = 8 AndAlso IsNumeric(nombreCarpeta) Then
+                Dim fechaCarpeta As Integer = nombreCarpeta
+
+                ' --- Determinar rango según si la fecha límite es pasada o futura ---
+                If limiteFecha >= fechaHoy Then
+                    ' Búsqueda hacia el futuro
+                    If fechaCarpeta >= fechaHoy AndAlso fechaCarpeta <= limiteFecha Then
+                        Dim archivosDEVOL = Directory.GetFiles(subcarpeta, "DEVOL_*.xml")
+                        archivosFiltrados.AddRange(archivosDEVOL)
+                    End If
+                Else
+                    ' Búsqueda hacia atrás
+                    If fechaCarpeta <= fechaHoy AndAlso fechaCarpeta >= limiteFecha Then
+                        Dim archivosDEVOL = Directory.GetFiles(subcarpeta, "DEVOL_*.xml")
+                        archivosFiltrados.AddRange(archivosDEVOL)
+                    End If
+                End If
             End If
         Next
 
-        ' Mostrar mensaje final con los resultados
+
+        ' --- Analizar los XML filtrados ---
+        Dim archivosEncontrados As New List(Of String)
+        ' --- Procesar archivos en un hilo en segundo plano ---
+        PictureBox2.Visible = True
+        Await Task.Run(Sub()
+                           For Each archivo In archivosFiltrados
+                               Try
+                                   Dim doc = XDocument.Load(archivo)
+                                   Dim facturasEnXML = doc.Descendants _
+                .Where(Function(x) x.Name.LocalName = "invoiceNumber") _
+                .Select(Function(x) x.Value.Trim) _
+                .ToHashSet(StringComparer.OrdinalIgnoreCase)
+
+                                   Dim coincidencias = facturasBuscar.Intersect(facturasEnXML).ToList
+
+                                   If coincidencias.Any Then
+                                       ' 🔒 Bloqueo para evitar escribir simultáneamente desde varios hilos
+                                       SyncLock archivoResultados
+                                           archivosEncontrados.Add(archivo)
+                                           File.AppendAllText(archivoResultados,
+                        $"Factura(s): {String.Join(", ", coincidencias)} encontrada(s) en {archivo}{Environment.NewLine}")
+                                       End SyncLock
+                                   End If
+
+                               Catch ex As Exception
+                                   SyncLock archivoResultados
+                                       File.AppendAllText(archivoResultados,
+                    $"Error al leer {archivo}: {ex.Message}{Environment.NewLine}")
+                                   End SyncLock
+                               End Try
+                           Next
+                       End Sub)
+        PictureBox2.Visible = False
+        ' --- Mostrar resultados ---
         If archivosEncontrados.Any Then
-            Console.WriteLine($"Facturas encontradas en los archivos: {String.Join(", ", archivosEncontrados)}")
+            MessageBox.Show($"Facturas encontradas en {archivosEncontrados.Count} archivo(s)." & vbCrLf &
+                        $"Detalles en: {archivoResultados}")
         Else
-            Console.WriteLine("No se encontraron coincidencias.")
+            MessageBox.Show("No se encontraron coincidencias en las carpetas hasta agosto 2025.")
         End If
     End Sub
 
@@ -2415,4 +2465,191 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         End Try
     End Sub
 
+    Private Async Sub Button27_Click(sender As Object, e As EventArgs) Handles Button27.Click
+        Try
+            Await Task.Run(Sub()
+                               CopiarArchivosDEVOL()
+                           End Sub)
+
+        Catch ex As Exception
+
+        End Try
+    End Sub
+    Private Sub CopiarArchivosDEVOL()
+        Try
+            ' Carpeta origen y destino
+            Dim carpetaOrigen As String = "C:\Audinfor\Sige\Total\FicherosExport\Import"
+            Dim carpetaDestino As String = "C:\Audinfor\Sige\Total\FicherosExport\Import\DEVOL_COPIA"
+
+            ' Crear carpeta destino si no existe
+            If Not Directory.Exists(carpetaDestino) Then
+                Directory.CreateDirectory(carpetaDestino)
+            End If
+
+            ' Fecha límite escrita en el TextBox (ejemplo: 20250701)
+            Dim stexto = TextBox2.Text.Trim()
+            If Not IsNumeric(stexto) OrElse stexto.Length <> 8 Then
+                MessageBox.Show("Introduce una fecha válida en formato YYYYMMDD.")
+                Exit Sub
+            End If
+
+            Dim fechaInicio As Integer = CInt(stexto)
+            Dim fechaHoy As Integer = CInt(Date.Now.ToString("yyyyMMdd"))
+            Dim contadorCopiados As Integer = 0
+
+            ' Recorrer las subcarpetas del origen
+            For Each subcarpeta In Directory.GetDirectories(carpetaOrigen)
+                Dim nombreCarpeta As String = Path.GetFileName(subcarpeta)
+
+                ' Solo carpetas con formato yyyymmdd
+                If nombreCarpeta.Length = 8 AndAlso IsNumeric(nombreCarpeta) Then
+                    Dim fechaCarpeta As Integer = CInt(nombreCarpeta)
+
+                    ' 🔁 Ahora copiamos desde la fecha indicada hasta hoy
+                    If fechaCarpeta >= fechaInicio AndAlso fechaCarpeta <= fechaHoy Then
+                        ' Buscar archivos que empiecen por DEVOL_ y terminen en .xml
+                        Dim archivosDEVOL = Directory.GetFiles(subcarpeta, "DEVOL_*.xml")
+
+                        ' Crear la subcarpeta en el destino (si no existe)
+                        Dim carpetaDestinoFecha As String = Path.Combine(carpetaDestino, nombreCarpeta)
+                        If Not Directory.Exists(carpetaDestinoFecha) Then
+                            Directory.CreateDirectory(carpetaDestinoFecha)
+                        End If
+
+                        ' Copiar los archivos
+                        For Each archivo In archivosDEVOL
+                            Try
+                                Dim nombreArchivo As String = Path.GetFileName(archivo)
+                                Dim destinoFinal As String = Path.Combine(carpetaDestinoFecha, nombreArchivo)
+
+                                File.Copy(archivo, destinoFinal, True)
+                                contadorCopiados += 1
+                            Catch ex As Exception
+                                File.AppendAllText(
+                                Path.Combine(carpetaDestino, "errores_copia.txt"),
+                                $"Error copiando {archivo}: {ex.Message}{Environment.NewLine}"
+                            )
+                            End Try
+                        Next
+                    End If
+                End If
+            Next
+
+            MessageBox.Show($"✅ Se copiaron {contadorCopiados} archivos DEVOL_ desde {fechaInicio} hasta {fechaHoy}.", "Proceso completado")
+
+        Catch ex As Exception
+            MessageBox.Show($"Error general: {ex.Message}", "Error")
+        End Try
+    End Sub
+
+    Private Async Sub Button28_Click(sender As Object, e As EventArgs) Handles Button28.Click
+        Dim carpetaXML = "C:\Audinfor\Sige\Total\FicherosExport\Import"
+        'Dim carpetaxml As String = "C:\Users\ErickCC\Desktop\Erick\DEVOL_COPIA"
+        ' Archivo donde se guardarán los resultados
+        Dim archivoResultados = $"C:\Users\{NombreUsuarioEquipo}\Documents\resultadosi.txt"
+        File.WriteAllText(archivoResultados, "") ' Limpia el archivo antes de escribir
+
+        ' Límite de fecha (formato yyyymmdd)
+        Dim stexto = TextBox2.Text
+        Dim limiteFecha As Integer = stexto ' Hasta el 30 de junio de 2025
+
+        ' --- Seleccionar Excel ---
+        Dim openFileDialog1 As New OpenFileDialog With {
+        .Title = "Seleccionar archivo Excel con facturas",
+        .Multiselect = False,
+        .Filter = "Archivos Excel (*.xlsx)|*.xlsx|Todos los archivos (*.*)|*.*"
+    }
+
+        If openFileDialog1.ShowDialog <> DialogResult.OK Then
+            MessageBox.Show("No se seleccionó ningún archivo.")
+            Exit Sub
+        End If
+
+        Dim rutaArchivo = openFileDialog1.FileName
+        Dim facturasBuscar As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+
+        ' --- Leer facturas del Excel ---
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial
+        Using package As New ExcelPackage(New FileInfo(rutaArchivo))
+            Dim worksheet = package.Workbook.Worksheets(0)
+            Dim rowCount = worksheet.Dimension.Rows
+
+            For row = 2 To rowCount ' asume encabezado en fila 1
+                Dim facs = worksheet.Cells(row, 1).Text.Trim
+                If facs <> "" Then facturasBuscar.Add(facs)
+            Next
+        End Using
+
+        ' --- Buscar coincidencias en los XML hasta la fecha límite ---
+        ' --- Buscar coincidencias en los XML hasta la fecha límite ---
+        Dim archivosFiltrados As New List(Of String)
+
+        Dim fechaHoy As Integer = Date.Now.ToString("yyyyMMdd")
+
+        ' --- Filtrar carpetas ---
+        For Each subcarpeta In Directory.GetDirectories(carpetaXML)
+            Dim nombreCarpeta = Path.GetFileName(subcarpeta)
+
+            If nombreCarpeta.Length = 8 AndAlso IsNumeric(nombreCarpeta) Then
+                Dim fechaCarpeta As Integer = nombreCarpeta
+
+                ' --- Determinar rango según si la fecha límite es pasada o futura ---
+                If limiteFecha >= fechaHoy Then
+                    ' Búsqueda hacia el futuro
+                    If fechaCarpeta >= fechaHoy AndAlso fechaCarpeta <= limiteFecha Then
+                        Dim archivosDEVOL = Directory.GetFiles(subcarpeta, "ESOPEN_*.xml")
+                        archivosFiltrados.AddRange(archivosDEVOL)
+                    End If
+                Else
+                    ' Búsqueda hacia atrás
+                    If fechaCarpeta <= fechaHoy AndAlso fechaCarpeta >= limiteFecha Then
+                        Dim archivosDEVOL = Directory.GetFiles(subcarpeta, "ESOPEN_*.xml")
+                        archivosFiltrados.AddRange(archivosDEVOL)
+                    End If
+                End If
+            End If
+        Next
+
+
+        ' --- Analizar los XML filtrados ---
+        Dim archivosEncontrados As New List(Of String)
+        ' --- Procesar archivos en un hilo en segundo plano ---
+        PictureBox2.Visible = True
+        Await Task.Run(Sub()
+                           For Each archivo In archivosFiltrados
+                               Try
+                                   Dim doc = XDocument.Load(archivo)
+                                   Dim facturasEnXML = doc.Descendants _
+                .Where(Function(x) x.Name.LocalName = "invoiceNumber") _
+                .Select(Function(x) x.Value.Trim) _
+                .ToHashSet(StringComparer.OrdinalIgnoreCase)
+
+                                   Dim coincidencias = facturasBuscar.Intersect(facturasEnXML).ToList
+
+                                   If coincidencias.Any Then
+                                       ' 🔒 Bloqueo para evitar escribir simultáneamente desde varios hilos
+                                       SyncLock archivoResultados
+                                           archivosEncontrados.Add(archivo)
+                                           File.AppendAllText(archivoResultados,
+                        $"Factura(s): {String.Join(", ", coincidencias)} encontrada(s) en {archivo}{Environment.NewLine}")
+                                       End SyncLock
+                                   End If
+
+                               Catch ex As Exception
+                                   SyncLock archivoResultados
+                                       File.AppendAllText(archivoResultados,
+                    $"Error al leer {archivo}: {ex.Message}{Environment.NewLine}")
+                                   End SyncLock
+                               End Try
+                           Next
+                       End Sub)
+        PictureBox2.Visible = False
+        ' --- Mostrar resultados ---
+        If archivosEncontrados.Any Then
+            MessageBox.Show($"Facturas encontradas en {archivosEncontrados.Count} archivo(s)." & vbCrLf &
+                        $"Detalles en: {archivoResultados}")
+        Else
+            MessageBox.Show($"No se encontraron coincidencias en las carpetas hasta {TextBox2.Text} .")
+        End If
+    End Sub
 End Class

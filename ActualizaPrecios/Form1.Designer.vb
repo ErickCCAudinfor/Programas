@@ -93,9 +93,12 @@ Partial Class Form1
         Button21 = New Button()
         Button22 = New Button()
         Panel2 = New Panel()
+        Button27 = New Button()
+        BuscarFButton = New Button()
         Button24 = New Button()
         CheckFacturable = New CheckBox()
         Norauto = New CheckBox()
+        Button28 = New Button()
         Panel1.SuspendLayout()
         CType(PictureBox2, ComponentModel.ISupportInitialize).BeginInit()
         Panel4.SuspendLayout()
@@ -263,7 +266,7 @@ Partial Class Form1
         RadioButton3.BackColor = Color.Transparent
         RadioButton3.Location = New Point(580, 499)
         RadioButton3.Name = "RadioButton3"
-        RadioButton3.Size = New Size(46, 19)
+        RadioButton3.Size = New Size(47, 19)
         RadioButton3.TabIndex = 28
         RadioButton3.TabStop = True
         RadioButton3.Text = "UAT"
@@ -295,7 +298,7 @@ Partial Class Form1
         CheckBox5.BackColor = Color.Transparent
         CheckBox5.Location = New Point(163, 5)
         CheckBox5.Name = "CheckBox5"
-        CheckBox5.Size = New Size(91, 19)
+        CheckBox5.Size = New Size(92, 19)
         CheckBox5.TabIndex = 30
         CheckBox5.Text = "Clicks TODO"
         CheckBox5.UseVisualStyleBackColor = False
@@ -445,7 +448,7 @@ Partial Class Form1
         Label4.AutoSize = True
         Label4.Location = New Point(7, 78)
         Label4.Name = "Label4"
-        Label4.Size = New Size(236, 15)
+        Label4.Size = New Size(237, 15)
         Label4.TabIndex = 16
         Label4.Text = "Revisar Tarifa Precio Contrato Personalizada"
         ' 
@@ -504,7 +507,7 @@ Partial Class Form1
         Label1.AutoSize = True
         Label1.Location = New Point(8, 9)
         Label1.Name = "Label1"
-        Label1.Size = New Size(71, 15)
+        Label1.Size = New Size(72, 15)
         Label1.TabIndex = 6
         Label1.Text = "Tarifa Grupo"
         ' 
@@ -731,6 +734,9 @@ Partial Class Form1
         ' Panel2
         ' 
         Panel2.BackColor = Color.Transparent
+        Panel2.Controls.Add(Button28)
+        Panel2.Controls.Add(Button27)
+        Panel2.Controls.Add(BuscarFButton)
         Panel2.Controls.Add(Button24)
         Panel2.Controls.Add(Button25)
         Panel2.Controls.Add(Button22)
@@ -756,6 +762,24 @@ Partial Class Form1
         Panel2.Name = "Panel2"
         Panel2.Size = New Size(617, 225)
         Panel2.TabIndex = 22
+        ' 
+        ' Button27
+        ' 
+        Button27.Location = New Point(356, 115)
+        Button27.Name = "Button27"
+        Button27.Size = New Size(53, 23)
+        Button27.TabIndex = 36
+        Button27.Text = "Copiar"
+        Button27.UseVisualStyleBackColor = True
+        ' 
+        ' BuscarFButton
+        ' 
+        BuscarFButton.Location = New Point(229, 115)
+        BuscarFButton.Name = "BuscarFButton"
+        BuscarFButton.Size = New Size(70, 23)
+        BuscarFButton.TabIndex = 35
+        BuscarFButton.Text = "B.  DEVOL"
+        BuscarFButton.UseVisualStyleBackColor = True
         ' 
         ' Button24
         ' 
@@ -787,6 +811,15 @@ Partial Class Form1
         Norauto.TabIndex = 44
         Norauto.Text = "Norauto"
         Norauto.UseVisualStyleBackColor = False
+        ' 
+        ' Button28
+        ' 
+        Button28.Location = New Point(301, 115)
+        Button28.Name = "Button28"
+        Button28.Size = New Size(58, 23)
+        Button28.TabIndex = 37
+        Button28.Text = "S. Items"
+        Button28.UseVisualStyleBackColor = True
         ' 
         ' Form1
         ' 
@@ -921,4 +954,7 @@ Partial Class Form1
     Friend WithEvents CheckFacturable As CheckBox
     Friend WithEvents Button26 As Button
     Friend WithEvents Norauto As CheckBox
+    Friend WithEvents BuscarFButton As Button
+    Friend WithEvents Button27 As Button
+    Friend WithEvents Button28 As Button
 End Class
