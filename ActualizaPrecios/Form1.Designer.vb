@@ -93,12 +93,13 @@ Partial Class Form1
         Button21 = New Button()
         Button22 = New Button()
         Panel2 = New Panel()
+        Button28 = New Button()
         Button27 = New Button()
         BuscarFButton = New Button()
         Button24 = New Button()
         CheckFacturable = New CheckBox()
         Norauto = New CheckBox()
-        Button28 = New Button()
+        Button29 = New Button()
         Panel1.SuspendLayout()
         CType(PictureBox2, ComponentModel.ISupportInitialize).BeginInit()
         Panel4.SuspendLayout()
@@ -649,9 +650,10 @@ Partial Class Form1
         ' 
         ' Button12
         ' 
+        Button12.Font = New Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point)
         Button12.Location = New Point(434, 87)
         Button12.Name = "Button12"
-        Button12.Size = New Size(180, 23)
+        Button12.Size = New Size(81, 23)
         Button12.TabIndex = 23
         Button12.Text = "Extraer PDF Facs"
         Button12.UseVisualStyleBackColor = True
@@ -734,6 +736,7 @@ Partial Class Form1
         ' Panel2
         ' 
         Panel2.BackColor = Color.Transparent
+        Panel2.Controls.Add(Button29)
         Panel2.Controls.Add(Button28)
         Panel2.Controls.Add(Button27)
         Panel2.Controls.Add(BuscarFButton)
@@ -762,6 +765,15 @@ Partial Class Form1
         Panel2.Name = "Panel2"
         Panel2.Size = New Size(617, 225)
         Panel2.TabIndex = 22
+        ' 
+        ' Button28
+        ' 
+        Button28.Location = New Point(301, 115)
+        Button28.Name = "Button28"
+        Button28.Size = New Size(58, 23)
+        Button28.TabIndex = 37
+        Button28.Text = "S. Items"
+        Button28.UseVisualStyleBackColor = True
         ' 
         ' Button27
         ' 
@@ -812,14 +824,15 @@ Partial Class Form1
         Norauto.Text = "Norauto"
         Norauto.UseVisualStyleBackColor = False
         ' 
-        ' Button28
+        ' Button29
         ' 
-        Button28.Location = New Point(301, 115)
-        Button28.Name = "Button28"
-        Button28.Size = New Size(58, 23)
-        Button28.TabIndex = 37
-        Button28.Text = "S. Items"
-        Button28.UseVisualStyleBackColor = True
+        Button29.Font = New Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point)
+        Button29.Location = New Point(516, 86)
+        Button29.Name = "Button29"
+        Button29.Size = New Size(99, 23)
+        Button29.TabIndex = 38
+        Button29.Text = "Extr. PDF Cliente"
+        Button29.UseVisualStyleBackColor = True
         ' 
         ' Form1
         ' 
@@ -957,4 +970,5 @@ Partial Class Form1
     Friend WithEvents BuscarFButton As Button
     Friend WithEvents Button27 As Button
     Friend WithEvents Button28 As Button
+    Friend WithEvents Button29 As Button
 End Class

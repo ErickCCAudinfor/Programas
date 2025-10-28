@@ -1892,7 +1892,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
     'buscar Consultas checks
     Private Async Sub Button23_Click(sender As Object, e As EventArgs) Handles Button23.Click
         Try
-            Dim conexion As String = connectionString
+            Dim conexion = connectionString
             Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO"
             Dim DesdeF = DateTimePicker3.Value.Date.ToString("dd/MM/yyyy")
             Dim HastaF = DateTimePicker2.Value.Date.ToString("dd/MM/yyyy")
@@ -1911,10 +1911,10 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             If CheckBox5.Checked Then
                 tasks.Add(Task.Run(Sub()
                                        Dim Name = "Consulta_ClicksTODO" ' Nombre específico para esta consulta
-                                       Dim rutaArchivoLuzGas = IO.Path.Combine(rutaCarpeta, $"{Name}_LuzGas_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim consultaLuz As String = ConsultasSQL.GetClickLuz
+                                       Dim rutaArchivoLuzGas = Path.Combine(rutaCarpeta, $"{Name}_LuzGas_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                                       Dim consultaLuz = ConsultasSQL.GetClickLuz
                                        ExportarConsultaAExcel(conexion, consultaLuz, rutaArchivoLuzGas, "Luz")
-                                       Dim consultaGas As String = ConsultasSQL.GetClickGas
+                                       Dim consultaGas = ConsultasSQL.GetClickGas
                                        ExportarConsultaAExcel(conexion, consultaGas, rutaArchivoLuzGas, "Gas")
                                        RutaFinal += " " + Name
                                    End Sub))
@@ -1924,8 +1924,8 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             If CheckBox6.Checked Then
                 tasks.Add(Task.Run(Sub()
                                        Dim Name = "Hunosa"
-                                       Dim rutaArchivoHunosa = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim Hunosa As String = ConsultasSQL.GetHunosa(DesdeF, HastaF)
+                                       Dim rutaArchivoHunosa = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                                       Dim Hunosa = ConsultasSQL.GetHunosa(DesdeF, HastaF)
                                        ExportarConsultaAExcel(conexion, Hunosa, rutaArchivoHunosa, "Hunosa")
                                        RutaFinal += " " + Name
                                    End Sub))
@@ -1935,8 +1935,8 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             If CheckBox8.Checked Then
                 tasks.Add(Task.Run(Sub()
                                        Dim Name = "Cadasa"
-                                       Dim rutaArchivoCadasa = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim Cadasa As String = ConsultasSQL.GetCadasa(DesdeF, HastaF)
+                                       Dim rutaArchivoCadasa = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                                       Dim Cadasa = ConsultasSQL.GetCadasa(DesdeF, HastaF)
                                        ExportarConsultaAExcel(conexion, Cadasa, rutaArchivoCadasa, "Cadasa")
                                        RutaFinal += " " + Name
                                    End Sub))
@@ -1946,8 +1946,8 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             If CheckBox9.Checked Then
                 tasks.Add(Task.Run(Sub()
                                        Dim Name = "Quantum"
-                                       Dim rutaArchivoQuantum = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim Quantum As String = ConsultasSQL.GetQuantum(DesdeF, HastaF)
+                                       Dim rutaArchivoQuantum = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                                       Dim Quantum = ConsultasSQL.GetQuantum(DesdeF, HastaF)
                                        ExportarConsultaAExcel(conexion, Quantum, rutaArchivoQuantum, "Quantum")
                                        RutaFinal += " " + Name
                                    End Sub))
@@ -1957,8 +1957,8 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             If CheckBox10.Checked Then
                 tasks.Add(Task.Run(Sub()
                                        Dim Name = "Contratos"
-                                       Dim rutaArchivoRechazosVeolia = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim RechazosVeolia As String = ConsultasSQL.GetRechazosVeolia
+                                       Dim rutaArchivoRechazosVeolia = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                                       Dim RechazosVeolia = ConsultasSQL.GetRechazosVeolia
                                        ExportarConsultaAExcel(conexion, RechazosVeolia, rutaArchivoRechazosVeolia, "Veolia")
                                        RutaFinal += " " + Name
                                    End Sub))
@@ -1967,8 +1967,8 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             If CheckBox11.Checked Then
                 tasks.Add(Task.Run(Sub()
                                        Dim Name = "GAM"
-                                       Dim rutaArchivoGAM = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim ConsultaGAM As String = ConsultasSQL.GetGAM(DesdeF, HastaF)
+                                       Dim rutaArchivoGAM = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                                       Dim ConsultaGAM = ConsultasSQL.GetGAM(DesdeF, HastaF)
                                        ExportarConsultaAExcel(conexion, ConsultaGAM, rutaArchivoGAM, Name)
                                        RutaFinal += " " + Name
                                    End Sub))
@@ -1981,12 +1981,12 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                 If CheckBox12.Checked AndAlso Cups.Count > 0 Then
                     tasks.Add(Task.Run(Sub()
                                            Dim Name = "CurvaHoraria"
-                                           Dim rutaArchivoCurva = IO.Path.Combine(rutaCarpeta, $"{Name}_{DateTimePicker3.Value.Date.ToString("ddMMyyyy")}_{DateTimePicker2.Value.Date.ToString("ddMMyyyy")}.xlsx")
+                                           Dim rutaArchivoCurva = Path.Combine(rutaCarpeta, $"{Name}_{DateTimePicker3.Value.Date.ToString("ddMMyyyy")}_{DateTimePicker2.Value.Date.ToString("ddMMyyyy")}.xlsx")
                                            Dim listaCups As New List(Of String)
                                            For Each c In Cups
                                                listaCups.Add(Replace(c, " ", "").Substring(0, Math.Min(20, c.Length)))
                                            Next
-                                           Dim ConsultaCurva As String = ConsultasSQL.GetCurvaHoraria(DesdeF, HastaF, listaCups)
+                                           Dim ConsultaCurva = ConsultasSQL.GetCurvaHoraria(DesdeF, HastaF, listaCups)
                                            ExportarConsultaAExcel(conexionv2, ConsultaCurva, rutaArchivoCurva, Name)
                                            RutaFinal += " " + Name
                                        End Sub))
@@ -1995,12 +1995,12 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                 If CheckBox13.Checked AndAlso Cups.Count > 0 Then
                     tasks.Add(Task.Run(Sub()
                                            Dim Name = "CuartoHoraria"
-                                           Dim rutaArchivoCuartoHoraria = IO.Path.Combine(rutaCarpeta, $"{Name}_{DateTimePicker3.Value.Date.ToString("ddMMyyyy")}_{DateTimePicker2.Value.Date.ToString("ddMMyyyy")}.xlsx")
+                                           Dim rutaArchivoCuartoHoraria = Path.Combine(rutaCarpeta, $"{Name}_{DateTimePicker3.Value.Date.ToString("ddMMyyyy")}_{DateTimePicker2.Value.Date.ToString("ddMMyyyy")}.xlsx")
                                            Dim listaCups As New List(Of String)
                                            For Each c In Cups
                                                listaCups.Add(Replace(c, " ", "").Substring(0, Math.Min(20, c.Length)))
                                            Next
-                                           Dim ConsultaCurvaCuarto As String = ConsultasSQL.GetCurvaCuartoHoraria(DesdeF, HastaF, listaCups)
+                                           Dim ConsultaCurvaCuarto = ConsultasSQL.GetCurvaCuartoHoraria(DesdeF, HastaF, listaCups)
                                            ExportarConsultaAExcel(conexionv2, ConsultaCurvaCuarto, rutaArchivoCuartoHoraria, Name)
                                            RutaFinal += " " + Name
                                        End Sub))
@@ -2008,12 +2008,12 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                 If CheckFacturable.Checked AndAlso Cups.Count > 0 Then
                     tasks.Add(Task.Run(Sub()
                                            Dim Name = "Facturable"
-                                           Dim rutaArchivoFacturable = IO.Path.Combine(rutaCarpeta, $"{Name}_{DateTimePicker3.Value.Date.ToString("ddMMyyyy")}_{DateTimePicker2.Value.Date.ToString("ddMMyyyy")}.xlsx")
+                                           Dim rutaArchivoFacturable = Path.Combine(rutaCarpeta, $"{Name}_{DateTimePicker3.Value.Date.ToString("ddMMyyyy")}_{DateTimePicker2.Value.Date.ToString("ddMMyyyy")}.xlsx")
                                            Dim listaCups As New List(Of String)
                                            For Each c In Cups
                                                listaCups.Add(Replace(c, " ", "").Substring(0, Math.Min(20, c.Length)))
                                            Next
-                                           Dim ConsultaFacturable As String = ConsultasSQL.GetCurvaFacturable(DesdeF, HastaF, listaCups)
+                                           Dim ConsultaFacturable = ConsultasSQL.GetCurvaFacturable(DesdeF, HastaF, listaCups)
                                            ExportarConsultaAExcel(conexionv2, ConsultaFacturable, rutaArchivoFacturable, Name)
                                            RutaFinal += " " + Name
                                        End Sub))
@@ -2028,8 +2028,8 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                         For Each cif In CIFS
                             tasks.Add(Task.Run(Sub()
                                                    Dim Name = cif
-                                                   Dim rutaArchivoNor = IO.Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                                   Dim ConsultaNor As String = ConsultasSQL.GetConsultaNorauto(DesdeF, HastaF, cif)
+                                                   Dim rutaArchivoNor = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                                                   Dim ConsultaNor = ConsultasSQL.GetConsultaNorauto(DesdeF, HastaF, cif)
                                                    ExportarConsultaAExcel(conexion, ConsultaNor, rutaArchivoNor, Name)
                                                    RutaFinal += " " + Name
                                                End Sub))
@@ -2652,4 +2652,131 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             MessageBox.Show($"No se encontraron coincidencias en las carpetas hasta {TextBox2.Text} .")
         End If
     End Sub
+
+    'Renombrar XML
+    Private Sub Button29_Click(sender As Object, e As EventArgs)
+        Dim ruta As String = "C:\Users\ErickCC\Documents\SOPTOT-11272_XML"
+
+        ' Obtener todos los archivos XML en la carpeta
+        Dim archivos = Directory.GetFiles(ruta, "*.xml")
+
+        Dim total As Integer = 0
+        Dim renombrados As Integer = 0
+
+        For Each archivo In archivos
+            total += 1
+            Try
+                Dim doc As New XmlDocument()
+                doc.Load(archivo)
+
+                ' Debido al namespace de facturae, necesitamos usar NamespaceManager
+                Dim nsmgr As New XmlNamespaceManager(doc.NameTable)
+                nsmgr.AddNamespace("f", "http://www.facturae.es/Facturae/2014/v3.2.1/Facturae")
+
+                ' Buscar las etiquetas dentro de cualquier InvoiceHeader
+                Dim serieNode As XmlNode = doc.SelectSingleNode("//f:InvoiceSeriesCode", nsmgr)
+                Dim numeroNode As XmlNode = doc.SelectSingleNode("//f:InvoiceNumber", nsmgr)
+
+                ' Algunos XML tienen xmlns="" dentro del nodo <Invoices>,
+                ' así que si no encuentra nada, probamos sin namespace
+                If serieNode Is Nothing OrElse numeroNode Is Nothing Then
+                    serieNode = doc.SelectSingleNode("//InvoiceSeriesCode")
+                    numeroNode = doc.SelectSingleNode("//InvoiceNumber")
+                End If
+
+                If serieNode Is Nothing OrElse numeroNode Is Nothing Then
+                    Console.WriteLine($"No se encontró serie o número en: {Path.GetFileName(archivo)}")
+                    Continue For
+                End If
+
+                Dim serie As String = serieNode.InnerText.Trim()
+                Dim numero As String = numeroNode.InnerText.Trim()
+
+                ' Validar que ambos valores existan
+                If String.IsNullOrEmpty(serie) OrElse String.IsNullOrEmpty(numero) Then
+                    Console.WriteLine($"Serie o número vacío en: {Path.GetFileName(archivo)}")
+                    Continue For
+                End If
+
+                ' Crear nuevo nombre
+                Dim nuevoNombre As String = $"{serie}_{numero}.xml"
+                Dim carpeta As String = Path.GetDirectoryName(archivo)
+                Dim destino As String = Path.Combine(carpeta, nuevoNombre)
+
+                ' Evitar sobrescribir si ya existe
+                If File.Exists(destino) Then
+                    Console.WriteLine($"Ya existe: {Path.GetFileName(destino)}, se omite.")
+                    Continue For
+                End If
+
+                ' Renombrar
+                File.Move(archivo, destino)
+                Console.WriteLine($"Renombrado: {Path.GetFileName(archivo)} -> {nuevoNombre}")
+                renombrados += 1
+
+            Catch ex As Exception
+                Console.WriteLine($"Error en {Path.GetFileName(archivo)}: {ex.Message}")
+            End Try
+        Next
+
+        Console.WriteLine()
+        Console.WriteLine($"Proceso completado. {renombrados} de {total} archivos renombrados.")
+        Console.ReadLine()
+    End Sub
+
+    Private Async Sub OrganizarFacsbyCliente(sender As Object, e As EventArgs) Handles Button29.Click
+        Try
+            Dim listaFacs = GetFacsSinSplit(TextBox2.Text)
+            If listaFacs.Count = 0 Then
+                complementos.MostrarMensajePersonalizado("No hay facturas en los filtros")
+                Return
+            End If
+
+            Dim DestinoBase = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO\PDFFacturas"
+            If Not Directory.Exists(DestinoBase) Then Directory.CreateDirectory(DestinoBase)
+
+
+
+            PictureBox2.Visible = True
+            Await Task.Run(Sub()
+                               ' Agrupar facturas por cliente
+                               ' Supongo que Funciones.ObtenerCliente(fac) devuelve un objeto con Nombre e Identidad
+                               Dim facturasPorCliente As New Dictionary(Of String, List(Of String))
+                               For Each fac In listaFacs
+                                   Dim cliente = Funciones.GetClientebyFac(fac) ' {Nombre, Identidad}
+                                   Dim claveCarpeta = $"{cliente.Denominacion}_{cliente.Identidad}"
+                                   If Not facturasPorCliente.ContainsKey(claveCarpeta) Then
+                                       facturasPorCliente(claveCarpeta) = New List(Of String)
+                                   End If
+                                   facturasPorCliente(claveCarpeta).Add(fac)
+                               Next
+
+                               For Each kvp In facturasPorCliente
+                                   Dim carpetaCliente = Path.Combine(DestinoBase, kvp.Key)
+                                   If Not Directory.Exists(carpetaCliente) Then Directory.CreateDirectory(carpetaCliente)
+
+                                   For Each fac In kvp.Value
+                                       Dim pdfBytes = Funciones.ExtraerPDFFactura(fac)
+                                       If pdfBytes Is Nothing Then Continue For
+
+                                       Dim NameFac = Replace(fac, "FELEC", "FELEC_")
+                                       Dim originalFileName = $"{NameFac}.PDF"
+                                       Dim nameWithoutExtension = Path.GetFileNameWithoutExtension(originalFileName)
+                                       Dim newFileName = Mid(nameWithoutExtension, 1, 100) & Path.GetExtension(originalFileName)
+                                       Dim TempFileName = Path.Combine(carpetaCliente, newFileName)
+
+                                       File.WriteAllBytes(TempFileName, pdfBytes)
+                                   Next
+                               Next
+                           End Sub)
+            PictureBox2.Visible = False
+
+            complementos.MostrarMensajePersonalizado("PDFs descargados. Pulse Aceptar para abrir la carpeta contenedora")
+            Process.Start("explorer.exe", DestinoBase)
+
+        Catch ex As Exception
+            complementos.MostrarMensajePersonalizado(ex.Message)
+        End Try
+    End Sub
+
 End Class
