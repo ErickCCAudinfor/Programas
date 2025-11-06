@@ -1071,91 +1071,91 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
 
     ' Open Items
     Private Async Sub Button13_Click(sender As Object, e As EventArgs) Handles Button13.Click
-        Try
+        'Try
 
-            ' Crear una instancia de OpenFileDialog
-            Dim openFileDialog1 As New OpenFileDialog
+        '            ' Crear una instancia de OpenFileDialog
+        '            Dim openFileDialog1 As New OpenFileDialog
 
-            ' Configurar propiedades del diálogo
-            openFileDialog1.Title = "Seleccionar archivos"
-            openFileDialog1.Multiselect = True ' Permitir la selección múltiple de archivos
-            openFileDialog1.Filter = "Todos los archivos (*.*)|*.*" ' Filtro de archivos
-            Dim rutaArchivo = ""
-            Dim RutaNueva = ""
-            ' Mostrar el diálogo y verificar si el usuario hizo clic en OK
-            If openFileDialog1.ShowDialog = DialogResult.OK Then
-                ' Obtener la ruta de cada archivo seleccionado y mostrarla en la consola
-                For Each filename In openFileDialog1.FileNames
-                    rutaArchivo = filename
-                Next
-            End If
+        '            ' Configurar propiedades del diálogo
+        '            openFileDialog1.Title = "Seleccionar archivos"
+        '            openFileDialog1.Multiselect = True ' Permitir la selección múltiple de archivos
+        '            openFileDialog1.Filter = "Todos los archivos (*.*)|*.*" ' Filtro de archivos
+        '            Dim rutaArchivo = ""
+        '            Dim RutaNueva = ""
+        '            ' Mostrar el diálogo y verificar si el usuario hizo clic en OK
+        '            If openFileDialog1.ShowDialog = DialogResult.OK Then
+        '                ' Obtener la ruta de cada archivo seleccionado y mostrarla en la consola
+        '                For Each filename In openFileDialog1.FileNames
+        '                    rutaArchivo = filename
+        '                Next
+        '            End If
 
-            'Muevo primero el archivo a una ruta local
-            ' Definir las rutas de origen y destino
-            Dim origen = rutaArchivo
-            Dim destino = $"\\172.31.100.13\Total\FicherosExport\Import\OriginalItems"
-            Dim NameFile = Path.GetFileName(origen)
-            'Compruebo si existe el destino
-            If Not Directory.Exists(destino) Then
-                Directory.CreateDirectory(destino)
-            End If
+        '            'Muevo primero el archivo a una ruta local
+        '            ' Definir las rutas de origen y destino
+        '            Dim origen = rutaArchivo
+        '            Dim destino = $"\\172.31.100.13\Total\FicherosExport\Import\OriginalItems"
+        '            Dim NameFile = Path.GetFileName(origen)
+        '            'Compruebo si existe el destino
+        '            If Not Directory.Exists(destino) Then
+        '                Directory.CreateDirectory(destino)
+        '            End If
 
-            ' Verificar si el archivo existe en la ruta de origen
-            If File.Exists(origen) Then
-                ' Nos guardamos el original en la carpeta OriginalItems
-                File.Move(origen, destino + "\" + NameFile)
-                RutaNueva = destino + "\" + NameFile
-                'Console.WriteLine("Archivo movido exitosamente a: " & destino)
-            Else
-                'Console.WriteLine("Archivo no encontrado en la ruta de origen: " & origen)
-            End If
+        '            ' Verificar si el archivo existe en la ruta de origen
+        '            If File.Exists(origen) Then
+        '                ' Nos guardamos el original en la carpeta OriginalItems
+        '                File.Move(origen, destino + "\" + NameFile)
+        '                RutaNueva = destino + "\" + NameFile
+        '                'Console.WriteLine("Archivo movido exitosamente a: " & destino)
+        '            Else
+        '                'Console.WriteLine("Archivo no encontrado en la ruta de origen: " & origen)
+        '            End If
 
 
-#Region "FTP"
+        '#Region "FTP"
 
-            ' Definir los parámetros de conexión
-            'Dim servidorFTP As String = "172.31.100.13" ' Reemplazar con la dirección IP o nombre de host
-            'Dim usuarioFTP As String = "audin\administrador"
-            'Dim contrasenaFTP As String = "Azal3a$2020"
+        '            ' Definir los parámetros de conexión
+        '            'Dim servidorFTP As String = "172.31.100.13" ' Reemplazar con la dirección IP o nombre de host
+        '            'Dim usuarioFTP As String = "audin\administrador"
+        '            'Dim contrasenaFTP As String = "Azal3a$2020"
 
-            '' Definir los archivos de origen y destino
-            'Dim archivoOrigen As String = "archivo_origen.txt" ' Reemplazar con el nombre del archivo en el servidor FTP
-            'Dim archivoDestino As String = "C:\Ruta\al\Archivo\Destino.txt" ' Reemplazar con la ruta completa del archivo en tu equipo local
+        '            '' Definir los archivos de origen y destino
+        '            'Dim archivoOrigen As String = "archivo_origen.txt" ' Reemplazar con el nombre del archivo en el servidor FTP
+        '            'Dim archivoDestino As String = "C:\Ruta\al\Archivo\Destino.txt" ' Reemplazar con la ruta completa del archivo en tu equipo local
 
-            '' Establecer la conexión con el servidor FTP
-            'Dim ftp As New System.Net.FtpClient.FtpClient()
-            'ftp.Host = servidorFTP
-            'ftp.Credentials = New System.Net.NetworkCredential(usuarioFTP, contrasenaFTP)
-            '' Descargar el archivo del servidor FTP
-            'Try
-            '    Dim p = ftp.DirectoryExists(origen)
-            '    Dim rr = ""
-            'Catch ex As Exception
-            '    Console.WriteLine("Error al descargar el archivo:", ex.Message)
-            '    Exit Sub
-            'End Try
+        '            '' Establecer la conexión con el servidor FTP
+        '            'Dim ftp As New System.Net.FtpClient.FtpClient()
+        '            'ftp.Host = servidorFTP
+        '            'ftp.Credentials = New System.Net.NetworkCredential(usuarioFTP, contrasenaFTP)
+        '            '' Descargar el archivo del servidor FTP
+        '            'Try
+        '            '    Dim p = ftp.DirectoryExists(origen)
+        '            '    Dim rr = ""
+        '            'Catch ex As Exception
+        '            '    Console.WriteLine("Error al descargar el archivo:", ex.Message)
+        '            '    Exit Sub
+        '            'End Try
 
-            ' Cerrar la conexión FTP
-            'ftp.Disconnect()
-#End Region
+        '            ' Cerrar la conexión FTP
+        '            'ftp.Disconnect()
+        '#End Region
 
-            Dim stopwatch As New Stopwatch
-            stopwatch.Start() ' Iniciar el cronómetro
-            'Dim Empieza As TimeSpan = stopwatch.Elapsed
-            'Dim ActualizarEmail As New ActualizarEmailFromExcel(connectionString)
-            If RutaNueva.Length > 0 Then
-                Dim OpenItms As New OpenItemsXML
-                PictureBox2.Visible = True
-                'Pasamos la nueva ruta
-                Dim Open = Await Task.Run(Function() OpenItms.FormatearXML(RutaNueva))
-                PictureBox2.Visible = False
-                complementos.MostrarMensajePersonalizado($"Se han eliminado {Open} nodos del tipo <audinforContract/>.\nSe ha guardado en la siguiente ruta: {Path.GetDirectoryName(rutaArchivo)}")
-            End If
+        '            Dim stopwatch As New Stopwatch
+        '            stopwatch.Start() ' Iniciar el cronómetro
+        '            'Dim Empieza As TimeSpan = stopwatch.Elapsed
+        '            'Dim ActualizarEmail As New ActualizarEmailFromExcel(connectionString)
+        '            If RutaNueva.Length > 0 Then
+        '                Dim OpenItms As New OpenItemsXML
+        '                PictureBox2.Visible = True
+        '                'Pasamos la nueva ruta
+        '                Dim Open = Await Task.Run(Function() OpenItms.FormatearXML(RutaNueva))
+        '                PictureBox2.Visible = False
+        '                complementos.MostrarMensajePersonalizado($"Se han eliminado {Open} nodos del tipo <audinforContract/>.\nSe ha guardado en la siguiente ruta: {Path.GetDirectoryName(rutaArchivo)}")
+        '            End If
 
-        Catch ex As Exception
-            PictureBox2.Visible = False
-            complementos.MostrarMensajePersonalizado(ex.Message)
-        End Try
+        '        Catch ex As Exception
+        '            PictureBox2.Visible = False
+        '            complementos.MostrarMensajePersonalizado(ex.Message)
+        '        End Try
     End Sub
 
     Private Async Sub Button14_Click(sender As Object, e As EventArgs) Handles Button14.Click
@@ -1986,9 +1986,18 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                                            For Each c In Cups
                                                listaCups.Add(Replace(c, " ", "").Substring(0, Math.Min(20, c.Length)))
                                            Next
-                                           Dim ConsultaCurva = ConsultasSQL.GetCurvaHoraria(DesdeF, HastaF, listaCups)
-                                           ExportarConsultaAExcel(conexionv2, ConsultaCurva, rutaArchivoCurva, Name)
-                                           RutaFinal += " " + Name
+                                           If DividirChck.Checked Then ' divide en excels
+                                               For Each fCups In listaCups
+                                                   Dim ConsultaCurva = ConsultasSQL.GetCurvaHoraria(DesdeF, HastaF, , fCups)
+                                                   ExportarConsultaAExcel(conexionv2, ConsultaCurva, Path.Combine(rutaCarpeta, $"{Name}_{fCups}.xlsx"), fCups)
+                                                   RutaFinal += " " + fCups
+                                               Next
+
+                                           Else
+                                               Dim ConsultaCurva = ConsultasSQL.GetCurvaHoraria(DesdeF, HastaF, listaCups)
+                                               ExportarConsultaAExcel(conexionv2, ConsultaCurva, rutaArchivoCurva, Name)
+                                               RutaFinal += " " + Name
+                                           End If
                                        End Sub))
                 End If
 
@@ -2000,9 +2009,19 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                                            For Each c In Cups
                                                listaCups.Add(Replace(c, " ", "").Substring(0, Math.Min(20, c.Length)))
                                            Next
-                                           Dim ConsultaCurvaCuarto = ConsultasSQL.GetCurvaCuartoHoraria(DesdeF, HastaF, listaCups)
-                                           ExportarConsultaAExcel(conexionv2, ConsultaCurvaCuarto, rutaArchivoCuartoHoraria, Name)
-                                           RutaFinal += " " + Name
+                                           If DividirChck.Checked Then ' divide en excels
+                                               For Each fCups In listaCups
+                                                   Dim ConsultaCurvaCuarto = ConsultasSQL.GetCurvaCuartoHoraria(DesdeF, HastaF, , fCups)
+                                                   ExportarConsultaAExcel(conexionv2, ConsultaCurvaCuarto, Path.Combine(rutaCarpeta, $"{Name}_{fCups}.xlsx"), fCups)
+                                                   RutaFinal += " " + fCups
+                                               Next
+
+                                           Else
+                                               Dim ConsultaCurvaCuarto = ConsultasSQL.GetCurvaCuartoHoraria(DesdeF, HastaF, listaCups)
+                                               ExportarConsultaAExcel(conexionv2, ConsultaCurvaCuarto, rutaArchivoCuartoHoraria, Name)
+                                               RutaFinal += " " + Name
+                                           End If
+
                                        End Sub))
                 End If
                 If CheckFacturable.Checked AndAlso Cups.Count > 0 Then
@@ -2013,9 +2032,19 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                                            For Each c In Cups
                                                listaCups.Add(Replace(c, " ", "").Substring(0, Math.Min(20, c.Length)))
                                            Next
-                                           Dim ConsultaFacturable = ConsultasSQL.GetCurvaFacturable(DesdeF, HastaF, listaCups)
-                                           ExportarConsultaAExcel(conexionv2, ConsultaFacturable, rutaArchivoFacturable, Name)
-                                           RutaFinal += " " + Name
+                                           If DividirChck.Checked Then ' divide en excels
+                                               For Each fCups In listaCups
+                                                   Dim ConsultaFacturable = ConsultasSQL.GetCurvaFacturable(DesdeF, HastaF, , fCups)
+                                                   ExportarConsultaAExcel(conexionv2, ConsultaFacturable, Path.Combine(rutaCarpeta, $"{Name}_{fCups}.xlsx"), fCups)
+                                                   RutaFinal += " " + fCups
+                                               Next
+
+                                           Else
+                                               Dim ConsultaFacturable = ConsultasSQL.GetCurvaFacturable(DesdeF, HastaF, listaCups)
+                                               ExportarConsultaAExcel(conexionv2, ConsultaFacturable, rutaArchivoFacturable, Name)
+                                               RutaFinal += " " + Name
+                                           End If
+
                                        End Sub))
                 End If
             End If
@@ -2355,7 +2384,8 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         Me.Invalidate() ' Obliga a repintar con el tamaño correcto
     End Sub
 
-    Private Async Sub Button26_Click(sender As Object, e As EventArgs) Handles Button26.Click
+    'Aplicar Precios Excel
+    Private Async Sub Button26_Click(sender As Object, e As EventArgs)
         Dim ExcelDatos As New Excel
         Dim Datos As New List(Of ContratoTarifa)
         Dim ListaErrores As New List(Of String)
@@ -2779,4 +2809,155 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         End Try
     End Sub
 
+    ' Variable global para saber si el panel está expandido
+    Dim PanelExpandido As Boolean = True
+    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        PanelLateral.Width = 0
+        PanelExpandido = False
+    End Sub
+
+    Private Sub btnExpandir_Click(sender As Object, e As EventArgs) Handles btnExpandir.Click
+        TimerPanel.Start()
+    End Sub
+
+    Private Sub TimerPanel_Tick(sender As Object, e As EventArgs) Handles TimerPanel.Tick
+        If PanelExpandido Then
+            ' Contraer
+            PanelLateral.Width -= 10
+            If PanelLateral.Width <= 0 Then
+                PanelExpandido = False
+                TimerPanel.Stop()
+            End If
+        Else
+            ' Expandir
+            PanelLateral.Width += 10
+            If PanelLateral.Width >= 220 Then
+                PanelExpandido = True
+                TimerPanel.Stop()
+            End If
+        End If
+    End Sub
+
+    Private Sub Button30_Click(sender As Object, e As EventArgs) Handles Button30.Click
+        Try
+            ' Carpeta origen y destino
+            ' --- Seleccionar Excel ---
+            Dim folderDialog As New FolderBrowserDialog With {
+    .Description = "Selecciona la carpeta"
+}
+
+            If folderDialog.ShowDialog <> DialogResult.OK Then
+                MessageBox.Show("No se seleccionó ninguna carpeta")
+                Exit Sub
+            End If
+            Dim carpetaOrigen As String = folderDialog.SelectedPath
+
+
+            Dim stexto = TextBox2.Text.Trim()
+            If Not IsNumeric(stexto) OrElse stexto.Length <> 8 Then
+                complementos.MostrarMensajePersonalizado("Introduce una fecha válida en formato yyyyMMdd.")
+                Exit Sub
+            End If
+
+            Dim fechaInicio As Integer = CInt(stexto)
+            Dim fechaHoy As Integer = CInt(Date.Now.ToString("yyyyMMdd"))
+            Dim FacturasDev As New List(Of String)
+            For Each subcarpeta In Directory.GetDirectories(carpetaOrigen)
+                Dim nombreCarpeta As String = Path.GetFileName(subcarpeta)
+
+                ' Solo carpetas con formato yyyymmdd
+                If nombreCarpeta.Length = 8 AndAlso IsNumeric(nombreCarpeta) Then
+                    Dim fechaCarpeta As Integer = CInt(nombreCarpeta)
+
+                    ' 🔁 Ahora copiamos desde la fecha indicada hasta hoy
+                    If fechaCarpeta >= fechaInicio AndAlso fechaCarpeta <= fechaHoy Then
+                        ' Buscar archivos que empiecen por DEVOL_ y terminen en .xml
+                        Dim archivosDEVOL = Directory.GetFiles(subcarpeta, "DEVOL_*.xml")
+
+                        ' Copiar los archivos
+                        For Each archivo In archivosDEVOL
+                            ' Cargar el XML
+                            Dim doc As XDocument = XDocument.Load(archivo)
+
+                            ' Declarar el namespace (muy importante)
+                            Dim ns As XNamespace = "http://localhost/elegibilidad"
+
+                            ' Obtener todos los invoiceNumber
+                            Dim facturas = From inv In doc.Descendants(ns + "invoice")
+                                           Select inv.Element(ns + "invoiceNumber")?.Value
+
+                            For Each numeroFactura In facturas
+                                FacturasDev.Add(numeroFactura)
+                            Next
+                        Next
+                    End If
+                End If
+            Next
+
+
+
+            Dim joinstringFacs = String.Join(",", FacturasDev)
+            complementos.Complementos_MostrarMensajePersonalizadoCopiar($"Hay un total de {FacturasDev.Count}, pulse en COPIAR para obtener las facturas encontradas", joinstringFacs)
+
+            'complementos.MostrarMensajePersonalizado($"✅ Se copiaron {contadorCopiados} archivos DEVOL_ desde {fechaInicio} hasta {fechaHoy}.", "Proceso completado")
+
+        Catch ex As Exception
+            complementos.MostrarMensajePersonalizado($"Error general: {ex.Message}")
+        End Try
+    End Sub
+
+    Private Async Sub Button31_Click(sender As Object, e As EventArgs)
+        Try
+            ' Carpeta origen (donde están los XML)
+            Dim carpetaOrigen As String = "C:\Users\ErickCC\Desktop\Erick\Peajes"
+
+            ' Carpeta destino (donde se copiarán los XML que coincidan)
+            Dim carpetaDestino As String = "C:\Users\ErickCC\Desktop\Erick\PeajesFiltrados"
+
+            ' Crear carpeta destino si no existe
+            If Not Directory.Exists(carpetaDestino) Then
+                Directory.CreateDirectory(carpetaDestino)
+            End If
+
+            ' Lista de CUPS a buscar
+            Dim cupsBuscados As String() = {
+                "ES0238330000422158AG",
+                "ES0238330000166926SA"
+            }
+            PictureBox2.Visible = True
+            Await Task.Run(Sub()
+                               ' Buscar todos los archivos XML en la carpeta origen
+                               Dim archivosXml = Directory.GetFiles(carpetaOrigen, "*.xml", SearchOption.TopDirectoryOnly)
+
+                               For Each archivo In archivosXml
+                                   Try
+                                       ' Cargar el XML con su namespace
+                                       Dim doc As XDocument = XDocument.Load(archivo)
+
+                                       ' Definir el namespace del XML
+                                       Dim ns As XNamespace = "http://localhost/sctd/B7031"
+
+                                       ' Buscar el valor del nodo <cups>
+                                       Dim cups = doc.Descendants(ns + "cups").FirstOrDefault()
+
+                                       If cups IsNot Nothing Then
+                                           ' Si el CUPS coincide con alguno de los buscados, copiamos el archivo
+                                           If cupsBuscados.Contains(cups.Value.Trim()) Then
+                                               Dim nombreArchivo As String = Path.GetFileName(archivo)
+                                               Dim destino As String = Path.Combine(carpetaDestino, nombreArchivo)
+                                               File.Copy(archivo, destino, True)
+                                               Console.WriteLine($"Copiado: {nombreArchivo}")
+                                           End If
+                                       End If
+
+                                   Catch ex As Exception
+                                       'Console.WriteLine($"Error procesando {Path.GetFileName(archivo)}: {ex.Message}")
+                                   End Try
+                               Next
+                           End Sub)
+            PictureBox2.Visible = False
+        Catch ex As Exception
+
+        End Try
+    End Sub
 End Class

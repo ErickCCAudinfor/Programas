@@ -1901,8 +1901,15 @@ where fvc.idfacturaventacabecera in (select IdFacturaVentaCabecera from Facturas
 
 "
 	End Function
-	Public Shared Function GetCurvaHoraria(DesdeFecha As Date, hastaFecha As Date, Cups As List(Of String)) As String
-		Dim joinCups = String.Join(",", Cups.Select(Function(c) $"'{c.Trim}'"))
+	Public Shared Function GetCurvaHoraria(DesdeFecha As Date, hastaFecha As Date, Optional ListaCups As List(Of String) = Nothing, Optional Cups As String = "") As String
+		Dim joinCups = ""
+		If Cups.Length > 1 Then
+			joinCups = $"'{Cups}'"
+		End If
+		If Not ListaCups Is Nothing AndAlso ListaCups.Count > 1 Then
+			joinCups = String.Join(",", ListaCups.Select(Function(c) $"'{c.Trim}'"))
+		End If
+
 		Return $"
 SELECT * FROM [SigeTotalTM].[dbo].CurvaHoraria
 WHERE left(cups,20) IN ({joinCups}) AND FechaMedida BETWEEN '{DesdeFecha:dd-MM-yyyy}' AND '{hastaFecha:dd-MM-yyyy}'
@@ -1936,8 +1943,14 @@ ORDER BY FechaMedida;"
 	End Function
 
 
-	Public Shared Function GetCurvaCuartoHoraria(DesdeFecha As Date, hastaFecha As Date, Cups As List(Of String)) As String
-		Dim joinCups = String.Join(",", Cups.Select(Function(c) $"'{c.Trim}'"))
+	Public Shared Function GetCurvaCuartoHoraria(DesdeFecha As Date, hastaFecha As Date, Optional ListaCups As List(Of String) = Nothing, Optional Cups As String = "") As String
+		Dim joinCups = ""
+		If Cups.Length > 1 Then
+			joinCups = $"'{Cups}'"
+		End If
+		If Not ListaCups Is Nothing AndAlso ListaCups.Count > 1 Then
+			joinCups = String.Join(",", ListaCups.Select(Function(c) $"'{c.Trim}'"))
+		End If
 
 		Return $"SELECT [Entorno],[CUPS],[FechaMedida],[Epoca],[ActivaEntrante],[ActivaSaliente],[ReactivaQ1],[ReactivaQ2],[ReactivaQ3],[ReactivaQ4],[Flags],[FechaRegistro]
 FROM [SigeTotalTM].[dbo].CurvaCuartoHoraria
@@ -1956,8 +1969,14 @@ FROM [SigeTotalTM].[dbo].CurvaCuartoHoraria_H_092024
 WHERE left(cups,20) in( {joinCups})  AND FechaMedida between  '{DesdeFecha.ToString("dd/MM/yyyy")}' and '{hastaFecha.ToString("dd/MM/yyyy")}'"
 	End Function
 
-	Public Shared Function GetCurvaFacturable(DesdeFecha As Date, hastaFecha As Date, Cups As List(Of String)) As String
-		Dim joinCups = String.Join(",", Cups.Select(Function(c) $"'{c.Trim}'"))
+	Public Shared Function GetCurvaFacturable(DesdeFecha As Date, hastaFecha As Date, Optional ListaCups As List(Of String) = Nothing, Optional Cups As String = "") As String
+		Dim joinCups = ""
+		If Cups.Length > 1 Then
+			joinCups = $"'{Cups}'"
+		End If
+		If Not ListaCups Is Nothing AndAlso ListaCups.Count > 1 Then
+			joinCups = String.Join(",", ListaCups.Select(Function(c) $"'{c.Trim}'"))
+		End If
 
 		Return $"SELECT Entorno,CUPS,FechaMedida,Epoca,ActivaEntrante,ActivaSaliente,ReactivaQ1,ReactivaQ2,ReactivaQ3,ReactivaQ4,Flags,FechaRegistro,IndicadorObtencion,Prelacion,NumFactura
  FROM [SigeTotalTM].[dbo].CurvaFacturable

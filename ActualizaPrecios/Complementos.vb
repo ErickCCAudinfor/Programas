@@ -77,7 +77,7 @@
         ' Agregar evento al botón "Copiar"
         AddHandler btnCopiar.Click, Sub()
                                         Clipboard.SetText(If(TextoCopiarOpcional.Length > 0, TextoCopiarOpcional, mensaje))
-                                        MessageBox.Show(If(TextoCopiarOpcional.Length > 0, "Contratos Copiados", "Mensaje copiado al portapapeles."), "Información", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                                        MessageBox.Show(If(TextoCopiarOpcional.Length > 0, "Datos Copiados", "Mensaje copiado al portapapeles."), "Información", MessageBoxButtons.OK, MessageBoxIcon.Information)
                                     End Sub
 
         ' Agregar controles al formulario
