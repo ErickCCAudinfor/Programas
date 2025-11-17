@@ -796,6 +796,7 @@ WHERE tp.Entorno = '{Entorno}'
     Public Function GetPrecioContratoTarifa(Cont As ContratoTarifa) As List(Of TarifaPrecioContrato)
         Dim conexion = New SqlConnection(connectionString)
         Dim top = If(Cont.IdTarifa = 202020, 3, 6)
+        top = If(Cont.Entorno = "G2", 1, top)
         Dim TarifaPrecioContrato As New List(Of TarifaPrecioContrato)
         Try
             conexion.Open()
@@ -822,7 +823,7 @@ WHERE tp.Entorno = '{Entorno}'
                     If TarifaPrecioContratoL.Entorno = "G1" Then
                         TarifaPrecioContratoL.IdIndexadoPrecio = readerQuery.GetValue(4).ToString
                     Else
-                        TarifaPrecioContratoL.IdIndexadoPrecioGas = readerQuery.GetValue(5).ToString
+                        TarifaPrecioContratoL.IdIndexadoPrecioGas = GetValueOrDefault(readerQuery, 5, 0)
                     End If
                     TarifaPrecioContratoL.IdTarifa = readerQuery.GetValue(6).ToString
                     TarifaPrecioContratoL.IdTarifaGrupo = readerQuery.GetValue(7).ToString

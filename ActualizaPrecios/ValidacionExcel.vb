@@ -12,6 +12,12 @@ Imports OfficeOpenXml
 Public Class ValidacionExcel
 
     Public ReadOnly Property connectionString As String
+    Public ReadOnly Property path As String
+    Public ReadOnly Property contratos As New List(Of Long)
+    Public ReadOnly Property facturas As New List(Of String)
+
+    Private Funciones As New FuncionesGenericas(connectionString)
+
     Public Sub New(connectionString)
         Try
             Me.connectionString = connectionString
@@ -19,6 +25,19 @@ Public Class ValidacionExcel
             Throw
         End Try
     End Sub
+
+    Public Sub New(connectionString, path, contratos, Funciones, facturas)
+        Try
+            Me.connectionString = connectionString
+            Me.path = path
+            Me.contratos = contratos
+            Me.Funciones = Funciones
+            Me.facturas = facturas
+        Catch ex As Exception
+            Throw
+        End Try
+    End Sub
+
     Public Sub EjecutarConsultasYGuardarEnExcel(consultas As List(Of String), nombreArchivo As String)
         Try
             ' Creamos un nuevo libro de Excel
@@ -757,7 +776,7 @@ GROUP BY
 "
 
                         ' Ejecutar consulta
-                        Dim command As New SqlCommand(query, Connection)
+                        Dim command As New SqlCommand(query, connection)
                         command.Parameters.AddWithValue("@CodigoContrato", codigo)
                         command.CommandTimeout = 100000
                         ' Leer los resultados
@@ -966,10 +985,10 @@ GROUP BY fvc.CodigoContrato, fvc.SerieFactura, fvc.NumeroFactura;
         End Try
     End Sub
 
-    Sub ConsultaTopLidia(NumFacsCompra As List(Of String), Ubicacion As String)
+    Sub ConsultaTopLidia()
         Try
             ' Crear un nuevo archivo Excel
-            Dim filePath As String = Ubicacion
+            Dim filePath As String = path
             Dim fileInfo As New FileInfo(filePath)
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial
 
@@ -1008,67 +1027,11 @@ GROUP BY fvc.CodigoContrato, fvc.SerieFactura, fvc.NumeroFactura;
 
 
 
-                For Each FacCompra As String In NumFacsCompra
+                For Each FacCompra As String In facturas
                     Using connection As New SqlConnection(connectionString)
                         connection.Open()
                         ' Consulta SQL que recupera los datos
-                        Dim query As String = "
-                    with XMLNAMESPACES('http://localhost/elegibilidad' as ""XS"") 
-
-,facturas as (select idfacturacompracabecera from FacturaCompraCabecera with (nolock) where NumeroFactura =@NumFacCompra
-)
-
-,TipoAuto as (select idfacturacompracabecera,isnull(FacturaXML.value('(//XS:DatosFacturaATR/XS:TipoAutoconsumo)[1]', 'nvarchar(max)'),0) as TipoAu 
-from FacturaCompraCabecera
-where IdFacturaCompraCabecera in (select IdFacturaCompraCabecera from facturas))
-
-,FacturasEnergiaML as (select fvl.idfacturaventacabecera
-,CodigoPeriodoXML
-,infolineaxml   
-from
-FacturaCompraCabecera fcc
-inner join facturas with (nolock) on facturas.IdFacturaCompraCabecera = fcc.IdFacturaCompraCabecera
-inner join lectura l with (nolock) on l.IdFacturaCompraCabecera = fcc.IdFacturaCompraCabecera or l.IdFacturaCompraCabecera = fcc.idfacturaorigen
-inner join facturaventacabecera fvc with (nolock) on fvc.idfacturaventacabecera = l.idfacturaventacabecerasectorc
-inner join FacturaVentaLinea fvl with (nolock) on  fvl.idfacturaventacabecera =fvc.IdFacturaVentaCabecera and fvl.FacturaConcepto=30002)
-
-select fvc.IdFacturaVentaCabecera
-,fcc.Numerofactura NumerofacturaC
-,fvc.SerieFactura
-,fvc.NumeroFactura
-,fcc.CodigoContrato
-,TipoAuto.TipoAu
-,Count(fvlclick.facturaconcepto) As LineasClick 
-,max(fvlAuto.Descripcion) as Autoconsumo 
-,replace(max(fvlAuto.importebase),'.',',') as ImporteAutoconsumo
-,sum(fvlclick.ImporteBase) As ImporteTotalClick
-,replace(fvlAutoP.importebase,'.',',') as ProductosAutoconsumo
-,count(fvlAuto.ImporteBase) as LineasAutoconsumo
-,replace(paCO.Importe,'.',',') as CO
-,REPLACE(ISNULL(MAX(CASE WHEN FacturasEnergiaML.CodigoPeriodoXML = 1 THEN  ISNULL(FacturasEnergiaML.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0), '.', ',')  TerminoEnergiaTarifaMLP1
-,REPLACE(ISNULL(MAX(CASE WHEN FacturasEnergiaML.CodigoPeriodoXML = 2 THEN  ISNULL(FacturasEnergiaML.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0), '.', ',')  TerminoEnergiaTarifaMLP2
-,REPLACE(ISNULL(MAX(CASE WHEN FacturasEnergiaML.CodigoPeriodoXML = 3 THEN  ISNULL(FacturasEnergiaML.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0), '.', ',')  TerminoEnergiaTarifaMLP3
-,REPLACE(ISNULL(MAX(CASE WHEN FacturasEnergiaML.CodigoPeriodoXML = 4 THEN  ISNULL(FacturasEnergiaML.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0), '.', ',')  TerminoEnergiaTarifaMLP4
-,REPLACE(ISNULL(MAX(CASE WHEN FacturasEnergiaML.CodigoPeriodoXML = 5 THEN  ISNULL(FacturasEnergiaML.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0), '.', ',')  TerminoEnergiaTarifaMLP5
-,REPLACE(ISNULL(MAX(CASE WHEN FacturasEnergiaML.CodigoPeriodoXML = 6 THEN  ISNULL(FacturasEnergiaML.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0), '.', ',')  TerminoEnergiaTarifaMLP6
-,replace(paCOi.Importe,'.',',') as COinterno
-,c.FechaContrato
-,c.FechaAplicacionPrecios
-from FacturaCompraCabecera fcc with (nolock)
-inner join lectura l with (nolock) on l.IdFacturaCompraCabecera = fcc.IdFacturaCompraCabecera or l.IdFacturaCompraCabecera = fcc.idfacturaorigen
-left join contrato c with (nolock) on fcc.CodigoContrato = c.CodigoContrato
-left join FacturaVentaCabecera fvc with (nolock) on fvc.idfacturaventacabecera = l.idfacturaventacabecerasectorc
-left join FacturaVentaLinea fvlclick with (nolock) on fvlclick.idfacturaventacabecera = fvc.idfacturaventacabecera and fvlclick.FacturaConcepto=30006
-left join FacturaVentaLinea fvlAuto with (nolock) on fvlAuto.idfacturaventacabecera = fvc.idfacturaventacabecera  and fvlAuto.facturaconcepto in (30008,30009)
-left join FacturaVentaLinea fvlAutoP with (nolock) on fvlAutoP.idfacturaventacabecera = fvc.idfacturaventacabecera  and fvlAutoP.facturaconcepto in (100001) and fvlAutoP.descripcion like 'Autoconsumo'
-left join ProductoAsignacion paCO with (nolock) on paCO.IdContrato = c.IdContrato and paCO.IdProducto in (4,30)
-left join ProductoAsignacion paCOi with (nolock) on paCOi.IdContrato = c.IdContrato  and paCOi.IdProducto in (90,133)
-left join TipoAuto with (nolock) on TipoAuto.idfacturacompracabecera = fcc.IdFacturaCompraCabecera
-left join FacturasEnergiaML  with (nolock) on fvc.idfacturaventacabecera = FacturasEnergiaML.idfacturaventacabecera 
-where fcc.IdFacturaCompraCabecera in (select IdFacturaCompraCabecera from facturas with (nolock)) 
-group by fcc.Numerofactura,fcc.CodigoContrato,fvc.IdFacturaVentaCabecera,fvc.SerieFactura,fvc.NumeroFactura,c.FechaContrato,c.FechaAplicacionPrecios,fvlAutoP.importebase,paCO.Importe,paCOi.Importe,TipoAuto.TipoAu
-,FacturasEnergiaML.IdFacturaVentaCabecera
-"
+                        Dim query As String = ConsultasSQL.ConsultaTop
 
                         ' Ejecutar consulta
                         Dim command As New SqlCommand(query, connection)
@@ -1466,4 +1429,37 @@ group by CUPS.CodigoCUPS"
         End Try
     End Function
 
+    ' Lógica completa de penalizaciones
+    Public Async Function GenerarPenalizacionesAsync() As Task(Of Boolean)
+        Dim ok As Boolean = False
+        Try
+            Dim luz As New List(Of Long)
+            Dim gas As New List(Of Long)
+
+            ' Clasificación de contratos
+            For Each con In contratos
+                Dim info = Funciones.GetContrato(con)
+                If info Is Nothing OrElse info.CodigoContrato <= 0 Then Continue For
+
+                Select Case info.Entorno
+                    Case "E1" : luz.Add(info.CodigoContrato)
+                    Case "E2" : gas.Add(info.CodigoContrato)
+                End Select
+            Next
+            If luz.Count > 0 Then
+                Await Task.Run(Sub() PenalizacionesLuz(luz, path))
+                ok = True
+            End If
+
+            If gas.Count > 0 Then
+                Await Task.Run(Sub() PenalizacionesGas(gas, path))
+                ok = True
+            End If
+
+
+        Catch ex As Exception
+            Throw
+        End Try
+        Return ok
+    End Function
 End Class

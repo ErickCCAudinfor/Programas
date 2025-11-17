@@ -20,6 +20,7 @@ Public Class Form1
     Private ReadOnly Property NombreUsuarioEquipo As String = Environment.UserName
     Private Property connectionString As String = $"{ipDB}{nameDB}{userDB}{passDB}"
 
+    Private Property rutaCarpetaGlobal = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO"
     Private ContratoTarifaSrv As New ContratoTarifaSrv(connectionString)
 
     Private Funciones As New FuncionesGenericas(connectionString)
@@ -35,253 +36,553 @@ Public Class Form1
         End If
     End Sub
 
+    ''Para saber si PRO o AUT
+    Private Sub Label5_Click(sender As Object, e As EventArgs) Handles Label5.TextChanged
 
+        Try
+            If ipDB.Trim.Contains("172.31.100.12") AndAlso RadioButton1.Checked Then
+                Label5.Text = "BD PRO  172.31.100.12 SigeTotal"
+                'ElseIf ipDB.Trim.Contains("172.31.100.29") AndAlso RadioButton2.Checked Then
+                '    Label5.Text = "BD UAT  172.31.100.29 SigeTotal(Replica)"
+                'ElseIf RadioButton3.Checked Then
+                '    Label5.Text = "BD UAT  172.31.100.50 SigeTotalUAT"
+            End If
+        Catch ex As Exception
 
+        End Try
+    End Sub
+
+    'Private Async Sub Actualizar(sender As Object, e As EventArgs) Handles Button1.Click
+    '    Dim ExcelDatos As New Excel
+    '    Dim Datos As New List(Of List(Of Object))
+    '    Try
+    '        Dim totalContratos = 0
+    '        Dim ContratoActualizar As New List(Of Long)
+    '        Dim Con As New List(Of Long)
+    '        Con = GetConSinSplit(TextBox2.Text)
+
+    '        If CheckBox1.Checked Then 'CUPS
+    '            'Dim Cups As New List(Of String)
+    '            'Cups.Add("ES0027700038574004TJ")
+    '            'Contratos = Funciones.BuscarbyCups(Cups, ipDB, nameDB, userDB, passDB)
+
+    '        End If
+    '        If CheckBox2.Checked Then 'Contrato
+    '            Dim yesorNot1 = MsgBox($"Hay un total de {Con.Count} contratos, ¿Seguir con la actualización?", vbYesNo)
+    '            If yesorNot1 = 6 OrElse yesorNot1 = 1 Then
+    '                PictureBox2.Visible = True
+    '                ContratoActualizar = Await Task.Run(Function() Funciones.BuscarbyCodigocontrato(Con))
+    '                totalContratos = Con.Count
+    '                PictureBox2.Visible = False
+    '            End If
+    '        End If
+    '        'If CheckBox3.Checked Then 'Cliente
+
+    '        'End If
+    '        Dim yesorNot As MsgBoxResult
+    '        Dim todoOK = False
+    '        'Escribo los valores que tiene ahora, para posteriormente comparar o hacer uso de este y dejarlo como esta
+    '        Funciones.EscribirContratoTarifaAntesCambios(ContratoActualizar)
+    '        If ContratoActualizar.Count > 0 Then
+    '            If totalContratos <> ContratoActualizar.Count Then
+    '                yesorNot = MsgBox("Los contratos filtratos y los contratos encontrados no coinciden. ¿Actualizar de todas formas?", vbYesNo)
+    '            Else
+    '                todoOK = True
+    '            End If
+    '            If yesorNot = 6 OrElse yesorNot = 1 OrElse todoOK Then
+    '                PictureBox2.Visible = True
+    '                Dim ContratosTXT = Await Task.Run(Function() ActualizarRegistros(ContratoActualizar, Datos))
+    '                PictureBox2.Visible = False
+
+    '                If Not IsNothing(Datos) AndAlso Datos.Count > 0 Then
+    '                    ExcelDatos.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos, "PreciosErrores")
+    '                End If
+    '                complementos.MostrarMensajePersonalizado($"{ContratosTXT}. Contratos iniciales:{ContratoActualizar.Count} contratos")
+    '            Else
+    '                complementos.MostrarMensajePersonalizado($"Se ha cancelado la actualización")
+    '            End If
+    '        Else
+    '            complementos.MostrarMensajePersonalizado($"Sin Contratos")
+    '        End If
+
+    '    Catch ex As Exception
+    '        PictureBox2.Visible = False
+    '        complementos.MostrarMensajePersonalizado("Exception: " + ex.Message)
+    '    End Try
+
+    'End Sub
+#Region "Actualizar Precios Refactorizado"
 
     Private Async Sub Actualizar(sender As Object, e As EventArgs) Handles Button1.Click
-        Dim ExcelDatos As New Excel
-        Dim Datos As New List(Of List(Of Object))
         Try
-            Dim totalContratos = 0
-            Dim ContratoActualizar As New List(Of Long)
-            Dim Con As New List(Of Long)
-            Con = GetConSinSplit(TextBox2.Text)
+            Dim ExcelDatos As New Excel
+            PictureBox2.Visible = False
 
-            If CheckBox1.Checked Then 'CUPS
-                'Dim Cups As New List(Of String)
-                'Cups.Add("ES0027700038574004TJ")
-                'Contratos = Funciones.BuscarbyCups(Cups, ipDB, nameDB, userDB, passDB)
+            Dim contratosEntrada = GetConSinSplit(TextBox2.Text)
+            Dim contratosFiltrados = Await ObtenerContratos(contratosEntrada)
 
+            If Not ConfirmarActualizar(contratosEntrada.Count, contratosFiltrados.Count) Then
+                complementos.MostrarMensajePersonalizado("Se ha cancelado la actualización")
+                Exit Sub
             End If
-            If CheckBox2.Checked Then 'Contrato
-                Dim yesorNot1 = MsgBox($"Hay un total de {Con.Count} contratos, ¿Seguir con la actualización?", vbYesNo)
-                If yesorNot1 = 6 OrElse yesorNot1 = 1 Then
-                    PictureBox2.Visible = True
-                    ContratoActualizar = Await Task.Run(Function() Funciones.BuscarbyCodigocontrato(Con))
-                    totalContratos = Con.Count
-                    PictureBox2.Visible = False
-                End If
-            End If
-            'If CheckBox3.Checked Then 'Cliente
 
-            'End If
-            Dim yesorNot As MsgBoxResult
-            Dim todoOK = False
-            'Escribo los valores que tiene ahora, para posteriormente comparar o hacer uso de este y dejarlo como esta
-            Funciones.EscribirContratoTarifaAntesCambios(ContratoActualizar)
-            If ContratoActualizar.Count > 0 Then
-                If totalContratos <> ContratoActualizar.Count Then
-                    yesorNot = MsgBox("Los contratos filtratos y los contratos encontrados no coinciden. ¿Actualizar de todas formas?", vbYesNo)
-                Else
-                    todoOK = True
-                End If
-                If yesorNot = 6 OrElse yesorNot = 1 OrElse todoOK Then
-                    PictureBox2.Visible = True
-                    Dim ContratosTXT = Await Task.Run(Function() ActualizarRegistros(ContratoActualizar, Datos))
-                    PictureBox2.Visible = False
+            Funciones.EscribirContratoTarifaAntesCambios(contratosFiltrados)
 
-                    If Not IsNothing(Datos) AndAlso Datos.Count > 0 Then
-                        ExcelDatos.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos, "PreciosErrores")
-                    End If
-                    complementos.MostrarMensajePersonalizado($"{ContratosTXT}. Contratos iniciales:{ContratoActualizar.Count} contratos")
-                Else
-                    complementos.MostrarMensajePersonalizado($"Se ha cancelado la actualización")
-                End If
-            Else
-                complementos.MostrarMensajePersonalizado($"Sin Contratos")
-            End If
+            Dim Datos As New List(Of List(Of Object))
+
+            PictureBox2.Visible = True
+            Dim resultado As String = Await ProcesarContratos(contratosFiltrados, Datos)
+            PictureBox2.Visible = False
+
+            ' Exportación centralizada
+            ExportarErrores(Datos)
+
+            complementos.MostrarMensajePersonalizado($"{resultado}. Contratos iniciales: {contratosFiltrados.Count}")
 
         Catch ex As Exception
             PictureBox2.Visible = False
-            complementos.MostrarMensajePersonalizado("Exception: " + ex.Message)
+            complementos.MostrarMensajePersonalizado("Exception: " & ex.Message)
         End Try
-
     End Sub
 
-    Private Function ActualizarRegistros(ListaCodigo As List(Of Long), ByRef Datos As List(Of List(Of Object))) As String
-        Dim Contador = 0I
-        Dim ContratosSinActualizar = "Contratos sin actualizarse: "
 
-        'Dim Datos As New List(Of List(Of Object))()
-        Try
-            Dim ContratoTra As New List(Of ContratoTarifa)
-            Dim ContratoTraMergeado As New List(Of ContratoTarifa)
+    Private Async Function ObtenerContratos(entrada As List(Of Long)) As Task(Of List(Of Long))
+        If CheckBox2.Checked Then
+            Dim respuesta = MsgBox($"Hay un total de {entrada.Count} contratos. ¿Continuar?",
+                               vbYesNo)
 
-            'Me busco solo contratos que tengan fechaHasta is null y sea personalizada
-            For Each cod In ListaCodigo
-                ContratoTra.Add(ContratoTarifaSrv.GetContratoTarifaPersonalizadaByCodigoContrato(cod, TextBox3.Text, CheckBox4.Checked))
-            Next
-
-            Dim pepe = 1
-            ' Dependiendo de si el PerfilFacturacion del ContratoTarifa es indexado,
-            ' cargaremos los precios de IndexadoPrecioSrv o TarifaPrecioSrv.
-            ' Estos precios serán los mismos que se muestran en el programa de presupuestos,
-            ' los vigentes para una Tarifa, TarifaGrupo y fecha concreta.
-
-            ' Guardamos el nuevo ContratoTarifa, le pasamos la tarifagrupo a asignar
-            If ListaCodigo.Count = ContratoTra.Count Then
-
-                For Each elment In ContratoTra
-
-                    If Not IsNothing(elment.IdContratoTarifa) AndAlso elment.IdContratoTarifa > 0 Then
-                        'ContratoTraMergeado.Add(ContratoTarifaSrv.UpdateContratoTarifa(elment, NuevaTarifaGrupo, TarifaGrupoActual, IsPersonalizada))
-                        Dim ContratoActualizar = ContratoTarifaSrv.UpdateContratoTarifa(elment, TextBox1.Text, TextBox3.Text, CheckBox4.Checked)
-                        'Dim ContratoTarifaViejo = elment
-                        If Not IsNothing(ContratoActualizar) AndAlso ContratoActualizar.IdContratoTarifa > 0 Then
-                            ' Dependiendo de si el PerfilFacturacion del ContratoTarifa es indexado,
-                            ' cargaremos los precios de IndexadoPrecioSrv o TarifaPrecioSrv.
-                            ' Estos precios serán los mismos que se muestran en el programa de presupuestos,
-                            ' los vigentes para una Tarifa, TarifaGrupo y fecha concreta.
-                            Dim Contrato As Contrato = Funciones.GetContrato(If(elment.CodigoContrato, 0L))
-                            Dim FechaPresupuesto As DateTime = DateTime.Today 'New DateTime(Now.Year, Now.Month, Now.Day)
-                            If Not IsNothing(Contrato) AndAlso Contrato.IdContrato > 0L Then
-                                If Not IsNothing(Contrato.FechaAplicacionPrecios) AndAlso Contrato.FechaAplicacionPrecios > DateTime.MinValue Then
-                                    FechaPresupuesto = If(Contrato.FechaAplicacionPrecios, DateTime.Now)
-                                Else
-                                    If Not IsNothing(Contrato.FechaContrato) AndAlso Contrato.FechaContrato > DateTime.MinValue Then
-                                        FechaPresupuesto = If(Contrato.FechaContrato, DateTime.Now)
-                                    End If
-                                End If
-
-                            End If
-
-
-
-                            If Not IsNothing(ContratoActualizar) Then
-                                ContratoActualizar.PerfilFacturacion = Funciones.GetPerfilFacturacion(If(ContratoActualizar.IdPerfilFacturacion, 0))
-
-                                If Not IsNothing(ContratoActualizar.PerfilFacturacion) Then
-                                    Dim tarifasPrecioContratoGuardar As New List(Of TarifaPrecioContrato) ' Lista para guardar los nuevos precios
-                                    Dim OldtarifasPrecioContratoQuitar As New List(Of TarifaPrecioContrato) ' Lista a con los viejos precios
-                                    'Dim TarifaPerdidaCalculadaContratoGuardar As New ObservableCollection(Of TarifaPerdidaCalculadaContratoDTO)
-                                    Dim isFijoIndex As Boolean = False
-                                    'Compruebo si el nuevocontratotarifa es fijo o indexado
-                                    If ContratoActualizar.PerfilFacturacion.isPerfilIndexado() Then
-                                        isFijoIndex = True
-                                        If ContratoActualizar.Entorno = "G1" Then
-
-                                            Dim indexadosPrecios As List(Of IndexadoPrecio) = Funciones.GetDTOAllPeriodosIndx(ContratoActualizar.IdTarifa, ContratoActualizar.IdTarifaGrupo, FechaPresupuesto).OrderBy(Function(f) f.IdIndexadoPrecio).ToList
-                                            ''Avisar si no hay precios para grabar
-                                            If Not IsNothing(indexadosPrecios) AndAlso indexadosPrecios.Count > 0 Then
-                                                For Each eleindexadoPrecio As IndexadoPrecio In indexadosPrecios
-                                                    Dim tarifaPrecioContrato As New TarifaPrecioContrato
-
-                                                    tarifaPrecioContrato.IdContratoTarifa = ContratoActualizar.IdContratoTarifa
-                                                    tarifaPrecioContrato.IdIndexadoPrecio = eleindexadoPrecio.IdIndexadoPrecio
-                                                    tarifaPrecioContrato.TextoTarifaPeriodo = eleindexadoPrecio.TextoTarifaPeriodo
-                                                    tarifaPrecioContrato.IdTarifaPeriodo = eleindexadoPrecio.IdTarifaPeriodo
-                                                    tarifaPrecioContrato.Entorno = eleindexadoPrecio.Entorno
-                                                    tarifasPrecioContratoGuardar.Add(tarifaPrecioContrato)
-                                                Next
-                                            Else
-                                                ''Avisar si no hay precios para grabar
-                                                'Throw New Exception(SessionInformationDTO.GetMessage(IdUsuarioEntorno, "ContratoTarifaSrv_FALTA_TARIFA_PRECIO_VIGENTE"))
-                                            End If
-                                        Else
-                                            Dim indexadosPrecios As List(Of IndexadoPrecioGas) = Funciones.GetDTOAllPeriodosIndxGas(ContratoActualizar.IdTarifa, ContratoActualizar.IdTarifaGrupo, FechaPresupuesto).OrderBy(Function(f) f.IdIndexadoPrecioGas).ToList
-
-                                            ''Avisar si no hay precios para grabar
-                                            If Not IsNothing(indexadosPrecios) AndAlso indexadosPrecios.Count > 0 Then
-                                                For Each indexadoPrecio As IndexadoPrecioGas In indexadosPrecios
-                                                    Dim tarifaPrecioContrato As New TarifaPrecioContrato
-
-                                                    tarifaPrecioContrato.IdContratoTarifa = ContratoActualizar.IdContratoTarifa
-                                                    tarifaPrecioContrato.IdIndexadoPrecioGas = indexadoPrecio.IdIndexadoPrecioGas
-                                                    tarifaPrecioContrato.IdTarifaPeriodo = indexadoPrecio.IdTarifaPeriodo
-                                                    tarifaPrecioContrato.TextoTarifaPeriodo = indexadoPrecio.TextoTarifaPeriodo
-                                                    tarifaPrecioContrato.Entorno = indexadoPrecio.Entorno
-                                                    tarifasPrecioContratoGuardar.Add(tarifaPrecioContrato)
-                                                Next
-                                            End If
-                                        End If
-
-                                    Else
-                                        Dim tarifasPrecios As List(Of TarifaPrecio) = Funciones.GetDTOAllPeriodosTarifaPrecio(ContratoActualizar.IdTarifa, ContratoActualizar.IdTarifaGrupo, FechaPresupuesto).OrderBy(Function(f) f.IdTarifaPrecio).ToList
-
-                                        If Not IsNothing(tarifasPrecios) AndAlso tarifasPrecios.Count > 0 Then
-                                            For Each tarifaPrecio As TarifaPrecio In tarifasPrecios
-                                                Dim tarifapreciocontrato As New TarifaPrecioContrato
-
-                                                tarifapreciocontrato.IdContratoTarifa = ContratoActualizar.IdContratoTarifa
-                                                tarifapreciocontrato.IdTarifaPrecio = tarifaPrecio.IdTarifaPrecio
-                                                tarifapreciocontrato.IdTarifaPeriodo = tarifaPrecio.IdTarifaPeriodo
-                                                tarifapreciocontrato.TextoTarifaPeriodo = tarifaPrecio.TextoTarifaPeriodo
-                                                tarifapreciocontrato.Entorno = tarifaPrecio.Entorno
-                                                tarifasPrecioContratoGuardar.Add(tarifapreciocontrato)
-                                            Next
-                                        Else
-                                            ''Avisar si no hay precios para grabar
-                                            'Throw New Exception(SessionInformationDTO.GetMessage(IdUsuarioEntorno, "ContratoTarifaSrv_FALTA_TARIFA_PRECIO_VIGENTE"))
-                                        End If
-
-                                    End If
-                                    If elment.TextoTarifa.Contains("TDVE") Then
-
-                                        Funciones.InsertTarifaPrecioContrato(tarifasPrecioContratoGuardar)
-                                        Contador += 1
-                                    Else
-
-                                        'Compruebo si el contratotarifaviejo es fijo o indexado
-                                        Dim TaPrecionContrato = Funciones.GetPrecioContratoTarifaV2(elment)
-                                        If Not IsNothing(TaPrecionContrato) AndAlso TaPrecionContrato.IdContratoTarifa > 0 Then
-                                            If elment.Entorno = "G1" AndAlso TaPrecionContrato.IdIndexadoPrecio > 0 Then
-                                                OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifaIndex(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
-                                            ElseIf elment.Entorno = "G1" AndAlso TaPrecionContrato.IdTarifaPrecio > 0 Then
-                                                OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifa(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
-                                            ElseIf elment.Entorno = "G2" AndAlso TaPrecionContrato.IdIndexadoPrecioGas > 0 Then
-                                                OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifaIndexGas(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
-                                            Else
-                                                Datos.Add(New List(Of Object) From {$"Contrato: {elment.CodigoContrato}- idContratotarifa ={elment.IdContratoTarifa} - No actualizado - Sin precios - revisar "})
-                                                Continue For
-                                            End If
-                                        Else
-                                            Datos.Add(New List(Of Object) From {$"Contrato: {elment.CodigoContrato} - idContratotarifa ={elment.IdContratoTarifa} - El precio personalizado no existe, Imposible actualizar a la nueva tarifagrupo"})
-                                            Continue For
-                                            'Throw New Exception("El precio personalizado no existe, Imposible actualizar a la nueva tarifagrupo " + elment.CodigoContrato)
-                                        End If
-
-
-                                        'Compruebo que haya valores en los dos sitios
-                                        If Not IsNothing(tarifasPrecioContratoGuardar) AndAlso tarifasPrecioContratoGuardar.Count > 0 AndAlso Not IsNothing(OldtarifasPrecioContratoQuitar) AndAlso OldtarifasPrecioContratoQuitar.Count > 0 Then
-                                            ' Guardamos todos los registros de TarifaPrecioContrato generados.
-                                            Funciones.UpdatePrecioContratoTarifa(tarifasPrecioContratoGuardar, OldtarifasPrecioContratoQuitar, isFijoIndex)
-                                            Contador += 1
-                                        Else
-                                            Datos.Add(New List(Of Object) From {$"Contrato: {elment.CodigoContrato} _ idContratotarifa ={elment.IdContratoTarifa} , precios no encontrados "})
-                                            Continue For
-                                            'Throw New Exception("Imposible continuar, precios no encontrados. Contrato: " + elment.CodigoContrato)
-                                        End If
-                                    End If
-                                    'objTarifaPerdidaCalculadaSrv.MergeUpdateTarifaPerdidaCalculadaContratoDTO(TarifaPerdidaCalculadaContratoGuardar, New ObservableCollection(Of TarifaPerdidaCalculadaContratoDTO))
-                                    'If Actualizado > 0 Then
-                                    '    Contador = +1
-                                    'Else
-                                    '    ContratosSinActualizar += elment.CodigoContrato + " "
-                                    'End If
-                                Else
-                                    'Throw New Exception(SessionInformationDTO.GetMessage(IdUsuarioEntorno, "ContratoTarifaSrv_FALTA_PERFIL_FACTURACION"))
-                                End If
-                            End If
-                        End If
-                    Else
-                        'Throw New Exception("Se cancela, no hay registros a actualizar")
-                        Datos.Add(New List(Of Object) From {$"Contrato: {elment.CodigoContrato} _ idContratotarifa ={elment.IdContratoTarifa} , ContratoTarifa Vacio "})
-                    End If
-
-                Next
-            Else
-                complementos.MostrarMensajePersonalizado("las listas no coinciden")
-
+            If respuesta <> vbYes Then
+                Return New List(Of Long)
             End If
 
-        Catch ex As Exception
-            Datos.Add(New List(Of Object) From {$"Error: {ex.Message}"})
-            Throw
-        Finally
-            'ExcelDatos.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos)
-        End Try
-        Return $"Se han actualizado {Contador}. {ContratosSinActualizar}"
+            Return Await Task.Run(Function() Funciones.BuscarbyCodigocontrato(entrada))
+        End If
+
+        Return New List(Of Long)
     End Function
+
+    Private Function ConfirmarActualizar(totalEntrada As Integer, totalFiltrados As Integer) As Boolean
+        If totalFiltrados = 0 Then
+            complementos.MostrarMensajePersonalizado("Sin contratos")
+            Return False
+        End If
+
+        If totalEntrada <> totalFiltrados Then
+            Dim r = MsgBox("Los contratos filtrados y los encontrados no coinciden. ¿Actualizar igual?", vbYesNo)
+            Return r = vbYes
+        End If
+
+        Return True
+    End Function
+
+    Private Async Function ProcesarContratos(lista As List(Of Long), datos As List(Of List(Of Object))) As Task(Of String)
+        Return Await Task.Run(Function() ActualizarRegistros(lista, datos))
+    End Function
+
+
+    Private Sub ExportarErrores(datos As List(Of List(Of Object)))
+        If datos Is Nothing OrElse datos.Count = 0 Then Exit Sub
+
+        Dim excel = New Excel()
+        Dim ruta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\"
+        excel.EscribirEnExcel(ruta, datos, "PreciosErrores")
+    End Sub
+
+    Private Function ActualizarRegistros(ListaCodigo As List(Of Long),
+                                     ByRef Datos As List(Of List(Of Object))) As String
+
+        Dim contratosActualizados As Integer = 0
+        Dim msgContratosNoActualizados As String = "Contratos sin actualizarse: "
+
+        Try
+            Dim contratosTarifa = ObtenerContratosTarifaValidos(ListaCodigo)
+
+            If contratosTarifa.Count <> ListaCodigo.Count Then
+                complementos.MostrarMensajePersonalizado("Las listas no coinciden")
+                Return "Error: listas no coinciden"
+            End If
+
+            For Each ct In contratosTarifa
+                ProcesarContratoTarifa(ct, contratosActualizados, Datos)
+            Next
+
+        Catch ex As Exception
+            RegistrarError(Datos, $"Error general: {ex.Message}")
+            Throw
+
+        End Try
+
+        Return $"Se han actualizado {contratosActualizados}. {msgContratosNoActualizados}"
+    End Function
+
+    Private Function ObtenerContratosTarifaValidos(lista As List(Of Long)) As List(Of ContratoTarifa)
+        Dim result As New List(Of ContratoTarifa)
+
+        For Each cod In lista
+            Dim ct = ContratoTarifaSrv.GetContratoTarifaPersonalizadaByCodigoContrato(
+                     cod, TextBox3.Text, CheckBox4.Checked)
+
+            If ct IsNot Nothing AndAlso ct.IdContratoTarifa > 0 Then
+                result.Add(ct)
+            End If
+        Next
+
+        Return result
+    End Function
+
+    Private Sub ProcesarContratoTarifa(elment As ContratoTarifa,
+                                   ByRef contador As Integer,
+                                   ByRef datos As List(Of List(Of Object)))
+
+        If elment Is Nothing OrElse elment.IdContratoTarifa <= 0 Then
+            RegistrarError(datos, $"Contrato {elment?.CodigoContrato}: ContratoTarifa vacío")
+            Exit Sub
+        End If
+
+        Dim contratoAct = ContratoTarifaSrv.UpdateContratoTarifa(elment, TextBox1.Text, TextBox3.Text, CheckBox4.Checked)
+
+        If contratoAct Is Nothing OrElse contratoAct.IdContratoTarifa <= 0 Then
+            RegistrarError(datos, $"Contrato {elment.CodigoContrato}: No se pudo actualizar ContratoTarifa")
+            Exit Sub
+        End If
+
+        contratoAct.PerfilFacturacion = Funciones.GetPerfilFacturacion(contratoAct.IdPerfilFacturacion)
+
+        If contratoAct.PerfilFacturacion Is Nothing Then
+            RegistrarError(datos, $"Contrato {elment.CodigoContrato}: Sin PerfilFacturacion")
+            ContratoTarifaSrv.UpdateContratoTarifaSiError(elment)
+            Exit Sub
+        End If
+
+        Dim preciosNuevos = ObtenerPreciosNuevos(contratoAct)
+        If preciosNuevos.Count = 0 Then
+            RegistrarError(datos, $"Contrato {elment.CodigoContrato}: Sin precios nuevos")
+            ContratoTarifaSrv.UpdateContratoTarifaSiError(elment)
+            Exit Sub
+        End If
+
+        ' TDVE no sustituye, inserta directamente
+        If elment.TextoTarifa.Contains("TDVE") Then
+            Funciones.InsertTarifaPrecioContrato(preciosNuevos)
+            contador += 1
+            Exit Sub
+        End If
+
+        Dim preciosViejos = ObtenerPreciosAntiguos(elment)
+        If preciosViejos.Count = 0 Then
+            RegistrarError(datos, $"Contrato {elment.CodigoContrato}: Sin precios antiguos")
+            ContratoTarifaSrv.UpdateContratoTarifaSiError(elment)
+            Exit Sub
+        End If
+
+        Funciones.UpdatePrecioContratoTarifa(
+        preciosNuevos,
+        preciosViejos,
+        contratoAct.PerfilFacturacion.isPerfilIndexado()
+    )
+
+        contador += 1
+    End Sub
+
+
+    Private Function ObtenerPreciosNuevos(contrato As ContratoTarifa) As List(Of TarifaPrecioContrato)
+        Dim lista As New List(Of TarifaPrecioContrato)
+        Dim ContratoBD As Contrato = Funciones.GetContrato(If(contrato.CodigoContrato, 0L))
+        Dim fecha As DateTime = ObtenerFechaPresupuesto(ContratoBD)
+        Dim esIndexado As Boolean = contrato.PerfilFacturacion.isPerfilIndexado()
+
+        If esIndexado Then
+            ' --- INDEXADO ---
+            If contrato.Entorno = "G1" Then
+                Dim precios = Funciones.GetDTOAllPeriodosIndx(contrato.IdTarifa, contrato.IdTarifaGrupo, fecha).OrderBy(Function(f) f.IdIndexadoPrecio).ToList()
+                For Each p In precios
+                    lista.Add(New TarifaPrecioContrato With {
+                    .IdContratoTarifa = contrato.IdContratoTarifa,
+                    .IdIndexadoPrecio = p.IdIndexadoPrecio,
+                    .IdTarifaPeriodo = p.IdTarifaPeriodo,
+                    .TextoTarifaPeriodo = p.TextoTarifaPeriodo,
+                    .Entorno = p.Entorno
+                })
+                Next
+
+            Else ' G2 (Gas)
+                Dim precios = Funciones.GetDTOAllPeriodosIndxGasByFechaFinPresupuesto(contrato.Entorno, contrato.IdTarifa, contrato.IdTarifaGrupo, fecha)
+                For Each p In precios
+                    lista.Add(New TarifaPrecioContrato With {
+                    .IdContratoTarifa = contrato.IdContratoTarifa,
+                    .IdIndexadoPrecioGas = p.IdIndexadoPrecioGas,
+                    .IdTarifaPeriodo = p.IdTarifaPeriodo,
+                    .TextoTarifaPeriodo = p.TextoTarifaPeriodo,
+                    .Entorno = p.Entorno
+                })
+                Next
+            End If
+
+        Else
+            ' --- FIJO ---
+            Dim precios = Funciones.GetDTOAllPeriodosTarifaPrecio(contrato.IdTarifa, contrato.IdTarifaGrupo, fecha).OrderBy(Function(f) f.IdTarifaPrecio).ToList()
+
+            For Each p In precios
+                lista.Add(New TarifaPrecioContrato With {
+                .IdContratoTarifa = contrato.IdContratoTarifa,
+                .IdTarifaPrecio = p.IdTarifaPrecio,
+                .IdTarifaPeriodo = p.IdTarifaPeriodo,
+                .TextoTarifaPeriodo = p.TextoTarifaPeriodo,
+                .Entorno = p.Entorno
+            })
+            Next
+        End If
+
+        Return lista
+    End Function
+
+    Private Function ObtenerPreciosAntiguos(contrato As ContratoTarifa) As List(Of TarifaPrecioContrato)
+        Dim lista As New List(Of TarifaPrecioContrato)
+        Dim precio = Funciones.GetPrecioContratoTarifaV2(contrato)
+
+        If precio Is Nothing OrElse precio.IdContratoTarifa <= 0 Then
+            Return lista
+        End If
+
+        If contrato.Entorno = "G1" AndAlso precio.IdIndexadoPrecio > 0 Then
+            lista = Funciones.GetPrecioContratoTarifaIndex(contrato).OrderBy(Function(f) f.IdTarifaPeriodo).ToList()
+
+        ElseIf (contrato.Entorno = "G1" OrElse contrato.Entorno = "G2") AndAlso precio.IdTarifaPrecio > 0 Then
+            lista = Funciones.GetPrecioContratoTarifa(contrato).OrderBy(Function(f) f.IdTarifaPeriodo).ToList()
+
+        ElseIf contrato.Entorno = "G2" AndAlso precio.IdIndexadoPrecioGas > 0 Then
+            lista = Funciones.GetPrecioContratoTarifaIndexGas(contrato).OrderBy(Function(f) f.IdTarifaPeriodo).ToList()
+
+        End If
+
+        Return lista
+    End Function
+
+    Private Function ObtenerFechaPresupuesto(contrato As Contrato) As DateTime
+        If contrato Is Nothing Then Return DateTime.Today
+
+        If contrato.FechaAplicacionPrecios.HasValue AndAlso contrato.FechaAplicacionPrecios > Date.MinValue Then
+            Return contrato.FechaAplicacionPrecios
+        End If
+
+        If contrato.FechaContrato.HasValue AndAlso contrato.FechaContrato > Date.MinValue Then
+            Return contrato.FechaContrato
+        End If
+
+        Return DateTime.Today
+    End Function
+
+
+
+    Private Sub RegistrarError(datos As List(Of List(Of Object)), mensaje As String)
+        datos.Add(New List(Of Object) From {mensaje})
+    End Sub
+
+    'Private Function ActualizarRegistros_OLD(ListaCodigo As List(Of Long), ByRef Datos As List(Of List(Of Object))) As String
+    '    Dim Contador = 0I
+    '    Dim ContratosSinActualizar = "Contratos sin actualizarse: "
+
+    '    'Dim Datos As New List(Of List(Of Object))()
+    '    Try
+    '        Dim ContratoTra As New List(Of ContratoTarifa)
+    '        Dim ContratoTraMergeado As New List(Of ContratoTarifa)
+
+    '        'Me busco solo contratos que tengan fechaHasta is null y sea personalizada
+    '        For Each cod In ListaCodigo
+    '            Dim CT = ContratoTarifaSrv.GetContratoTarifaPersonalizadaByCodigoContrato(cod, TextBox3.Text, CheckBox4.Checked)
+    '            If Not CT Is Nothing AndAlso CT.IdContratoTarifa > 0 Then
+    '                ContratoTra.Add(CT)
+    '            End If
+
+    '        Next
+
+    '        Dim pepe = 1
+    '        ' Dependiendo de si el PerfilFacturacion del ContratoTarifa es indexado,
+    '        ' cargaremos los precios de IndexadoPrecioSrv o TarifaPrecioSrv.
+    '        ' Estos precios serán los mismos que se muestran en el programa de presupuestos,
+    '        ' los vigentes para una Tarifa, TarifaGrupo y fecha concreta.
+
+    '        ' Guardamos el nuevo ContratoTarifa, le pasamos la tarifagrupo a asignar
+
+    '        If ListaCodigo.Count = ContratoTra.Count Then
+
+    '            For Each elment In ContratoTra
+
+    '                If Not IsNothing(elment.IdContratoTarifa) AndAlso elment.IdContratoTarifa > 0 Then
+    '                    'ContratoTraMergeado.Add(ContratoTarifaSrv.UpdateContratoTarifa(elment, NuevaTarifaGrupo, TarifaGrupoActual, IsPersonalizada))
+    '                    Dim ContratoActualizar = ContratoTarifaSrv.UpdateContratoTarifa(elment, TextBox1.Text, TextBox3.Text, CheckBox4.Checked)
+    '                    'Dim ContratoTarifaViejo = elment
+    '                    If Not IsNothing(ContratoActualizar) AndAlso ContratoActualizar.IdContratoTarifa > 0 Then
+    '                        ' Dependiendo de si el PerfilFacturacion del ContratoTarifa es indexado,
+    '                        ' cargaremos los precios de IndexadoPrecioSrv o TarifaPrecioSrv.
+    '                        ' Estos precios serán los mismos que se muestran en el programa de presupuestos,
+    '                        ' los vigentes para una Tarifa, TarifaGrupo y fecha concreta.
+    '                        Dim Contrato As Contrato = Funciones.GetContrato(If(elment.CodigoContrato, 0L))
+    '                        Dim FechaPresupuesto As DateTime = DateTime.Today 'New DateTime(Now.Year, Now.Month, Now.Day)
+    '                        If Not IsNothing(Contrato) AndAlso Contrato.IdContrato > 0L Then
+    '                            If Not IsNothing(Contrato.FechaAplicacionPrecios) AndAlso Contrato.FechaAplicacionPrecios > DateTime.MinValue Then
+    '                                FechaPresupuesto = If(Contrato.FechaAplicacionPrecios, DateTime.Now)
+    '                            Else
+    '                                If Not IsNothing(Contrato.FechaContrato) AndAlso Contrato.FechaContrato > DateTime.MinValue Then
+    '                                    FechaPresupuesto = If(Contrato.FechaContrato, DateTime.Now)
+    '                                End If
+    '                            End If
+
+    '                        End If
+
+
+
+    '                        If Not IsNothing(ContratoActualizar) Then
+    '                            ContratoActualizar.PerfilFacturacion = Funciones.GetPerfilFacturacion(If(ContratoActualizar.IdPerfilFacturacion, 0))
+
+    '                            If Not IsNothing(ContratoActualizar.PerfilFacturacion) Then
+    '                                Dim tarifasPrecioContratoGuardar As New List(Of TarifaPrecioContrato) ' Lista para guardar los nuevos precios
+    '                                Dim OldtarifasPrecioContratoQuitar As New List(Of TarifaPrecioContrato) ' Lista a con los viejos precios
+    '                                'Dim TarifaPerdidaCalculadaContratoGuardar As New ObservableCollection(Of TarifaPerdidaCalculadaContratoDTO)
+    '                                Dim isFijoIndex As Boolean = False
+    '                                'Compruebo si el nuevocontratotarifa es fijo o indexado
+    '                                If ContratoActualizar.PerfilFacturacion.isPerfilIndexado() Then
+    '                                    isFijoIndex = True
+    '                                    If ContratoActualizar.Entorno = "G1" Then
+
+    '                                        Dim indexadosPrecios As List(Of IndexadoPrecio) = Funciones.GetDTOAllPeriodosIndx(ContratoActualizar.IdTarifa, ContratoActualizar.IdTarifaGrupo, FechaPresupuesto).OrderBy(Function(f) f.IdIndexadoPrecio).ToList
+    '                                        ''Avisar si no hay precios para grabar
+    '                                        If Not IsNothing(indexadosPrecios) AndAlso indexadosPrecios.Count > 0 Then
+    '                                            For Each eleindexadoPrecio As IndexadoPrecio In indexadosPrecios
+    '                                                Dim tarifaPrecioContrato As New TarifaPrecioContrato
+
+    '                                                tarifaPrecioContrato.IdContratoTarifa = ContratoActualizar.IdContratoTarifa
+    '                                                tarifaPrecioContrato.IdIndexadoPrecio = eleindexadoPrecio.IdIndexadoPrecio
+    '                                                tarifaPrecioContrato.TextoTarifaPeriodo = eleindexadoPrecio.TextoTarifaPeriodo
+    '                                                tarifaPrecioContrato.IdTarifaPeriodo = eleindexadoPrecio.IdTarifaPeriodo
+    '                                                tarifaPrecioContrato.Entorno = eleindexadoPrecio.Entorno
+    '                                                tarifasPrecioContratoGuardar.Add(tarifaPrecioContrato)
+    '                                            Next
+    '                                        Else
+    '                                            ''Avisar si no hay precios para grabar
+    '                                            'Throw New Exception(SessionInformationDTO.GetMessage(IdUsuarioEntorno, "ContratoTarifaSrv_FALTA_TARIFA_PRECIO_VIGENTE"))
+    '                                        End If
+    '                                    Else
+    '                                        Dim indexadosPrecios As List(Of IndexadoPrecioGas) = Funciones.GetDTOAllPeriodosIndxGas(ContratoActualizar.IdTarifa, ContratoActualizar.IdTarifaGrupo, FechaPresupuesto).OrderBy(Function(f) f.IdIndexadoPrecioGas).ToList
+
+    '                                        ''Avisar si no hay precios para grabar
+    '                                        If Not IsNothing(indexadosPrecios) AndAlso indexadosPrecios.Count > 0 Then
+    '                                            For Each indexadoPrecio As IndexadoPrecioGas In indexadosPrecios
+    '                                                Dim tarifaPrecioContrato As New TarifaPrecioContrato
+
+    '                                                tarifaPrecioContrato.IdContratoTarifa = ContratoActualizar.IdContratoTarifa
+    '                                                tarifaPrecioContrato.IdIndexadoPrecioGas = indexadoPrecio.IdIndexadoPrecioGas
+    '                                                tarifaPrecioContrato.IdTarifaPeriodo = indexadoPrecio.IdTarifaPeriodo
+    '                                                tarifaPrecioContrato.TextoTarifaPeriodo = indexadoPrecio.TextoTarifaPeriodo
+    '                                                tarifaPrecioContrato.Entorno = indexadoPrecio.Entorno
+    '                                                tarifasPrecioContratoGuardar.Add(tarifaPrecioContrato)
+    '                                            Next
+    '                                        End If
+    '                                    End If
+
+    '                                Else
+    '                                    Dim tarifasPrecios As List(Of TarifaPrecio) = Funciones.GetDTOAllPeriodosTarifaPrecio(ContratoActualizar.IdTarifa, ContratoActualizar.IdTarifaGrupo, FechaPresupuesto).OrderBy(Function(f) f.IdTarifaPrecio).ToList
+
+    '                                    If Not IsNothing(tarifasPrecios) AndAlso tarifasPrecios.Count > 0 Then
+    '                                        For Each tarifaPrecio As TarifaPrecio In tarifasPrecios
+    '                                            Dim tarifapreciocontrato As New TarifaPrecioContrato
+
+    '                                            tarifapreciocontrato.IdContratoTarifa = ContratoActualizar.IdContratoTarifa
+    '                                            tarifapreciocontrato.IdTarifaPrecio = tarifaPrecio.IdTarifaPrecio
+    '                                            tarifapreciocontrato.IdTarifaPeriodo = tarifaPrecio.IdTarifaPeriodo
+    '                                            tarifapreciocontrato.TextoTarifaPeriodo = tarifaPrecio.TextoTarifaPeriodo
+    '                                            tarifapreciocontrato.Entorno = tarifaPrecio.Entorno
+    '                                            tarifasPrecioContratoGuardar.Add(tarifapreciocontrato)
+    '                                        Next
+    '                                    Else
+    '                                        ''Avisar si no hay precios para grabar
+    '                                        'Throw New Exception(SessionInformationDTO.GetMessage(IdUsuarioEntorno, "ContratoTarifaSrv_FALTA_TARIFA_PRECIO_VIGENTE"))
+    '                                    End If
+
+    '                                End If
+    '                                If elment.TextoTarifa.Contains("TDVE") Then
+
+    '                                    Funciones.InsertTarifaPrecioContrato(tarifasPrecioContratoGuardar)
+    '                                    Contador += 1
+    '                                Else
+
+    '                                    'Compruebo si el contratotarifaviejo es fijo o indexado
+    '                                    Dim TaPrecionContrato = Funciones.GetPrecioContratoTarifaV2(elment)
+    '                                    If Not IsNothing(TaPrecionContrato) AndAlso TaPrecionContrato.IdContratoTarifa > 0 Then
+    '                                        If elment.Entorno = "G1" AndAlso TaPrecionContrato.IdIndexadoPrecio > 0 Then
+    '                                            OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifaIndex(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
+    '                                        ElseIf (elment.Entorno = "G1" OrElse elment.Entorno = "G2") AndAlso TaPrecionContrato.IdTarifaPrecio > 0 Then
+    '                                            OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifa(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
+    '                                        ElseIf elment.Entorno = "G2" AndAlso TaPrecionContrato.IdIndexadoPrecioGas > 0 Then
+    '                                            OldtarifasPrecioContratoQuitar = Funciones.GetPrecioContratoTarifaIndexGas(elment).OrderBy(Function(f) f.IdTarifaPeriodo).ToList
+    '                                        Else
+    '                                            Datos.Add(New List(Of Object) From {$"Contrato: {elment.CodigoContrato}- idContratotarifa ={elment.IdContratoTarifa} - No actualizado - Sin precios - revisar "})
+    '                                            Continue For
+    '                                        End If
+    '                                    Else
+    '                                        Datos.Add(New List(Of Object) From {$"Contrato: {elment.CodigoContrato} - idContratotarifa ={elment.IdContratoTarifa} - El precio personalizado no existe, Imposible actualizar a la nueva tarifagrupo"})
+    '                                        Continue For
+    '                                        'Throw New Exception("El precio personalizado no existe, Imposible actualizar a la nueva tarifagrupo " + elment.CodigoContrato)
+    '                                    End If
+
+
+    '                                    'Compruebo que haya valores en los dos sitios
+    '                                    If Not IsNothing(tarifasPrecioContratoGuardar) AndAlso tarifasPrecioContratoGuardar.Count > 0 AndAlso Not IsNothing(OldtarifasPrecioContratoQuitar) AndAlso OldtarifasPrecioContratoQuitar.Count > 0 Then
+    '                                        ' Guardamos todos los registros de TarifaPrecioContrato generados.
+    '                                        Funciones.UpdatePrecioContratoTarifa(tarifasPrecioContratoGuardar, OldtarifasPrecioContratoQuitar, isFijoIndex)
+    '                                        Contador += 1
+    '                                    Else
+    '                                        Datos.Add(New List(Of Object) From {$"Contrato: {elment.CodigoContrato} _ idContratotarifa ={elment.IdContratoTarifa} , precios no encontrados "})
+    '                                        Continue For
+    '                                        'Throw New Exception("Imposible continuar, precios no encontrados. Contrato: " + elment.CodigoContrato)
+    '                                    End If
+    '                                End If
+    '                                'objTarifaPerdidaCalculadaSrv.MergeUpdateTarifaPerdidaCalculadaContratoDTO(TarifaPerdidaCalculadaContratoGuardar, New ObservableCollection(Of TarifaPerdidaCalculadaContratoDTO))
+    '                                'If Actualizado > 0 Then
+    '                                '    Contador = +1
+    '                                'Else
+    '                                '    ContratosSinActualizar += elment.CodigoContrato + " "
+    '                                'End If
+    '                            Else
+    '                                'Throw New Exception(SessionInformationDTO.GetMessage(IdUsuarioEntorno, "ContratoTarifaSrv_FALTA_PERFIL_FACTURACION"))
+    '                            End If
+    '                        End If
+    '                    End If
+    '                Else
+    '                    'Throw New Exception("Se cancela, no hay registros a actualizar")
+    '                    Datos.Add(New List(Of Object) From {$"Contrato: {elment.CodigoContrato} _ idContratotarifa ={elment.IdContratoTarifa} , ContratoTarifa Vacio "})
+    '                End If
+
+    '            Next
+    '        Else
+    '            complementos.MostrarMensajePersonalizado("las listas no coinciden")
+
+    '        End If
+
+    '    Catch ex As Exception
+    '        Datos.Add(New List(Of Object) From {$"Error: {ex.Message}"})
+    '        Throw
+    '    Finally
+    '        'ExcelDatos.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos)
+    '    End Try
+    '    Return $"Se han actualizado {Contador}. {ContratosSinActualizar}"
+    'End Function
+#End Region
+
+#Region "Cosas basicas"
+    'Limpiar filtros
+    Private Sub Button10_Click(sender As Object, e As EventArgs) Handles Button10.Click
+        Try
+
+            TextBox2.Text = ""
+            TextBox1.Text = ""
+            TextBox3.Text = ""
+
+        Catch ex As Exception
+            complementos.MostrarMensajePersonalizado(ex.Message)
+        End Try
+    End Sub
+
 
     'CUPS
     Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
@@ -346,124 +647,93 @@ Public Class Form1
 
     End Sub
 
-    'Productos Asignacion, si no ha escrito nada en textotarifagrupo no buscamos nada, y enviamos mensaje
-    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+    'Check box personalizado, habilita o deshabilita
+    Private Sub CheckBox4_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox4.CheckedChanged
         Try
-            If CheckBox1.Checked OrElse CheckBox3.Checked Then
-                complementos.MostrarMensajePersonalizado($"Habilitado solo para el check de contratos")
-                Exit Sub
+            If CheckBox4.Checked = False Then
+                TextBox3.Enabled = True
             End If
 
-            Dim Con = GetConSinSplit(TextBox2.Text)
-            If Con.Count > 0 Then
-                Dim Entorno = If(Funciones.GetContrato(Con.FirstOrDefault).Entorno = "E1", "G1", "G2")
-                Dim ModiCo As New ProductosAsig(Entorno, Con, connectionString, NombreUsuarioEquipo)
-                ModiCo.Show()
-            Else
-                complementos.MostrarMensajePersonalizado($"Ingrese al menos un contrato")
+            If CheckBox4.Checked Then
+                TextBox3.Enabled = False
             End If
-
         Catch ex As Exception
-            complementos.MostrarMensajePersonalizado(ex.Message)
+
         End Try
     End Sub
 
+    Private Sub HabilitarDesHabilitarButtons(Habilitar As Boolean)
+        Button1.Enabled = Habilitar
+        Button2.Enabled = Habilitar
+        Button3.Enabled = Habilitar
+        Button5.Enabled = Habilitar
+        Button6.Enabled = Habilitar
+        Button7.Enabled = Habilitar
+        Button8.Enabled = Habilitar
+        Button9.Enabled = Habilitar
+        Button11.Enabled = Habilitar
+    End Sub
+#End Region
+
+#Region "Control para los datos ingresados en la caja de texto"
+    Private Function SplitEntrada(texto As String, Optional quitarUnderscore As Boolean = False) As List(Of String)
+        Dim resultado As New List(Of String)
+
+        Try
+            If String.IsNullOrWhiteSpace(texto) Then Return resultado
+
+            ' Normalizar saltos de línea: convertir CRLF y CR a LF
+            Dim normalizado = texto.Replace(vbCrLf, ControlChars.Lf).Replace(vbCr, ControlChars.Lf)
+
+            ' Delimitadores: coma y salto de línea (LF)
+            Dim delimiters As Char() = {","c, ControlChars.Lf}
+
+            ' Dividir sin eliminar elementos vacíos inicialmente (por si hay espacios)
+            Dim partes = normalizado.Split(delimiters, StringSplitOptions.RemoveEmptyEntries)
+
+            For Each p In partes
+                Dim item = p.Trim()
+                ' Quitar espacios internos y tabs
+                item = item.Replace(" "c, "").Replace(ControlChars.Tab, "")
+
+                If quitarUnderscore Then
+                    item = item.Replace("_", "")
+                End If
+
+                If item.Length > 0 Then resultado.Add(item)
+            Next
+
+        Catch ex As Exception
+            complementos.MostrarMensajePersonalizado(ex.Message)
+        End Try
+
+        Return resultado
+    End Function
+
+
+
     'Para separar los contratos introducidos con comas(,)
     Private Function GetConSinSplit(contxt As String) As List(Of Long)
-        Dim Con As New List(Of Long)
-        Try
-            If contxt.Contains(",") Then
-                ' Si la cadena ya contiene comas, dividir la cadena utilizando solo comas como delimitadores
-                Dim contratos = contxt.Replace(vbCrLf, "")
-                Dim contratosSeparados As String() = contratos.Split(","c)
-                For Each contratoTexto As String In contratosSeparados
-                    Dim codigosCon As Long
-                    If Long.TryParse(contratoTexto.Trim(), codigosCon) Then
-                        Con.Add(codigosCon)
-                    End If
-                Next
-            Else
-                ' Si la cadena no contiene comas, eliminar espacios en blanco de la cadena
-                Dim contratosTexto As String = contxt.Replace(" ", "")
-                ' Separar la cadena en una matriz de cadenas utilizando comas, saltos de línea y espacios en blanco como delimitadores
-                Dim delimiters As Char() = {","c, ControlChars.Lf, ControlChars.Cr}
-                Dim contratosSeparados As String() = contratosTexto.Split(delimiters, StringSplitOptions.RemoveEmptyEntries)
-                For Each contratoTexto As String In contratosSeparados
-                    Dim codigosCon As Long
-                    If Long.TryParse(contratoTexto.Trim(), codigosCon) Then
-                        Con.Add(codigosCon)
-                    End If
-                Next
-            End If
-        Catch ex As Exception
-            complementos.MostrarMensajePersonalizado(ex.Message)
-        End Try
-        Return Con
+        Dim salida As New List(Of Long)
+
+        For Each t In SplitEntrada(contxt)
+            Dim n As Long
+            If Long.TryParse(t, n) Then salida.Add(n)
+        Next
+
+        Return salida
     End Function
 
-
+    'Sirve para CUPS,CIFS o contratos
     Private Function GetConSinSplitCupsCIFS(contxt As String) As List(Of String)
-        Dim Con As New List(Of String)
-        Try
-
-            If contxt.Contains(",") Then
-                ' Separar la cadena en una matriz de cadenas utilizando la coma como delimitador
-                Dim contratosTexto As String = contxt.Replace(vbCrLf, "")
-                Dim contratosSeparados As String() = contratosTexto.Split(","c)
-                For Each cupstexto As String In contratosSeparados
-                    If cupstexto.Length > 1 Then
-                        Con.Add(cupstexto)
-                    End If
-                Next
-            Else
-                ' Si la cadena no contiene comas, eliminar espacios en blanco de la cadena
-                Dim contratosTexto As String = contxt.Replace(" ", "")
-                ' Separar la cadena en una matriz de cadenas utilizando comas, saltos de línea y espacios en blanco como delimitadores
-                Dim delimiters As Char() = {","c, ControlChars.Lf, ControlChars.Cr}
-                Dim contratosSeparados As String() = contratosTexto.Split(delimiters, StringSplitOptions.RemoveEmptyEntries)
-                For Each contratoTexto As String In contratosSeparados
-                    If contratoTexto.Length > 1 Then
-                        Con.Add(contratoTexto)
-                    End If
-                Next
-            End If
-        Catch ex As Exception
-            complementos.MostrarMensajePersonalizado(ex.Message)
-        End Try
-        Return Con
+        Return SplitEntrada(contxt)
     End Function
 
+    'Para separar las facturas
     Private Function GetFacsSinSplit(Facs As String) As List(Of String)
-        Dim Con As New List(Of String)
-        Try
-            If Facs.Contains(",") Then
-                ' Si la cadena ya contiene comas, dividir la cadena utilizando solo comas como delimitadores
-                Dim FacsTexto As String = Facs.Replace(" ", "")
-                Dim FacsTexto2 As String = FacsTexto.Replace(vbTab, "")
-                Dim contratosSeparados As String() = FacsTexto2.Split(","c)
-                For Each facsl As String In contratosSeparados
-                    If Facs.Length > 1 Then
-                        Con.Add(Replace(facsl, "_", "")) 'Si tiene guiones bajos reemplazo y unifico serie y numero
-                    End If
-                Next
-            Else
-                ' Si la cadena no contiene comas, eliminar espacios en blanco de la cadena
-                Dim FacsTexto As String = Facs.Replace(" ", "")
-                Dim FacsTexto2 As String = FacsTexto.Replace(vbTab, "")
-                ' Separar la cadena en una matriz de cadenas utilizando comas, saltos de línea y espacios en blanco como delimitadores
-                Dim delimiters As Char() = {","c, ControlChars.Lf, ControlChars.Cr}
-                Dim contratosSeparados As String() = FacsTexto2.Split(delimiters, StringSplitOptions.RemoveEmptyEntries)
-                For Each facsl As String In contratosSeparados
-                    If Facs.Length > 1 Then
-                        Con.Add(Replace(facsl, "_", "")) 'Si tiene guiones bajos reemplazo y unifico serie y numero
-                    End If
-                Next
-            End If
-        Catch ex As Exception
-            complementos.MostrarMensajePersonalizado(ex.Message)
-        End Try
-        Return Con
+        Return SplitEntrada(Facs, quitarUnderscore:=True)
     End Function
+#End Region
 
     'Habilitar o deshabilitar el botón de actualizar si no hay un texto de tarifa grupo 
     Private Sub TextBox1_TextChanged(sender As Object, e As EventArgs) Handles TextBox1.TextChanged
@@ -478,194 +748,95 @@ Public Class Form1
         End Try
     End Sub
 
+    'Productos Asignacion, si no ha escrito nada en textotarifagrupo no buscamos nada, y enviamos mensaje
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        Try
+            ' Solo habilitado si el check de contratos está activo
+            If CheckBox1.Checked OrElse CheckBox3.Checked Then
+                complementos.MostrarMensajePersonalizado("Habilitado solo para el check de contratos")
+                Exit Sub
+            End If
+
+            ' Obtener lista de contratos
+            Dim contratos = GetConSinSplit(TextBox2.Text)
+
+            If contratos Is Nothing OrElse contratos.Count = 0 Then
+                complementos.MostrarMensajePersonalizado("Ingrese al menos un contrato")
+                Exit Sub
+            End If
+
+            ' Determinar entorno basado en el primer contrato
+            Dim primerContrato = contratos.First()
+            Dim contratoEntidad = Funciones.GetContrato(primerContrato)
+            Dim entorno As String = If(contratoEntidad?.Entorno = "E1", "G1", "G2")
+
+            ' Abrir formulario de productos asignación
+            Dim ventanaProductos = New ProductosAsig(entorno, contratos, connectionString, NombreUsuarioEquipo)
+            ventanaProductos.Show()
+
+        Catch ex As Exception
+            complementos.MostrarMensajePersonalizado(ex.Message)
+        End Try
+    End Sub
+
     'Crear las validaciones
     Private Async Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
         Try
-            'PictureBox2.Visible = True
             PictureBox2.Visible = True
-            Dim listas As New List(Of String)
-            Dim Validaciones As New ValidacionExcel(connectionString)
-#Region "Consulta 1"
-            Dim resultadoConsulta1 = "select c.codigocontrato
-,cups.CodigoCUPS
-,c.Confirmado
-,convert(varchar,c.FechaCreacion, 103) as FechaCreacion
-,convert(varchar,c.FechaPrevistaActivacion, 103) as FechaPrevistaActivacion
-,stf.TextoFechaEfecto
-,c.observaciones 
-,cs.textosituacion 
-from contrato c 
-inner join cups on cups.IdCups = c.idcups
-inner join ContratoSituacion cs on c.IdContratoSituacion = cs.IdContratoSituacion
-left join SolicitudTipoFechaEfecto stf on stf.IdSolicitudTipoFechaEfecto = c.IdSolicitudTipoFechaEfecto
-inner join Solicitud s on s.CodigoContrato = c.CodigoContrato and (s.idsolicitudtipo in (1009
-,1010
-,1011
-,1013
-,50103
-,50112) or s.IdSolicitudTipo is null)
-where c.idcontratosituacion in (4,14) and Confirmado=0
-order by c.CodigoContrato"
-#End Region
-#Region "Consulta 2"
-            Dim resultadoConsulta2 = "select c.codigocontrato
-,cups.CodigoCUPS
-,c.Confirmado
-,convert(varchar,c.FechaCreacion, 103) as FechaCreacion
-,convert(varchar,c.FechaPrevistaActivacion, 103) as FechaPrevistaActivacion
-,stf.TextoFechaEfecto
-,c.observaciones 
-,ss.Nombre SituacionSolicitud
-,s.FechaApertura FechaAperturaSolicitud
-from contrato c 
-inner join cups on cups.IdCups = c.idcups
-left join SolicitudTipoFechaEfecto stf on stf.IdSolicitudTipoFechaEfecto = c.IdSolicitudTipoFechaEfecto
 
-inner join Solicitud s on s.CodigoContrato = c.CodigoContrato and s.IdUsuario in (1610,
-1611,5900,5901,5902,5903,5904,5905,5906,5907,5908,5909,5910,5911,5884,5885,5886,5887,5888,5889,5890,5891,5892,5893,5894,5895,5896,5897,5898,5899) 
-left join SolicitudSituacion ss on  s.IdSolicitudSituacion = ss.IdSolicitudSituacion
-where c.idcontratosituacion=4 order by s.FechaApertura desc"
-#End Region
-#Region "Consulta 3"
-            Dim resultadoConsulta3 = ";with 
-ContratoTarifaVigenteMaxima as
-(    select CodigoContrato,
-           max(FechaDesde) as FechaDesde
-    from ContratoTarifa
-    where GetDate() between FechaDesde and FechaHasta
-    group by CodigoContrato)
-,ContratoTarifaFechaAjustada as
-(    select ct.CodigoContrato,
-           ctvm.FechaDesde as fechaCTVM,
-           ct.FechaDesde as fechaCT,
-           case when ctvm.FechaDesde is not null then ctvm.FechaDesde else ct.FechaDesde end as Fecha
-    from ContratoTarifa ct left join ContratoTarifaVigenteMaxima ctvm on ctvm.CodigoContrato = ct.CodigoContrato)
-,ContratoTarifaFechaMaxima as
-(    select CodigoContrato,
-           max(Fecha) as FechaDesde
-    from ContratoTarifaFechaAjustada
-    group by CodigoContrato)
-,ContratoTarifaVigente as
-(    select ctfm.Codigocontrato,
-           ctfm.FechaDesde,
-           Entorno,
-           IdTarifaGrupo,
-           IdTarifa,
-           IdPerfilFacturacion
-    from ContratoTarifa ct 
-	inner join ContratoTarifaFechaMaxima ctfm on ct.CodigoContrato = ctfm.CodigoContrato and ct.FechaDesde = ctfm.FechaDesde)
-select Solicitud.IdSolicitud as Solicitud
-,SolicitudTipo.NombreSolicitudTipo as TipoSolicitud
-,u.Nombre
-,SolicitudSituacion.Nombre as Situacion 
-,Cliente.Identidad as Cliente
-,Solicitud.CodigoContrato as Contrato
-,Contrato.FechaCreacion as 'Fecha creacion contrato'
-,CASE
-	WHEN (Cliente.Nombre is null) OR (Cliente.Nombre = '')
-		THEN Cliente.RazonSocial
-		ELSE CONCAT(Cliente.Nombre, ' ' , ISNULL(Cliente.Apellido1, '') , ' ' , ISNULL(Cliente.Apellido2, ''))
-		END as Nombre
-,CUPS.CodigoCUPS as CUPS
-,convert(varchar,Solicitud.FechaApertura,103) as 'Fecha apertura'
-,convert(varchar,Solicitud.FechaCierre,103) as 'Fecha cierre'
-,convert(varchar,Contrato.FechaAlta,103) as 'Fecha alta'
-,convert(varchar,Contrato.FechaPrevistaActivacion,103) as 'F. Prev. Act.'
-,SolicitudTipoFechaEfecto.TextoFechaEfecto as 'Texto Fecha Efecto'
-,convert(varchar,Contrato.FechaPrevistaBaja,103) as 'F. Prev. Baja'
-,convert(varchar,Contrato.FechaBaja,103) as 'Fecha baja'
-,Motivobaja.TextoBaja as 'Motivo baja'
-,MotivoRechazo.TextoRechazo as 'Motivo Rechazo'
-,Solicitud.Observaciones 
-,Case
-	when Agente.CodigoTipoAgente=2
-		then Agente.NombreAgente
-    when Agente.CodigoTipoAgente=3
-        then Agenteb.NombreAgente
-        else null
-    End As NombreAgente
-,Case
-	when Agente.CodigoTipoAgente=3
-		then Agente.NombreAgente
-        else null
-    End As NombreSubAgente
-,CASE
-	when ClienteContactoTelefono.TipoContacto = 'T'
-		then ClienteContactoTelefono.Valor
-	when ClienteContactoTelefono.TipoContacto = 'M'
-		then ClienteContactoTelefono.Valor
-	end as TelefonoAgente
-,Tarifa.TextoTarifa As Tarifa
-, CONCAT( CallejeroTipoVia.TextoVia,' ',Callejero.NombreCalle, ' ', Cliente.Numero, ' ' ,Cliente.Aclarador) as Direccion
-, Ciudad.TextoCiudad as Pobllacion
-, ClienteContactoEmail.Valor as EMail
-,eq.IdEquipoMedida as 'Nº Equipo Medida'
-,ContratoPotenciaMaxima.PotenciaMaxima as 'Potencia Actual'
-,Solicitud.ValorTrafo as 'Situación Libre'
-,ModoLectura.Descripcion as 'Modo lectura'
-from Solicitud with(nolock)
-left join Usuario u with(nolock) on u.IdUsuario = Solicitud.IdUsuario
-left join SolicitudTipoFechaEfecto on Solicitud.IdSolicitudTipoFechaEfecto=SolicitudTipoFechaEfecto.IdSolicitudTipoFechaEfecto
-left join SolicitudTipo with(nolock) on SolicitudTipo.IdSolicitudTipo = Solicitud.IdSolicitudTipo
-left join SolicitudSituacion with(nolock) on SolicitudSituacion.IdSolicitudSituacion = Solicitud.IdSolicitudSituacion
-left join Contrato with(nolock) on Contrato.CodigoContrato = Solicitud.CodigoContrato
-left join Cliente with(nolock) on Cliente.IdCliente = Contrato.IdCliente
-left join CUPS with(nolock) on CUPS.IdCups = Contrato.IdCups
-left join MotivoBaja with(nolock) on MotivoBaja.IdMotivoBaja = Contrato.IdMotivoBaja
-left join MotivoRechazo with(nolock) on MotivoRechazo.IdMotivoRechazo = Solicitud.IdMotivoRechazo
-left join Agente with(nolock) on Agente.IdAgente = Contrato.IdAgente
-left join (select IdAgente, NombreAgente, IdAgenteNivelAnterior from Agente with(nolock)) as Agenteb on Agenteb.IdAgente = Agente.IdAgenteNivelAnterior
-left join ClienteContacto as ClienteContactoTelefono with(nolock) on ClienteContactoTelefono.IdCliente = Cliente.IdCliente AND ClienteContactoTelefono.TipoContacto = 'T' and ClienteContactoTelefono.PorDefecto = 1
-left join Tarifa with(nolock) on Tarifa.IdTarifa = Contrato.IdTarifa
-left join Callejero with(nolock) on Callejero.IdCallejero = Cliente.IdCallejero
-left join CallejeroTipoVia with(nolock) on CallejeroTipoVia.IdCallejeroTipoVia = Callejero.IdCallejeroTipoVia
-left join Ciudad with(nolock) on Ciudad.IdCiudad = CUPS.IdCiudad
-left join ClienteContacto as ClienteContactoEmail with(nolock) on ClienteContactoEmail.IdCliente = Cliente.IdCliente AND ClienteContactoEmail.TipoContacto = 'E' and ClienteContactoEmail.PorDefecto = 1
-LEFT JOIN (Select Top 1 Entorno, CodigoContrato, NumeroSerie, IdEquipoModelo, Min(IdEquipoMedida) as IdEquipoMedida, IsInstalado as IsInstalado from EquipoMedida with(nolock) where isinstalado=1  group by Entorno, CodigoContrato, NumeroSerie, IdEquipoModelo, IsInstalado) as eq ON (Contrato.CodigoContrato = eq.CodigoContrato and eq.Entorno = 'G2')
-LEFT JOIN EquipoModelo with(nolock) ON (eq.IdEquipoModelo =EquipoModelo.IdEquipoModelo) 
-LEFT JOIN (
-			SELECT	IdContrato, MAX(PotenciaContratada)	AS PotenciaMaxima 
-				FROM ContratoPotencia with(nolock)
-				GROUP BY IdContrato
-			  ) AS ContratoPotenciaMaxima 
-			  ON ContratoPotenciaMaxima.IdContrato = Contrato.IdContrato
-LEFT JOIN ModoLectura with(nolock) ON Solicitud.IdModoLectura = ModoLectura.IdModoLectura
-left join ContratoTarifaVigente with (nolock) on ContratoTarifaVigente.CodigoContrato = Contrato.CodigoContrato
-left join TarifaGrupo with (nolock) on TarifaGrupo.IdTarifaGrupo = ContratoTarifaVigente.IdTarifaGrupo
-where   Solicitud.FechaApertura  >= DATEADD (dd, 0, DATEDIFF (dd, 0, GETDATE() - 1))
-order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
-#End Region
-            listas.Add(resultadoConsulta1)
-            listas.Add(resultadoConsulta2)
-            listas.Add(resultadoConsulta3)
-            'where Solicitud.FechaApertura >= convert(date,Getdate(),3)
-            ' Ruta del archivo CSV
-            'Dim rutaArchivo As String = $"C:\Users\ErickCC\Documents\TotalDoc\Validaciones\Validaciones{Date.Today.ToString("ddMMyyyy")}.xlsx"
-            Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO"
-            Dim rutaArchivo = IO.Path.Combine(rutaCarpeta, $"Validaciones_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-            ' Verificar si la carpeta existe, y si no, crearla
-            If Not Directory.Exists(rutaCarpeta) Then
-                Directory.CreateDirectory(rutaCarpeta)
-            End If
-
-            ' Verificar si el archivo existe, y si no, crearlo
-            If Not File.Exists(rutaArchivo) Then
-                File.Create(rutaArchivo).Close()
-            End If
-
-            Await Task.Run(Sub() Validaciones.EjecutarConsultasYGuardarEnExcel(listas, rutaArchivo))
-            'PictureBox2.Visible = False
+            Dim listas As New List(Of String) From {
+            ConsultasSQL.validacionesScript1(),
+           ConsultasSQL.validacionesScript2(),
+            ConsultasSQL.validacionesScript3()
+        }
+            Dim rutaArchivo = ObtenerRutaArchivo("Validaciones")
+            Await EjecutarValidacionesAsync(listas, rutaArchivo)
             PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado($"Se han creado los datos en el archivo Excel en: {rutaArchivo}")
-
-            'MessageBox.Show($"Se han creado los datos en el archivo Excel en: {rutaArchivo}")
         Catch ex As Exception
-            'PictureBox2.Visible = False
             PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado(ex.Message)
-
         End Try
     End Sub
+    Private Async Function EjecutarValidacionesAsync(listas As List(Of String), rutaArchivo As String) As Task
+        Dim validaciones As New ValidacionExcel(connectionString)
+        Await Task.Run(Sub() validaciones.EjecutarConsultasYGuardarEnExcel(listas, rutaArchivo))
+    End Function
+
+    Private Function ObtenerRutaArchivo(Optional nombreArchivo As String = "", Optional nombreCarpetaNueva As String = "", Optional extensionArchivo As String = "xlsx") As String
+        Dim rutaFinal = rutaCarpetaGlobal
+
+        ' Si se indica carpeta nueva, combinarla
+        If Not String.IsNullOrEmpty(nombreCarpetaNueva) Then
+            rutaFinal = IO.Path.Combine(rutaFinal, nombreCarpetaNueva)
+        End If
+
+        ' Crear carpeta si no existe
+        If Not Directory.Exists(rutaFinal) Then Directory.CreateDirectory(rutaFinal)
+
+        ' Devolver ruta de archivo o carpeta
+        If Not String.IsNullOrEmpty(nombreArchivo) Then
+            Dim nombreCompleto = $"{nombreArchivo}_{Date.Today:ddMMyyyy}.{extensionArchivo}"
+            Return IO.Path.Combine(rutaFinal, nombreCompleto)
+        Else
+            Return rutaFinal
+        End If
+    End Function
+
+
+
+    Private Function SeleccionarArchivo() As String
+        Using openFileDialog As New OpenFileDialog()
+            openFileDialog.Title = "Seleccionar archivo"
+            openFileDialog.Multiselect = False ' Mejor procesar un archivo a la vez
+            openFileDialog.Filter = "Archivos Excel (*.xlsx;*.xls)|*.xlsx;*.xls|Todos los archivos (*.*)|*.*"
+
+            If openFileDialog.ShowDialog() = DialogResult.OK Then
+                Return openFileDialog.FileName
+            End If
+        End Using
+        Return String.Empty
+    End Function
 
     'Codigos DIR
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
@@ -676,13 +847,13 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
             End If
 
             Dim Con = GetConSinSplit(TextBox2.Text)
-            If Con.Count > 0 Then
-                Dim CodigoDir As New CodigoDir(connectionString, Con)
-                CodigoDir.Show()
-            Else
+            If Con Is Nothing OrElse Con.Count = 0 Then
                 complementos.MostrarMensajePersonalizado($"Ingrese al menos un contrato")
+                Exit Sub
             End If
-
+            Using codigoDir As New CodigoDir(connectionString, Con)
+                codigoDir.ShowDialog()
+            End Using
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
@@ -691,111 +862,172 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
     'Actualizar CNAES 
     Private Async Sub Button6_Click(sender As Object, e As EventArgs) Handles Button6.Click
         Try
-            ' Crear una instancia de OpenFileDialog
-            Dim openFileDialog1 As New OpenFileDialog()
-
-            ' Configurar propiedades del diálogo
-            openFileDialog1.Title = "Seleccionar archivos"
-            openFileDialog1.Multiselect = True ' Permitir la selección múltiple de archivos
-            openFileDialog1.Filter = "Todos los archivos (*.*)|*.*" ' Filtro de archivos
-            Dim rutaArchivo As String = ""
-            ' Mostrar el diálogo y verificar si el usuario hizo clic en OK
-            If openFileDialog1.ShowDialog() = DialogResult.OK Then
-                ' Obtener la ruta de cada archivo seleccionado y mostrarla en la consola
-                For Each filename As String In openFileDialog1.FileNames
-                    rutaArchivo = filename
-                Next
+            Dim rutaArchivo = SeleccionarArchivo()
+            If String.IsNullOrEmpty(rutaArchivo) Then
+                complementos.MostrarMensajePersonalizado("No se seleccionó ningún archivo.")
+                Return
             End If
 
+            PictureBox2.Visible = True
             Dim stopwatch As New Stopwatch()
-            stopwatch.Start() ' Iniciar el cronómetro
-            'Dim Empieza As TimeSpan = stopwatch.Elapsed
-            Dim ActualizarCNAE As New ActualizarCNAEFromExcel(connectionString)
-            If rutaArchivo.Length > 0 Then
-                PictureBox2.Visible = True
-                ActualizarCNAE.RutaExcel = rutaArchivo
-                Dim contratosActualizado = Await ActualizarCNAE.ActualizarCNAEFromExcelAsync()
+            stopwatch.Start()
 
-                ' Detener el cronómetro y obtener el tiempo transcurrido
-                stopwatch.Stop()
-                PictureBox2.Visible = False
-                Dim tiempoTranscurrido As TimeSpan = stopwatch.Elapsed
+            Dim actualizarCNAE As New ActualizarCNAEFromExcel(connectionString) With {
+            .RutaExcel = rutaArchivo
+        }
 
-                complementos.MostrarMensajePersonalizado($"Se han actualizado {contratosActualizado} contratos. Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes} minutos.")
-            Else
-                complementos.MostrarMensajePersonalizado($"Escriba una ruta para seguir.")
-            End If
+            Dim contratosActualizados = Await actualizarCNAE.ActualizarCNAEFromExcelAsync()
 
+            stopwatch.Stop()
+            PictureBox2.Visible = False
+
+            complementos.MostrarMensajePersonalizado($"Se han actualizado {contratosActualizados} contratos. Tiempo transcurrido: {stopwatch.Elapsed.TotalMinutes:F2} minutos.")
         Catch ex As Exception
             PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
+#Region "Renovar Contratos"
+
 
     'Volver a RenovarContratos
+    Private Async Function RenovarContratosActivos(listaContratos As IEnumerable(Of Contrato)) As Task(Of Long)
+        Dim totalRenovados As Long = 0
+        For Each contrato In listaContratos.Where(Function(c) c.IdContratoSituacion = 1)
+            If contrato IsNot Nothing AndAlso contrato.IdContrato > 0 Then
+                totalRenovados = Await Task.Run(Function() Funciones.VolverARenovar(contrato.CodigoContrato))
+            End If
+        Next
+        Return totalRenovados
+    End Function
+
+    Private Function ObtenerContratosActivosPorCUPS(cupsList As List(Of String)) As List(Of Contrato)
+        Dim contratos As New List(Of Contrato)
+        For Each cps In cupsList
+            Dim cps20 = Replace(cps, " ", "").Substring(0, Math.Min(20, cps.Length)).Trim()
+            Dim contratoActivo = Funciones.GetListContratobyCUPS(cps20).FirstOrDefault(Function(f) f.IdContratoSituacion = 1)
+            If contratoActivo IsNot Nothing Then contratos.Add(contratoActivo)
+        Next
+        Return contratos
+    End Function
+
+    Private Function ObtenerContratosActivosPorContrato(contratosList As List(Of Long)) As List(Of Contrato)
+        Return contratosList.
+        Select(Function(c) Funciones.GetContrato(c)).
+        Where(Function(c) c IsNot Nothing AndAlso c.IdContratoSituacion = 1).
+        ToList()
+    End Function
+
+    Private Function ObtenerContratosActivosPorCliente(cifsList As List(Of String)) As List(Of Contrato)
+        Dim contratos As New List(Of Contrato)
+        For Each cif In cifsList
+            contratos.AddRange(Funciones.GetListContratobyCIF(cif.Trim).Where(Function(c) c.IdContratoSituacion = 1))
+        Next
+        Return contratos
+    End Function
+
     Private Async Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         Try
             PictureBox2.Visible = True
-            Dim RenovadoANull = 0L
-            'Si esta por cups
+            Dim totalRenovados As Long = 0
+
             If CheckBox1.Checked Then
-                Dim Cups = GetConSinSplitCupsCIFS(TextBox2.Text)
-                If Cups.Count > 0 Then
-                    For Each cps In Cups
-                        Dim cps20 As String = Replace(cps, " ", "").Substring(0, Math.Min(20, cps.Length)) 'saco los primeros 20 caracteres
-
-                        Dim ContratoActivo = Funciones.GetListContratobyCUPS(Replace(cps20.Trim, " ", "")).Where(Function(f) If(f.IdContratoSituacion, 0L) = 1).FirstOrDefault ' Buscamos solo el activo
-                        If Not IsNothing(ContratoActivo) AndAlso ContratoActivo.IdContrato > 0 AndAlso ContratoActivo.IdContratoSituacion = 1 Then ' solo si es activo
-                            RenovadoANull = Await Task.Run(Function() Funciones.VolverARenovar(ContratoActivo.CodigoContrato))
-                        End If
-
-
-                    Next
+                Dim cups = GetConSinSplitCupsCIFS(TextBox2.Text)
+                If cups.Count > 0 Then
+                    totalRenovados = Await RenovarContratosActivos(ObtenerContratosActivosPorCUPS(cups))
                 End If
             End If
-            ' Si esta por contrato
+
             If CheckBox2.Checked Then
-                Dim Con = GetConSinSplit(TextBox2.Text)
-                If Con.Count > 0 Then
-                    For Each elemnt In Con
-                        Dim ConActivo = Funciones.GetContrato(elemnt)
-                        If Not IsNothing(ConActivo) AndAlso ConActivo.IdContrato > 0 AndAlso ConActivo.IdContratoSituacion = 1 Then ' solo si es activo
-                            RenovadoANull = Await Task.Run(Function() Funciones.VolverARenovar(ConActivo.CodigoContrato))
-                        End If
-                    Next
+                Dim contratos = GetConSinSplit(TextBox2.Text)
+                If contratos.Count > 0 Then
+                    totalRenovados = Await RenovarContratosActivos(ObtenerContratosActivosPorContrato(contratos))
                 End If
             End If
-            'Si esta por Cliente
+
             If CheckBox3.Checked Then
-                Dim CIFS = GetConSinSplitCupsCIFS(TextBox2.Text)
-                If CIFS.Count > 0 Then
-                    For Each cif In CIFS
-                        Dim ListContratoActivo = Funciones.GetListContratobyCIF(cif.Trim).Where(Function(f) If(f.IdContratoSituacion, 0L) = 1).ToList ' Buscamos solo el activo
-                        If Not IsNothing(ListContratoActivo) AndAlso ListContratoActivo.Count > 0 Then
-
-                            For Each ContratoActivo In ListContratoActivo.Where(Function(f) f.IdContratoSituacion = 1) 'por siacaso
-                                If Not IsNothing(ContratoActivo) AndAlso ContratoActivo.IdContrato > 0 AndAlso ContratoActivo.IdContratoSituacion = 1 Then ' solo si es activo
-                                    RenovadoANull = Await Task.Run(Function() Funciones.VolverARenovar(ContratoActivo.CodigoContrato))
-                                End If
-                            Next
-                        End If
-
-
-                    Next
+                Dim cifs = GetConSinSplitCupsCIFS(TextBox2.Text)
+                If cifs.Count > 0 Then
+                    totalRenovados = Await RenovarContratosActivos(ObtenerContratosActivosPorCliente(cifs))
                 End If
             End If
+
             PictureBox2.Visible = False
 
-            If RenovadoANull > 0 Then
-                complementos.MostrarMensajePersonalizado($"Contratos listos para ser renovados")
-            Else
-                complementos.MostrarMensajePersonalizado($"Ningún contrato renovado")
-            End If
+            complementos.MostrarMensajePersonalizado(
+            If(totalRenovados > 0, "Contratos listos para ser renovados", "Ningún contrato renovado")
+        )
         Catch ex As Exception
             PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
+
+
+    'Private Async Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
+    '    Try
+    '        PictureBox2.Visible = True
+    '        Dim RenovadoANull = 0L
+    '        'Si esta por cups
+    '        If CheckBox1.Checked Then
+    '            Dim Cups = GetConSinSplitCupsCIFS(TextBox2.Text)
+    '            If Cups.Count > 0 Then
+    '                For Each cps In Cups
+    '                    Dim cps20 As String = Replace(cps, " ", "").Substring(0, Math.Min(20, cps.Length)) 'saco los primeros 20 caracteres
+
+    '                    Dim ContratoActivo = Funciones.GetListContratobyCUPS(Replace(cps20.Trim, " ", "")).Where(Function(f) If(f.IdContratoSituacion, 0L) = 1).FirstOrDefault ' Buscamos solo el activo
+    '                    If Not IsNothing(ContratoActivo) AndAlso ContratoActivo.IdContrato > 0 AndAlso ContratoActivo.IdContratoSituacion = 1 Then ' solo si es activo
+    '                        RenovadoANull = Await Task.Run(Function() Funciones.VolverARenovar(ContratoActivo.CodigoContrato))
+    '                    End If
+
+
+    '                Next
+    '            End If
+    '        End If
+    '        ' Si esta por contrato
+    '        If CheckBox2.Checked Then
+    '            Dim Con = GetConSinSplit(TextBox2.Text)
+    '            If Con.Count > 0 Then
+    '                For Each elemnt In Con
+    '                    Dim ConActivo = Funciones.GetContrato(elemnt)
+    '                    If Not IsNothing(ConActivo) AndAlso ConActivo.IdContrato > 0 AndAlso ConActivo.IdContratoSituacion = 1 Then ' solo si es activo
+    '                        RenovadoANull = Await Task.Run(Function() Funciones.VolverARenovar(ConActivo.CodigoContrato))
+    '                    End If
+    '                Next
+    '            End If
+    '        End If
+    '        'Si esta por Cliente
+    '        If CheckBox3.Checked Then
+    '            Dim CIFS = GetConSinSplitCupsCIFS(TextBox2.Text)
+    '            If CIFS.Count > 0 Then
+    '                For Each cif In CIFS
+    '                    Dim ListContratoActivo = Funciones.GetListContratobyCIF(cif.Trim).Where(Function(f) If(f.IdContratoSituacion, 0L) = 1).ToList ' Buscamos solo el activo
+    '                    If Not IsNothing(ListContratoActivo) AndAlso ListContratoActivo.Count > 0 Then
+
+    '                        For Each ContratoActivo In ListContratoActivo.Where(Function(f) f.IdContratoSituacion = 1) 'por siacaso
+    '                            If Not IsNothing(ContratoActivo) AndAlso ContratoActivo.IdContrato > 0 AndAlso ContratoActivo.IdContratoSituacion = 1 Then ' solo si es activo
+    '                                RenovadoANull = Await Task.Run(Function() Funciones.VolverARenovar(ContratoActivo.CodigoContrato))
+    '                            End If
+    '                        Next
+    '                    End If
+
+
+    '                Next
+    '            End If
+    '        End If
+    '        PictureBox2.Visible = False
+
+    '        If RenovadoANull > 0 Then
+    '            complementos.MostrarMensajePersonalizado($"Contratos listos para ser renovados")
+    '        Else
+    '            complementos.MostrarMensajePersonalizado($"Ningún contrato renovado")
+    '        End If
+    '    Catch ex As Exception
+    '        PictureBox2.Visible = False
+    '        complementos.MostrarMensajePersonalizado(ex.Message)
+    '    End Try
+    'End Sub
+#End Region
 
     'Revisa si ha habido algún contrato que no se haya configurado bien
     Private Async Sub Button7_Click(sender As Object, e As EventArgs) Handles Button7.Click
@@ -815,81 +1047,43 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         End Try
     End Sub
 
-    ''Para saber si PRO o AUT
-    Private Sub Label5_Click(sender As Object, e As EventArgs) Handles Label5.TextChanged
-
-        Try
-            If ipDB.Trim.Contains("172.31.100.12") AndAlso RadioButton1.Checked Then
-                Label5.Text = "BD PRO  172.31.100.12 SigeTotal"
-                'ElseIf ipDB.Trim.Contains("172.31.100.29") AndAlso RadioButton2.Checked Then
-                '    Label5.Text = "BD UAT  172.31.100.29 SigeTotal(Replica)"
-                'ElseIf RadioButton3.Checked Then
-                '    Label5.Text = "BD UAT  172.31.100.50 SigeTotalUAT"
-            End If
-        Catch ex As Exception
-
-        End Try
-
-    End Sub
 
     'Actualizar emails desde Excel_ FIla  contrato 1 y fila 2 el email
     Private Async Sub Button8_Click(sender As Object, e As EventArgs) Handles Button8.Click
-        Dim contratosActualizado = 0
-        Dim tiempoTranscurrido As TimeSpan
+        Dim contratosActualizados As Integer = 0
+        Dim tiempoTranscurrido As TimeSpan = TimeSpan.Zero
+
         Try
-
-            ' Crear una instancia de OpenFileDialog
-            Dim openFileDialog1 As New OpenFileDialog
-
-            ' Configurar propiedades del diálogo
-            openFileDialog1.Title = "Seleccionar archivos"
-            openFileDialog1.Multiselect = True ' Permitir la selección múltiple de archivos
-            openFileDialog1.Filter = "Todos los archivos (*.*)|*.*" ' Filtro de archivos
-            Dim rutaArchivo = ""
-            ' Mostrar el diálogo y verificar si el usuario hizo clic en OK
-            If openFileDialog1.ShowDialog = DialogResult.OK Then
-                ' Obtener la ruta de cada archivo seleccionado y mostrarla en la consola
-                For Each filename In openFileDialog1.FileNames
-                    rutaArchivo = filename
-                Next
+            Dim rutaArchivo = SeleccionarArchivo()
+            If String.IsNullOrEmpty(rutaArchivo) Then
+                complementos.MostrarMensajePersonalizado("No se seleccionó ningún archivo.")
+                Return
             End If
 
-            Dim stopwatch As New Stopwatch
-            stopwatch.Start() ' Iniciar el cronómetro
-            'Dim Empieza As TimeSpan = stopwatch.Elapsed
-            Dim ActualizarEmail As New ActualizarEmailFromExcel(connectionString)
-            If rutaArchivo.Length > 0 Then
-                PictureBox2.Visible = True
-                ActualizarEmail.RutaExcel = rutaArchivo
-                contratosActualizado = Await ActualizarEmail.ActualizarEmailFromExcelAsync
+            PictureBox2.Visible = True
+            Dim stopwatch As New Stopwatch()
+            stopwatch.Start()
 
-                ' Detener el cronómetro y obtener el tiempo transcurrido
-                stopwatch.Stop()
-                tiempoTranscurrido = stopwatch.Elapsed
-            End If
+            Dim actualizarEmail As New ActualizarEmailFromExcel(connectionString) With {
+            .RutaExcel = rutaArchivo
+        }
 
+            contratosActualizados = Await actualizarEmail.ActualizarEmailFromExcelAsync()
+
+            stopwatch.Stop()
+            tiempoTranscurrido = stopwatch.Elapsed
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)
         Finally
             PictureBox2.Visible = False
-            complementos.MostrarMensajePersonalizado($"Se han actualizado {contratosActualizado} contratos. Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes} minutos.")
+            complementos.MostrarMensajePersonalizado(
+            $"Se han actualizado {contratosActualizados} contratos. Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes:F2} minutos."
+        )
         End Try
     End Sub
 
-    'Check box personalizado, habilita o deshabilita
-    Private Sub CheckBox4_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox4.CheckedChanged
-        Try
-            If CheckBox4.Checked = False Then
-                TextBox3.Enabled = True
-            End If
 
-            If CheckBox4.Checked Then
-                TextBox3.Enabled = False
-            End If
-        Catch ex As Exception
 
-        End Try
-    End Sub
 
     ' Para modificar el agente del contrato
     Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button9.Click
@@ -1025,64 +1219,65 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         End Try
     End Sub
 
-    'Limpiar filtros
-    Private Sub Button10_Click(sender As Object, e As EventArgs) Handles Button10.Click
-        Try
+#Region "Extraer PDFS de facturas"
 
-            TextBox2.Text = ""
-            TextBox1.Text = ""
-            TextBox3.Text = ""
-
-        Catch ex As Exception
-            complementos.MostrarMensajePersonalizado(ex.Message)
-        End Try
-    End Sub
 
     'Extraer PDFs
     Private Async Sub Button12_Click(sender As Object, e As EventArgs) Handles Button12.Click
         Try
             Dim listaFacs = GetFacsSinSplit(TextBox2.Text)
-            If listaFacs.Count > 0 Then
-                Dim Destino = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO\PDFFacturas"
-                If Not Directory.Exists(Destino) Then
-                    Directory.CreateDirectory(Destino)
-                End If
-                Dim ComprobarFacs As New List(Of String)
-                PictureBox2.Visible = True
-                Await Task.Run(Sub()
-                                   For Each elemnt In listaFacs
-                                       Dim Facs = Funciones.ExtraerPDFFactura(elemnt)
-                                       If IsNothing(Facs) Then
-                                           Continue For
-                                       End If
-                                       ComprobarFacs.Add(elemnt)
-                                       Dim NameFac = Replace(elemnt, "FELEC", "FELEC_")
-                                       Dim originalFileName = $"{NameFac}.PDF"
-                                       Dim nameWithoutExtension = Path.GetFileNameWithoutExtension(originalFileName)
-                                       Dim newFileName = Mid(nameWithoutExtension, 1, 100) & Path.GetExtension(originalFileName)
-                                       Dim TempFileName = Path.Combine(Destino, newFileName)
-                                       File.WriteAllBytes(TempFileName, Facs)
-                                   Next
-                               End Sub)
-                PictureBox2.Visible = False
-                If ComprobarFacs.Count > 0 Then
-                    complementos.MostrarMensajePersonalizado("PDF descargados. Pulse Aceptar para abrir la carpeta contenedora")
-                    Process.Start("explorer.exe", Destino)
-                Else
-                    complementos.MostrarMensajePersonalizado("Ningún PDF se ha descargado")
-                End If
-
-            Else
+            If listaFacs.Count = 0 Then
                 complementos.MostrarMensajePersonalizado("No hay facturas en los filtros")
+                Return
+            End If
+
+            Dim destino = ObtenerRutaArchivo(, "PDFFacturas",)
+
+            Dim comprobadas As New List(Of String)
+            PictureBox2.Visible = True
+
+            Await Task.Run(Sub()
+                               For Each elem In listaFacs
+                                   GuardarPDFFactura(elem, destino, comprobadas)
+                               Next
+                           End Sub)
+
+            PictureBox2.Visible = False
+
+            If comprobadas.Count > 0 Then
+                complementos.MostrarMensajePersonalizado("PDF descargados. Pulse Aceptar para abrir la carpeta contenedora")
+                Process.Start("explorer.exe", destino)
+            Else
+                complementos.MostrarMensajePersonalizado("Ningún PDF se ha descargado")
             End If
         Catch ex As Exception
+            PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
-
     End Sub
 
+    ' Helper para aislar la lógica de guardado de PDF
+    Private Sub GuardarPDFFactura(factura As String, destino As String, listaComprobadas As List(Of String))
+        Dim bytesPDF = Funciones.ExtraerPDFFactura(factura)
+        If bytesPDF Is Nothing Then Return
+
+        listaComprobadas.Add(factura)
+        Dim nombreArchivo = GenerarNombrePDF(factura)
+        Dim rutaCompleta = Path.Combine(destino, nombreArchivo)
+        File.WriteAllBytes(rutaCompleta, bytesPDF)
+    End Sub
+
+    ' Helper para generar nombres seguros de archivo PDF
+    Private Function GenerarNombrePDF(factura As String) As String
+        Dim nameFac = Replace(factura, "FELEC", "FELEC_")
+        Dim originalFileName = $"{nameFac}.PDF"
+        Dim nameSinExtension = Path.GetFileNameWithoutExtension(originalFileName)
+        Return Mid(nameSinExtension, 1, 100) & Path.GetExtension(originalFileName)
+    End Function
+
+#End Region
     ' Open Items
-    Private Async Sub Button13_Click(sender As Object, e As EventArgs) Handles Button13.Click
+    Private Sub Button13_Click(sender As Object, e As EventArgs) Handles Button13.Click
         'Try
 
         '            ' Crear una instancia de OpenFileDialog
@@ -1170,62 +1365,35 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         '        End Try
     End Sub
 
+    'Crea un CSV de las facturas que hay en el excel
     Private Async Sub Button14_Click(sender As Object, e As EventArgs) Handles Button14.Click
-        Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\CSVFACVA"
-        Dim rutaArchivo = Path.Combine(rutaCarpeta, $"CSV_VA_{Date.Today.ToString("ddMMyyyy")}.csv")
-        Dim contratosActualizado = 0
-        Dim tiempoTranscurrido As TimeSpan
-        Dim creado = False
+        Dim tiempoTranscurrido As TimeSpan = TimeSpan.Zero
         Try
-            Dim Validaciones As New ValidacionExcel(connectionString)
-
-
-            ' Verificar si la carpeta existe, y si no, crearla
-            If Not Directory.Exists(rutaCarpeta) Then
-                Directory.CreateDirectory(rutaCarpeta)
+            Dim rutaArchivo = ObtenerRutaArchivo("csv", "CSVFACVA", "csv")
+            Dim rutaEscogida = SeleccionarArchivo()
+            If String.IsNullOrEmpty(rutaEscogida) Then
+                complementos.MostrarMensajePersonalizado("Archivo no seleccionado")
+                Return
             End If
 
-            ' Verificar si el archivo existe, y si no, crearlo
-            If Not File.Exists(rutaArchivo) Then
-                File.Create(rutaArchivo).Close()
-            End If
+            PictureBox2.Visible = True
+            Dim stopwatch As New Stopwatch()
+            stopwatch.Start()
 
-            ' Crear una instancia de OpenFileDialog
-            Dim openFileDialog1 As New OpenFileDialog
+            Dim validaciones As New ValidacionExcel(connectionString)
+            Await Task.Run(Sub() validaciones.CSV3(rutaEscogida, rutaArchivo))
 
-            ' Configurar propiedades del diálogo
-            openFileDialog1.Title = "Seleccionar archivos"
-            openFileDialog1.Multiselect = True ' Permitir la selección múltiple de archivos
-            openFileDialog1.Filter = "Todos los archivos (*.*)|*.*" ' Filtro de archivos
-            Dim rutaEscogida = ""
-            ' Mostrar el diálogo y verificar si el usuario hizo clic en OK
-            If openFileDialog1.ShowDialog = DialogResult.OK Then
-                ' Obtener la ruta de cada archivo seleccionado y mostrarla en la consola
-                For Each filename In openFileDialog1.FileNames
-                    rutaEscogida = filename
-                Next
-            End If
-            'Dim Empieza As TimeSpan = stopwatch.Elapsed
-            If rutaEscogida.Length > 0 Then
-                PictureBox2.Visible = True
-                Dim stopwatch As New Stopwatch
-                stopwatch.Start() ' Iniciar el cronómetro
-                Await Task.Run(Sub() Validaciones.CSV3(rutaEscogida, rutaArchivo))
-                creado = True
-                ' Detener el cronómetro y obtener el tiempo transcurrido
-                stopwatch.Stop()
-                tiempoTranscurrido = stopwatch.Elapsed
-            End If
+            stopwatch.Stop()
+            tiempoTranscurrido = stopwatch.Elapsed
+
+            complementos.MostrarMensajePersonalizado($"Se han creado los datos en el archivo Excel en: {rutaArchivo}. Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes:F2} minutos.")
         Catch ex As Exception
-            PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado(ex.Message)
         Finally
             PictureBox2.Visible = False
-            If creado Then
-                complementos.MostrarMensajePersonalizado($"Se han creado los datos en el archivo Excel en: {rutaArchivo} Tiempo transcurrido: {tiempoTranscurrido.TotalMinutes.ToString("F2")} minutos.")
-            End If
         End Try
     End Sub
+
 
     ' Desglosar la descripcion del click de cada factura
 #Region "Desglosado Click"
@@ -1392,17 +1560,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
 
     End Sub
 #End Region
-    Private Sub HabilitarDesHabilitarButtons(Habilitar As Boolean)
-        Button1.Enabled = Habilitar
-        Button2.Enabled = Habilitar
-        Button3.Enabled = Habilitar
-        Button5.Enabled = Habilitar
-        Button6.Enabled = Habilitar
-        Button7.Enabled = Habilitar
-        Button8.Enabled = Habilitar
-        Button9.Enabled = Habilitar
-        Button11.Enabled = Habilitar
-    End Sub
+
 
     'Para leer los nombres de los pdfs
     'Private Sub Button16_Click(sender As Object, e As EventArgs) Handles Button16.Click
@@ -1521,57 +1679,33 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
 
     'Penalizaciones
     Private Async Sub Button16_Click(sender As Object, e As EventArgs) Handles Button16.Click
-        Dim PenaOk = False
         Dim RutaFinal = ""
+        Dim penalizacionesGeneradas As Boolean = False
         Try
-            Dim Con = GetConSinSplit(TextBox2.Text)
-            If Con.Count > 0 Then
-                Dim Validaciones As New ValidacionExcel(connectionString)
-                Dim listaCodLuz As New List(Of Long)
-                Dim listaCodGas As New List(Of Long)
-                PictureBox2.Visible = True
-
-                For Each ConFor In Con
-                    Dim ContratoBBDD = Funciones.GetContrato(ConFor)
-                    If Not IsNothing(ContratoBBDD) AndAlso ContratoBBDD.CodigoContrato > 0 AndAlso ContratoBBDD.Entorno = "E1" Then
-                        listaCodLuz.Add(ContratoBBDD.CodigoContrato)
-                    End If
-                    If Not IsNothing(ContratoBBDD) AndAlso ContratoBBDD.CodigoContrato > 0 AndAlso ContratoBBDD.Entorno = "E2" Then
-                        listaCodGas.Add(ContratoBBDD.CodigoContrato)
-                    End If
-                Next
-                Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO"
-                Dim rutaArchivo = Path.Combine(rutaCarpeta, $"Penalizaciones_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                ' Verificar si la carpeta existe, y si no, crearla
-                If Not Directory.Exists(rutaCarpeta) Then
-                    Directory.CreateDirectory(rutaCarpeta)
-                End If
-
-                ' Verificar si el archivo existe, y si no, crearlo
-                If Not File.Exists(rutaArchivo) Then
-                    File.Create(rutaArchivo).Close()
-                End If
-                RutaFinal = rutaArchivo
-                If listaCodLuz.Count > 0 Then
-                    Await Task.Run(Sub() Validaciones.PenalizacionesLuz(listaCodLuz, rutaArchivo))
-                    PenaOk = True
-                End If
-                If listaCodGas.Count > 0 Then
-                    Await Task.Run(Sub() Validaciones.PenalizacionesGas(listaCodGas, rutaArchivo))
-                    PenaOk = True
-                End If
-            Else
-                complementos.MostrarMensajePersonalizado($"Ingrese al menos un contrato")
+            ' Obtener contratos desde la UI
+            Dim contratos = GetConSinSplit(TextBox2.Text)
+            If contratos.Count = 0 Then
+                complementos.MostrarMensajePersonalizado("Ingrese al menos un contrato")
+                Return
             End If
+            'If Con.Count > 0 Then
+            RutaFinal = Path.Combine(rutaCarpetaGlobal, $"Penalizaciones_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+            ' Verificar si la carpeta existe, y si no, crearla
+            Dim Validaciones As New ValidacionExcel(connectionString, RutaFinal, contratos, Funciones, Nothing)
+            PictureBox2.Visible = True
+            penalizacionesGeneradas = Await Validaciones.GenerarPenalizacionesAsync()
+            'Else
+            '    complementos.MostrarMensajePersonalizado($"Ingrese al menos un contrato")
+            'End If
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado($"{ex.Message}")
         Finally
             PictureBox2.Visible = False
 
-            If PenaOk Then
-                complementos.MostrarMensajePersonalizado($"Penalizaciones Generadas en {RutaFinal}")
+            If penalizacionesGeneradas Then
+                complementos.MostrarMensajePersonalizado($"Penalizaciones generadas en: {RutaFinal}")
             Else
-                complementos.MostrarMensajePersonalizado($"Penalizaciones No realizada")
+                complementos.MostrarMensajePersonalizado("Penalizaciones no realizadas")
             End If
         End Try
     End Sub
@@ -1582,31 +1716,19 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
         Dim RutaFinal = ""
         Try
             Dim Facs = GetConSinSplitCupsCIFS(TextBox2.Text)
-            If Facs.Count > 0 Then
-                Dim Validaciones As New ValidacionExcel(connectionString)
-                PictureBox2.Visible = True
-
-                Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO"
-                Dim rutaArchivo = Path.Combine(rutaCarpeta, $"ConsultaTopLidia_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                ' Verificar si la carpeta existe, y si no, crearla
-                If Not Directory.Exists(rutaCarpeta) Then
-                    Directory.CreateDirectory(rutaCarpeta)
-                End If
-
-                ' Verificar si el archivo existe, y si no, crearlo
-                If Not File.Exists(rutaArchivo) Then
-                    File.Create(rutaArchivo).Close()
-                End If
-                RutaFinal = rutaArchivo
-                If Facs.Count > 0 Then
-                    Await Task.Run(Sub() Validaciones.ConsultaTopLidia(Facs, rutaArchivo))
-                    PenaOk = True
-                End If
-            Else
-                complementos.MostrarMensajePersonalizado($"No hay registros a buscar")
+            If Facs.Count = 0 Then
+                complementos.MostrarMensajePersonalizado($"No hay facturas a buscar")
+                Return
             End If
+            RutaFinal = Path.Combine(rutaCarpetaGlobal, $"ConsultaTopLidia_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+            Dim Validaciones As New ValidacionExcel(connectionString, RutaFinal, Nothing, Funciones, Facs)
+            PictureBox2.Visible = True
+            If Facs.Count > 0 Then
+                Await Task.Run(Sub() Validaciones.ConsultaTopLidia())
+                PenaOk = True
+            End If
+
         Catch ex As Exception
-            PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado($"{ex.Message}")
         Finally
             PictureBox2.Visible = False
@@ -1623,8 +1745,11 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
     Private Async Sub Button19_Click(sender As Object, e As EventArgs) Handles Button19.Click
         Try
             Dim ListaContratos = GetConSinSplit(TextBox2.Text)
-            If ListaContratos.Count > 0 Then
-                PictureBox2.Visible = True
+            If ListaContratos.Count = 0 Then
+                complementos.MostrarMensajePersonalizado("Ingrese al menos un contrato")
+                Return
+            End If
+            PictureBox2.Visible = True
                 Dim Resultados = Await Task.Run(Function() Funciones.VerificarLicitacion(ListaContratos))
                 PictureBox2.Visible = False
 
@@ -1634,7 +1759,7 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura "
                 Else
                     complementos.MostrarMensajePersonalizado("No hay contratos con el check de licitacion")
                 End If
-            End If
+
         Catch ex As Exception
             PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado($"{ex.Message}")

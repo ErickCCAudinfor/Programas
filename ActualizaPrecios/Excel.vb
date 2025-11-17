@@ -2,8 +2,11 @@
 Imports OfficeOpenXml
 
 Public Class Excel
+    Dim complementos As New Complementos()
     Public Sub EscribirEnExcel(rutaCarpeta As String, datos As List(Of List(Of Object)), NombreArchivo As String)
         Try
+            Dim rutaArchivo As String = ""
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial
             Using excelPackage As New ExcelPackage()
                 ' Agregar una hoja de trabajo al libro de Excel
                 Dim worksheet = excelPackage.Workbook.Worksheets.Add("Hoja1")
@@ -17,7 +20,7 @@ Public Class Excel
 
 
                 Dim NombreArch = $"{NombreArchivo}_LogExcel_{Date.Today.ToString("ddMMyyyy")}.xlsx"
-                Dim rutaArchivo As String = Path.Combine(rutaCarpeta, NombreArch)
+                rutaArchivo = Path.Combine(rutaCarpeta, NombreArch)
                 If Not Directory.Exists(rutaCarpeta) Then
                     Directory.CreateDirectory(rutaCarpeta)
                 End If
@@ -31,9 +34,9 @@ Public Class Excel
                 excelPackage.SaveAs(fileInfo)
             End Using
 
-            MessageBox.Show("Los datos se han guardado en el archivo Excel correctamente.")
+            complementos.MostrarMensajePersonalizado($"Hay posibles errores, revise el archivo generado: {rutaArchivo}")
         Catch ex As Exception
-            MessageBox.Show("Error al escribir en el archivo Excel: " & ex.Message)
+            complementos.MostrarMensajePersonalizado("Error al escribir en el archivo Excel: " & ex.Message)
         End Try
     End Sub
 End Class

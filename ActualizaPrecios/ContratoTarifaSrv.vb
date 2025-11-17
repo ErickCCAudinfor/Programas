@@ -274,4 +274,21 @@ Public Class ContratoTarifaSrv
         End Try
         Return ContratoTarifaB
     End Function
+
+    Public Function UpdateContratoTarifaSiError(contratoT As ContratoTarifa)
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim FilfasAfectadas As Long
+        Try
+
+            conexion.Open()
+            Dim query = $"update ContratoTarifa set IdTarifaGrupo={contratoT.IdTarifaGrupo}, IdPerfilFacturacion={contratoT.IdPerfilFacturacion} where IdContratoTarifa={contratoT.IdContratoTarifa}"
+            Dim comando = New SqlCommand(query, conexion)
+            FilfasAfectadas = comando.ExecuteNonQuery
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return FilfasAfectadas
+    End Function
 End Class
