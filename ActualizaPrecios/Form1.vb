@@ -3113,34 +3113,41 @@ Public Class Form1
 
     Private Async Sub CheckearPerfilar_Click(sender As Object, e As EventArgs) Handles CheckearPerfilar.Click
         Try
-            ' 1. Obtener y normalizar facturas
-            Dim facturasAtr = GetFacsSinSplit(TextBox2.Text) _
-                .Select(Function(f) f.Trim()) _
-                .Where(Function(f) Not String.IsNullOrWhiteSpace(f)) _
-                .Distinct() _
-                .ToList()
-
-            ' 2. Validar entrada
+            ' --- 1. Obtener facturas normalizadas ---
+            Dim facturasAtr = ObtenerFacturasNormalizadas()
             If facturasAtr.Count = 0 Then
                 complementos.MostrarMensajePersonalizado("Debes introducir al menos una factura")
                 Return
             End If
-            Dim filasAfectadas = 0
-            ' 3. Consultar y actualizar
-            PictureBox2.Visible = True
-            Await Task.Run(Sub()
-                               Dim datosFactura = ConsultasSQL.BuscarFacturaATR(facturasAtr)
-                               filasAfectadas = Funciones.UpdateMarcarPerfilarLectura(datosFactura)
-                           End Sub)
+
+            ' --- 2. Ejecutar proceso en segundo plano ---
+            MostrarEstado(True, "Marcando perfilar en la lectura...")
+
+            Dim filasAfectadas = Await Task.Run(Function()
+                                                    Dim datos = ConsultasSQL.BuscarFacturaATR(facturasAtr)
+                                                    Return Funciones.UpdateMarcarPerfilarLectura(datos)
+                                                End Function)
+
             complementos.MostrarMensajePersonalizado($"Lecturas marcadas: {filasAfectadas}")
 
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)
         Finally
-            PictureBox2.Visible = False
+            MostrarEstado(False)
         End Try
     End Sub
+    Private Function ObtenerFacturasNormalizadas() As List(Of String)
+        Return GetFacsSinSplit(TextBox2.Text) _
+            .Select(Function(f) f.Trim()) _
+            .Where(Function(f) Not String.IsNullOrWhiteSpace(f)) _
+            .Distinct() _
+            .ToList()
+    End Function
 
-
+    Private Sub MostrarEstado(visible As Boolean, Optional mensaje As String = "")
+        PictureBox2.Visible = visible
+        TextConsultando.Visible = visible
+        TextConsultando.Text = If(visible, mensaje, "")
+    End Sub
 
 End Class

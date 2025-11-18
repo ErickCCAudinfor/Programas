@@ -202,10 +202,10 @@ Partial Class Form1
         ' 
         ' TextConsultando
         ' 
-        TextConsultando.AutoSize = True
-        TextConsultando.Location = New Point(68, 12)
+        TextConsultando.Location = New Point(68, 1)
+        TextConsultando.MaximumSize = New Size(400, 0)
         TextConsultando.Name = "TextConsultando"
-        TextConsultando.Size = New Size(84, 15)
+        TextConsultando.Size = New Size(296, 35)
         TextConsultando.TabIndex = 44
         TextConsultando.Text = "Consultando..."
         TextConsultando.Visible = False
