@@ -1462,4 +1462,29 @@ group by CUPS.CodigoCUPS"
         End Try
         Return ok
     End Function
+
+    'Public Function GetFacturasExcel() As List(Of String)
+    '    Dim listaFacturasATR As New List(Of String)
+    '    Try
+    '        ExcelPackage.LicenseContext = LicenseContext.NonCommercial
+    '        Using package As New ExcelPackage(New FileInfo(path))
+    '            Dim worksheet = package.Workbook.Worksheets(0)
+    '            Dim rowCount = worksheet.Dimension.Rows
+    '            ' Leer facturas  del Excel
+    '            Dim codigosContrato As New List(Of Long)
+    '            For row = 2 To rowCount
+    '                Dim FacturaATRExcel = worksheet.Cells(row, 13).Value?.ToString
+    '                If Not String.IsNullOrEmpty(FacturaATRExcel) Then
+    '                    listaFacturasATR.Add(FacturaATRExcel)
+    '                End If
+    '            Next
+    '        End Using
+    '        If listaFacturasATR.Count > 0 Then
+    '            listaFacturasATR.Distinct
+    '        End If
+    '    Catch ex As Exception
+    '        Throw
+    '    End Try
+    '    Return listaFacturasATR
+    'End Function
 End Class

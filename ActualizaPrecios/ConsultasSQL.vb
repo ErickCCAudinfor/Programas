@@ -2890,4 +2890,12 @@ where fcc.IdFacturaCompraCabecera in (select IdFacturaCompraCabecera from factur
 group by fcc.Numerofactura,fcc.CodigoContrato,fvc.IdFacturaVentaCabecera,fvc.SerieFactura,fvc.NumeroFactura,c.FechaContrato,c.FechaAplicacionPrecios,fvlAutoP.importebase,paCO.Importe,paCOi.Importe,TipoAuto.TipoAu
 ,FacturasEnergiaML.IdFacturaVentaCabecera"
 	End Function
+
+	Public Shared Function BuscarFacturaATR(facturasatr As List(Of String)) As String
+		Dim facturasatrBD = String.Join(",", facturasatr.Select(Function(c) $"'{c.Trim}'"))
+		Return $"select fc.idfacturacompracabecera, idlectura,Perfilar,numerofactura from FacturaCompraCabecera fc
+left join lectura l on fc.IdFacturaCompraCabecera = l.IdFacturaCompraCabecera
+where numerofactura in ({facturasatrBD})
+and facturar=1 and Vigente=1"
+	End Function
 End Class

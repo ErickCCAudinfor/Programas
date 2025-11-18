@@ -2696,6 +2696,55 @@ where serienumfactura='{Fac}'"
     End Function
 
 
+    Public Function UpdateMarcarPerfilarLectura(QueryFacturasATR As String) As Long
+        Dim conexion = New SqlConnection(connectionString)
+
+        Dim FilfasAfectadas As Long
+        Try
+            Dim IdsLectura = EjecutarConsultaFacturasATR(QueryFacturasATR)
+            conexion.Open()
+            Dim query = $"update lectura set Perfilar = 1 where IdLectura in ({String.Join(",", IdsLectura)})"
+            Dim comando = New SqlCommand(query, conexion)
+            FilfasAfectadas = comando.ExecuteNonQuery
+            conexion.Close()
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+        Return FilfasAfectadas
+    End Function
+
+
+    Public Function EjecutarConsultaFacturasATR(QueryFacturasATR As String) As List(Of Long)
+        Dim conexion = New SqlConnection(connectionString)
+        Dim listaIdLecturas As New List(Of Long)
+
+        Try
+            conexion.Open()
+            Dim comando = New SqlCommand(QueryFacturasATR, conexion)
+            Dim readerQuery As SqlDataReader = comando.ExecuteReader()
+
+            ' Leer todas las filas
+            While readerQuery.Read()
+                If Not readerQuery.IsDBNull(readerQuery.GetOrdinal("idlectura")) Then
+                    Dim idlectura = CLng(readerQuery("idlectura"))
+                    If idlectura > 0 Then
+                        listaIdLecturas.Add(idlectura)
+                    End If
+                End If
+            End While
+
+            readerQuery.Close()
+            conexion.Close()
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+        End Try
+
+        Return listaIdLecturas
+    End Function
+
+
+
 #Region "Controlar valores excel"
     Public Function ToNullableDate(value As Object) As Date?
         If value Is Nothing OrElse String.IsNullOrWhiteSpace(value.ToString) Then

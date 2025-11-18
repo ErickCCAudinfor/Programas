@@ -785,9 +785,9 @@ Public Class Form1
             PictureBox2.Visible = True
 
             Dim listas As New List(Of String) From {
-            ConsultasSQL.validacionesScript1(),
-           ConsultasSQL.validacionesScript2(),
-            ConsultasSQL.validacionesScript3()
+            ConsultasSQL.validacionesScript1,
+           ConsultasSQL.validacionesScript2,
+            ConsultasSQL.validacionesScript3
         }
             Dim rutaArchivo = ObtenerRutaArchivo("Validaciones")
             Await EjecutarValidacionesAsync(listas, rutaArchivo)
@@ -1750,15 +1750,15 @@ Public Class Form1
                 Return
             End If
             PictureBox2.Visible = True
-                Dim Resultados = Await Task.Run(Function() Funciones.VerificarLicitacion(ListaContratos))
-                PictureBox2.Visible = False
+            Dim Resultados = Await Task.Run(Function() Funciones.VerificarLicitacion(ListaContratos))
+            PictureBox2.Visible = False
 
-                If Resultados.Count > 0 Then
-                    Dim cod = Resultados.Select(Function(s) s.CodigoContrato).ToList
-                    complementos.Complementos_MostrarMensajePersonalizadoCopiar($"Los siguientes contratos tienen el check de licitacion: {String.Join(",", cod)} ", $"{String.Join(",", cod)}")
-                Else
-                    complementos.MostrarMensajePersonalizado("No hay contratos con el check de licitacion")
-                End If
+            If Resultados.Count > 0 Then
+                Dim cod = Resultados.Select(Function(s) s.CodigoContrato).ToList
+                complementos.Complementos_MostrarMensajePersonalizadoCopiar($"Los siguientes contratos tienen el check de licitacion: {String.Join(",", cod)} ", $"{String.Join(",", cod)}")
+            Else
+                complementos.MostrarMensajePersonalizado("No hay contratos con el check de licitacion")
+            End If
 
         Catch ex As Exception
             PictureBox2.Visible = False
@@ -3110,4 +3110,37 @@ Public Class Form1
 
         End Try
     End Sub
+
+    Private Async Sub CheckearPerfilar_Click(sender As Object, e As EventArgs) Handles CheckearPerfilar.Click
+        Try
+            ' 1. Obtener y normalizar facturas
+            Dim facturasAtr = GetFacsSinSplit(TextBox2.Text) _
+                .Select(Function(f) f.Trim()) _
+                .Where(Function(f) Not String.IsNullOrWhiteSpace(f)) _
+                .Distinct() _
+                .ToList()
+
+            ' 2. Validar entrada
+            If facturasAtr.Count = 0 Then
+                complementos.MostrarMensajePersonalizado("Debes introducir al menos una factura")
+                Return
+            End If
+            Dim filasAfectadas = 0
+            ' 3. Consultar y actualizar
+            PictureBox2.Visible = True
+            Await Task.Run(Sub()
+                               Dim datosFactura = ConsultasSQL.BuscarFacturaATR(facturasAtr)
+                               filasAfectadas = Funciones.UpdateMarcarPerfilarLectura(datosFactura)
+                           End Sub)
+            complementos.MostrarMensajePersonalizado($"Lecturas marcadas: {filasAfectadas}")
+
+        Catch ex As Exception
+            complementos.MostrarMensajePersonalizado(ex.Message)
+        Finally
+            PictureBox2.Visible = False
+        End Try
+    End Sub
+
+
+
 End Class

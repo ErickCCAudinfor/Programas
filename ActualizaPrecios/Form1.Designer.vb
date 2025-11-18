@@ -93,6 +93,7 @@ Partial Class Form1
         Button21 = New Button()
         Button22 = New Button()
         Panel2 = New Panel()
+        CheckearPerfilar = New Button()
         btnExpandir = New Button()
         Button29 = New Button()
         Button30 = New Button()
@@ -262,7 +263,7 @@ Partial Class Form1
         ' 
         ' Button10
         ' 
-        Button10.Location = New Point(205, 150)
+        Button10.Location = New Point(200, 0)
         Button10.Name = "Button10"
         Button10.Size = New Size(106, 21)
         Button10.TabIndex = 25
@@ -480,7 +481,7 @@ Partial Class Form1
         CheckBox4.AutoSize = True
         CheckBox4.Checked = True
         CheckBox4.CheckState = CheckState.Checked
-        CheckBox4.Location = New Point(252, 76)
+        CheckBox4.Location = New Point(205, 76)
         CheckBox4.Name = "CheckBox4"
         CheckBox4.Size = New Size(98, 19)
         CheckBox4.TabIndex = 19
@@ -502,7 +503,7 @@ Partial Class Form1
         TextBox3.Location = New Point(7, 52)
         TextBox3.Name = "TextBox3"
         TextBox3.PlaceholderText = "Tarifa grupo actual..."
-        TextBox3.Size = New Size(343, 23)
+        TextBox3.Size = New Size(299, 23)
         TextBox3.TabIndex = 20
         ' 
         ' TextBox1
@@ -511,14 +512,14 @@ Partial Class Form1
         TextBox1.Location = New Point(7, 23)
         TextBox1.Name = "TextBox1"
         TextBox1.PlaceholderText = "Ingrese la nueva tarifa grupo"
-        TextBox1.Size = New Size(343, 23)
+        TextBox1.Size = New Size(299, 23)
         TextBox1.TabIndex = 4
         ' 
         ' Button1
         ' 
         Button1.BackColor = Color.Silver
         Button1.Enabled = False
-        Button1.Location = New Point(275, 96)
+        Button1.Location = New Point(228, 96)
         Button1.Name = "Button1"
         Button1.Size = New Size(75, 23)
         Button1.TabIndex = 0
@@ -565,6 +566,7 @@ Partial Class Form1
         ' 
         Panel3.BackColor = Color.Transparent
         Panel3.Controls.Add(Label6)
+        Panel3.Controls.Add(Button10)
         Panel3.Controls.Add(DateTimePicker1)
         Panel3.Controls.Add(Label1)
         Panel3.Controls.Add(Button1)
@@ -576,7 +578,7 @@ Partial Class Form1
         Panel3.Controls.Add(Button17)
         Panel3.Location = New Point(5, 154)
         Panel3.Name = "Panel3"
-        Panel3.Size = New Size(363, 186)
+        Panel3.Size = New Size(313, 186)
         Panel3.TabIndex = 23
         ' 
         ' Button6
@@ -748,6 +750,7 @@ Partial Class Form1
         ' Panel2
         ' 
         Panel2.BackColor = Color.Transparent
+        Panel2.Controls.Add(CheckearPerfilar)
         Panel2.Controls.Add(Button2)
         Panel2.Controls.Add(btnExpandir)
         Panel2.Controls.Add(Button29)
@@ -770,9 +773,18 @@ Partial Class Form1
         Panel2.Size = New Size(617, 185)
         Panel2.TabIndex = 22
         ' 
+        ' CheckearPerfilar
+        ' 
+        CheckearPerfilar.Location = New Point(430, 123)
+        CheckearPerfilar.Name = "CheckearPerfilar"
+        CheckearPerfilar.Size = New Size(180, 23)
+        CheckearPerfilar.TabIndex = 46
+        CheckearPerfilar.Text = "Checkear Perfilar"
+        CheckearPerfilar.UseVisualStyleBackColor = True
+        ' 
         ' btnExpandir
         ' 
-        btnExpandir.Location = New Point(429, 126)
+        btnExpandir.Location = New Point(430, 152)
         btnExpandir.Name = "btnExpandir"
         btnExpandir.Size = New Size(180, 23)
         btnExpandir.TabIndex = 45
@@ -936,7 +948,6 @@ Partial Class Form1
         BackColor = Color.LightBlue
         ClientSize = New Size(622, 591)
         Controls.Add(Panel6)
-        Controls.Add(Button10)
         Controls.Add(Panel5)
         Controls.Add(Label7)
         Controls.Add(DividirChck)
@@ -1071,4 +1082,5 @@ Partial Class Form1
     Friend WithEvents Panel5 As Panel
     Friend WithEvents Panel6 As Panel
     Friend WithEvents TextConsultando As Label
+    Friend WithEvents CheckearPerfilar As Button
 End Class
