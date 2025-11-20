@@ -2204,7 +2204,7 @@ Public Class Form1
                 'Check Cliente
                 If CheckBox3.Checked Then
                     Dim CIFS = GetConSinSplitCupsCIFS(TextBox2.Text)
-                    Dim completed As Integer = 0
+                    Dim completed = 0
                     For Each cif In CIFS
                         tasks.Add(Task.Run(Sub()
                                                Dim Name = cif
@@ -2924,7 +2924,7 @@ Public Class Form1
                                Dim facturasPorCliente As New Dictionary(Of String, List(Of String))
                                For Each fac In listaFacs
                                    Dim cliente = Funciones.GetClientebyFac(fac) ' {Nombre, Identidad}
-                                   Dim claveCarpeta = $"{cliente.Denominacion}_{cliente.Identidad}"
+                                   Dim claveCarpeta = $"{cliente.Denominacion}-_{cliente.Identidad}"
                                    If Not facturasPorCliente.ContainsKey(claveCarpeta) Then
                                        facturasPorCliente(claveCarpeta) = New List(Of String)
                                    End If
@@ -3150,4 +3150,59 @@ Public Class Form1
         TextConsultando.Text = If(visible, mensaje, "")
     End Sub
 
+    Private Sub Button26_Click_1(sender As Object, e As EventArgs)
+        Try
+            Procesar()
+        Catch ex As Exception
+            complementos.MostrarMensajePersonalizado(ex.Message)
+        End Try
+    End Sub
+    Sub Procesar()
+        Dim ruta As String = "\\172.31.100.13\Total\FicherosExport\Export"
+        Dim contratosBuscados As New List(Of String) From {
+            "5048104", "5048053", "5048102"
+        }
+
+        Dim rutaSalida As String = $"{rutaCarpetaGlobal}\resultado_contratos.txt"
+
+        Using escritor As New StreamWriter(rutaSalida, append:=False)
+            ' Obtener solo archivos: ESCONT_*.xml
+            Dim archivos = Directory.GetFiles(ruta, "ESCONT_*.xml")
+
+            For Each fichero In archivos
+                Dim nombre As String = Path.GetFileName(fichero)
+
+                ' ---  Filtrar por día 15  ---
+                ' Los ESCONT suelen tener fecha dentro del nombre: ESCONT_20250115_...
+                If Not nombre.Contains("16_") Then
+                    Continue For
+                End If
+
+                Try
+                    Dim xml As XDocument = XDocument.Load(fichero)
+
+                    ' Namespace del XML
+                    Dim ns As XNamespace = "http://localhost/elegibilidad"
+
+                    ' Extraer todos los contratos dentro del XML
+                    Dim listaContratos = xml.Descendants(ns + "Contrato")
+
+                    For Each c In listaContratos
+                        Dim codigoContrato As String = c.Element(ns + "CodigoContrato")?.Value
+
+                        If Not String.IsNullOrEmpty(codigoContrato) Then
+                            If contratosBuscados.Contains(codigoContrato) Then
+                                escritor.WriteLine($"Contrato {codigoContrato} encontrado en: {nombre}")
+                            End If
+                        End If
+                    Next
+
+                Catch ex As Exception
+                    escritor.WriteLine($"ERROR leyendo {nombre}: {ex.Message}")
+                End Try
+
+            Next
+        End Using
+
+    End Sub
 End Class

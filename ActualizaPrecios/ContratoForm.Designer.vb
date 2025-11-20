@@ -99,7 +99,8 @@ Partial Class ContratoForm
         ' Label1
         ' 
         Label1.AutoSize = True
-        Label1.Font = New Font("Book Antiqua", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
+        Label1.BackColor = Color.Transparent
+        Label1.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
         Label1.Location = New Point(24, 75)
         Label1.Name = "Label1"
         Label1.Size = New Size(93, 16)
@@ -109,7 +110,7 @@ Partial Class ContratoForm
         ' CheckBox1
         ' 
         CheckBox1.AutoSize = True
-        CheckBox1.BackColor = SystemColors.Menu
+        CheckBox1.BackColor = Color.Transparent
         CheckBox1.Location = New Point(25, 93)
         CheckBox1.Name = "CheckBox1"
         CheckBox1.Size = New Size(125, 19)
@@ -120,7 +121,7 @@ Partial Class ContratoForm
         ' CheckBox2
         ' 
         CheckBox2.AutoSize = True
-        CheckBox2.BackColor = SystemColors.Menu
+        CheckBox2.BackColor = Color.Transparent
         CheckBox2.Location = New Point(25, 118)
         CheckBox2.Name = "CheckBox2"
         CheckBox2.Size = New Size(81, 19)
@@ -131,7 +132,7 @@ Partial Class ContratoForm
         ' CheckBox3
         ' 
         CheckBox3.AutoSize = True
-        CheckBox3.BackColor = SystemColors.Menu
+        CheckBox3.BackColor = Color.Transparent
         CheckBox3.Location = New Point(25, 143)
         CheckBox3.Name = "CheckBox3"
         CheckBox3.Size = New Size(77, 19)
@@ -142,7 +143,7 @@ Partial Class ContratoForm
         ' CheckBox5
         ' 
         CheckBox5.AutoSize = True
-        CheckBox5.BackColor = SystemColors.Menu
+        CheckBox5.BackColor = Color.Transparent
         CheckBox5.Location = New Point(25, 172)
         CheckBox5.Name = "CheckBox5"
         CheckBox5.Size = New Size(103, 19)
@@ -153,10 +154,10 @@ Partial Class ContratoForm
         ' CheckBox6
         ' 
         CheckBox6.AutoSize = True
-        CheckBox6.BackColor = SystemColors.Menu
+        CheckBox6.BackColor = Color.Transparent
         CheckBox6.Location = New Point(25, 237)
         CheckBox6.Name = "CheckBox6"
-        CheckBox6.Size = New Size(102, 19)
+        CheckBox6.Size = New Size(103, 19)
         CheckBox6.TabIndex = 6
         CheckBox6.Text = "Tipo Impuesto"
         CheckBox6.UseVisualStyleBackColor = False
@@ -164,7 +165,7 @@ Partial Class ContratoForm
         ' CheckBox7
         ' 
         CheckBox7.AutoSize = True
-        CheckBox7.BackColor = SystemColors.Menu
+        CheckBox7.BackColor = Color.Transparent
         CheckBox7.Location = New Point(25, 262)
         CheckBox7.Name = "CheckBox7"
         CheckBox7.Size = New Size(114, 19)
@@ -175,7 +176,7 @@ Partial Class ContratoForm
         ' CheckBox8
         ' 
         CheckBox8.AutoSize = True
-        CheckBox8.BackColor = SystemColors.Menu
+        CheckBox8.BackColor = Color.Transparent
         CheckBox8.Location = New Point(24, 287)
         CheckBox8.Name = "CheckBox8"
         CheckBox8.Size = New Size(70, 19)
@@ -186,7 +187,7 @@ Partial Class ContratoForm
         ' CheckBox9
         ' 
         CheckBox9.AutoSize = True
-        CheckBox9.BackColor = SystemColors.Menu
+        CheckBox9.BackColor = Color.Transparent
         CheckBox9.Location = New Point(24, 312)
         CheckBox9.Name = "CheckBox9"
         CheckBox9.Size = New Size(151, 19)
@@ -197,7 +198,7 @@ Partial Class ContratoForm
         ' CheckBox10
         ' 
         CheckBox10.AutoSize = True
-        CheckBox10.BackColor = SystemColors.Menu
+        CheckBox10.BackColor = Color.Transparent
         CheckBox10.Location = New Point(25, 449)
         CheckBox10.Name = "CheckBox10"
         CheckBox10.Size = New Size(57, 19)
@@ -208,7 +209,8 @@ Partial Class ContratoForm
         ' Label3
         ' 
         Label3.AutoSize = True
-        Label3.Font = New Font("Book Antiqua", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
+        Label3.BackColor = Color.Transparent
+        Label3.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
         Label3.Location = New Point(26, 219)
         Label3.Name = "Label3"
         Label3.Size = New Size(113, 16)
@@ -218,8 +220,9 @@ Partial Class ContratoForm
         ' Label4
         ' 
         Label4.AutoSize = True
-        Label4.Font = New Font("Book Antiqua", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
-        Label4.Location = New Point(24, 430)
+        Label4.BackColor = Color.Transparent
+        Label4.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        Label4.Location = New Point(24, 426)
         Label4.Name = "Label4"
         Label4.Size = New Size(99, 16)
         Label4.TabIndex = 13
@@ -228,10 +231,10 @@ Partial Class ContratoForm
         ' CheckBox11
         ' 
         CheckBox11.AutoSize = True
-        CheckBox11.BackColor = SystemColors.Menu
+        CheckBox11.BackColor = Color.Transparent
         CheckBox11.Location = New Point(25, 474)
         CheckBox11.Name = "CheckBox11"
-        CheckBox11.Size = New Size(105, 19)
+        CheckBox11.Size = New Size(106, 19)
         CheckBox11.TabIndex = 14
         CheckBox11.Text = "Tipo Impresion"
         CheckBox11.UseVisualStyleBackColor = False
@@ -239,7 +242,7 @@ Partial Class ContratoForm
         ' CheckBox12
         ' 
         CheckBox12.AutoSize = True
-        CheckBox12.BackColor = SystemColors.Menu
+        CheckBox12.BackColor = Color.Transparent
         CheckBox12.Location = New Point(353, 474)
         CheckBox12.Name = "CheckBox12"
         CheckBox12.Size = New Size(99, 19)
@@ -250,7 +253,7 @@ Partial Class ContratoForm
         ' CheckBox13
         ' 
         CheckBox13.AutoSize = True
-        CheckBox13.BackColor = SystemColors.Menu
+        CheckBox13.BackColor = Color.Transparent
         CheckBox13.Location = New Point(353, 449)
         CheckBox13.Name = "CheckBox13"
         CheckBox13.Size = New Size(101, 19)
@@ -261,7 +264,7 @@ Partial Class ContratoForm
         ' CheckBox14
         ' 
         CheckBox14.AutoSize = True
-        CheckBox14.BackColor = SystemColors.Menu
+        CheckBox14.BackColor = Color.Transparent
         CheckBox14.Location = New Point(25, 549)
         CheckBox14.Name = "CheckBox14"
         CheckBox14.Size = New Size(138, 19)
@@ -272,7 +275,7 @@ Partial Class ContratoForm
         ' CheckBox15
         ' 
         CheckBox15.AutoSize = True
-        CheckBox15.BackColor = SystemColors.Menu
+        CheckBox15.BackColor = Color.Transparent
         CheckBox15.Location = New Point(25, 524)
         CheckBox15.Name = "CheckBox15"
         CheckBox15.Size = New Size(145, 19)
@@ -283,7 +286,7 @@ Partial Class ContratoForm
         ' CheckBox16
         ' 
         CheckBox16.AutoSize = True
-        CheckBox16.BackColor = SystemColors.Menu
+        CheckBox16.BackColor = Color.Transparent
         CheckBox16.Location = New Point(25, 499)
         CheckBox16.Name = "CheckBox16"
         CheckBox16.Size = New Size(117, 19)
@@ -294,7 +297,7 @@ Partial Class ContratoForm
         ' CheckBox17
         ' 
         CheckBox17.AutoSize = True
-        CheckBox17.BackColor = SystemColors.Menu
+        CheckBox17.BackColor = Color.Transparent
         CheckBox17.Location = New Point(353, 237)
         CheckBox17.Name = "CheckBox17"
         CheckBox17.Size = New Size(107, 19)
@@ -305,7 +308,7 @@ Partial Class ContratoForm
         ' CheckBox18
         ' 
         CheckBox18.AutoSize = True
-        CheckBox18.BackColor = SystemColors.Menu
+        CheckBox18.BackColor = Color.Transparent
         CheckBox18.Location = New Point(353, 262)
         CheckBox18.Name = "CheckBox18"
         CheckBox18.Size = New Size(141, 19)
@@ -316,7 +319,7 @@ Partial Class ContratoForm
         ' CheckBox19
         ' 
         CheckBox19.AutoSize = True
-        CheckBox19.BackColor = SystemColors.Menu
+        CheckBox19.BackColor = Color.Transparent
         CheckBox19.Location = New Point(353, 499)
         CheckBox19.Name = "CheckBox19"
         CheckBox19.Size = New Size(116, 19)
@@ -327,7 +330,7 @@ Partial Class ContratoForm
         ' CheckBox20
         ' 
         CheckBox20.AutoSize = True
-        CheckBox20.BackColor = SystemColors.Menu
+        CheckBox20.BackColor = Color.Transparent
         CheckBox20.Location = New Point(353, 549)
         CheckBox20.Name = "CheckBox20"
         CheckBox20.Size = New Size(79, 19)
@@ -338,7 +341,7 @@ Partial Class ContratoForm
         ' CheckBox21
         ' 
         CheckBox21.AutoSize = True
-        CheckBox21.BackColor = SystemColors.Menu
+        CheckBox21.BackColor = Color.Transparent
         CheckBox21.Location = New Point(353, 524)
         CheckBox21.Name = "CheckBox21"
         CheckBox21.Size = New Size(78, 19)
@@ -349,8 +352,9 @@ Partial Class ContratoForm
         ' Label5
         ' 
         Label5.AutoSize = True
-        Label5.Font = New Font("Book Antiqua", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
-        Label5.Location = New Point(353, 430)
+        Label5.BackColor = Color.Transparent
+        Label5.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        Label5.Location = New Point(353, 426)
         Label5.Name = "Label5"
         Label5.Size = New Size(213, 16)
         Label5.TabIndex = 25
@@ -359,7 +363,7 @@ Partial Class ContratoForm
         ' Button1
         ' 
         Button1.BackColor = SystemColors.MenuHighlight
-        Button1.Font = New Font("Segoe UI", 9.0F, FontStyle.Bold, GraphicsUnit.Point)
+        Button1.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Button1.Location = New Point(757, 636)
         Button1.Name = "Button1"
         Button1.Size = New Size(182, 31)
@@ -379,7 +383,7 @@ Partial Class ContratoForm
         ' 
         DateTimePicker3.CalendarMonthBackground = Color.LightBlue
         DateTimePicker3.CustomFormat = "dd/MM/yyyy"
-        DateTimePicker3.Font = New Font("Arial Narrow", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
+        DateTimePicker3.Font = New Font("Arial Narrow", 9F, FontStyle.Regular, GraphicsUnit.Point)
         DateTimePicker3.Format = DateTimePickerFormat.Custom
         DateTimePicker3.Location = New Point(189, 118)
         DateTimePicker3.Name = "DateTimePicker3"
@@ -390,7 +394,7 @@ Partial Class ContratoForm
         ' 
         DateTimePicker1.CalendarMonthBackground = Color.LightBlue
         DateTimePicker1.CustomFormat = "dd/MM/yyyy"
-        DateTimePicker1.Font = New Font("Arial Narrow", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
+        DateTimePicker1.Font = New Font("Arial Narrow", 9F, FontStyle.Regular, GraphicsUnit.Point)
         DateTimePicker1.Format = DateTimePickerFormat.Custom
         DateTimePicker1.Location = New Point(189, 141)
         DateTimePicker1.Name = "DateTimePicker1"
@@ -415,7 +419,8 @@ Partial Class ContratoForm
         ' Label2
         ' 
         Label2.AutoSize = True
-        Label2.Font = New Font("Book Antiqua", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
+        Label2.BackColor = Color.Transparent
+        Label2.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
         Label2.Location = New Point(24, 9)
         Label2.Name = "Label2"
         Label2.Size = New Size(97, 16)
@@ -425,42 +430,46 @@ Partial Class ContratoForm
         ' CheckBox22
         ' 
         CheckBox22.AutoSize = True
+        CheckBox22.BackColor = Color.Transparent
         CheckBox22.Location = New Point(189, 262)
         CheckBox22.Name = "CheckBox22"
         CheckBox22.Size = New Size(62, 19)
         CheckBox22.TabIndex = 39
         CheckBox22.Text = "No / Sí"
-        CheckBox22.UseVisualStyleBackColor = True
+        CheckBox22.UseVisualStyleBackColor = False
         ' 
         ' CheckBox23
         ' 
         CheckBox23.AutoSize = True
+        CheckBox23.BackColor = Color.Transparent
         CheckBox23.Location = New Point(189, 289)
         CheckBox23.Name = "CheckBox23"
         CheckBox23.Size = New Size(62, 19)
         CheckBox23.TabIndex = 40
         CheckBox23.Text = "No / Sí"
-        CheckBox23.UseVisualStyleBackColor = True
+        CheckBox23.UseVisualStyleBackColor = False
         ' 
         ' CheckBox24
         ' 
         CheckBox24.AutoSize = True
+        CheckBox24.BackColor = Color.Transparent
         CheckBox24.Location = New Point(189, 549)
         CheckBox24.Name = "CheckBox24"
         CheckBox24.Size = New Size(62, 19)
         CheckBox24.TabIndex = 41
         CheckBox24.Text = "No / Sí"
-        CheckBox24.UseVisualStyleBackColor = True
+        CheckBox24.UseVisualStyleBackColor = False
         ' 
         ' CheckBox25
         ' 
         CheckBox25.AutoSize = True
+        CheckBox25.BackColor = Color.Transparent
         CheckBox25.Location = New Point(189, 524)
         CheckBox25.Name = "CheckBox25"
         CheckBox25.Size = New Size(62, 19)
         CheckBox25.TabIndex = 42
         CheckBox25.Text = "No / Sí"
-        CheckBox25.UseVisualStyleBackColor = True
+        CheckBox25.UseVisualStyleBackColor = False
         ' 
         ' ComboBox3
         ' 
@@ -556,7 +565,7 @@ Partial Class ContratoForm
         ' CheckBox4
         ' 
         CheckBox4.AutoSize = True
-        CheckBox4.BackColor = SystemColors.Menu
+        CheckBox4.BackColor = Color.Transparent
         CheckBox4.Location = New Point(431, 91)
         CheckBox4.Name = "CheckBox4"
         CheckBox4.Size = New Size(118, 19)
@@ -576,7 +585,7 @@ Partial Class ContratoForm
         ' CheckBox26
         ' 
         CheckBox26.AutoSize = True
-        CheckBox26.BackColor = SystemColors.Menu
+        CheckBox26.BackColor = Color.Transparent
         CheckBox26.Enabled = False
         CheckBox26.Location = New Point(24, 610)
         CheckBox26.Name = "CheckBox26"
@@ -588,7 +597,8 @@ Partial Class ContratoForm
         ' Label6
         ' 
         Label6.AutoSize = True
-        Label6.Font = New Font("Book Antiqua", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
+        Label6.BackColor = Color.Transparent
+        Label6.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
         Label6.Location = New Point(22, 585)
         Label6.Name = "Label6"
         Label6.Size = New Size(120, 16)
@@ -605,7 +615,8 @@ Partial Class ContratoForm
         ' Label7
         ' 
         Label7.AutoSize = True
-        Label7.Font = New Font("Book Antiqua", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
+        Label7.BackColor = Color.Transparent
+        Label7.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
         Label7.Location = New Point(189, 585)
         Label7.Name = "Label7"
         Label7.Size = New Size(102, 16)
@@ -615,7 +626,7 @@ Partial Class ContratoForm
         ' Button2
         ' 
         Button2.BackColor = SystemColors.AppWorkspace
-        Button2.Font = New Font("Segoe UI", 9.0F, FontStyle.Bold, GraphicsUnit.Point)
+        Button2.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Button2.Location = New Point(462, 583)
         Button2.Name = "Button2"
         Button2.Size = New Size(144, 24)
@@ -636,7 +647,7 @@ Partial Class ContratoForm
         ' ChckBlancoObservacion
         ' 
         ChckBlancoObservacion.AutoSize = True
-        ChckBlancoObservacion.BackColor = SystemColors.Menu
+        ChckBlancoObservacion.BackColor = Color.Transparent
         ChckBlancoObservacion.Location = New Point(796, 172)
         ChckBlancoObservacion.Name = "ChckBlancoObservacion"
         ChckBlancoObservacion.Size = New Size(108, 19)
@@ -647,7 +658,7 @@ Partial Class ContratoForm
         ' CheckBlancoRevision
         ' 
         CheckBlancoRevision.AutoSize = True
-        CheckBlancoRevision.BackColor = SystemColors.Menu
+        CheckBlancoRevision.BackColor = Color.Transparent
         CheckBlancoRevision.Location = New Point(796, 308)
         CheckBlancoRevision.Name = "CheckBlancoRevision"
         CheckBlancoRevision.Size = New Size(108, 19)
@@ -658,7 +669,8 @@ Partial Class ContratoForm
         ' Label8
         ' 
         Label8.AutoSize = True
-        Label8.Font = New Font("Book Antiqua", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
+        Label8.BackColor = Color.Transparent
+        Label8.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
         Label8.Location = New Point(25, 348)
         Label8.Name = "Label8"
         Label8.Size = New Size(139, 16)
@@ -668,7 +680,7 @@ Partial Class ContratoForm
         ' chkAutoconsumo
         ' 
         chkAutoconsumo.AutoSize = True
-        chkAutoconsumo.BackColor = SystemColors.Menu
+        chkAutoconsumo.BackColor = Color.Transparent
         chkAutoconsumo.Location = New Point(26, 367)
         chkAutoconsumo.Name = "chkAutoconsumo"
         chkAutoconsumo.Size = New Size(102, 19)
@@ -679,20 +691,21 @@ Partial Class ContratoForm
         ' chkAutoconsumoSINO
         ' 
         chkAutoconsumoSINO.AutoSize = True
+        chkAutoconsumoSINO.BackColor = Color.Transparent
         chkAutoconsumoSINO.Location = New Point(229, 367)
         chkAutoconsumoSINO.Name = "chkAutoconsumoSINO"
         chkAutoconsumoSINO.Size = New Size(62, 19)
         chkAutoconsumoSINO.TabIndex = 67
         chkAutoconsumoSINO.Text = "No / Sí"
-        chkAutoconsumoSINO.UseVisualStyleBackColor = True
+        chkAutoconsumoSINO.UseVisualStyleBackColor = False
         ' 
         ' chktipoautoconsumo
         ' 
         chktipoautoconsumo.AutoSize = True
-        chktipoautoconsumo.BackColor = SystemColors.Menu
+        chktipoautoconsumo.BackColor = Color.Transparent
         chktipoautoconsumo.Location = New Point(323, 367)
         chktipoautoconsumo.Name = "chktipoautoconsumo"
-        chktipoautoconsumo.Size = New Size(128, 19)
+        chktipoautoconsumo.Size = New Size(129, 19)
         chktipoautoconsumo.TabIndex = 68
         chktipoautoconsumo.Text = "Tipo Autoconsumo"
         chktipoautoconsumo.UseVisualStyleBackColor = False
@@ -708,7 +721,7 @@ Partial Class ContratoForm
         ' chkAutoconsumoNOCompesable
         ' 
         chkAutoconsumoNOCompesable.AutoSize = True
-        chkAutoconsumoNOCompesable.BackColor = SystemColors.Menu
+        chkAutoconsumoNOCompesable.BackColor = Color.Transparent
         chkAutoconsumoNOCompesable.Location = New Point(26, 394)
         chkAutoconsumoNOCompesable.Name = "chkAutoconsumoNOCompesable"
         chkAutoconsumoNOCompesable.Size = New Size(197, 19)
@@ -719,17 +732,18 @@ Partial Class ContratoForm
         ' chkAutoconsumoNOCompesableSINO
         ' 
         chkAutoconsumoNOCompesableSINO.AutoSize = True
+        chkAutoconsumoNOCompesableSINO.BackColor = Color.Transparent
         chkAutoconsumoNOCompesableSINO.Location = New Point(229, 394)
         chkAutoconsumoNOCompesableSINO.Name = "chkAutoconsumoNOCompesableSINO"
         chkAutoconsumoNOCompesableSINO.Size = New Size(62, 19)
         chkAutoconsumoNOCompesableSINO.TabIndex = 71
         chkAutoconsumoNOCompesableSINO.Text = "No / Sí"
-        chkAutoconsumoNOCompesableSINO.UseVisualStyleBackColor = True
+        chkAutoconsumoNOCompesableSINO.UseVisualStyleBackColor = False
         ' 
         ' chkLicitacion
         ' 
         chkLicitacion.AutoSize = True
-        chkLicitacion.BackColor = SystemColors.Menu
+        chkLicitacion.BackColor = Color.Transparent
         chkLicitacion.Location = New Point(323, 394)
         chkLicitacion.Name = "chkLicitacion"
         chkLicitacion.Size = New Size(74, 19)
@@ -740,30 +754,32 @@ Partial Class ContratoForm
         ' chkLicitacionSINO
         ' 
         chkLicitacionSINO.AutoSize = True
+        chkLicitacionSINO.BackColor = Color.Transparent
         chkLicitacionSINO.Location = New Point(405, 395)
         chkLicitacionSINO.Name = "chkLicitacionSINO"
         chkLicitacionSINO.Size = New Size(62, 19)
         chkLicitacionSINO.TabIndex = 73
         chkLicitacionSINO.Text = "No / Sí"
-        chkLicitacionSINO.UseVisualStyleBackColor = True
+        chkLicitacionSINO.UseVisualStyleBackColor = False
         ' 
         ' ChkExencionIESINO
         ' 
         ChkExencionIESINO.AutoSize = True
+        ChkExencionIESINO.BackColor = Color.Transparent
         ChkExencionIESINO.Location = New Point(588, 394)
         ChkExencionIESINO.Name = "ChkExencionIESINO"
         ChkExencionIESINO.Size = New Size(62, 19)
         ChkExencionIESINO.TabIndex = 74
         ChkExencionIESINO.Text = "No / Sí"
-        ChkExencionIESINO.UseVisualStyleBackColor = True
+        ChkExencionIESINO.UseVisualStyleBackColor = False
         ' 
         ' ChkExencionIE
         ' 
         ChkExencionIE.AutoSize = True
-        ChkExencionIE.BackColor = SystemColors.Menu
+        ChkExencionIE.BackColor = Color.Transparent
         ChkExencionIE.Location = New Point(493, 394)
         ChkExencionIE.Name = "ChkExencionIE"
-        ChkExencionIE.Size = New Size(86, 19)
+        ChkExencionIE.Size = New Size(85, 19)
         ChkExencionIE.TabIndex = 75
         ChkExencionIE.Text = "Exención IE"
         ChkExencionIE.UseVisualStyleBackColor = False
@@ -771,7 +787,7 @@ Partial Class ContratoForm
         ' Label9
         ' 
         Label9.AutoSize = True
-        Label9.Font = New Font("Book Antiqua", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
+        Label9.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
         Label9.Location = New Point(25, 649)
         Label9.Name = "Label9"
         Label9.Size = New Size(0, 16)
@@ -780,7 +796,7 @@ Partial Class ContratoForm
         ' CheckSumarAñoFechavto
         ' 
         CheckSumarAñoFechavto.AutoSize = True
-        CheckSumarAñoFechavto.BackColor = SystemColors.Menu
+        CheckSumarAñoFechavto.BackColor = Color.Transparent
         CheckSumarAñoFechavto.Location = New Point(297, 143)
         CheckSumarAñoFechavto.Name = "CheckSumarAñoFechavto"
         CheckSumarAñoFechavto.Size = New Size(118, 19)
@@ -790,7 +806,7 @@ Partial Class ContratoForm
         ' 
         ' ContratoForm
         ' 
-        AutoScaleDimensions = New SizeF(7.0F, 15.0F)
+        AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = SystemColors.GradientInactiveCaption
         BackgroundImageLayout = ImageLayout.Center
