@@ -1,12 +1,15 @@
 ﻿
 Imports System.Drawing.Drawing2D
 Imports System.IO
+Imports System.Reflection.PortableExecutable
 Imports System.Text.RegularExpressions
 Imports System.Threading
 Imports System.Xml
 Imports ClosedXML.Excel
 Imports DocumentFormat.OpenXml.Wordprocessing
 Imports OfficeOpenXml
+Imports PdfSharp.Pdf
+Imports PdfSharp.Pdf.IO
 
 Public Class Form1
     Dim complementos As New Complementos()
@@ -808,7 +811,7 @@ Public Class Form1
 
         ' Si se indica carpeta nueva, combinarla
         If Not String.IsNullOrEmpty(nombreCarpetaNueva) Then
-            rutaFinal = IO.Path.Combine(rutaFinal, nombreCarpetaNueva)
+            rutaFinal = System.IO.Path.Combine(rutaFinal, nombreCarpetaNueva)
         End If
 
         ' Crear carpeta si no existe
@@ -817,7 +820,7 @@ Public Class Form1
         ' Devolver ruta de archivo o carpeta
         If Not String.IsNullOrEmpty(nombreArchivo) Then
             Dim nombreCompleto = $"{nombreArchivo}_{Date.Today:ddMMyyyy}.{extensionArchivo}"
-            Return IO.Path.Combine(rutaFinal, nombreCompleto)
+            Return System.IO.Path.Combine(rutaFinal, nombreCompleto)
         Else
             Return rutaFinal
         End If
@@ -1245,6 +1248,9 @@ Public Class Form1
             PictureBox2.Visible = False
 
             If comprobadas.Count > 0 Then
+                Await Task.Run(Sub()
+                                   DestinoPDFunificado(listaFacs, destino)
+                               End Sub)
                 complementos.MostrarMensajePersonalizado("PDF descargados. Pulse Aceptar para abrir la carpeta contenedora")
                 Process.Start("explorer.exe", destino)
             Else
@@ -1253,6 +1259,15 @@ Public Class Form1
         Catch ex As Exception
             PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado(ex.Message)
+        End Try
+    End Sub
+    Public Sub DestinoPDFunificado(listaFacs As List(Of String), destino As String)
+        Try
+            Dim rutasPDF = listaFacs.Select(Function(f) Path.Combine(destino, GenerarNombrePDF(f))).Where(Function(r) File.Exists(r)).ToList()
+            Dim rutaSalidaUnificado = Path.Combine(destino, "Facturas_Unificadas.pdf")
+            UnirPDFs(rutasPDF, rutaSalidaUnificado)
+        Catch ex As Exception
+            Throw
         End Try
     End Sub
 
@@ -1274,6 +1289,21 @@ Public Class Form1
         Dim nameSinExtension = Path.GetFileNameWithoutExtension(originalFileName)
         Return Mid(nameSinExtension, 1, 100) & Path.GetExtension(originalFileName)
     End Function
+
+    Private Sub UnirPDFs(rutasPDF As List(Of String), rutaSalida As String)
+        Dim outputDocument As New PdfDocument()
+        For Each pdf In rutasPDF
+            Dim inputDocument = PdfReader.Open(pdf, PdfDocumentOpenMode.Import)
+
+            For i As Integer = 0 To inputDocument.PageCount - 1
+                outputDocument.AddPage(inputDocument.Pages(i))
+            Next
+        Next
+
+        outputDocument.Save(rutaSalida)
+    End Sub
+
+
 
 #End Region
     ' Open Items
@@ -2235,7 +2265,7 @@ Public Class Form1
 
     'DEVS
     Private Async Sub BotonBuscarF(sender As Object, e As EventArgs) Handles BuscarFButton.Click
-        Dim carpetaXML = "C:\Audinfor\Sige\Total\FicherosExport\Import"
+        Dim carpetaXML = "\\172.31.100.13\Total\FicherosExport\Import"
         'Dim carpetaxml As String = "C:\Users\ErickCC\Desktop\Erick\DEVOL_COPIA"
         ' Archivo donde se guardarán los resultados
         Dim archivoResultados = $"C:\Users\{NombreUsuarioEquipo}\Documents\resultados.txt"
