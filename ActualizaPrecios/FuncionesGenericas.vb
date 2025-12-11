@@ -2743,7 +2743,31 @@ where serienumfactura='{Fac}'"
         Return listaIdLecturas
     End Function
 
+    Public Function UsuarioValidacion(Login As String, Password As String) As UsuarioValidacion
+        Dim user As UsuarioValidacion
+        'Dim ListaContratov2 As New List(Of Integer)
+        Try
 
+            Dim query As String = $"select nombre,login,Password from usuario where login='{Login}' and Password='{Password}'"
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ListaUsuarioValidacion = Helper.FillObjectFromDatatable(result.Tables(0), GetType(UsuarioValidacion)).Cast(Of UsuarioValidacion).ToList
+                If Not IsNothing(ListaUsuarioValidacion) AndAlso ListaUsuarioValidacion.Count > 0 Then
+                    user = ListaUsuarioValidacion.Where(Function(f) f.Nombre.Length > 1).FirstOrDefault
+
+                End If
+            End If
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return user
+    End Function
 
 #Region "Controlar valores excel"
     Public Function ToNullableDate(value As Object) As Date?

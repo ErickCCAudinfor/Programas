@@ -68,23 +68,10 @@ Public Class Login
 
             ' Mostrar mensaje de validación
             ValidacionLabel.Text = "Validando credenciales..."
+            Dim Funciones As New FuncionesGenericas("data source=172.31.100.12; initial catalog=SigeTotal;User ID=Sige;Password=SigeNew;")
 
-            ' Ejecutar consulta a la base de datos de manera asincrónica
-            Dim userBD As SigeCom.Repository.Usuario = Await Task.Run(Function()
-                                                                          Dim providerString As String =
-                "Data Source=172.31.100.29;Initial Catalog=SigeTotal;User ID=Sige;Password=SigeNew;" &
-                "MultipleActiveResultSets=True;Connect Timeout=120;Persist Security Info=True"
-
-                                                                          Dim metadata As String =
-                "res://*/Model.SigeComModel.csdl|res://*/Model.SigeComModel.ssdl|res://*/Model.SigeComModel.msl"
-
-                                                                          Dim connStr As String =
-                $"metadata={metadata};provider=System.Data.SqlClient;provider connection string=""{providerString}"""
-
-                                                                          Using contexto As New SigeComEntities(connStr)
-                                                                              Return contexto.Usuario.FirstOrDefault(Function(f) f.Login = UsuarioBox.Text AndAlso f.Password = PasswordBox.Text)
-                                                                          End Using
-                                                                      End Function)
+            ' Ejecutar la validación de manera asíncrona para no bloquear la UI
+            Dim userBD = Await Task.Run(Function() Funciones.UsuarioValidacion(UsuarioBox.Text, PasswordBox.Text))
 
             ' Validar resultado
             If userBD IsNot Nothing Then
@@ -92,7 +79,7 @@ Public Class Login
                 NombreUsario = userBD.Nombre
                 Close()
             Else
-                complementos.MostrarMensajePersonalizado("Credenciales incorrectas")
+                ValidacionLabel.Text = "Credenciales incorrectas"
             End If
 
         Catch ex As Exception
@@ -101,6 +88,7 @@ Public Class Login
             ValidacionLabel.Text = ""
         End Try
     End Sub
+
 
 
 
@@ -117,7 +105,7 @@ Public Class Login
     'End Sub
     Sub excel()
         ' Ruta del archivo original y del archivo nuevo
-        Dim rutaOrigen As String = "C:\Users\ErickCC\Desktop\Erick\estructura_cnae2009_v3.xlsx"
+        Dim rutaOrigen As String = "C:  \Users\ErickCC\Desktop\Erick\estructura_cnae2009_v3.xlsx"
         Dim rutaDestino As String = "C:\Users\ErickCC\Desktop\Erick\SeparadoPorGrupos.xlsx"
 
         ' Abrir archivo origen
@@ -168,6 +156,4 @@ Public Class Login
 
         Console.WriteLine("Archivo generado correctamente en: " & rutaDestino)
     End Sub
-
-
 End Class
