@@ -34,6 +34,7 @@ Partial Class Login
         Label1 = New Label()
         Panel1 = New Panel()
         Panel2 = New Panel()
+        ValidacionLabel = New Label()
         CType(ExitPicture, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
@@ -157,12 +158,24 @@ Partial Class Login
         Panel2.Size = New Size(203, 2)
         Panel2.TabIndex = 12
         ' 
+        ' ValidacionLabel
+        ' 
+        ValidacionLabel.AutoSize = True
+        ValidacionLabel.BackColor = Color.Transparent
+        ValidacionLabel.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        ValidacionLabel.ForeColor = Color.FromArgb(CByte(233), CByte(231), CByte(226))
+        ValidacionLabel.Location = New Point(190, 169)
+        ValidacionLabel.Name = "ValidacionLabel"
+        ValidacionLabel.Size = New Size(0, 15)
+        ValidacionLabel.TabIndex = 13
+        ' 
         ' Login
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.FromArgb(CByte(130), CByte(30), CByte(34))
         ClientSize = New Size(451, 219)
+        Controls.Add(ValidacionLabel)
         Controls.Add(Panel2)
         Controls.Add(Panel1)
         Controls.Add(Label1)
@@ -197,4 +210,5 @@ Partial Class Login
     Friend WithEvents Label1 As Label
     Friend WithEvents Panel1 As Panel
     Friend WithEvents Panel2 As Panel
+    Friend WithEvents ValidacionLabel As Label
 End Class

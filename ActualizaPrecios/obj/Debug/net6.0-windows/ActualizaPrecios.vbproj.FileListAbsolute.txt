@@ -96,3 +96,7 @@ C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\PdfSharp.dll
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\System.Diagnostics.DiagnosticSource.dll
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\System.Formats.Asn1.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\EntityFramework.SqlServer.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\EntityFramework.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\System.Configuration.ConfigurationManager.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Debug\net6.0-windows\SigeCom.Repository.dll

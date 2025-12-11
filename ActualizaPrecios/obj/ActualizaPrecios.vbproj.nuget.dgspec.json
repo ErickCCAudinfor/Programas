@@ -58,6 +58,10 @@
               "target": "Package",
               "version": "[7.0.9, )"
             },
+            "EntityFramework": {
+              "target": "Package",
+              "version": "[6.5.1, )"
+            },
             "ExcelDataReader.DataSet": {
               "target": "Package",
               "version": "[3.7.0, )"

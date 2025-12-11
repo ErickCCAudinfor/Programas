@@ -12,7 +12,10 @@ Imports PdfSharp.Pdf
 Imports PdfSharp.Pdf.IO
 
 Public Class Form1
+
+
     Dim complementos As New Complementos()
+    Public Property NombreLogin As String = ""
     'Dim LoadingWF As New LoadingWF
     Private Property ipDB As String = "data source=172.31.100.12"
     'Private ReadOnly Property ipDB As String = "data source=172.31.100.50\TOTALUAT;"
@@ -29,7 +32,11 @@ Public Class Form1
     Private Funciones As New FuncionesGenericas(connectionString)
 
     Private isExpanded As Boolean = False ' Para rastrear si la pestaña está expandida o contraída
-
+    Public Sub New(NombreLogin As String)
+        InitializeComponent()
+        Me.NombreLogin = NombreLogin
+        Text += " - " + NombreLogin
+    End Sub
 
     Private Sub SetTextSafe(ctrl As System.Windows.Forms.Control, text As String)
         If ctrl.InvokeRequired Then
@@ -2992,8 +2999,13 @@ Public Class Form1
     ' Variable global para saber si el panel está expandido
     Dim PanelExpandido As Boolean = True
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        PanelLateral.Width = 0
-        PanelExpandido = False
+        Try
+            PanelLateral.Width = 0
+            PanelExpandido = False
+        Catch ex As Exception
+            complementos.MostrarMensajePersonalizado(ex.Message)
+        End Try
+
     End Sub
 
     Private Sub btnExpandir_Click(sender As Object, e As EventArgs) Handles btnExpandir.Click

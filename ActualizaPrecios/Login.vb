@@ -1,13 +1,12 @@
 ﻿Imports System.Drawing.Drawing2D
 Imports ClosedXML.Excel
+Imports SigeCom.Repository
 
 Public Class Login
     Dim complementos As New Complementos()
-    ReadOnly Usuario As String = "SIGE"
-    ReadOnly Clave As String = "SIGE2025"
     Private originalSize As Size
     Private originalLocation As Point
-
+    Public NombreUsario As String
 
 
     Private Sub Login_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -53,31 +52,57 @@ Public Class Login
         Application.Exit()
     End Sub
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+    Private Async Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         Try
-            If UsuarioBox.Text.Length = 0 And PasswordBox.Text.Length > 0 Then
+            ' Validaciones de campos
+            If String.IsNullOrWhiteSpace(UsuarioBox.Text) AndAlso String.IsNullOrWhiteSpace(PasswordBox.Text) Then
+                complementos.MostrarMensajePersonalizado("¿Y los datos?")
+                Exit Sub
+            ElseIf String.IsNullOrWhiteSpace(UsuarioBox.Text) Then
                 complementos.MostrarMensajePersonalizado("Falta el usuario...")
                 Exit Sub
-            End If
-            If PasswordBox.Text.Length = 0 And UsuarioBox.Text.Length > 0 Then
+            ElseIf String.IsNullOrWhiteSpace(PasswordBox.Text) Then
                 complementos.MostrarMensajePersonalizado("Falta la clave...")
                 Exit Sub
             End If
-            If PasswordBox.Text.Length = 0 AndAlso PasswordBox.Text.Length = 0 Then
-                complementos.MostrarMensajePersonalizado("¿Y los datos?")
-                Exit Sub
-            End If
-            If UsuarioBox.Text.Equals(Usuario) AndAlso PasswordBox.Text.Equals(Clave) Then
+
+            ' Mostrar mensaje de validación
+            ValidacionLabel.Text = "Validando credenciales..."
+
+            ' Ejecutar consulta a la base de datos de manera asincrónica
+            Dim userBD As SigeCom.Repository.Usuario = Await Task.Run(Function()
+                                                                          Dim providerString As String =
+                "Data Source=172.31.100.29;Initial Catalog=SigeTotal;User ID=Sige;Password=SigeNew;" &
+                "MultipleActiveResultSets=True;Connect Timeout=120;Persist Security Info=True"
+
+                                                                          Dim metadata As String =
+                "res://*/Model.SigeComModel.csdl|res://*/Model.SigeComModel.ssdl|res://*/Model.SigeComModel.msl"
+
+                                                                          Dim connStr As String =
+                $"metadata={metadata};provider=System.Data.SqlClient;provider connection string=""{providerString}"""
+
+                                                                          Using contexto As New SigeComEntities(connStr)
+                                                                              Return contexto.Usuario.FirstOrDefault(Function(f) f.Login = UsuarioBox.Text AndAlso f.Password = PasswordBox.Text)
+                                                                          End Using
+                                                                      End Function)
+
+            ' Validar resultado
+            If userBD IsNot Nothing Then
                 DialogResult = DialogResult.OK
+                NombreUsario = userBD.Nombre
                 Close()
             Else
                 complementos.MostrarMensajePersonalizado("Credenciales incorrectas")
-                Exit Sub
             End If
+
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)
+        Finally
+            ValidacionLabel.Text = ""
         End Try
     End Sub
+
+
 
     Private Sub LabelGestorDatosSIGE_Click(sender As Object, e As EventArgs) Handles LabelGestorDatosSIGE.Click
 
