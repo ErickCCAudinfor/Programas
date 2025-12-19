@@ -1,9 +1,9 @@
 ﻿Imports System.IO
-Imports System.Numerics
 Imports OfficeOpenXml
 
 Public Class ProductosAsig
     Dim LoadingWF As New LoadingWF
+    Dim Complementos As New Complementos
     Private ReadOnly Property Contratos As List(Of Long)
 
     Private ReadOnly Property connectionString As String
@@ -339,6 +339,8 @@ Public Class ProductosAsig
             GenerarPlantilla($"C:\Users\{NombreUsuarioEquipoP}\Desktop\ConsultasBO\PlantillaProductoAsignacion.xlsx")
         Catch ex As Exception
             Throw
+        Finally
+            Complementos.MostrarMensajePersonalizado($"plantilla generada en C:\Users\{NombreUsuarioEquipoP}\Desktop\ConsultasBO\PlantillaProductoAsignacion.xlsx")
         End Try
     End Sub
     Public Sub GenerarPlantilla(rutaArchivo As String)
@@ -356,10 +358,10 @@ Public Class ProductosAsig
             worksheet.Cells(1, 6).Value = "PlazoCargado"
             worksheet.Cells(1, 7).Value = "ImporteTotalPlazo"
             worksheet.Cells(1, 8).Value = "Importe"
-            worksheet.Cells(1, 9).Value = "AntesIE"
-            worksheet.Cells(1, 10).Value = "AplicarSobreConsumo"
-            worksheet.Cells(1, 11).Value = "PrecioDia"
-            worksheet.Cells(1, 12).Value = "AplicarPrecioConsumo"
+            worksheet.Cells(1, 9).Value = "AntesIE(true/false)"
+            worksheet.Cells(1, 10).Value = "AplicarSobreConsumo(true/false)"
+            worksheet.Cells(1, 11).Value = "PrecioDia(true/false)"
+            worksheet.Cells(1, 12).Value = "AplicarPrecioConsumo(true/false)"
 
             ' Opcional: darle estilo a cabecera
             Using range = worksheet.Cells(1, 1, 1, 12)

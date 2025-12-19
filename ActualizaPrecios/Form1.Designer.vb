@@ -605,7 +605,7 @@ Partial Class Form1
         Button8.Name = "Button8"
         Button8.Size = New Size(180, 23)
         Button8.TabIndex = 18
-        Button8.Text = "Actualizar Email Excel"
+        Button8.Text = "Act. Email/Movil/tlfno  Excel"
         Button8.UseVisualStyleBackColor = True
         ' 
         ' Button4

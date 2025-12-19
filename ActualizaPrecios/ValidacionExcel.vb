@@ -706,7 +706,6 @@ where fvc.idfacturaventacabecera in (select IdFacturaVentaCabecera from Facturas
     GROUP BY 
         CodigoContrato
 )
-
 SELECT 
     fvc.CodigoContrato,
     fvc.SerieFactura,
@@ -715,53 +714,68 @@ SELECT
     -- Precios de cada periodo sumando PrecioCargo y PrecioMedio de las tablas correspondientes
     REPLACE(ISNULL(MAX(CASE WHEN fvl.codigoperiodoXML = 1 THEN  ISNULL(fvl.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
 			ISNULL(MAX(CASE WHEN fvlb.codigoperiodoXML = 1 THEN  ISNULL(fvlb.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 1 THEN  ISNULL(fvlc.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0), '.', ',') AS SumaPrecioP1,
+			ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 1 THEN  ISNULL(fvlc.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
+			ISNULL(MAX(CASE WHEN fvld.codigoperiodoXML = 1 THEN  fvld.PrecioMedioVariable ELSE NULL END), 0), '.', ',') AS SumaPrecioP1,
 
      REPLACE(ISNULL(MAX(CASE WHEN fvl.codigoperiodoXML = 2 THEN  ISNULL(fvl.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
 			ISNULL(MAX(CASE WHEN fvlb.codigoperiodoXML = 2 THEN  ISNULL(fvlb.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 2 THEN  ISNULL(fvlc.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0), '.', ',') AS SumaPrecioP2,
+			ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 2 THEN  ISNULL(fvlc.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
+			ISNULL(MAX(CASE WHEN fvld.codigoperiodoXML = 2 THEN  fvld.PrecioMedioVariable ELSE NULL END), 0), '.', ',') AS SumaPrecioP2,
 
      REPLACE(ISNULL(MAX(CASE WHEN fvl.codigoperiodoXML = 3 THEN  ISNULL(fvl.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
 			ISNULL(MAX(CASE WHEN fvlb.codigoperiodoXML = 3 THEN  ISNULL(fvlb.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 3 THEN  ISNULL(fvlc.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0), '.', ',') AS SumaPrecioP3,
+			ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 3 THEN  ISNULL(fvlc.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
+			ISNULL(MAX(CASE WHEN fvld.codigoperiodoXML = 3 THEN  fvld.PrecioMedioVariable ELSE NULL END), 0), '.', ',') AS SumaPrecioP3,
 
      REPLACE(ISNULL(MAX(CASE WHEN fvl.codigoperiodoXML = 4 THEN  ISNULL(fvl.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
 			ISNULL(MAX(CASE WHEN fvlb.codigoperiodoXML = 4 THEN  ISNULL(fvlb.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 4 THEN  ISNULL(fvlc.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0), '.', ',') AS SumaPrecioP4,
+			ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 4 THEN  ISNULL(fvlc.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
+			ISNULL(MAX(CASE WHEN fvld.codigoperiodoXML = 4 THEN  fvld.PrecioMedioVariable ELSE NULL END), 0), '.', ',') AS SumaPrecioP4,
 
      REPLACE(ISNULL(MAX(CASE WHEN fvl.codigoperiodoXML = 5 THEN  ISNULL(fvl.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
 			ISNULL(MAX(CASE WHEN fvlb.codigoperiodoXML = 5 THEN  ISNULL(fvlb.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 5 THEN  ISNULL(fvlc.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0), '.', ',') AS SumaPrecioP5,
+			ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 5 THEN  ISNULL(fvlc.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
+			ISNULL(MAX(CASE WHEN fvld.codigoperiodoXML = 5 THEN  fvld.PrecioMedioVariable ELSE NULL END), 0), '.', ',') AS SumaPrecioP5,
 
      REPLACE(ISNULL(MAX(CASE WHEN fvl.codigoperiodoXML = 6 THEN  ISNULL(fvl.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
 			ISNULL(MAX(CASE WHEN fvlb.codigoperiodoXML = 6 THEN  ISNULL(fvlb.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 6 THEN  ISNULL(fvlc.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0), '.', ',') AS SumaPrecioP6,
+			ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 6 THEN  ISNULL(fvlc.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
+			ISNULL(MAX(CASE WHEN fvld.codigoperiodoXML = 6 THEN  fvld.PrecioMedioVariable ELSE NULL END), 0), '.', ',') AS SumaPrecioP6,
 
     -- Consumos de cada periodo
-    REPLACE(ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 1 THEN 
-        ISNULL(fvlc.TotConsumoEnergiaXML, 0)
+    REPLACE(ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 1 or (fvld.codigoperiodoXML = 1 and tg.TextoTarifaGrupo like '%soul%') THEN 
+        case when tg.TextoTarifaGrupo like '%soul%' then fvld.ConsumoVariable else ISNULL(fvlc.TotConsumoEnergiaXML, 0) end
         ELSE NULL END), 0), '.', ',') AS ConsumoP1,
-    REPLACE(ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 2 THEN 
-        ISNULL(fvlc.TotConsumoEnergiaXML, 0)
+    REPLACE(ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 2 or (fvld.codigoperiodoXML = 2 and tg.TextoTarifaGrupo like '%soul%') THEN 
+        case when tg.TextoTarifaGrupo like '%soul%' then fvld.ConsumoVariable else ISNULL(fvlc.TotConsumoEnergiaXML, 0) end
         ELSE NULL END), 0), '.', ',') AS ConsumoP2,
-    REPLACE(ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 3 THEN 
-        ISNULL(fvlc.TotConsumoEnergiaXML, 0)
+    REPLACE(ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 3 or (fvld.codigoperiodoXML = 3 and tg.TextoTarifaGrupo like '%soul%') THEN 
+                case when tg.TextoTarifaGrupo like '%soul%' then fvld.ConsumoVariable else ISNULL(fvlc.TotConsumoEnergiaXML, 0) end
         ELSE NULL END), 0), '.', ',') AS ConsumoP3,
-    REPLACE(ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 4 THEN 
-        ISNULL(fvlc.TotConsumoEnergiaXML, 0)
+    REPLACE(ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 4 or (fvld.codigoperiodoXML = 4 and tg.TextoTarifaGrupo like '%soul%') THEN 
+        case when tg.TextoTarifaGrupo like '%soul%' then fvld.ConsumoVariable else ISNULL(fvlc.TotConsumoEnergiaXML, 0) end
         ELSE NULL END), 0), '.', ',') AS ConsumoP4,
-    REPLACE(ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 5 THEN 
-        ISNULL(fvlc.TotConsumoEnergiaXML, 0)
+    REPLACE(ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 5 or (fvld.codigoperiodoXML = 5 and tg.TextoTarifaGrupo like '%soul%') THEN 
+        case when tg.TextoTarifaGrupo like '%soul%' then fvld.ConsumoVariable else ISNULL(fvlc.TotConsumoEnergiaXML, 0) end
         ELSE NULL END), 0), '.', ',') AS ConsumoP5,
-    REPLACE(ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 6 THEN 
-        ISNULL(fvlc.TotConsumoEnergiaXML, 0)
+    REPLACE(ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 6 or (fvld.codigoperiodoXML = 6 and tg.TextoTarifaGrupo like '%soul%') THEN 
+        case when tg.TextoTarifaGrupo like '%soul%' then fvld.ConsumoVariable else ISNULL(fvlc.TotConsumoEnergiaXML, 0) end
         ELSE NULL END), 0), '.', ',') AS ConsumoP6
-
+		,tg.TextoTarifaGrupo
 FROM FacturaVentaCabecera fvc WITH (NOLOCK)
 LEFT JOIN FacturaVentaLinea fvl WITH (NOLOCK) ON fvl.idfacturaventacabecera = fvc.idfacturaventacabecera AND fvl.Facturaconcepto IN (130004)
 LEFT JOIN FacturaVentaLinea fvlb WITH (NOLOCK) ON fvlb.idfacturaventacabecera = fvc.idfacturaventacabecera AND fvlb.Facturaconcepto IN (30001)
 LEFT JOIN FacturaVentaLinea fvlc WITH (NOLOCK) ON fvlc.idfacturaventacabecera = fvc.idfacturaventacabecera AND fvlc.Facturaconcepto = 30002
-
+left join (
+select IdFacturaVentaCabecera
+, sum(ISNULL(fvl.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0))PrecioMedioVariable
+, max(TotConsumoEnergiaXML) ConsumoVariable
+,CodigoPeriodoXML
+from facturaventalinea fvl
+where facturaconcepto=30004
+group by fvl.IdFacturaVentaCabecera, fvl.CodigoPeriodoXML
+)  fvld ON fvld.idfacturaventacabecera = fvc.idfacturaventacabecera
+left join TarifaGrupo tg on fvc.IdTarifaGrupoXML = tg.IdTarifaGrupo
 WHERE fvc.IdFacturaVentaCabecera IN (
     SELECT idfacturaventacabecera 
     FROM FacturaVentaCabecera WITH (NOLOCK) 
@@ -771,7 +785,9 @@ WHERE fvc.IdFacturaVentaCabecera IN (
 GROUP BY 
     fvc.CodigoContrato,
     fvc.SerieFactura,
-    fvc.NumeroFactura;
+    fvc.NumeroFactura
+	,fvc.IdFacturaVentaCabecera
+	,tg.TextoTarifaGrupo;
 
 "
 

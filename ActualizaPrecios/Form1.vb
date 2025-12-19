@@ -1126,7 +1126,7 @@ Public Class Form1
                 If ConC.Count > 0 Then
                     For Each elemnt In ConC
                         Dim ContratoC = Funciones.GetContrato(elemnt)
-                        If Not IsNothing(ContratoC) AndAlso ContratoC.IdContrato > 0 Then ' solo si es activo
+                        If Not IsNothing(ContratoC) AndAlso ContratoC.IdContrato > 0 Then
                             ListaCodContrato.Add(If(ContratoC.CodigoContrato, 0L))
                         End If
                     Next
