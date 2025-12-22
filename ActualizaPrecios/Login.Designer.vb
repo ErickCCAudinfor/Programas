@@ -194,11 +194,11 @@ Partial Class Login
         ' 
         TextoValidar.AutoSize = True
         TextoValidar.BackColor = Color.Transparent
-        TextoValidar.Font = New Font("Segoe UI", 6F, FontStyle.Regular, GraphicsUnit.Point)
-        TextoValidar.ForeColor = Color.Black
-        TextoValidar.Location = New Point(76, 124)
+        TextoValidar.Font = New Font("Segoe UI", 7F, FontStyle.Regular, GraphicsUnit.Point)
+        TextoValidar.ForeColor = Color.Red
+        TextoValidar.Location = New Point(65, 124)
         TextoValidar.Name = "TextoValidar"
-        TextoValidar.Size = New Size(0, 11)
+        TextoValidar.Size = New Size(0, 12)
         TextoValidar.TabIndex = 54
         ' 
         ' UsuarioBox
