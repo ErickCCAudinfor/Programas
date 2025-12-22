@@ -85,7 +85,7 @@ Partial Class Login
         ' 
         Label4.AutoSize = True
         Label4.BackColor = Color.Transparent
-        Label4.Font = New Font("Segoe UI", 6.0F, FontStyle.Regular, GraphicsUnit.Point)
+        Label4.Font = New Font("Segoe UI", 6F, FontStyle.Regular, GraphicsUnit.Point)
         Label4.ForeColor = Color.Black
         Label4.Location = New Point(323, 252)
         Label4.Name = "Label4"
@@ -97,7 +97,7 @@ Partial Class Login
         ' 
         Label5.AutoSize = True
         Label5.BackColor = Color.Transparent
-        Label5.Font = New Font("Segoe UI", 6.0F, FontStyle.Regular, GraphicsUnit.Point)
+        Label5.Font = New Font("Segoe UI", 6F, FontStyle.Regular, GraphicsUnit.Point)
         Label5.ForeColor = Color.Black
         Label5.Location = New Point(363, 252)
         Label5.Name = "Label5"
@@ -119,11 +119,11 @@ Partial Class Login
         ' 
         Label1.AutoSize = True
         Label1.BackColor = Color.Transparent
-        Label1.Font = New Font("Segoe UI", 6.0F, FontStyle.Regular, GraphicsUnit.Point)
+        Label1.Font = New Font("Segoe UI", 7F, FontStyle.Regular, GraphicsUnit.Point)
         Label1.ForeColor = Color.White
         Label1.Location = New Point(56, 163)
         Label1.Name = "Label1"
-        Label1.Size = New Size(43, 11)
+        Label1.Size = New Size(51, 12)
         Label1.TabIndex = 10
         Label1.Text = "version 2.0"
         ' 
@@ -131,7 +131,7 @@ Partial Class Login
         ' 
         ValidacionLabel.AutoSize = True
         ValidacionLabel.BackColor = Color.Transparent
-        ValidacionLabel.Font = New Font("Segoe UI", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
+        ValidacionLabel.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
         ValidacionLabel.ForeColor = Color.Black
         ValidacionLabel.Location = New Point(165, 169)
         ValidacionLabel.Name = "ValidacionLabel"
@@ -170,11 +170,11 @@ Partial Class Login
         ' 
         Clavelbl.AutoSize = True
         Clavelbl.BackColor = Color.Transparent
-        Clavelbl.Font = New Font("Segoe UI", 6.0F, FontStyle.Regular, GraphicsUnit.Point)
+        Clavelbl.Font = New Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point)
         Clavelbl.ForeColor = Color.Black
         Clavelbl.Location = New Point(15, 49)
         Clavelbl.Name = "Clavelbl"
-        Clavelbl.Size = New Size(24, 11)
+        Clavelbl.Size = New Size(34, 13)
         Clavelbl.TabIndex = 55
         Clavelbl.Text = "Clave"
         ' 
@@ -182,11 +182,11 @@ Partial Class Login
         ' 
         UsuarioLbl.AutoSize = True
         UsuarioLbl.BackColor = Color.Transparent
-        UsuarioLbl.Font = New Font("Segoe UI", 6.0F, FontStyle.Regular, GraphicsUnit.Point)
+        UsuarioLbl.Font = New Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point)
         UsuarioLbl.ForeColor = Color.Black
         UsuarioLbl.Location = New Point(15, 8)
         UsuarioLbl.Name = "UsuarioLbl"
-        UsuarioLbl.Size = New Size(33, 11)
+        UsuarioLbl.Size = New Size(47, 13)
         UsuarioLbl.TabIndex = 54
         UsuarioLbl.Text = "Usuario"
         ' 
@@ -194,7 +194,7 @@ Partial Class Login
         ' 
         TextoValidar.AutoSize = True
         TextoValidar.BackColor = Color.Transparent
-        TextoValidar.Font = New Font("Segoe UI", 6.0F, FontStyle.Regular, GraphicsUnit.Point)
+        TextoValidar.Font = New Font("Segoe UI", 6F, FontStyle.Regular, GraphicsUnit.Point)
         TextoValidar.ForeColor = Color.Black
         TextoValidar.Location = New Point(76, 124)
         TextoValidar.Name = "TextoValidar"
@@ -219,7 +219,7 @@ Partial Class Login
         PasswordBox.ForeColor = Color.Black
         PasswordBox.Location = New Point(15, 63)
         PasswordBox.Name = "PasswordBox"
-        PasswordBox.PlaceholderText = "   clave..."
+        PasswordBox.PlaceholderText = "   ******"
         PasswordBox.Size = New Size(203, 23)
         PasswordBox.TabIndex = 1
         ' 
@@ -357,7 +357,7 @@ Partial Class Login
         ' 
         ' Login
         ' 
-        AutoScaleDimensions = New SizeF(7.0F, 15.0F)
+        AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.FromArgb(CByte(244), CByte(246), CByte(248))
         ClientSize = New Size(459, 270)

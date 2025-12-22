@@ -54,40 +54,57 @@ Public Class Login
 
     Private Async Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         Try
-            ' Validaciones de campos
-            If String.IsNullOrWhiteSpace(UsuarioBox.Text) AndAlso String.IsNullOrWhiteSpace(PasswordBox.Text) Then
-                complementos.MostrarMensajePersonalizado("¿Y los datos?")
-                Exit Sub
-            ElseIf String.IsNullOrWhiteSpace(UsuarioBox.Text) Then
-                complementos.MostrarMensajePersonalizado("Falta el usuario...")
-                Exit Sub
-            ElseIf String.IsNullOrWhiteSpace(PasswordBox.Text) Then
-                complementos.MostrarMensajePersonalizado("Falta la clave...")
-                Exit Sub
-            End If
+            If Not ValidarCampos() Then Exit Sub
 
-            ' Mostrar mensaje de validación
             TextoValidar.Text = "Validando credenciales..."
-            Dim Funciones As New FuncionesGenericas("data source=172.31.100.12; initial catalog=SigeTotal;User ID=Sige;Password=SigeNew;")
+            Button1.Enabled = False
 
-            ' Ejecutar la validación de manera asíncrona para no bloquear la UI
-            Dim userBD = Await Task.Run(Function() Funciones.UsuarioValidacion(UsuarioBox.Text, PasswordBox.Text))
+            Dim funciones As New FuncionesGenericas("data source=172.31.100.12; initial catalog=SigeTotal;User ID=Sige;Password=SigeNew;")
 
-            ' Validar resultado
-            If userBD IsNot Nothing Then
-                DialogResult = DialogResult.OK
-                NombreUsario = userBD.Nombre
-                Close
-            Else
+            Dim userBD = Await Task.Run(Function()
+                                            Return funciones.UsuarioValidacion(
+                                            UsuarioBox.Text.Trim(),
+                                            PasswordBox.Text
+                                        )
+                                        End Function)
+
+            If userBD Is Nothing Then
                 TextoValidar.Text = "Credenciales incorrectas"
+                Return
             End If
+
+            NombreUsario = userBD.Nombre
+            DialogResult = DialogResult.OK
+            Close()
 
         Catch ex As Exception
-            complementos.MostrarMensajePersonalizado(ex.Message)
-        Finally
             TextoValidar.Text = ""
+            complementos.MostrarMensajePersonalizado(ex.Message)
+
+        Finally
+            Button1.Enabled = True
         End Try
     End Sub
+
+    Private Function ValidarCampos() As Boolean
+        If String.IsNullOrWhiteSpace(UsuarioBox.Text) AndAlso
+       String.IsNullOrWhiteSpace(PasswordBox.Text) Then
+
+            TextoValidar.Text = "¿Y los datos?"
+            Return False
+
+        ElseIf String.IsNullOrWhiteSpace(UsuarioBox.Text) Then
+            TextoValidar.Text = "Falta el usuario..."
+            Return False
+
+        ElseIf String.IsNullOrWhiteSpace(PasswordBox.Text) Then
+            TextoValidar.Text = "Falta la clave..."
+            Return False
+        End If
+
+        TextoValidar.Text = ""
+        Return True
+    End Function
 
 
 

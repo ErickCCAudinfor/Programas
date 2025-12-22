@@ -3021,7 +3021,7 @@ Public Class Form1
                 PanelExpandido = False
                 TimerPanel.Stop()
             End If
-            PanelLateral.SendToBack()
+            'PanelLateral.SendToBack()
         Else
             ' Expandir
             PanelLateral.BringToFront()
