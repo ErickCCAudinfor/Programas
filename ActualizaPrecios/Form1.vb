@@ -141,7 +141,7 @@ Public Class Form1
             Dim Datos As New List(Of List(Of Object))
 
             PictureBox2.Visible = True
-            Dim resultado As String = Await ProcesarContratos(contratosFiltrados, Datos)
+            Dim resultado = Await ProcesarContratos(contratosFiltrados, Datos)
             PictureBox2.Visible = False
 
             ' Exportación centralizada
@@ -2542,29 +2542,29 @@ Public Class Form1
         End Try
     End Sub
 
-    Private Sub Login_Paint(sender As Object, e As PaintEventArgs) Handles MyBase.Paint
-        Dim rect As Rectangle = Me.ClientRectangle
+    'Private Sub Login_Paint(sender As Object, e As PaintEventArgs) Handles MyBase.Paint
+    '    Dim rect As Rectangle = Me.ClientRectangle
 
-        ' Evitar error si aún no tiene tamaño válido
-        If rect.Width <= 0 OrElse rect.Height <= 0 Then
-            Exit Sub
-        End If
+    '    ' Evitar error si aún no tiene tamaño válido
+    '    If rect.Width <= 0 OrElse rect.Height <= 0 Then
+    '        Exit Sub
+    '    End If
 
-        ' Definimos los colores en RGB
-        Dim color1 As System.Drawing.Color = System.Drawing.Color.FromArgb(160, 30, 34)
-        Dim color2 As System.Drawing.Color = System.Drawing.Color.FromArgb(96, 109, 140)
-        Dim color3 As System.Drawing.Color = System.Drawing.Color.FromArgb(233, 231, 226)
+    '    ' Definimos los colores en RGB
+    '    Dim color1 As System.Drawing.Color = System.Drawing.Color.FromArgb(160, 30, 34)
+    '    Dim color2 As System.Drawing.Color = System.Drawing.Color.FromArgb(96, 109, 140)
+    '    Dim color3 As System.Drawing.Color = System.Drawing.Color.FromArgb(233, 231, 226)
 
-        ' Creamos el gradiente
-        Using brush As New LinearGradientBrush(rect, color1, color3, 222.0F)
-            Dim blend As New ColorBlend()
-            blend.Colors = New System.Drawing.Color() {color1, color2, color3}
-            blend.Positions = New Single() {0.0F, 0.5F, 1.0F}
+    '    ' Creamos el gradiente
+    '    Using brush As New LinearGradientBrush(rect, color1, color3, 222.0F)
+    '        Dim blend As New ColorBlend()
+    '        blend.Colors = New System.Drawing.Color() {color1, color2, color3}
+    '        blend.Positions = New Single() {0.0F, 0.5F, 1.0F}
 
-            brush.InterpolationColors = blend
-            e.Graphics.FillRectangle(brush, rect)
-        End Using
-    End Sub
+    '        brush.InterpolationColors = blend
+    '        e.Graphics.FillRectangle(brush, rect)
+    '    End Using
+    'End Sub
 
 
     Private Sub Login_Resize(sender As Object, e As EventArgs) Handles Me.Resize
@@ -3014,14 +3014,17 @@ Public Class Form1
 
     Private Sub TimerPanel_Tick(sender As Object, e As EventArgs) Handles TimerPanel.Tick
         If PanelExpandido Then
+
             ' Contraer
             PanelLateral.Width -= 10
             If PanelLateral.Width <= 0 Then
                 PanelExpandido = False
                 TimerPanel.Stop()
             End If
+            PanelLateral.SendToBack()
         Else
             ' Expandir
+            PanelLateral.BringToFront()
             PanelLateral.Width += 10
             If PanelLateral.Width >= 220 Then
                 PanelExpandido = True

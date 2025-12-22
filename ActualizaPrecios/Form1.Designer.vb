@@ -41,7 +41,6 @@ Partial Class Form1
         RadioButton2 = New RadioButton()
         RadioButton1 = New RadioButton()
         Button15 = New Button()
-        Panel4 = New Panel()
         Button10 = New Button()
         ToolTop1 = New ToolTip(components)
         PictureBox1 = New PictureBox()
@@ -73,7 +72,6 @@ Partial Class Form1
         DateTimePicker1 = New DateTimePicker()
         Label6 = New Label()
         Button25 = New Button()
-        Panel3 = New Panel()
         Button6 = New Button()
         Button5 = New Button()
         Button8 = New Button()
@@ -109,22 +107,32 @@ Partial Class Form1
         DividirChck = New CheckBox()
         Panel5 = New Panel()
         Panel6 = New Panel()
+        Separador = New Panel()
+        pblBorde = New Panel()
+        pnlContenido = New Panel()
+        Panel3 = New Panel()
+        Panel4 = New Panel()
+        Panel8 = New Panel()
+        Panel7 = New Panel()
         Panel1.SuspendLayout()
         CType(PictureBox2, ComponentModel.ISupportInitialize).BeginInit()
-        Panel4.SuspendLayout()
         CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
-        Panel3.SuspendLayout()
         Panel2.SuspendLayout()
         PanelLateral.SuspendLayout()
         Panel5.SuspendLayout()
         Panel6.SuspendLayout()
+        pblBorde.SuspendLayout()
+        pnlContenido.SuspendLayout()
+        Panel3.SuspendLayout()
+        Panel4.SuspendLayout()
+        Panel8.SuspendLayout()
         SuspendLayout()
         ' 
         ' CheckBox1
         ' 
         CheckBox1.AutoSize = True
         CheckBox1.BackColor = Color.Transparent
-        CheckBox1.Location = New Point(123, 3)
+        CheckBox1.Location = New Point(83, 32)
         CheckBox1.Name = "CheckBox1"
         CheckBox1.Size = New Size(55, 19)
         CheckBox1.TabIndex = 1
@@ -135,7 +143,7 @@ Partial Class Form1
         ' 
         CheckBox2.AutoSize = True
         CheckBox2.BackColor = Color.Transparent
-        CheckBox2.Location = New Point(184, 3)
+        CheckBox2.Location = New Point(144, 32)
         CheckBox2.Name = "CheckBox2"
         CheckBox2.Size = New Size(73, 19)
         CheckBox2.TabIndex = 2
@@ -146,7 +154,7 @@ Partial Class Form1
         ' 
         CheckBox3.AutoSize = True
         CheckBox3.BackColor = Color.Transparent
-        CheckBox3.Location = New Point(57, 3)
+        CheckBox3.Location = New Point(17, 32)
         CheckBox3.Name = "CheckBox3"
         CheckBox3.Size = New Size(63, 19)
         CheckBox3.TabIndex = 3
@@ -157,7 +165,7 @@ Partial Class Form1
         ' 
         TextBox2.Enabled = False
         TextBox2.HideSelection = False
-        TextBox2.Location = New Point(7, 6)
+        TextBox2.Location = New Point(11, 55)
         TextBox2.Multiline = True
         TextBox2.Name = "TextBox2"
         TextBox2.PlaceholderText = "Selecciona un filtro y escriba aqui para buscar: 216, 456789,231,24,...etc."
@@ -169,17 +177,18 @@ Partial Class Form1
         ' 
         Label2.AutoSize = True
         Label2.BackColor = Color.Transparent
-        Label2.Location = New Point(9, 4)
+        Label2.Font = New Font("Arial", 9.0F, FontStyle.Bold, GraphicsUnit.Point)
+        Label2.Location = New Point(14, 5)
         Label2.Name = "Label2"
         Label2.Size = New Size(42, 15)
         Label2.TabIndex = 7
-        Label2.Text = "Filtros:"
+        Label2.Text = "Filtros"
         ' 
         ' Label5
         ' 
         Label5.AutoSize = True
         Label5.BorderStyle = BorderStyle.FixedSingle
-        Label5.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        Label5.Font = New Font("Segoe UI", 9.0F, FontStyle.Bold, GraphicsUnit.Point)
         Label5.ForeColor = Color.Black
         Label5.Location = New Point(400, 20)
         Label5.Name = "Label5"
@@ -195,7 +204,7 @@ Partial Class Form1
         Panel1.Controls.Add(Label5)
         Panel1.Controls.Add(RadioButton2)
         Panel1.Controls.Add(RadioButton1)
-        Panel1.Location = New Point(2, 544)
+        Panel1.Location = New Point(21, 598)
         Panel1.Name = "Panel1"
         Panel1.Size = New Size(616, 39)
         Panel1.TabIndex = 21
@@ -252,18 +261,9 @@ Partial Class Form1
         Button15.Text = "Desglosar click Luz"
         Button15.UseVisualStyleBackColor = True
         ' 
-        ' Panel4
-        ' 
-        Panel4.BackColor = Color.Transparent
-        Panel4.Controls.Add(TextBox2)
-        Panel4.Location = New Point(6, 23)
-        Panel4.Name = "Panel4"
-        Panel4.Size = New Size(305, 128)
-        Panel4.TabIndex = 24
-        ' 
         ' Button10
         ' 
-        Button10.Location = New Point(200, 0)
+        Button10.Location = New Point(192, 180)
         Button10.Name = "Button10"
         Button10.Size = New Size(106, 21)
         Button10.TabIndex = 25
@@ -288,7 +288,7 @@ Partial Class Form1
         ' 
         RadioButton3.AutoSize = True
         RadioButton3.BackColor = Color.Transparent
-        RadioButton3.Location = New Point(569, 545)
+        RadioButton3.Location = New Point(588, 599)
         RadioButton3.Name = "RadioButton3"
         RadioButton3.Size = New Size(47, 19)
         RadioButton3.TabIndex = 28
@@ -299,7 +299,7 @@ Partial Class Form1
         ' Button17
         ' 
         Button17.Enabled = False
-        Button17.Location = New Point(126, 153)
+        Button17.Location = New Point(129, 346)
         Button17.Name = "Button17"
         Button17.Size = New Size(96, 23)
         Button17.TabIndex = 21
@@ -308,10 +308,13 @@ Partial Class Form1
         ' 
         ' Button23
         ' 
-        Button23.BackColor = Color.Silver
-        Button23.Location = New Point(484, 252)
+        Button23.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        Button23.FlatAppearance.BorderColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        Button23.FlatStyle = FlatStyle.Popup
+        Button23.ForeColor = Color.White
+        Button23.Location = New Point(3, 263)
         Button23.Name = "Button23"
-        Button23.Size = New Size(86, 21)
+        Button23.Size = New Size(311, 30)
         Button23.TabIndex = 29
         Button23.Text = "Consultar"
         Button23.UseVisualStyleBackColor = False
@@ -331,7 +334,7 @@ Partial Class Form1
         ' 
         Label7.AutoSize = True
         Label7.BackColor = Color.Transparent
-        Label7.Location = New Point(352, 14)
+        Label7.Location = New Point(8, 6)
         Label7.Name = "Label7"
         Label7.Size = New Size(62, 15)
         Label7.TabIndex = 31
@@ -340,29 +343,29 @@ Partial Class Form1
         ' DateTimePicker2
         ' 
         DateTimePicker2.CustomFormat = "dd/MM/yyyy"
-        DateTimePicker2.Font = New Font("Arial Narrow", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        DateTimePicker2.Font = New Font("Arial Narrow", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
         DateTimePicker2.Format = DateTimePickerFormat.Custom
-        DateTimePicker2.Location = New Point(524, 227)
+        DateTimePicker2.Location = New Point(177, 235)
         DateTimePicker2.Name = "DateTimePicker2"
-        DateTimePicker2.Size = New Size(86, 21)
+        DateTimePicker2.Size = New Size(137, 21)
         DateTimePicker2.TabIndex = 23
         ' 
         ' DateTimePicker3
         ' 
         DateTimePicker3.CalendarMonthBackground = Color.LightBlue
         DateTimePicker3.CustomFormat = "dd/MM/yyyy"
-        DateTimePicker3.Font = New Font("Arial Narrow", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        DateTimePicker3.Font = New Font("Arial Narrow", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
         DateTimePicker3.Format = DateTimePickerFormat.Custom
-        DateTimePicker3.Location = New Point(430, 227)
+        DateTimePicker3.Location = New Point(8, 235)
         DateTimePicker3.Name = "DateTimePicker3"
-        DateTimePicker3.Size = New Size(92, 21)
+        DateTimePicker3.Size = New Size(144, 21)
         DateTimePicker3.TabIndex = 32
         ' 
         ' Label8
         ' 
         Label8.AutoSize = True
         Label8.BackColor = Color.Transparent
-        Label8.Location = New Point(430, 209)
+        Label8.Location = New Point(8, 217)
         Label8.Name = "Label8"
         Label8.Size = New Size(73, 15)
         Label8.TabIndex = 33
@@ -372,7 +375,7 @@ Partial Class Form1
         ' 
         Label9.AutoSize = True
         Label9.BackColor = Color.Transparent
-        Label9.Location = New Point(524, 209)
+        Label9.Location = New Point(176, 216)
         Label9.Name = "Label9"
         Label9.Size = New Size(71, 15)
         Label9.TabIndex = 34
@@ -470,7 +473,7 @@ Partial Class Form1
         ' Label4
         ' 
         Label4.AutoSize = True
-        Label4.Location = New Point(7, 78)
+        Label4.Location = New Point(10, 271)
         Label4.Name = "Label4"
         Label4.Size = New Size(187, 15)
         Label4.TabIndex = 16
@@ -481,7 +484,7 @@ Partial Class Form1
         CheckBox4.AutoSize = True
         CheckBox4.Checked = True
         CheckBox4.CheckState = CheckState.Checked
-        CheckBox4.Location = New Point(205, 76)
+        CheckBox4.Location = New Point(208, 269)
         CheckBox4.Name = "CheckBox4"
         CheckBox4.Size = New Size(98, 19)
         CheckBox4.TabIndex = 19
@@ -490,7 +493,7 @@ Partial Class Form1
         ' 
         ' Button7
         ' 
-        Button7.Location = New Point(13, 100)
+        Button7.Location = New Point(16, 293)
         Button7.Name = "Button7"
         Button7.Size = New Size(103, 23)
         Button7.TabIndex = 15
@@ -500,7 +503,7 @@ Partial Class Form1
         ' TextBox3
         ' 
         TextBox3.Enabled = False
-        TextBox3.Location = New Point(7, 52)
+        TextBox3.Location = New Point(10, 245)
         TextBox3.Name = "TextBox3"
         TextBox3.PlaceholderText = "Tarifa grupo actual..."
         TextBox3.Size = New Size(299, 23)
@@ -509,7 +512,7 @@ Partial Class Form1
         ' TextBox1
         ' 
         TextBox1.Enabled = False
-        TextBox1.Location = New Point(7, 23)
+        TextBox1.Location = New Point(10, 216)
         TextBox1.Name = "TextBox1"
         TextBox1.PlaceholderText = "Ingrese la nueva tarifa grupo"
         TextBox1.Size = New Size(299, 23)
@@ -517,11 +520,14 @@ Partial Class Form1
         ' 
         ' Button1
         ' 
-        Button1.BackColor = Color.Silver
+        Button1.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
         Button1.Enabled = False
-        Button1.Location = New Point(228, 96)
+        Button1.FlatAppearance.BorderColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        Button1.FlatStyle = FlatStyle.Popup
+        Button1.ForeColor = Color.White
+        Button1.Location = New Point(125, 293)
         Button1.Name = "Button1"
-        Button1.Size = New Size(75, 23)
+        Button1.Size = New Size(181, 23)
         Button1.TabIndex = 0
         Button1.Text = "Actualizar"
         Button1.UseVisualStyleBackColor = False
@@ -529,7 +535,7 @@ Partial Class Form1
         ' Label1
         ' 
         Label1.AutoSize = True
-        Label1.Location = New Point(8, 9)
+        Label1.Location = New Point(11, 202)
         Label1.Name = "Label1"
         Label1.Size = New Size(72, 15)
         Label1.TabIndex = 6
@@ -539,7 +545,7 @@ Partial Class Form1
         ' 
         DateTimePicker1.CustomFormat = "dd/MM/yyyy"
         DateTimePicker1.Format = DateTimePickerFormat.Custom
-        DateTimePicker1.Location = New Point(12, 153)
+        DateTimePicker1.Location = New Point(15, 346)
         DateTimePicker1.Name = "DateTimePicker1"
         DateTimePicker1.Size = New Size(109, 23)
         DateTimePicker1.TabIndex = 21
@@ -547,7 +553,7 @@ Partial Class Form1
         ' Label6
         ' 
         Label6.AutoSize = True
-        Label6.Location = New Point(8, 135)
+        Label6.Location = New Point(11, 328)
         Label6.Name = "Label6"
         Label6.Size = New Size(295, 15)
         Label6.TabIndex = 22
@@ -555,31 +561,16 @@ Partial Class Form1
         ' 
         ' Button25
         ' 
+        Button25.Image = CType(resources.GetObject("Button25.Image"), Image)
+        Button25.ImageAlign = ContentAlignment.BottomLeft
         Button25.Location = New Point(429, 38)
         Button25.Name = "Button25"
+        Button25.Padding = New Padding(10, 0, 35, 0)
         Button25.Size = New Size(180, 23)
         Button25.TabIndex = 33
         Button25.Text = "Masivo Contrato"
+        Button25.TextAlign = ContentAlignment.BottomRight
         Button25.UseVisualStyleBackColor = True
-        ' 
-        ' Panel3
-        ' 
-        Panel3.BackColor = Color.Transparent
-        Panel3.Controls.Add(Label6)
-        Panel3.Controls.Add(Button10)
-        Panel3.Controls.Add(DateTimePicker1)
-        Panel3.Controls.Add(Label1)
-        Panel3.Controls.Add(Button1)
-        Panel3.Controls.Add(TextBox1)
-        Panel3.Controls.Add(TextBox3)
-        Panel3.Controls.Add(Button7)
-        Panel3.Controls.Add(CheckBox4)
-        Panel3.Controls.Add(Label4)
-        Panel3.Controls.Add(Button17)
-        Panel3.Location = New Point(5, 154)
-        Panel3.Name = "Panel3"
-        Panel3.Size = New Size(313, 186)
-        Panel3.TabIndex = 23
         ' 
         ' Button6
         ' 
@@ -592,47 +583,67 @@ Partial Class Form1
         ' 
         ' Button5
         ' 
+        Button5.Image = CType(resources.GetObject("Button5.Image"), Image)
+        Button5.ImageAlign = ContentAlignment.BottomLeft
         Button5.Location = New Point(13, 96)
         Button5.Name = "Button5"
+        Button5.Padding = New Padding(10, 0, 35, 0)
         Button5.Size = New Size(180, 23)
         Button5.TabIndex = 12
         Button5.Text = "Añadir CodigosDIR"
+        Button5.TextAlign = ContentAlignment.MiddleRight
         Button5.UseVisualStyleBackColor = True
         ' 
         ' Button8
         ' 
+        Button8.Image = CType(resources.GetObject("Button8.Image"), Image)
+        Button8.ImageAlign = ContentAlignment.BottomLeft
         Button8.Location = New Point(229, 97)
         Button8.Name = "Button8"
         Button8.Size = New Size(180, 23)
         Button8.TabIndex = 18
         Button8.Text = "Act. Email/Movil/tlfno  Excel"
+        Button8.TextAlign = ContentAlignment.MiddleRight
         Button8.UseVisualStyleBackColor = True
         ' 
         ' Button4
         ' 
+        Button4.Image = CType(resources.GetObject("Button4.Image"), Image)
+        Button4.ImageAlign = ContentAlignment.BottomLeft
         Button4.Location = New Point(429, 96)
         Button4.Name = "Button4"
+        Button4.Padding = New Padding(15, 0, 45, 0)
         Button4.Size = New Size(180, 23)
         Button4.TabIndex = 11
         Button4.Text = "Validaciones"
+        Button4.TextAlign = ContentAlignment.MiddleRight
         Button4.UseVisualStyleBackColor = True
         ' 
         ' Button3
         ' 
+        Button3.Image = CType(resources.GetObject("Button3.Image"), Image)
+        Button3.ImageAlign = ContentAlignment.BottomLeft
         Button3.Location = New Point(13, 67)
         Button3.Name = "Button3"
+        Button3.Padding = New Padding(10, 0, 55, 0)
         Button3.Size = New Size(180, 23)
         Button3.TabIndex = 10
         Button3.Text = "Volver a renovar"
+        Button3.TextAlign = ContentAlignment.MiddleRight
         Button3.UseVisualStyleBackColor = True
         ' 
         ' Button2
         ' 
+        Button2.Font = New Font("Segoe UI", 8.0F, FontStyle.Regular, GraphicsUnit.Point)
+        Button2.Image = CType(resources.GetObject("Button2.Image"), Image)
+        Button2.ImageAlign = ContentAlignment.BottomLeft
         Button2.Location = New Point(14, 38)
         Button2.Name = "Button2"
+        Button2.Padding = New Padding(10, 0, 0, 0)
         Button2.Size = New Size(181, 23)
         Button2.TabIndex = 9
         Button2.Text = "Añadir Productos Contratos"
+        Button2.TextAlign = ContentAlignment.BottomRight
         Button2.UseVisualStyleBackColor = True
         ' 
         ' Label3
@@ -646,17 +657,24 @@ Partial Class Form1
         ' 
         ' Button9
         ' 
+        Button9.Image = CType(resources.GetObject("Button9.Image"), Image)
+        Button9.ImageAlign = ContentAlignment.BottomLeft
         Button9.Location = New Point(13, 125)
         Button9.Name = "Button9"
+        Button9.Padding = New Padding(10, 0, 0, 0)
         Button9.Size = New Size(180, 23)
         Button9.TabIndex = 21
         Button9.Text = "Cambiar Agente Contrato"
+        Button9.TextAlign = ContentAlignment.MiddleRight
         Button9.UseVisualStyleBackColor = True
         ' 
         ' Button11
         ' 
+        Button11.Image = CType(resources.GetObject("Button11.Image"), Image)
+        Button11.ImageAlign = ContentAlignment.BottomLeft
         Button11.Location = New Point(13, 153)
         Button11.Name = "Button11"
+        Button11.Padding = New Padding(10, 0, 0, 0)
         Button11.Size = New Size(180, 23)
         Button11.TabIndex = 22
         Button11.Text = "Cambiar Administrador Contrato"
@@ -664,18 +682,24 @@ Partial Class Form1
         ' 
         ' Button12
         ' 
-        Button12.Font = New Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point)
+        Button12.Font = New Font("Segoe UI", 7.0F, FontStyle.Regular, GraphicsUnit.Point)
+        Button12.Image = CType(resources.GetObject("Button12.Image"), Image)
+        Button12.ImageAlign = ContentAlignment.BottomLeft
         Button12.Location = New Point(229, 126)
         Button12.Name = "Button12"
         Button12.Size = New Size(81, 23)
         Button12.TabIndex = 23
         Button12.Text = "Extraer PDF Facs"
+        Button12.TextAlign = ContentAlignment.MiddleRight
         Button12.UseVisualStyleBackColor = True
         ' 
         ' Button16
         ' 
+        Button16.Image = CType(resources.GetObject("Button16.Image"), Image)
+        Button16.ImageAlign = ContentAlignment.BottomLeft
         Button16.Location = New Point(429, 67)
         Button16.Name = "Button16"
+        Button16.Padding = New Padding(10, 0, 10, 0)
         Button16.Size = New Size(180, 23)
         Button16.TabIndex = 26
         Button16.Text = "Penalizaciones"
@@ -701,20 +725,28 @@ Partial Class Form1
         ' 
         ' Button18
         ' 
+        Button18.Image = CType(resources.GetObject("Button18.Image"), Image)
+        Button18.ImageAlign = ContentAlignment.BottomLeft
         Button18.Location = New Point(229, 40)
         Button18.Name = "Button18"
+        Button18.Padding = New Padding(10, 0, 55, 0)
         Button18.Size = New Size(180, 23)
         Button18.TabIndex = 27
         Button18.Text = "Consulta TOP"
+        Button18.TextAlign = ContentAlignment.MiddleRight
         Button18.UseVisualStyleBackColor = True
         ' 
         ' Button19
         ' 
+        Button19.Image = CType(resources.GetObject("Button19.Image"), Image)
+        Button19.ImageAlign = ContentAlignment.BottomLeft
         Button19.Location = New Point(229, 67)
         Button19.Name = "Button19"
+        Button19.Padding = New Padding(10, 0, 35, 0)
         Button19.Size = New Size(180, 23)
         Button19.TabIndex = 29
         Button19.Text = "Verificar Licitacion"
+        Button19.TextAlign = ContentAlignment.MiddleRight
         Button19.UseVisualStyleBackColor = True
         ' 
         ' Button20
@@ -768,27 +800,35 @@ Partial Class Form1
         Panel2.Controls.Add(Button4)
         Panel2.Controls.Add(Button8)
         Panel2.Controls.Add(Button5)
-        Panel2.Location = New Point(1, 346)
+        Panel2.Location = New Point(20, 400)
         Panel2.Name = "Panel2"
         Panel2.Size = New Size(617, 185)
         Panel2.TabIndex = 22
         ' 
         ' CheckearPerfilar
         ' 
+        CheckearPerfilar.Image = CType(resources.GetObject("CheckearPerfilar.Image"), Image)
+        CheckearPerfilar.ImageAlign = ContentAlignment.BottomLeft
         CheckearPerfilar.Location = New Point(430, 123)
         CheckearPerfilar.Name = "CheckearPerfilar"
+        CheckearPerfilar.Padding = New Padding(10, 0, 45, 0)
         CheckearPerfilar.Size = New Size(180, 23)
         CheckearPerfilar.TabIndex = 46
         CheckearPerfilar.Text = "Checkear Perfilar"
+        CheckearPerfilar.TextAlign = ContentAlignment.MiddleRight
         CheckearPerfilar.UseVisualStyleBackColor = True
         ' 
         ' btnExpandir
         ' 
+        btnExpandir.Image = CType(resources.GetObject("btnExpandir.Image"), Image)
+        btnExpandir.ImageAlign = ContentAlignment.BottomLeft
         btnExpandir.Location = New Point(430, 152)
         btnExpandir.Name = "btnExpandir"
+        btnExpandir.Padding = New Padding(10, 0, 45, 0)
         btnExpandir.Size = New Size(180, 23)
         btnExpandir.TabIndex = 45
         btnExpandir.Text = "Otras opciones"
+        btnExpandir.TextAlign = ContentAlignment.MiddleRight
         btnExpandir.UseVisualStyleBackColor = True
         ' 
         ' Button29
@@ -870,7 +910,7 @@ Partial Class Form1
         ' 
         ' PanelLateral
         ' 
-        PanelLateral.BackColor = Color.DarkCyan
+        PanelLateral.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
         PanelLateral.Controls.Add(Button30)
         PanelLateral.Controls.Add(Button13)
         PanelLateral.Controls.Add(Button28)
@@ -885,7 +925,7 @@ Partial Class Form1
         PanelLateral.Dock = DockStyle.Left
         PanelLateral.Location = New Point(0, 0)
         PanelLateral.Name = "PanelLateral"
-        PanelLateral.Size = New Size(0, 591)
+        PanelLateral.Size = New Size(0, 640)
         PanelLateral.TabIndex = 45
         ' 
         ' TimerPanel
@@ -896,7 +936,7 @@ Partial Class Form1
         ' 
         Label10.AutoSize = True
         Label10.BackColor = Color.Transparent
-        Label10.Location = New Point(352, 116)
+        Label10.Location = New Point(8, 112)
         Label10.Name = "Label10"
         Label10.Size = New Size(89, 15)
         Label10.TabIndex = 46
@@ -907,7 +947,7 @@ Partial Class Form1
         DividirChck.AutoSize = True
         DividirChck.BackColor = Color.Transparent
         DividirChck.Font = New Font("Segoe UI Semibold", 6.75F, FontStyle.Bold, GraphicsUnit.Point)
-        DividirChck.Location = New Point(441, 117)
+        DividirChck.Location = New Point(97, 113)
         DividirChck.Name = "DividirChck"
         DividirChck.Size = New Size(72, 16)
         DividirChck.TabIndex = 47
@@ -925,7 +965,7 @@ Partial Class Form1
         Panel5.Controls.Add(CheckBox9)
         Panel5.Controls.Add(CheckBox10)
         Panel5.Controls.Add(CheckBox11)
-        Panel5.Location = New Point(420, 12)
+        Panel5.Location = New Point(76, 6)
         Panel5.Name = "Panel5"
         Panel5.Size = New Size(191, 92)
         Panel5.TabIndex = 48
@@ -936,52 +976,128 @@ Partial Class Form1
         Panel6.Controls.Add(CheckBox13)
         Panel6.Controls.Add(CheckBox12)
         Panel6.Controls.Add(CheckFacturable)
-        Panel6.Location = New Point(419, 139)
+        Panel6.Location = New Point(89, 135)
         Panel6.Name = "Panel6"
         Panel6.Size = New Size(199, 64)
         Panel6.TabIndex = 49
         ' 
+        ' Separador
+        ' 
+        Separador.BackColor = Color.FromArgb(CByte(218), CByte(220), CByte(224))
+        Separador.BorderStyle = BorderStyle.FixedSingle
+        Separador.Location = New Point(3, 26)
+        Separador.Name = "Separador"
+        Separador.Size = New Size(310, 1)
+        Separador.TabIndex = 0
+        ' 
+        ' pblBorde
+        ' 
+        pblBorde.BackColor = Color.FromArgb(CByte(98), CByte(125), CByte(153))
+        pblBorde.Controls.Add(pnlContenido)
+        pblBorde.Location = New Point(15, 14)
+        pblBorde.Name = "pblBorde"
+        pblBorde.Padding = New Padding(1)
+        pblBorde.Size = New Size(319, 381)
+        pblBorde.TabIndex = 51
+        ' 
+        ' pnlContenido
+        ' 
+        pnlContenido.BackColor = Color.White
+        pnlContenido.Controls.Add(Label6)
+        pnlContenido.Controls.Add(Label2)
+        pnlContenido.Controls.Add(TextBox2)
+        pnlContenido.Controls.Add(Button17)
+        pnlContenido.Controls.Add(DateTimePicker1)
+        pnlContenido.Controls.Add(Label4)
+        pnlContenido.Controls.Add(Button10)
+        pnlContenido.Controls.Add(CheckBox2)
+        pnlContenido.Controls.Add(Label1)
+        pnlContenido.Controls.Add(CheckBox4)
+        pnlContenido.Controls.Add(Button1)
+        pnlContenido.Controls.Add(CheckBox1)
+        pnlContenido.Controls.Add(Separador)
+        pnlContenido.Controls.Add(Button7)
+        pnlContenido.Controls.Add(TextBox1)
+        pnlContenido.Controls.Add(CheckBox3)
+        pnlContenido.Controls.Add(TextBox3)
+        pnlContenido.Dock = DockStyle.Fill
+        pnlContenido.Location = New Point(1, 1)
+        pnlContenido.Name = "pnlContenido"
+        pnlContenido.Size = New Size(317, 379)
+        pnlContenido.TabIndex = 0
+        ' 
+        ' Panel3
+        ' 
+        Panel3.BackColor = Color.FromArgb(CByte(98), CByte(125), CByte(153))
+        Panel3.Controls.Add(Panel4)
+        Panel3.Location = New Point(340, 15)
+        Panel3.Name = "Panel3"
+        Panel3.Padding = New Padding(1)
+        Panel3.Size = New Size(319, 300)
+        Panel3.TabIndex = 52
+        ' 
+        ' Panel4
+        ' 
+        Panel4.BackColor = Color.White
+        Panel4.Controls.Add(Panel8)
+        Panel4.Controls.Add(Button23)
+        Panel4.Controls.Add(Panel6)
+        Panel4.Controls.Add(Label9)
+        Panel4.Controls.Add(Panel5)
+        Panel4.Controls.Add(Label8)
+        Panel4.Controls.Add(DateTimePicker3)
+        Panel4.Controls.Add(DividirChck)
+        Panel4.Controls.Add(DateTimePicker2)
+        Panel4.Controls.Add(Label7)
+        Panel4.Controls.Add(Label10)
+        Panel4.Dock = DockStyle.Fill
+        Panel4.Location = New Point(1, 1)
+        Panel4.Name = "Panel4"
+        Panel4.Size = New Size(317, 298)
+        Panel4.TabIndex = 0
+        ' 
+        ' Panel8
+        ' 
+        Panel8.BackColor = Color.FromArgb(CByte(218), CByte(220), CByte(224))
+        Panel8.BorderStyle = BorderStyle.FixedSingle
+        Panel8.Controls.Add(Panel7)
+        Panel8.Location = New Point(4, 104)
+        Panel8.Name = "Panel8"
+        Panel8.Size = New Size(310, 1)
+        Panel8.TabIndex = 1
+        ' 
+        ' Panel7
+        ' 
+        Panel7.BackColor = Color.FromArgb(CByte(218), CByte(220), CByte(224))
+        Panel7.BorderStyle = BorderStyle.FixedSingle
+        Panel7.Location = New Point(-1, 105)
+        Panel7.Name = "Panel7"
+        Panel7.Size = New Size(310, 1)
+        Panel7.TabIndex = 2
+        ' 
         ' Form1
         ' 
-        AutoScaleDimensions = New SizeF(7F, 15F)
+        AutoScaleDimensions = New SizeF(7.0F, 15.0F)
         AutoScaleMode = AutoScaleMode.Font
-        BackColor = Color.LightBlue
-        ClientSize = New Size(622, 591)
-        Controls.Add(Panel6)
-        Controls.Add(Panel5)
-        Controls.Add(Label7)
-        Controls.Add(DividirChck)
-        Controls.Add(Label10)
-        Controls.Add(PanelLateral)
-        Controls.Add(Label9)
-        Controls.Add(Label8)
-        Controls.Add(DateTimePicker3)
-        Controls.Add(DateTimePicker2)
-        Controls.Add(Button23)
-        Controls.Add(RadioButton3)
-        Controls.Add(Panel4)
+        BackColor = Color.FromArgb(CByte(213), CByte(220), CByte(227))
+        ClientSize = New Size(667, 640)
         Controls.Add(Panel3)
+        Controls.Add(pblBorde)
+        Controls.Add(PanelLateral)
+        Controls.Add(RadioButton3)
         Controls.Add(Panel2)
         Controls.Add(Panel1)
-        Controls.Add(Label2)
-        Controls.Add(CheckBox3)
-        Controls.Add(CheckBox2)
-        Controls.Add(CheckBox1)
         DoubleBuffered = True
         FormBorderStyle = FormBorderStyle.FixedSingle
         Icon = CType(resources.GetObject("$this.Icon"), Icon)
         Name = "Form1"
         StartPosition = FormStartPosition.CenterScreen
-        Text = "Gestor de Datos SIGE (versión 1.5)"
+        Text = "Gestor de Datos SIGE (versión 2.0)"
         TransparencyKey = Color.YellowGreen
         Panel1.ResumeLayout(False)
         Panel1.PerformLayout()
         CType(PictureBox2, ComponentModel.ISupportInitialize).EndInit()
-        Panel4.ResumeLayout(False)
-        Panel4.PerformLayout()
         CType(PictureBox1, ComponentModel.ISupportInitialize).EndInit()
-        Panel3.ResumeLayout(False)
-        Panel3.PerformLayout()
         Panel2.ResumeLayout(False)
         Panel2.PerformLayout()
         PanelLateral.ResumeLayout(False)
@@ -989,6 +1105,13 @@ Partial Class Form1
         Panel5.PerformLayout()
         Panel6.ResumeLayout(False)
         Panel6.PerformLayout()
+        pblBorde.ResumeLayout(False)
+        pnlContenido.ResumeLayout(False)
+        pnlContenido.PerformLayout()
+        Panel3.ResumeLayout(False)
+        Panel4.ResumeLayout(False)
+        Panel4.PerformLayout()
+        Panel8.ResumeLayout(False)
         ResumeLayout(False)
         PerformLayout()
     End Sub
@@ -999,7 +1122,6 @@ Partial Class Form1
     Friend WithEvents Label2 As Label
     Friend WithEvents Label5 As Label
     Friend WithEvents Panel1 As Panel
-    Friend WithEvents Panel4 As Panel
 
     Protected Overrides Sub OnPaint(e As PaintEventArgs)
         MyBase.OnPaint(e)
@@ -1045,7 +1167,6 @@ Partial Class Form1
     Friend WithEvents DateTimePicker1 As DateTimePicker
     Friend WithEvents Label6 As Label
     Friend WithEvents Button25 As Button
-    Friend WithEvents Panel3 As Panel
     Friend WithEvents Button6 As Button
     Friend WithEvents Button5 As Button
     Friend WithEvents Button8 As Button
@@ -1083,4 +1204,11 @@ Partial Class Form1
     Friend WithEvents Panel6 As Panel
     Friend WithEvents TextConsultando As Label
     Friend WithEvents CheckearPerfilar As Button
+    Friend WithEvents Separador As Panel
+    Friend WithEvents pblBorde As Panel
+    Friend WithEvents pnlContenido As Panel
+    Friend WithEvents Panel3 As Panel
+    Friend WithEvents Panel4 As Panel
+    Friend WithEvents Panel8 As Panel
+    Friend WithEvents Panel7 As Panel
 End Class

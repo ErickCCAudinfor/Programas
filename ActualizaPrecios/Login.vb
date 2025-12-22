@@ -25,28 +25,28 @@ Public Class Login
         ExitPicture.Location = originalLocation
     End Sub
 
-    Private Sub Login_Paint(sender As Object, e As PaintEventArgs) Handles MyBase.Paint
-        Dim rect As Rectangle = Me.ClientRectangle
+    'Private Sub Login_Paint(sender As Object, e As PaintEventArgs) Handles MyBase.Paint
+    '    Dim rect As Rectangle = Me.ClientRectangle
 
-        ' Definimos los colores en RGB
-        Dim color1 As Color = Color.FromArgb(160, 30, 34)  ' Azul claro
-        Dim color2 As Color = Color.FromArgb(96, 109, 140)  ' Azul más oscuro
-        Dim color3 As Color = Color.FromArgb(233, 231, 226)  ' Azul más oscuro
-        ' Creamos el gradiente con un LinearGradientBrush (base)
-        Using brush As New LinearGradientBrush(rect, color1, color3, 222.0F)
+    '    ' Definimos los colores en RGB
+    '    Dim color1 As Color = Color.FromArgb(160, 30, 34)  ' Azul claro
+    '    Dim color2 As Color = Color.FromArgb(96, 109, 140)  ' Azul más oscuro
+    '    Dim color3 As Color = Color.FromArgb(233, 231, 226)  ' Azul más oscuro
+    '    ' Creamos el gradiente con un LinearGradientBrush (base)
+    '    Using brush As New LinearGradientBrush(rect, color1, color3, 222.0F)
 
-            ' Definimos la mezcla de colores
-            Dim blend As New ColorBlend()
-            blend.Colors = New Color() {color1, color2, color3}
-            blend.Positions = New Single() {0.0F, 0.5F, 1.0F} ' Posición de cada color (0 = inicio, 1 = fin)
+    '        ' Definimos la mezcla de colores
+    '        Dim blend As New ColorBlend()
+    '        blend.Colors = New Color() {color1, color2, color3}
+    '        blend.Positions = New Single() {0.0F, 0.5F, 1.0F} ' Posición de cada color (0 = inicio, 1 = fin)
 
-            ' Aplicamos la mezcla al brush
-            brush.InterpolationColors = blend
+    '        ' Aplicamos la mezcla al brush
+    '        brush.InterpolationColors = blend
 
-            ' Dibujamos el rectángulo con el degradado
-            e.Graphics.FillRectangle(brush, rect)
-        End Using
-    End Sub
+    '        ' Dibujamos el rectángulo con el degradado
+    '        e.Graphics.FillRectangle(brush, rect)
+    '    End Using
+    'End Sub
 
     Private Sub PictureBox1_Click(sender As Object, e As EventArgs) Handles ExitPicture.Click
         Application.Exit()
@@ -67,7 +67,7 @@ Public Class Login
             End If
 
             ' Mostrar mensaje de validación
-            ValidacionLabel.Text = "Validando credenciales..."
+            TextoValidar.Text = "Validando credenciales..."
             Dim Funciones As New FuncionesGenericas("data source=172.31.100.12; initial catalog=SigeTotal;User ID=Sige;Password=SigeNew;")
 
             ' Ejecutar la validación de manera asíncrona para no bloquear la UI
@@ -77,15 +77,15 @@ Public Class Login
             If userBD IsNot Nothing Then
                 DialogResult = DialogResult.OK
                 NombreUsario = userBD.Nombre
-                Close()
+                Close
             Else
-                ValidacionLabel.Text = "Credenciales incorrectas"
+                TextoValidar.Text = "Credenciales incorrectas"
             End If
 
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)
         Finally
-            ValidacionLabel.Text = ""
+            TextoValidar.Text = ""
         End Try
     End Sub
 
