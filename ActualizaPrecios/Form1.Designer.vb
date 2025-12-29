@@ -177,7 +177,7 @@ Partial Class Form1
         ' 
         Label2.AutoSize = True
         Label2.BackColor = Color.Transparent
-        Label2.Font = New Font("Arial", 9.0F, FontStyle.Bold, GraphicsUnit.Point)
+        Label2.Font = New Font("Arial", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Label2.Location = New Point(14, 5)
         Label2.Name = "Label2"
         Label2.Size = New Size(42, 15)
@@ -188,7 +188,7 @@ Partial Class Form1
         ' 
         Label5.AutoSize = True
         Label5.BorderStyle = BorderStyle.FixedSingle
-        Label5.Font = New Font("Segoe UI", 9.0F, FontStyle.Bold, GraphicsUnit.Point)
+        Label5.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Label5.ForeColor = Color.Black
         Label5.Location = New Point(400, 20)
         Label5.Name = "Label5"
@@ -334,6 +334,7 @@ Partial Class Form1
         ' 
         Label7.AutoSize = True
         Label7.BackColor = Color.Transparent
+        Label7.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Label7.Location = New Point(8, 6)
         Label7.Name = "Label7"
         Label7.Size = New Size(62, 15)
@@ -343,7 +344,7 @@ Partial Class Form1
         ' DateTimePicker2
         ' 
         DateTimePicker2.CustomFormat = "dd/MM/yyyy"
-        DateTimePicker2.Font = New Font("Arial Narrow", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
+        DateTimePicker2.Font = New Font("Arial Narrow", 9F, FontStyle.Regular, GraphicsUnit.Point)
         DateTimePicker2.Format = DateTimePickerFormat.Custom
         DateTimePicker2.Location = New Point(177, 235)
         DateTimePicker2.Name = "DateTimePicker2"
@@ -354,7 +355,7 @@ Partial Class Form1
         ' 
         DateTimePicker3.CalendarMonthBackground = Color.LightBlue
         DateTimePicker3.CustomFormat = "dd/MM/yyyy"
-        DateTimePicker3.Font = New Font("Arial Narrow", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
+        DateTimePicker3.Font = New Font("Arial Narrow", 9F, FontStyle.Regular, GraphicsUnit.Point)
         DateTimePicker3.Format = DateTimePickerFormat.Custom
         DateTimePicker3.Location = New Point(8, 235)
         DateTimePicker3.Name = "DateTimePicker3"
@@ -365,9 +366,10 @@ Partial Class Form1
         ' 
         Label8.AutoSize = True
         Label8.BackColor = Color.Transparent
+        Label8.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Label8.Location = New Point(8, 217)
         Label8.Name = "Label8"
-        Label8.Size = New Size(73, 15)
+        Label8.Size = New Size(77, 15)
         Label8.TabIndex = 33
         Label8.Text = "Desde Fecha"
         ' 
@@ -375,9 +377,10 @@ Partial Class Form1
         ' 
         Label9.AutoSize = True
         Label9.BackColor = Color.Transparent
+        Label9.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Label9.Location = New Point(176, 216)
         Label9.Name = "Label9"
-        Label9.Size = New Size(71, 15)
+        Label9.Size = New Size(73, 15)
         Label9.TabIndex = 34
         Label9.Text = "Hasta Fecha"
         ' 
@@ -473,9 +476,10 @@ Partial Class Form1
         ' Label4
         ' 
         Label4.AutoSize = True
+        Label4.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Label4.Location = New Point(10, 271)
         Label4.Name = "Label4"
-        Label4.Size = New Size(187, 15)
+        Label4.Size = New Size(198, 15)
         Label4.TabIndex = 16
         Label4.Text = "Revisar Tarifa Precio Personalizada"
         ' 
@@ -535,9 +539,10 @@ Partial Class Form1
         ' Label1
         ' 
         Label1.AutoSize = True
+        Label1.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Label1.Location = New Point(11, 202)
         Label1.Name = "Label1"
-        Label1.Size = New Size(72, 15)
+        Label1.Size = New Size(76, 15)
         Label1.TabIndex = 6
         Label1.Text = "Tarifa Grupo"
         ' 
@@ -553,9 +558,10 @@ Partial Class Form1
         ' Label6
         ' 
         Label6.AutoSize = True
+        Label6.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Label6.Location = New Point(11, 328)
         Label6.Name = "Label6"
-        Label6.Size = New Size(295, 15)
+        Label6.Size = New Size(305, 15)
         Label6.TabIndex = 22
         Label6.Text = "Aplicación de Precios (según tarifa grupo configurada)"
         ' 
@@ -634,7 +640,7 @@ Partial Class Form1
         ' 
         ' Button2
         ' 
-        Button2.Font = New Font("Segoe UI", 8.0F, FontStyle.Regular, GraphicsUnit.Point)
+        Button2.Font = New Font("Segoe UI", 8F, FontStyle.Regular, GraphicsUnit.Point)
         Button2.Image = CType(resources.GetObject("Button2.Image"), Image)
         Button2.ImageAlign = ContentAlignment.BottomLeft
         Button2.Location = New Point(14, 38)
@@ -682,7 +688,7 @@ Partial Class Form1
         ' 
         ' Button12
         ' 
-        Button12.Font = New Font("Segoe UI", 7.0F, FontStyle.Regular, GraphicsUnit.Point)
+        Button12.Font = New Font("Segoe UI", 7F, FontStyle.Regular, GraphicsUnit.Point)
         Button12.Image = CType(resources.GetObject("Button12.Image"), Image)
         Button12.ImageAlign = ContentAlignment.BottomLeft
         Button12.Location = New Point(229, 126)
@@ -936,6 +942,7 @@ Partial Class Form1
         ' 
         Label10.AutoSize = True
         Label10.BackColor = Color.Transparent
+        Label10.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Label10.Location = New Point(8, 112)
         Label10.Name = "Label10"
         Label10.Size = New Size(89, 15)
@@ -1077,7 +1084,7 @@ Partial Class Form1
         ' 
         ' Form1
         ' 
-        AutoScaleDimensions = New SizeF(7.0F, 15.0F)
+        AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.FromArgb(CByte(213), CByte(220), CByte(227))
         ClientSize = New Size(667, 640)

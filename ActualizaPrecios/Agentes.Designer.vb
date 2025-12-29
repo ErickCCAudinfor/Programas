@@ -59,19 +59,22 @@ Partial Class Agentes
         ' 
         ' Button1
         ' 
+        Button1.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        Button1.FlatStyle = FlatStyle.Popup
+        Button1.ForeColor = Color.White
         Button1.Location = New Point(421, 91)
         Button1.Name = "Button1"
-        Button1.Size = New Size(75, 23)
+        Button1.Size = New Size(103, 23)
         Button1.TabIndex = 2
         Button1.Text = "Actualizar"
-        Button1.UseVisualStyleBackColor = True
+        Button1.UseVisualStyleBackColor = False
         ' 
         ' Label2
         ' 
         Label2.AutoSize = True
         Label2.Location = New Point(27, 103)
         Label2.Name = "Label2"
-        Label2.Size = New Size(81, 15)
+        Label2.Size = New Size(82, 15)
         Label2.TabIndex = 3
         Label2.Text = "Total Agentes:"
         ' 
@@ -154,7 +157,7 @@ Partial Class Agentes
         Label10.AutoSize = True
         Label10.Location = New Point(184, 103)
         Label10.Name = "Label10"
-        Label10.Size = New Size(90, 15)
+        Label10.Size = New Size(91, 15)
         Label10.TabIndex = 11
         Label10.Text = "Total Contratos:"
         ' 

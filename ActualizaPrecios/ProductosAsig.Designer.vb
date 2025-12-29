@@ -132,12 +132,15 @@ Partial Class ProductosAsig
         ' 
         ' Button1
         ' 
+        Button1.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        Button1.FlatStyle = FlatStyle.Popup
+        Button1.ForeColor = Color.White
         Button1.Location = New Point(382, 237)
         Button1.Name = "Button1"
         Button1.Size = New Size(103, 23)
         Button1.TabIndex = 13
         Button1.Text = "Insertar"
-        Button1.UseVisualStyleBackColor = True
+        Button1.UseVisualStyleBackColor = False
         ' 
         ' Label4
         ' 
@@ -169,7 +172,7 @@ Partial Class ProductosAsig
         Label5.AutoSize = True
         Label5.Location = New Point(12, 202)
         Label5.Name = "Label5"
-        Label5.Size = New Size(83, 15)
+        Label5.Size = New Size(84, 15)
         Label5.TabIndex = 17
         Label5.Text = "Tipo Impuesto"
         ' 
@@ -224,21 +227,27 @@ Partial Class ProductosAsig
         ' 
         ' BotonImportarProducto
         ' 
+        BotonImportarProducto.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        BotonImportarProducto.FlatStyle = FlatStyle.Popup
+        BotonImportarProducto.ForeColor = Color.White
         BotonImportarProducto.Location = New Point(226, 7)
         BotonImportarProducto.Name = "BotonImportarProducto"
         BotonImportarProducto.Size = New Size(133, 23)
         BotonImportarProducto.TabIndex = 23
         BotonImportarProducto.Text = "Importar desde excel"
-        BotonImportarProducto.UseVisualStyleBackColor = True
+        BotonImportarProducto.UseVisualStyleBackColor = False
         ' 
         ' BotonPlantilla
         ' 
+        BotonPlantilla.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        BotonPlantilla.FlatStyle = FlatStyle.Popup
+        BotonPlantilla.ForeColor = Color.White
         BotonPlantilla.Location = New Point(87, 7)
         BotonPlantilla.Name = "BotonPlantilla"
         BotonPlantilla.Size = New Size(133, 23)
         BotonPlantilla.TabIndex = 24
         BotonPlantilla.Text = "Generar Plantilla"
-        BotonPlantilla.UseVisualStyleBackColor = True
+        BotonPlantilla.UseVisualStyleBackColor = False
         ' 
         ' CheckRedondear
         ' 

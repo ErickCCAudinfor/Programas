@@ -109,18 +109,21 @@ Partial Class AdministradoresWF
         Label2.AutoSize = True
         Label2.Location = New Point(42, 114)
         Label2.Name = "Label2"
-        Label2.Size = New Size(79, 15)
+        Label2.Size = New Size(80, 15)
         Label2.TabIndex = 14
         Label2.Text = "Total Admins:"
         ' 
         ' Button1
         ' 
-        Button1.Location = New Point(436, 102)
+        Button1.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        Button1.FlatStyle = FlatStyle.Popup
+        Button1.ForeColor = Color.White
+        Button1.Location = New Point(411, 102)
         Button1.Name = "Button1"
-        Button1.Size = New Size(75, 23)
+        Button1.Size = New Size(100, 23)
         Button1.TabIndex = 13
         Button1.Text = "Actualizar"
-        Button1.UseVisualStyleBackColor = True
+        Button1.UseVisualStyleBackColor = False
         ' 
         ' ComboBox1
         ' 
@@ -155,7 +158,7 @@ Partial Class AdministradoresWF
         Label10.AutoSize = True
         Label10.Location = New Point(190, 114)
         Label10.Name = "Label10"
-        Label10.Size = New Size(90, 15)
+        Label10.Size = New Size(91, 15)
         Label10.TabIndex = 22
         Label10.Text = "Total Contratos:"
         ' 

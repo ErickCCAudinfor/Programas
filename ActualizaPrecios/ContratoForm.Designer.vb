@@ -131,10 +131,10 @@ Partial Class ContratoForm
         ' 
         Label1.AutoSize = True
         Label1.BackColor = Color.Transparent
-        Label1.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        Label1.Font = New Font("Book Antiqua", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Label1.Location = New Point(13, 4)
         Label1.Name = "Label1"
-        Label1.Size = New Size(93, 16)
+        Label1.Size = New Size(96, 17)
         Label1.TabIndex = 0
         Label1.Text = "Sección General"
         ' 
@@ -241,10 +241,10 @@ Partial Class ContratoForm
         ' 
         Label3.AutoSize = True
         Label3.BackColor = Color.Transparent
-        Label3.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        Label3.Font = New Font("Book Antiqua", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Label3.Location = New Point(14, 12)
         Label3.Name = "Label3"
-        Label3.Size = New Size(113, 16)
+        Label3.Size = New Size(115, 17)
         Label3.TabIndex = 12
         Label3.Text = "Sección Facturacion"
         ' 
@@ -393,7 +393,7 @@ Partial Class ContratoForm
         ' 
         ' Button1
         ' 
-        Button1.BackColor = Color.FromArgb(CByte(52), CByte(150), CByte(248))
+        Button1.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
         Button1.FlatStyle = FlatStyle.Popup
         Button1.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Button1.ForeColor = Color.White
@@ -631,10 +631,10 @@ Partial Class ContratoForm
         ' 
         Label6.AutoSize = True
         Label6.BackColor = Color.Transparent
-        Label6.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        Label6.Font = New Font("Book Antiqua", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Label6.Location = New Point(12, 149)
         Label6.Name = "Label6"
-        Label6.Size = New Size(120, 16)
+        Label6.Size = New Size(122, 17)
         Label6.TabIndex = 58
         Label6.Text = "Sección Cliente Pago"
         ' 
@@ -703,10 +703,10 @@ Partial Class ContratoForm
         ' 
         Label8.AutoSize = True
         Label8.BackColor = Color.Transparent
-        Label8.Font = New Font("Book Antiqua", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        Label8.Font = New Font("Book Antiqua", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Label8.Location = New Point(14, 9)
         Label8.Name = "Label8"
-        Label8.Size = New Size(139, 16)
+        Label8.Size = New Size(142, 17)
         Label8.TabIndex = 65
         Label8.Text = "Sección Técnico contrato"
         ' 

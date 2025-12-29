@@ -34,19 +34,22 @@ Partial Class CodigoDir
         ' 
         ' Button1
         ' 
-        Button1.Location = New Point(195, 124)
+        Button1.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        Button1.FlatStyle = FlatStyle.Popup
+        Button1.ForeColor = Color.White
+        Button1.Location = New Point(170, 124)
         Button1.Name = "Button1"
-        Button1.Size = New Size(146, 23)
+        Button1.Size = New Size(171, 23)
         Button1.TabIndex = 0
         Button1.Text = "Actualizar"
-        Button1.UseVisualStyleBackColor = True
+        Button1.UseVisualStyleBackColor = False
         ' 
         ' Label1
         ' 
         Label1.AutoSize = True
         Label1.Location = New Point(11, 32)
         Label1.Name = "Label1"
-        Label1.Size = New Size(153, 15)
+        Label1.Size = New Size(154, 15)
         Label1.TabIndex = 1
         Label1.Text = "Codigo Unidad Tramitadora"
         ' 
