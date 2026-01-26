@@ -92,7 +92,7 @@ Public Class TarifaPrecioContratoSrv
                             '    Dim a As Integer = 1
                             'End If
                             funciones.UpdatePrecioContratoTarifa(tarifasPrecioContratoGuardar, TarifasPrecioContratoOriginales, isFijoIndex)
-                        Else
+                        ElseIf Not IsNothing(tarifasPrecioContratoGuardar) AndAlso tarifasPrecioContratoGuardar.Count > 0 Then
                             InsertPrecioContratoTarifa(tarifasPrecioContratoGuardar, isFijoIndex)
                         End If
 

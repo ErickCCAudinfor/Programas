@@ -2572,7 +2572,7 @@ Public Class Form1
     End Sub
 
     'Aplicar Precios Excel
-    Private Async Sub Button26_Click(sender As Object, e As EventArgs)
+    Private Async Sub Button26_Click(sender As Object, e As EventArgs) Handles AplicarPreciosExcelButton.Click
         Dim ExcelDatos As New Excel
         Dim Datos As New List(Of ContratoTarifa)
         Dim ListaErrores As New List(Of String)
@@ -2602,17 +2602,18 @@ Public Class Form1
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial
             If rutaArchivo.Length > 0 Then
                 Using package As New ExcelPackage(New FileInfo(rutaArchivo))
-                    Dim worksheet = package.Workbook.Worksheets("Update")
+                    Dim worksheet = package.Workbook.Worksheets("Hoja1")
                     Dim rowCount = worksheet.Dimension.Rows
 
                     ' Leer códigos de contrato del Excel
                     Dim codigosContrato As New List(Of Long)
                     For row = 2 To rowCount
                         Dim contrat As New ContratoTarifa
-                        Dim CodContrato = worksheet.Cells(row, 1).Value?.ToString
-                        Dim FechaContrato = worksheet.Cells(row, 7).Value?.ToString
-                        Dim IdTarifagrupo = worksheet.Cells(row, 12).Value?.ToString
-                        Dim idContratoTarifa = worksheet.Cells(row, 14).Value?.ToString
+
+                        Dim FechaContrato = worksheet.Cells(row, 1).Value?.ToString
+                        Dim idContratoTarifa = worksheet.Cells(row, 2).Value?.ToString
+                        Dim IdTarifagrupo = worksheet.Cells(row, 3).Value?.ToString
+                        Dim CodContrato = worksheet.Cells(row, 4).Value?.ToString
 
                         Dim FechaContratoExcel As DateTime?
 
@@ -2632,6 +2633,8 @@ Public Class Form1
                 End Using
 
                 If Datos.Count > 0 Then
+                    TextConsultando.Visible = True
+                    TextConsultando.Text = "Esperando confirmación"
                     Dim yesorNot1 = MsgBox($"Hay {Datos.Count} contratos, ¿Aplicar precios?", vbYesNo)
                     If yesorNot1 = 6 OrElse yesorNot1 = 1 Then
 
@@ -2640,9 +2643,11 @@ Public Class Form1
                                            For Each d In Datos
                                                Dim ContratosC = Funciones.GetContratoTarifaExcel(d)
                                                If Not ContratosC Is Nothing AndAlso ContratosC.IdContratoTarifa > 0 Then
-                                                   Dim FechaVigencia = d.FechaDesde
+                                                   'Dim FechaVigencia = d.FechaDesde
+
                                                    Try
                                                        Funciones.aplicapreciosFromEcel(d)
+                                                       SetTextSafe(TextConsultando, $"Aplicando Precios: {d.CodigoContrato}")
                                                    Catch ex As Exception
                                                        ListaErrores.Add($"{d.CodigoContrato}_ idcontratotarifa:{d.IdContratoTarifa} ->  {ex.Message} ")
                                                    End Try
@@ -2662,6 +2667,8 @@ Public Class Form1
             PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado("Exception: " + ex.Message)
         Finally
+            TextConsultando.Visible = False
+            TextConsultando.Text = ""
             For Each er In ListaErrores
                 EscribirEnArchivo(er)
             Next

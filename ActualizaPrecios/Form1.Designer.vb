@@ -102,6 +102,7 @@ Partial Class Form1
         CheckFacturable = New CheckBox()
         Norauto = New CheckBox()
         PanelLateral = New Panel()
+        AplicarPreciosExcelButton = New Button()
         TimerPanel = New Timer(components)
         Label10 = New Label()
         DividirChck = New CheckBox()
@@ -917,6 +918,7 @@ Partial Class Form1
         ' PanelLateral
         ' 
         PanelLateral.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        PanelLateral.Controls.Add(AplicarPreciosExcelButton)
         PanelLateral.Controls.Add(Button30)
         PanelLateral.Controls.Add(Button13)
         PanelLateral.Controls.Add(Button28)
@@ -933,6 +935,17 @@ Partial Class Form1
         PanelLateral.Name = "PanelLateral"
         PanelLateral.Size = New Size(0, 640)
         PanelLateral.TabIndex = 45
+        ' 
+        ' AplicarPreciosExcelButton
+        ' 
+        AplicarPreciosExcelButton.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        AplicarPreciosExcelButton.ForeColor = Color.Black
+        AplicarPreciosExcelButton.Location = New Point(18, 265)
+        AplicarPreciosExcelButton.Name = "AplicarPreciosExcelButton"
+        AplicarPreciosExcelButton.Size = New Size(181, 23)
+        AplicarPreciosExcelButton.TabIndex = 26
+        AplicarPreciosExcelButton.Text = "Aplicar Precios Excel"
+        AplicarPreciosExcelButton.UseVisualStyleBackColor = True
         ' 
         ' TimerPanel
         ' 
@@ -1001,7 +1014,7 @@ Partial Class Form1
         ' 
         pblBorde.BackColor = Color.FromArgb(CByte(98), CByte(125), CByte(153))
         pblBorde.Controls.Add(pnlContenido)
-        pblBorde.Location = New Point(15, 14)
+        pblBorde.Location = New Point(20, 14)
         pblBorde.Name = "pblBorde"
         pblBorde.Padding = New Padding(1)
         pblBorde.Size = New Size(319, 381)
@@ -1218,4 +1231,5 @@ Partial Class Form1
     Friend WithEvents Panel4 As Panel
     Friend WithEvents Panel8 As Panel
     Friend WithEvents Panel7 As Panel
+    Friend WithEvents AplicarPreciosExcelButton As Button
 End Class

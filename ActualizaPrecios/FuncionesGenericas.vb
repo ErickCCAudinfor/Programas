@@ -2108,8 +2108,8 @@ left join TarifaGrupo tg on ct.idtarifagrupo = tg.idtarifagrupo
 left join perfilfacturacion pf on ct.idperfilfacturacion = pf.idperfilfacturacion
 left join tarifa t  on ct.idtarifa = t.idtarifa
 left join contrato c on ct.CodigoContrato = c.CodigoContrato
-where ct.codigocontrato in (
-{ContratTarifaParam.CodigoContrato}
+where ct.idcontratotarifa in (
+{ContratTarifaParam.IdContratoTarifa}
 ) and ct.idtarifagrupo in ({ContratTarifaParam.IdTarifaGrupo})
 order by c.CodigoContrato
 
