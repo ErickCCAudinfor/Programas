@@ -1559,10 +1559,10 @@ Public Class Form1
     Private Sub RadioButton2_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton2.CheckedChanged
         Try
             If RadioButton2.Checked Then
-                Label5.Text = "BD Replica 172.31.100.29 SigeTotal"
+                Label5.Text = "BD Replica 172.31.100.30 SigeTotal"
                 RadioButton1.Checked = False
                 RadioButton3.Checked = False
-                ipDB = "data source=172.31.100.29;"
+                ipDB = "data source=172.31.100.30;"
                 nameDB = "initial catalog=SigeTotal;"
                 connectionString = $"{ipDB}{nameDB}{userDB}{passDB}"
                 Funciones = New FuncionesGenericas(connectionString)
