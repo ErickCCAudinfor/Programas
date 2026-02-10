@@ -115,6 +115,7 @@ Partial Class Form1
         Panel4 = New Panel()
         Panel8 = New Panel()
         Panel7 = New Panel()
+        TrocearXMLButton = New Button()
         Panel1.SuspendLayout()
         CType(PictureBox2, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
@@ -918,6 +919,7 @@ Partial Class Form1
         ' PanelLateral
         ' 
         PanelLateral.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        PanelLateral.Controls.Add(TrocearXMLButton)
         PanelLateral.Controls.Add(AplicarPreciosExcelButton)
         PanelLateral.Controls.Add(Button30)
         PanelLateral.Controls.Add(Button13)
@@ -1014,7 +1016,7 @@ Partial Class Form1
         ' 
         pblBorde.BackColor = Color.FromArgb(CByte(98), CByte(125), CByte(153))
         pblBorde.Controls.Add(pnlContenido)
-        pblBorde.Location = New Point(20, 14)
+        pblBorde.Location = New Point(20, 15)
         pblBorde.Name = "pblBorde"
         pblBorde.Padding = New Padding(1)
         pblBorde.Size = New Size(319, 381)
@@ -1094,6 +1096,17 @@ Partial Class Form1
         Panel7.Name = "Panel7"
         Panel7.Size = New Size(310, 1)
         Panel7.TabIndex = 2
+        ' 
+        ' TrocearXMLButton
+        ' 
+        TrocearXMLButton.ImageAlign = ContentAlignment.BottomCenter
+        TrocearXMLButton.Location = New Point(18, 294)
+        TrocearXMLButton.Name = "TrocearXMLButton"
+        TrocearXMLButton.Padding = New Padding(10, 0, 35, 0)
+        TrocearXMLButton.Size = New Size(180, 23)
+        TrocearXMLButton.TabIndex = 47
+        TrocearXMLButton.Text = "Trocear XML"
+        TrocearXMLButton.UseVisualStyleBackColor = True
         ' 
         ' Form1
         ' 
@@ -1232,4 +1245,5 @@ Partial Class Form1
     Friend WithEvents Panel8 As Panel
     Friend WithEvents Panel7 As Panel
     Friend WithEvents AplicarPreciosExcelButton As Button
+    Friend WithEvents TrocearXMLButton As Button
 End Class

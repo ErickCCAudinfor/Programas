@@ -2,6 +2,7 @@
 Imports System.Drawing.Drawing2D
 Imports System.IO
 Imports System.Reflection.PortableExecutable
+Imports System.Text
 Imports System.Text.RegularExpressions
 Imports System.Threading
 Imports System.Xml
@@ -3257,4 +3258,14 @@ Public Class Form1
         End Using
 
     End Sub
+
+    Private Sub TrocearXMLButton_Click(sender As Object, e As EventArgs) Handles TrocearXMLButton.Click
+        Try
+            Dim Trocear = New TrocearXMLForm()
+            Trocear.show
+        Catch ex As Exception
+            complementos.MostrarMensajePersonalizado(ex.Message)
+        End Try
+    End Sub
+
 End Class

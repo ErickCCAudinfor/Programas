@@ -7,7 +7,7 @@ Public Class Login
     Private originalSize As Size
     Private originalLocation As Point
     Public NombreUsario As String
-
+    Public IsLoginReport As Boolean = False
 
     Private Sub Login_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         originalSize = ExitPicture.Size
@@ -64,7 +64,8 @@ Public Class Login
             Dim userBD = Await Task.Run(Function()
                                             Return funciones.UsuarioValidacion(
                                             UsuarioBox.Text.Trim(),
-                                            PasswordBox.Text
+                                            PasswordBox.Text,
+                                            IsLoginReport
                                         )
                                         End Function)
 

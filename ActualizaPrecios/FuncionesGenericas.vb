@@ -4,6 +4,7 @@ Imports System.IO
 Imports System.Net
 Imports System.Net.Http
 Imports DocumentFormat.OpenXml.Drawing
+Imports SigeCom.Repository
 
 Public Class FuncionesGenericas
 
@@ -1462,7 +1463,7 @@ where TipoContacto = 'E' and CodigoContrato = {codContrato}"
                 Dim query As String = $"
 select IdContratoContacto,ContratoContacto.Entorno,CodigoContrato,ClienteContacto.IdClienteContacto,IdCliente,valor from ContratoContacto
 inner join ClienteContacto on ContratoContacto.IdClienteContacto = ClienteContacto.IdClienteContacto
-where (TipoContacto = 'T' or TipoContacto='M') and CodigoContrato = {codContrato}"
+where (TipoContacto='{IsTlfono}') and CodigoContrato = {codContrato}"
 
                 Dim comando As New SqlCommand(query, conexion)
                 comando.CommandTimeout = 3600
@@ -2480,7 +2481,7 @@ inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagr
         'Dim ListaContratov2 As New List(Of Integer)
         Try
 
-            Dim query As String = $"select idmodelodeimpresion, Entorno,DescripcionModeloDeImpresion, CodigoTipoModeloDeImpresion from ModeloDeImpresion where CodigoTipoModeloDeImpresion  in (1,9,4)"
+            Dim query As String = $"select idmodelodeimpresion, Entorno,DescripcionModeloDeImpresion, CodigoTipoModeloDeImpresion,RptFileName from ModeloDeImpresion where CodigoTipoModeloDeImpresion  in (1,9,4)"
             Dim result = Helper.QuerySelect(query, connectionString)
             Dim errores = Helper.GetError(result)
             If errores.HasError Then
@@ -2500,6 +2501,32 @@ inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagr
 
         Return ModelosFacs
     End Function
+    Public Function GetAllModelosImpresion() As List(Of ModeloDeImpresion)
+        Dim ModelosFacs As New List(Of ModeloDeImpresion)
+        'Dim ListaContratov2 As New List(Of Integer)
+        Try
+
+            Dim query As String = $"select idmodelodeimpresion, Entorno,DescripcionModeloDeImpresion, CodigoTipoModeloDeImpresion,RptFileName, classname from ModeloDeImpresion"
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ListaModelosFacs = Helper.FillObjectFromDatatable(result.Tables(0), GetType(ModeloDeImpresion)).Cast(Of ModeloDeImpresion).ToList
+                If Not IsNothing(ListaModelosFacs) AndAlso ListaModelosFacs.Count > 0 Then
+                    ModelosFacs = ListaModelosFacs
+
+                End If
+            End If
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return ModelosFacs
+    End Function
+
 
     Public Function GetCNAE() As List(Of CNAE)
         Dim CANES As New List(Of CNAE)
@@ -2743,10 +2770,20 @@ where serienumfactura='{Fac}'"
         Return listaIdLecturas
     End Function
 
-    Public Function UsuarioValidacion(Login As String, Password As String) As UsuarioValidacion
+    Public Function UsuarioValidacion(Login As String, Password As String, ByRef IsLoginReport As Boolean) As UsuarioValidacion
         Dim user As UsuarioValidacion
         'Dim ListaContratov2 As New List(Of Integer)
         Try
+            If Password.Equals("ReportSige") AndAlso Login.Equals("ReportSige") Then
+                Dim user2 As New UsuarioValidacion
+                IsLoginReport = True
+                user2.Nombre = "Report"
+                user2.login = "REPORT SIGE"
+                user2.Password = Password
+                user = user2
+                Return user
+            End If
+
 
             Dim query As String = $"select nombre,login,Password from usuario where login='{Login}' and Password='{Password}'"
             Dim result = Helper.QuerySelect(query, connectionString)
@@ -2769,6 +2806,30 @@ where serienumfactura='{Fac}'"
         Return user
     End Function
 
+    Public Function GetModeloBinario(idmodelodeimpresion As Long) As ModeloDeImpresion
+        Dim ModeloDeImpresionBin As New ModeloDeImpresion
+        'Dim ListaContratov2 As New List(Of Integer)
+        Try
+
+            Dim query As String = $"select idmodelodeimpresion,modelo from modelodeimpresion where idmodelodeimpresion ={idmodelodeimpresion}"
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ModeloBD = Helper.FillObjectFromDatatable(result.Tables(0), GetType(ModeloDeImpresion)).Cast(Of ModeloDeImpresion).FirstOrDefault
+                If Not IsNothing(ModeloBD) AndAlso ModeloBD.IdModeloDeImpresion > 0 Then
+                    ModeloDeImpresionBin = ModeloBD
+
+                End If
+            End If
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return ModeloDeImpresionBin
+    End Function
 #Region "Controlar valores excel"
     Public Function ToNullableDate(value As Object) As Date?
         If value Is Nothing OrElse String.IsNullOrWhiteSpace(value.ToString) Then

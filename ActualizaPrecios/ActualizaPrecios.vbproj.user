@@ -19,16 +19,28 @@
     <Compile Update="Form1.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="EditarModeloImpresionForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="LoadingWF.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Login.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="ModeloImpresionForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="ProductosAsig.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="RegistrarBD.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="TablaRevisaPreciosPersonalizados.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="TrocearXMLForm.vb">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>
