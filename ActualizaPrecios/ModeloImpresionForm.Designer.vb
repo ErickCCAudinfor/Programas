@@ -28,6 +28,7 @@ Partial Class ModeloImpresionForm
         BDLabel = New Label()
         DataModeloImpresionView = New DataGridView()
         AgregarBDBotton = New Button()
+        RecargaModelos = New Button()
         CType(DataModeloImpresionView, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
@@ -55,7 +56,7 @@ Partial Class ModeloImpresionForm
         DataModeloImpresionView.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None
         DataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft
         DataGridViewCellStyle1.BackColor = Color.FromArgb(CByte(45), CByte(45), CByte(48))
-        DataGridViewCellStyle1.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        DataGridViewCellStyle1.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
         DataGridViewCellStyle1.ForeColor = Color.White
         DataGridViewCellStyle1.SelectionBackColor = Color.FromArgb(CByte(0), CByte(122), CByte(204))
         DataGridViewCellStyle1.SelectionForeColor = Color.White
@@ -85,19 +86,33 @@ Partial Class ModeloImpresionForm
         AgregarBDBotton.Text = "Agregar BD"
         AgregarBDBotton.UseVisualStyleBackColor = False
         ' 
+        ' RecargaModelos
+        ' 
+        RecargaModelos.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(220))
+        RecargaModelos.FlatAppearance.BorderColor = Color.FromArgb(CByte(25), CByte(118), CByte(220))
+        RecargaModelos.FlatStyle = FlatStyle.Popup
+        RecargaModelos.ForeColor = SystemColors.Control
+        RecargaModelos.Location = New Point(1067, 12)
+        RecargaModelos.Name = "RecargaModelos"
+        RecargaModelos.Size = New Size(124, 23)
+        RecargaModelos.TabIndex = 5
+        RecargaModelos.Text = "Recargar Modelos"
+        RecargaModelos.UseVisualStyleBackColor = False
+        ' 
         ' ModeloImpresionForm
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.FromArgb(CByte(213), CByte(220), CByte(227))
-        ClientSize = New Size(1321, 552)
+        ClientSize = New Size(1321, 569)
+        Controls.Add(RecargaModelos)
         Controls.Add(AgregarBDBotton)
         Controls.Add(DataModeloImpresionView)
         Controls.Add(BDLabel)
         Controls.Add(BDEmpresaCombo)
         Icon = CType(resources.GetObject("$this.Icon"), Icon)
         Name = "ModeloImpresionForm"
-        Text = "ModeloImpresion"
+        Text = "Modelo Impresion"
         CType(DataModeloImpresionView, ComponentModel.ISupportInitialize).EndInit()
         ResumeLayout(False)
         PerformLayout()
@@ -107,4 +122,5 @@ Partial Class ModeloImpresionForm
     Friend WithEvents BDLabel As Label
     Friend WithEvents DataModeloImpresionView As DataGridView
     Friend WithEvents AgregarBDBotton As Button
+    Friend WithEvents RecargaModelos As Button
 End Class

@@ -2830,6 +2830,117 @@ where serienumfactura='{Fac}'"
 
         Return ModeloDeImpresionBin
     End Function
+
+    Public Function UpdateModeloImpresion(modelo As ModeloDeImpresion) As Long
+
+        Dim filasAfectadas As Long = 0
+
+        Using conexion As New SqlConnection(connectionString)
+            Using comando As New SqlCommand("
+            UPDATE modelodeimpresion 
+            SET 
+                Entorno = @Entorno,
+                DescripcionModeloDeImpresion = @Descripcion,
+                CodigoTipoModeloDeImpresion = @CodigoTipo,
+                ClassName = @ClassName,
+                RptFileName = @RptFileName,
+                Modelo = @Modelo
+            WHERE IdModeloDeImpresion = @Id", conexion)
+
+                comando.Parameters.AddWithValue("@Entorno", modelo.Entorno)
+                comando.Parameters.AddWithValue("@Descripcion", modelo.DescripcionModeloDeImpresion)
+                comando.Parameters.AddWithValue("@CodigoTipo", modelo.CodigoTipoModeloDeImpresion)
+                comando.Parameters.AddWithValue("@ClassName", If(modelo.ClassName, DBNull.Value))
+                comando.Parameters.AddWithValue("@RptFileName", If(modelo.RptFileName, DBNull.Value))
+
+                ' BINARIO
+                Dim pModelo As New SqlParameter("@Modelo", SqlDbType.VarBinary, -1)
+                pModelo.Value = If(modelo.Modelo IsNot Nothing, modelo.Modelo, DBNull.Value)
+                comando.Parameters.Add(pModelo)
+
+                comando.Parameters.AddWithValue("@Id", modelo.IdModeloDeImpresion)
+
+                conexion.Open()
+                filasAfectadas = comando.ExecuteNonQuery()
+            End Using
+        End Using
+
+        Return filasAfectadas
+
+    End Function
+
+    Public Function InsertModeloImpresion(modelo As ModeloDeImpresion) As Long
+
+        Dim idInsertado As Long = 0
+
+        Using conexion As New SqlConnection(connectionString)
+            Using comando As New SqlCommand("
+            INSERT INTO modelodeimpresion
+            (
+                Entorno,
+                DescripcionModeloDeImpresion,
+                CodigoTipoModeloDeImpresion,
+                ClassName,
+                RptFileName,
+                Modelo
+            )
+            VALUES
+            (
+                @Entorno,
+                @Descripcion,
+                @CodigoTipo,
+                @ClassName,
+                @RptFileName,
+                @Modelo
+            );
+
+            SELECT CAST(SCOPE_IDENTITY() AS BIGINT);
+        ", conexion)
+
+                comando.Parameters.Add("@Entorno", SqlDbType.VarChar, 10).Value = modelo.Entorno
+                comando.Parameters.Add("@Descripcion", SqlDbType.NVarChar, 250).Value = modelo.DescripcionModeloDeImpresion
+                comando.Parameters.Add("@CodigoTipo", SqlDbType.Int).Value = modelo.CodigoTipoModeloDeImpresion
+                comando.Parameters.Add("@ClassName", SqlDbType.NVarChar, 250).Value = If(modelo.ClassName, DBNull.Value)
+                comando.Parameters.Add("@RptFileName", SqlDbType.NVarChar, -1).Value = If(modelo.RptFileName, DBNull.Value)
+
+                ' BINARIO (VARBINARY MAX)
+                Dim pModelo As New SqlParameter("@Modelo", SqlDbType.VarBinary, -1)
+                pModelo.Value = If(modelo.Modelo IsNot Nothing, modelo.Modelo, DBNull.Value)
+                comando.Parameters.Add(pModelo)
+
+                comando.Parameters.Add("@Usuario", SqlDbType.NVarChar, 50).Value =
+                Environment.UserName
+
+                conexion.Open()
+                idInsertado = CLng(comando.ExecuteScalar())
+            End Using
+        End Using
+
+        Return idInsertado
+
+    End Function
+
+    Public Function DeleteModeloImpresion(idModelo As Long) As Long
+
+        Dim filasAfectadas As Long = 0
+
+        Using conexion As New SqlConnection(connectionString)
+            Using comando As New SqlCommand("
+            DELETE FROM modelodeimpresion
+            WHERE IdModeloDeImpresion = @Id
+        ", conexion)
+
+                comando.Parameters.Add("@Id", SqlDbType.BigInt).Value = idModelo
+
+                conexion.Open()
+                filasAfectadas = comando.ExecuteNonQuery()
+            End Using
+        End Using
+
+        Return filasAfectadas
+    End Function
+
+
 #Region "Controlar valores excel"
     Public Function ToNullableDate(value As Object) As Date?
         If value Is Nothing OrElse String.IsNullOrWhiteSpace(value.ToString) Then

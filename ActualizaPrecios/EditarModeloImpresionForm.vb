@@ -6,6 +6,7 @@ Public Class EditarModeloImpresionForm
     Private _esNuevo As Boolean
     Private _ConnectionString As String
     Private _Funciones As New FuncionesGenericas(_ConnectionString)
+    Private _ModeloBinGlobal As Byte()
     Sub New(Modelo As ModeloDeImpresion, ConnectionString As String)
 
         ' Esta llamada es exigida por el diseñador.
@@ -24,7 +25,6 @@ Public Class EditarModeloImpresionForm
     End Sub
 
     Private Sub EditarModeloImpresionForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-
         If Not _esNuevo Then
             TextIdModelo.Text = _Modelo.IdModeloDeImpresion.ToString()
             TextEntorno.Text = _Modelo.Entorno
@@ -33,10 +33,12 @@ Public Class EditarModeloImpresionForm
             TextRptFileName.Text = _Modelo.RptFileName
             Dim bin = _Funciones.GetModeloBinario(_Modelo.IdModeloDeImpresion).Modelo
             LabelBinario.Text = bin?.Length.ToString
+            _Modelo.Modelo = bin
+
         Else
             TextIdModelo.Text = "(nuevo)"
         End If
-
+        InicializarComboTipoModelo(_Modelo.CodigoTipoModeloDeImpresion)
     End Sub
 
 
@@ -56,6 +58,67 @@ Public Class EditarModeloImpresionForm
         _Modelo.RptFileName = Path.GetFileName(ruta)
         LabelBinario.Text = _Modelo.Modelo.Length.ToString
         TextRptFileName.Text = _Modelo.RptFileName
+    End Sub
+
+    Private Async Sub Guardar_Click(sender As Object, e As EventArgs) Handles Guardar.Click
+        Dim numFilas As Long = 0
+
+        Try
+            PrepararModeloDesdeUI()
+            MostrarEstadoGuardando(True)
+
+            numFilas = Await GuardarModeloAsync()
+
+            If numFilas > 0 Then
+                Me.DialogResult = DialogResult.OK
+                Me.Close()
+            End If
+
+        Catch ex As Exception
+            _complementos.MostrarMensajePersonalizado(ex.Message)
+
+        Finally
+            MostrarEstadoGuardando(False)
+        End Try
+    End Sub
+
+
+    Private Sub PrepararModeloDesdeUI()
+        _Modelo.Entorno = TextEntorno.Text
+        _Modelo.DescripcionModeloDeImpresion = TextDescripModelo.Text
+        _Modelo.CodigoTipoModeloDeImpresion = CInt(ComboTipoModelo.SelectedValue)
+        _Modelo.ClassName = TextClassName.Text
+    End Sub
+
+    Private Function GuardarModeloAsync() As Task(Of Long)
+        If _esNuevo Then
+            Return Task.Run(Function() _Funciones.InsertModeloImpresion(_Modelo))
+        Else
+            Return Task.Run(Function() _Funciones.UpdateModeloImpresion(_Modelo))
+        End If
+    End Function
+    Private Sub MostrarEstadoGuardando(mostrar As Boolean)
+        PictureBox2.Visible = mostrar
+        TextConsultando.Text = If(mostrar, "Guardando", String.Empty)
+    End Sub
+
+
+    Private Sub InicializarComboTipoModelo(Optional valorSeleccionado As Integer? = Nothing)
+
+        If _ConnectionString.ToLower.Contains("sigetotal") Then
+            ComboTipoModelo.DataSource = EnumHelper.EnumToComboBoxList(Of TipoModeloImpresionTotal)()
+        Else
+            ComboTipoModelo.DataSource = EnumHelper.EnumToComboBoxList(Of TipoModeloImpresionGeneral)()
+        End If
+
+        ComboTipoModelo.DisplayMember = "Text"
+        ComboTipoModelo.ValueMember = "Value"
+
+        'Seleccionar valor recibido
+        If valorSeleccionado.HasValue Then
+            ComboTipoModelo.SelectedValue = valorSeleccionado.Value
+        End If
+
     End Sub
 
 End Class

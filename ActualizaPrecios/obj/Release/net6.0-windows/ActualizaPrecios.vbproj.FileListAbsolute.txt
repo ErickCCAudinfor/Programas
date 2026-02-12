@@ -76,3 +76,7 @@ C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Release\net6.
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Release\net6.0-windows\EntityFramework.dll
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Release\net6.0-windows\System.Configuration.ConfigurationManager.dll
 C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\bin\Release\net6.0-windows\SigeCom.Repository.dll
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.EditarModeloImpresionForm.resources
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.ModeloImpresionForm.resources
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.RegistrarBD.resources
+C:\Users\ErickCC\Documents\TotalDoc\Programas\ActualizaPrecios\obj\Release\net6.0-windows\ActualizaPrecios.TrocearXMLForm.resources

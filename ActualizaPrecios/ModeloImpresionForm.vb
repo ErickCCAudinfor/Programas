@@ -6,7 +6,7 @@ Public Class ModeloImpresionForm
 
     Private Empresas As List(Of EmpresaBD)
     Private RutaConfig As String = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Json", "EmpresasBD.json")
-    Private complementos As New Complementos
+    Private _complementos As New Complementos
     Private _GlobalConnecString As String
 
     Public Sub New()
@@ -14,14 +14,11 @@ Public Class ModeloImpresionForm
         CargarEmpresas()
     End Sub
 
-    'Private Sub Button1_Click(sender As Object, e As EventArgs) Handles CargarReportButton.Click
-    '    CargarModelos()
-    'End Sub
     Private Sub ValorCambia(sender As Object, e As EventArgs) Handles BDEmpresaCombo.TextChanged
         Try
             CargarModelos()
         Catch ex As Exception
-            complementos.MostrarMensajePersonalizado(ex.Message)
+            _complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
 
     End Sub
@@ -57,28 +54,6 @@ Public Class ModeloImpresionForm
         e.ThrowException = False
     End Sub
 
-    'Private Sub DataModeloImpresionView_RowValidated(sender As Object, e As DataGridViewCellEventArgs) Handles DataModeloImpresionView.RowValidated
-    '    Dim fila As DataGridViewRow = DataModeloImpresionView.Rows(e.RowIndex)
-
-    '    ' Ignorar fila que aún es la "fila de inserción" del grid
-    '    If fila.IsNewRow Then Return
-
-    '    ' Obtener objeto modelo desde el BindingList
-    '    Dim modelo As ModeloDeImpresion = CType(fila.DataBoundItem, ModeloDeImpresion)
-    '    Dim emp As EmpresaBD = CType(BDEmpresaCombo.SelectedItem, EmpresaBD)
-    '    Dim connStr = GetConnectionString(emp)
-
-    '    If modelo.IdModeloDeImpresion = 0 Then
-    '        ' Nuevo registro
-    '        'InsertarModelo(modelo, connStr)
-    '        ' Recargar tabla para obtener Id real
-    '        CargarModelos()
-    '    Else
-    '        ' Registro existente -> actualizar
-    '        'ActualizarModelo(modelo, connStr)
-    '    End If
-    'End Sub
-
     Private Sub CargarEmpresas()
 
         If Not File.Exists(RutaConfig) Then
@@ -95,18 +70,6 @@ Public Class ModeloImpresionForm
         BDEmpresaCombo.DisplayMember = "Nombre"
 
     End Sub
-
-
-    'Private Sub GuardarEmpresa(nueva As EmpresaBD)
-
-    '    Empresas.Add(nueva)
-
-    '    Dim json = JsonSerializer.Serialize(Empresas, New JsonSerializerOptions With {.WriteIndented = True})
-    '    File.WriteAllText(RutaConfig, json)
-
-    '    CargarEmpresas() ' refrescar combo
-
-    'End Sub
     Private Function GetConnectionString(Emp1 As EmpresaBD) As String
         Dim emp As EmpresaBD = Emp1
         Dim user = CryptoHelper.Descifrar(emp.Usuario)
@@ -117,11 +80,14 @@ Public Class ModeloImpresionForm
 
     Private Sub AgregarBDBotton_Click(sender As Object, e As EventArgs) Handles AgregarBDBotton.Click
         Try
-            Dim VentanaRegistrarBD As New RegistrarBD(Empresas, RutaConfig)
-            VentanaRegistrarBD.ShowDialog()
-            CargarEmpresas()
+            Using VentanaRegistrarBD As New RegistrarBD(Empresas, RutaConfig)
+                If VentanaRegistrarBD.ShowDialog = DialogResult.OK Then
+                    CargarEmpresas()
+                End If
+            End Using
+
         Catch ex As Exception
-            complementos.MostrarMensajePersonalizado(ex.Message)
+            _complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
 
@@ -140,7 +106,7 @@ Public Class ModeloImpresionForm
 
             AbrirEdicionModelo(modelo)
         Catch ex As Exception
-            complementos.MostrarMensajePersonalizado(ex.Message)
+            _complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
 
@@ -153,7 +119,7 @@ Public Class ModeloImpresionForm
                 End If
             End Using
         Catch ex As Exception
-            complementos.MostrarMensajePersonalizado(ex.Message)
+            _complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
     Private Sub AbrirNuevoModelo()
@@ -165,7 +131,48 @@ Public Class ModeloImpresionForm
                 End If
             End Using
         Catch ex As Exception
-            complementos.MostrarMensajePersonalizado(ex.Message)
+            _complementos.MostrarMensajePersonalizado(ex.Message)
+        End Try
+    End Sub
+
+    Private Sub DataModeloImpresionView_UserDeletingRow(sender As Object, e As DataGridViewRowCancelEventArgs) Handles DataModeloImpresionView.UserDeletingRow
+        Try
+            ' Confirmación
+            Dim r = MessageBox.Show(
+        "¿Deseas eliminar este modelo?",
+        "Confirmar eliminación",
+        MessageBoxButtons.YesNo,
+        MessageBoxIcon.Warning
+    )
+            If r = DialogResult.No Then
+                e.Cancel = True
+                Return
+            End If
+
+            ' Obtener el objeto asociado a la fila
+            Dim modelo As ModeloDeImpresion = CType(e.Row.DataBoundItem, ModeloDeImpresion)
+
+            ' Evitar borrar filas nuevas
+            If modelo Is Nothing OrElse modelo.IdModeloDeImpresion = 0 Then
+                e.Cancel = True
+                Return
+            End If
+            'Aqui hare el borrado
+            Dim funciones As New FuncionesGenericas(_GlobalConnecString)
+            Dim delete = funciones.DeleteModeloImpresion(modelo.IdModeloDeImpresion)
+
+        Catch ex As Exception
+            _complementos.MostrarMensajePersonalizado(ex.Message)
+        Finally
+            CargarModelos()
+        End Try
+    End Sub
+
+    Private Sub RecargaModelos_Click(sender As Object, e As EventArgs) Handles RecargaModelos.Click
+        Try
+            CargarModelos()
+        Catch ex As Exception
+
         End Try
     End Sub
 End Class

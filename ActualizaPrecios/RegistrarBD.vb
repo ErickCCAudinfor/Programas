@@ -1,14 +1,14 @@
-﻿Imports SigeCom.Repository
-Imports System.IO
+﻿Imports System.IO
 Imports System.Text.Json
 
 Public Class RegistrarBD
-    Private Empresas As List(Of EmpresaBD)
-    Private RutaConfig As String
+    Private _Empresas As List(Of EmpresaBD)
+    Private _RutaConfig As String
+    Private _complementos As New Complementos
     Public Sub New(Empresas As List(Of EmpresaBD), RutaConfig As String)
         InitializeComponent()
-        Me.Empresas = Empresas
-        Me.RutaConfig = RutaConfig
+        Me._Empresas = Empresas
+        Me._RutaConfig = RutaConfig
     End Sub
     Private Sub AgregarBDBoton_Click(sender As Object, e As EventArgs) Handles AgregarBDBoton.Click
         Try
@@ -18,13 +18,19 @@ Public Class RegistrarBD
             BDAgregar.BaseDatos = BDBox.Text
             BDAgregar.Usuario = CryptoHelper.Cifrar(UsuarioBox.Text)
             BDAgregar.Password = CryptoHelper.Cifrar(ClaveBox.Text)
-            Empresas.Add(BDAgregar)
+            _Empresas.Add(BDAgregar)
 
-            Dim json = JsonSerializer.Serialize(Empresas, New JsonSerializerOptions With {.WriteIndented = True})
-            File.WriteAllText(RutaConfig, json)
+            Dim json = JsonSerializer.Serialize(_Empresas, New JsonSerializerOptions With {.WriteIndented = True})
+            File.WriteAllText(_RutaConfig, json)
+
+            _complementos.MostrarMensajePersonalizado($"BD {BDAgregar.Nombre} registrada.")
+
 
         Catch ex As Exception
             Throw
+        Finally
+            Me.DialogResult = DialogResult.OK
+            Me.Close()
         End Try
     End Sub
 End Class
