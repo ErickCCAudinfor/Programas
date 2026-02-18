@@ -2372,7 +2372,7 @@ VALUES
         Return FilfasAfectadas
     End Function
 
-    Public Function GetCalendarioNuevoTarifa(ListaIdContratoTarifa As Long, TGVIEJO As String, TGNUEVO As String) As TarifaGrupo
+    Public Function GetCalendarioNuevoTarifa(ListaIdContratoTarifa As Long, TGVIEJO As String, TGNUEVO As String, FechaCierre As Date) As TarifaGrupo
         Dim TarifaGrupoRet As New TarifaGrupo
         Try
             Dim query As String = $"; with GrupoViejo as ( select ct.entorno,idcontratotarifa,ct.idtarifa idtarifaOld,tg.idtarifagrupo idtarifagrupoOld, TextoTarifaGrupo textoGrupoOld, ct.idperfilfacturacion idperfilfacturacionOld from ContratoTarifa ct
@@ -2392,7 +2392,8 @@ inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagr
                 Dim TGBBDD = Helper.FillObjectFromDatatable(result.Tables(0), GetType(TarifaGrupo)).Cast(Of TarifaGrupo).FirstOrDefault
                 If Not IsNothing(TGBBDD) AndAlso TGBBDD.IdTarifaGrupo > 0 Then
                     TarifaGrupoRet = TGBBDD
-
+                    'Cierre el Antiguo Calendario
+                    UpdateSetFechaCierreCalendario(ListaIdContratoTarifa, FechaCierre)
                 End If
             End If
         Catch ex As Exception
@@ -2938,6 +2939,35 @@ where serienumfactura='{Fac}'"
         End Using
 
         Return filasAfectadas
+    End Function
+
+    Public Function UpdateSetFechaCierreCalendario(idContratoTarifa As Long, fechaCierre As Date?) As Long
+
+        Dim filasAfectadas As Long = 0
+
+        Using conexion As New SqlConnection(connectionString)
+            Using comando As New SqlCommand("
+            UPDATE ContratoTarifa
+            SET fechahasta = @FechaCierre
+            WHERE idContratoTarifa = @Id", conexion)
+
+                comando.Parameters.Add("@Id", SqlDbType.BigInt).Value = idContratoTarifa
+
+                Dim paramFecha = comando.Parameters.Add("@FechaCierre", SqlDbType.DateTime2)
+
+                If fechaCierre.HasValue Then
+                    paramFecha.Value = fechaCierre.Value
+                Else
+                    paramFecha.Value = DBNull.Value
+                End If
+
+                conexion.Open()
+                filasAfectadas = comando.ExecuteNonQuery()
+            End Using
+        End Using
+
+        Return filasAfectadas
+
     End Function
 
 

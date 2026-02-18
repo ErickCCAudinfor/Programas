@@ -102,6 +102,7 @@ Partial Class Form1
         CheckFacturable = New CheckBox()
         Norauto = New CheckBox()
         PanelLateral = New Panel()
+        TrocearXMLButton = New Button()
         AplicarPreciosExcelButton = New Button()
         TimerPanel = New Timer(components)
         Label10 = New Label()
@@ -115,7 +116,6 @@ Partial Class Form1
         Panel4 = New Panel()
         Panel8 = New Panel()
         Panel7 = New Panel()
-        TrocearXMLButton = New Button()
         Panel1.SuspendLayout()
         CType(PictureBox2, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
@@ -769,7 +769,6 @@ Partial Class Form1
         ' 
         ' Button21
         ' 
-        Button21.Enabled = False
         Button21.Location = New Point(20, 88)
         Button21.Name = "Button21"
         Button21.Size = New Size(180, 23)
@@ -938,6 +937,17 @@ Partial Class Form1
         PanelLateral.Size = New Size(0, 640)
         PanelLateral.TabIndex = 45
         ' 
+        ' TrocearXMLButton
+        ' 
+        TrocearXMLButton.ImageAlign = ContentAlignment.BottomCenter
+        TrocearXMLButton.Location = New Point(18, 294)
+        TrocearXMLButton.Name = "TrocearXMLButton"
+        TrocearXMLButton.Padding = New Padding(10, 0, 35, 0)
+        TrocearXMLButton.Size = New Size(180, 23)
+        TrocearXMLButton.TabIndex = 47
+        TrocearXMLButton.Text = "Trocear XML"
+        TrocearXMLButton.UseVisualStyleBackColor = True
+        ' 
         ' AplicarPreciosExcelButton
         ' 
         AplicarPreciosExcelButton.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
@@ -1096,17 +1106,6 @@ Partial Class Form1
         Panel7.Name = "Panel7"
         Panel7.Size = New Size(310, 1)
         Panel7.TabIndex = 2
-        ' 
-        ' TrocearXMLButton
-        ' 
-        TrocearXMLButton.ImageAlign = ContentAlignment.BottomCenter
-        TrocearXMLButton.Location = New Point(18, 294)
-        TrocearXMLButton.Name = "TrocearXMLButton"
-        TrocearXMLButton.Padding = New Padding(10, 0, 35, 0)
-        TrocearXMLButton.Size = New Size(180, 23)
-        TrocearXMLButton.TabIndex = 47
-        TrocearXMLButton.Text = "Trocear XML"
-        TrocearXMLButton.UseVisualStyleBackColor = True
         ' 
         ' Form1
         ' 

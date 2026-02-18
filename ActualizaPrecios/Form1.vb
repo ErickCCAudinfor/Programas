@@ -1864,90 +1864,152 @@ Public Class Form1
     End Sub
 
     'Actualiza el calendario masivamente, añade el nuevo y  cierra el calendario anterior, ademas de mantener el mismo perfil
+#Region "Viejo"
+    'Private Async Sub Button21_Click(sender As Object, e As EventArgs) Handles Button21.Click
+    '    Dim ExcelDatos As New Excel
+    '    Dim Datos As New List(Of List(Of Object))
+    '    Try
+    '        Dim totalContratos = 0
+    '        Dim ContratoActualizar As New List(Of Long)
+    '        Dim Con As New List(Of ContratoTarifa)
+    '        'Con = GetConSinSplit(TextBox2.Text)
+    '        ' Crear una instancia de OpenFileDialog
+    '        Dim openFileDialog1 As New OpenFileDialog
+
+    '        ' Configurar propiedades del diálogo
+    '        openFileDialog1.Title = "Seleccionar archivos"
+    '        openFileDialog1.Multiselect = True ' Permitir la selección múltiple de archivos
+    '        openFileDialog1.Filter = "Todos los archivos (*.*)|*.*" ' Filtro de archivos
+    '        Dim rutaArchivo = ""
+    '        ' Mostrar el diálogo y verificar si el usuario hizo clic en OK
+    '        If openFileDialog1.ShowDialog = DialogResult.OK Then
+    '            ' Obtener la ruta de cada archivo seleccionado y mostrarla en la consola
+    '            For Each filename In openFileDialog1.FileNames
+    '                rutaArchivo = filename
+    '            Next
+    '        End If
+    '        ExcelPackage.LicenseContext = LicenseContext.NonCommercial
+    '        Using package As New ExcelPackage(New FileInfo(rutaArchivo))
+    '            Dim worksheet = package.Workbook.Worksheets(0)
+    '            Dim rowCount = worksheet.Dimension.Rows
+
+    '            ' Leer códigos de contrato del Excel
+    '            Dim codigosContrato As New List(Of Long)
+    '            For row = 2 To rowCount
+    '                Dim CodContrato = worksheet.Cells(row, 1).Value?.ToString
+    '                Dim idcontratotarifa = worksheet.Cells(row, 2).Value?.ToString
+    '                Dim FechaCierre = CDate(worksheet.Cells(row, 3).Value?.ToString)
+    '                Dim FechaAplicar = CDate(worksheet.Cells(row, 4).Value?.ToString)
+    '                'Dim Cups As String = worksheet.Cells(row, 3).Value?.ToString()
+    '                If Not String.IsNullOrEmpty(idcontratotarifa) Then
+    '                    Dim conExcel As New ContratoTarifa With {.IdContratoTarifa = idcontratotarifa, .CodigoContrato = CodContrato, .FechaHasta = FechaCierre, .FechaDesde = FechaAplicar
+    '                    }
+    '                    Con.Add(conExcel)
+    '                End If
+    '            Next
+    '        End Using
+    '        Dim yesorNot As MsgBoxResult
+    '        Dim todoOK = False
+    '        'Escribo los valores que tiene ahora, para posteriormente comparar o hacer uso de este y dejarlo como esta
+    '        'Funciones.EscribirContratoTarifaAntesCambios(ContratoActualizar)
+    '        If Con.Count > 0 Then
+    '            If Con.Count < 0 Then
+    '                yesorNot = MsgBox("No hay contratos a actualizar. ¿Actualizar de todas formas?", vbYesNo)
+    '            Else
+    '                todoOK = True
+    '            End If
+    '            If yesorNot = 6 OrElse yesorNot = 1 OrElse todoOK Then
+    '                PictureBox2.Visible = True
+    '                Await Task.Run(Sub()
+    '                                   'TextBox1 TarifagrupoViejo
+    '                                   'TextBox3 TarifagrupoNuevo
+    '                                   'Podemos añadir una funcación para cerrar el calendario viejo antes de añadir el nuevo, pendiente implementar
+    '                                   For Each c In Con
+    '                                       Dim tgNuevo = Funciones.GetCalendarioNuevoTarifa(c.IdContratoTarifa, TextBox3.Text, TextBox1.Text, c.FechaHasta) ' IdContratoTarifa (viejo), textotarifagrupo viejo, textarifagrupoNuevo, fechaCierre 
+    '                                       'Dim FechaAplicar = DateTimePicker1.Value.Date
+    '                                       Dim CodigoContrato = Funciones.GetOnlyCodigoContratobyIdContratoTarifa(c.IdContratoTarifa)
+    '                                       If Not IsNothing(CodigoContrato) AndAlso CodigoContrato <> 0 AndAlso tgNuevo.IdTarifaGrupo Then 'Creamos el nuevo calendario y aplicamos Precios 
+    '                                           Dim ok = Funciones.InsertTarifaGrupoCalendario(tgNuevo.Entorno, CodigoContrato, tgNuevo.IdTarifaGrupo, tgNuevo.IdTarifa, tgNuevo.IdPerfilFacturacion, c.FechaDesde)
+    '                                           Funciones.AplicarPreciosV2(CodigoContrato, c.FechaDesde)
+    '                                           Dim Pepe = 0
+    '                                       End If
+    '                                   Next
+    '                               End Sub)
+    '                PictureBox2.Visible = False
+
+    '                If Not IsNothing(Datos) AndAlso Datos.Count > 0 Then
+    '                    ExcelDatos.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos, "PreciosErrores")
+    '                End If
+    '                complementos.MostrarMensajePersonalizado($"Contratos iniciales:{Con.Count} contratos")
+    '            Else
+    '                complementos.MostrarMensajePersonalizado($"Se ha cancelado la actualización")
+    '            End If
+    '        Else
+    '            complementos.MostrarMensajePersonalizado($"Sin Contratos")
+    '        End If
+
+    '    Catch ex As Exception
+    '        PictureBox2.Visible = False
+    '        complementos.MostrarMensajePersonalizado("Exception: " + ex.Message)
+    '    End Try
+    'End Sub
+#End Region
     Private Async Sub Button21_Click(sender As Object, e As EventArgs) Handles Button21.Click
-        Dim ExcelDatos As New Excel
-        Dim Datos As New List(Of List(Of Object))
         Try
-            Dim totalContratos = 0
-            Dim ContratoActualizar As New List(Of Long)
-            Dim Con As New List(Of Long)
-            'Con = GetConSinSplit(TextBox2.Text)
-            ' Crear una instancia de OpenFileDialog
-            Dim openFileDialog1 As New OpenFileDialog
+            Dim rutaArchivo = SeleccionarArchivo()
+            If String.IsNullOrEmpty(rutaArchivo) Then Return
 
-            ' Configurar propiedades del diálogo
-            openFileDialog1.Title = "Seleccionar archivos"
-            openFileDialog1.Multiselect = True ' Permitir la selección múltiple de archivos
-            openFileDialog1.Filter = "Todos los archivos (*.*)|*.*" ' Filtro de archivos
-            Dim rutaArchivo = ""
-            ' Mostrar el diálogo y verificar si el usuario hizo clic en OK
-            If openFileDialog1.ShowDialog = DialogResult.OK Then
-                ' Obtener la ruta de cada archivo seleccionado y mostrarla en la consola
-                For Each filename In openFileDialog1.FileNames
-                    rutaArchivo = filename
-                Next
+            Dim excell As New Excel
+            Dim contratos = excell.LeerContratosDesdeExcel(rutaArchivo)
+
+            If contratos.Count = 0 Then
+                complementos.MostrarMensajePersonalizado("Sin contratos")
+                Return
             End If
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial
-            Using package As New ExcelPackage(New FileInfo(rutaArchivo))
-                Dim worksheet = package.Workbook.Worksheets(0)
-                Dim rowCount = worksheet.Dimension.Rows
 
-                ' Leer códigos de contrato del Excel
-                Dim codigosContrato As New List(Of Long)
-                For row = 2 To rowCount
-                    Dim CodContrato = worksheet.Cells(row, 1).Value?.ToString
-                    Dim idcontratotarifa = worksheet.Cells(row, 2).Value?.ToString
-                    'Dim Cups As String = worksheet.Cells(row, 3).Value?.ToString()
-                    If Not String.IsNullOrEmpty(idcontratotarifa) Then
-                        Con.Add(idcontratotarifa)
-                    End If
-                Next
-            End Using
-            Dim yesorNot As MsgBoxResult
-            Dim todoOK = False
-            'Escribo los valores que tiene ahora, para posteriormente comparar o hacer uso de este y dejarlo como esta
-            'Funciones.EscribirContratoTarifaAntesCambios(ContratoActualizar)
-            If Con.Count > 0 Then
-                If Con.Count < 0 Then
-                    yesorNot = MsgBox("No hay contratos a actualizar. ¿Actualizar de todas formas?", vbYesNo)
-                Else
-                    todoOK = True
-                End If
-                If yesorNot = 6 OrElse yesorNot = 1 OrElse todoOK Then
-                    PictureBox2.Visible = True
-                    Await Task.Run(Sub()
-                                       'TextBox1 TarifagrupoViejo
-                                       'TextBox3 TarifagrupoNuevo
-                                       'Podemos añadir una funcación para cerrar el calendario viejo antes de añadir el nuevo, pendiente implementar
-                                       For Each c In Con
-                                           Dim tgNuevo = Funciones.GetCalendarioNuevoTarifa(c, TextBox3.Text, TextBox1.Text)
-                                           Dim FechaAplicar = DateTimePicker1.Value.Date
-                                           Dim CodigoContrato = Funciones.GetOnlyCodigoContratobyIdContratoTarifa(c)
-                                           If Not IsNothing(CodigoContrato) AndAlso CodigoContrato <> 0 AndAlso tgNuevo.IdTarifaGrupo Then
-                                               Dim ok = Funciones.InsertTarifaGrupoCalendario(tgNuevo.Entorno, CodigoContrato, tgNuevo.IdTarifaGrupo, tgNuevo.IdTarifa, tgNuevo.IdPerfilFacturacion, FechaAplicar)
-                                               Funciones.AplicarPreciosV2(CodigoContrato, FechaAplicar)
-                                               Dim Pepe = 0
-                                           End If
-                                       Next
-                                   End Sub)
-                    PictureBox2.Visible = False
-
-                    If Not IsNothing(Datos) AndAlso Datos.Count > 0 Then
-                        ExcelDatos.EscribirEnExcel($"C:\Users\{NombreUsuarioEquipo}\Desktop\", Datos, "PreciosErrores")
-                    End If
-                    complementos.MostrarMensajePersonalizado($"Contratos iniciales:{Con.Count} contratos")
-                Else
-                    complementos.MostrarMensajePersonalizado($"Se ha cancelado la actualización")
-                End If
-            Else
-                complementos.MostrarMensajePersonalizado($"Sin Contratos")
+            If MsgBox($"Se actualizarán {contratos.Count} contratos. ¿Continuar?", vbYesNo) <> vbYes Then
+                complementos.MostrarMensajePersonalizado("Se ha cancelado la actualización")
+                Return
             End If
+
+            PictureBox2.Visible = True
+            Await ProcesarContratosAsync(contratos)
+            PictureBox2.Visible = False
+
+            complementos.MostrarMensajePersonalizado($"Contratos procesados: {contratos.Count}")
 
         Catch ex As Exception
             PictureBox2.Visible = False
-            complementos.MostrarMensajePersonalizado("Exception: " + ex.Message)
+            complementos.MostrarMensajePersonalizado("Exception: " & ex.Message)
         End Try
     End Sub
+
+    Private Async Function ProcesarContratosAsync(contratos As List(Of ContratoTarifa)) As Task
+        Try
+
+            Await Task.Run(Sub()
+
+                               For Each c In contratos
+
+                                   Dim tgNuevo = Funciones.GetCalendarioNuevoTarifa(c.IdContratoTarifa, TextBox3.Text, TextBox1.Text, c.FechaHasta)
+
+                                   Dim codigoContrato = Funciones.GetOnlyCodigoContratobyIdContratoTarifa(c.IdContratoTarifa)
+
+                                   If codigoContrato > 0 AndAlso tgNuevo.IdTarifaGrupo <> 0 Then
+
+                                       Funciones.InsertTarifaGrupoCalendario(tgNuevo.Entorno, codigoContrato, tgNuevo.IdTarifaGrupo, tgNuevo.IdTarifa, tgNuevo.IdPerfilFacturacion, c.FechaDesde)
+
+                                       Funciones.AplicarPreciosV2(codigoContrato, c.FechaDesde)
+                                   End If
+                               Next
+
+                           End Sub)
+        Catch ex As Exception
+            Throw
+        End Try
+    End Function
+
+
 
     Private Sub Button22_Click(sender As Object, e As EventArgs) Handles Button22.Click
         Dim rutaExcel = "C:\Users\ErickCC\Downloads\Industriales_2024S1_v2.xlsx"
