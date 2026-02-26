@@ -1,4 +1,6 @@
 ﻿Imports System.Drawing.Drawing2D
+Imports System.IO
+Imports System.Text.Json
 Imports ClosedXML.Excel
 Imports SigeCom.Repository
 
@@ -8,12 +10,15 @@ Public Class Login
     Private originalLocation As Point
     Public NombreUsario As String
     Public IsLoginReport As Boolean = False
-
+    Public UsuarioLogueado As UsuarioValidacion
     Private Sub Login_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         originalSize = ExitPicture.Size
         originalLocation = ExitPicture.Location
         PasswordBox.PasswordChar = "*"c
     End Sub
+
+#Region "eventos"
+
 
     Private Sub PictureBox1_MouseEnter(sender As Object, e As EventArgs) Handles ExitPicture.MouseEnter
         ExitPicture.Size = New Size(originalSize.Width + 6, originalSize.Height + 6)
@@ -24,34 +29,14 @@ Public Class Login
         ExitPicture.Size = originalSize
         ExitPicture.Location = originalLocation
     End Sub
-
-    'Private Sub Login_Paint(sender As Object, e As PaintEventArgs) Handles MyBase.Paint
-    '    Dim rect As Rectangle = Me.ClientRectangle
-
-    '    ' Definimos los colores en RGB
-    '    Dim color1 As Color = Color.FromArgb(160, 30, 34)  ' Azul claro
-    '    Dim color2 As Color = Color.FromArgb(96, 109, 140)  ' Azul más oscuro
-    '    Dim color3 As Color = Color.FromArgb(233, 231, 226)  ' Azul más oscuro
-    '    ' Creamos el gradiente con un LinearGradientBrush (base)
-    '    Using brush As New LinearGradientBrush(rect, color1, color3, 222.0F)
-
-    '        ' Definimos la mezcla de colores
-    '        Dim blend As New ColorBlend()
-    '        blend.Colors = New Color() {color1, color2, color3}
-    '        blend.Positions = New Single() {0.0F, 0.5F, 1.0F} ' Posición de cada color (0 = inicio, 1 = fin)
-
-    '        ' Aplicamos la mezcla al brush
-    '        brush.InterpolationColors = blend
-
-    '        ' Dibujamos el rectángulo con el degradado
-    '        e.Graphics.FillRectangle(brush, rect)
-    '    End Using
-    'End Sub
-
     Private Sub PictureBox1_Click(sender As Object, e As EventArgs) Handles ExitPicture.Click
+        If SesionActual.UsuarioLogueado IsNot Nothing Then
+            MarcarUsuarioDesconectado(SesionActual.UsuarioLogueado)
+        End If
         Application.Exit()
-    End Sub
 
+    End Sub
+#End Region
     Private Async Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         Try
             If Not ValidarCampos() Then Exit Sub
@@ -63,10 +48,10 @@ Public Class Login
 
             Dim userBD = Await Task.Run(Function()
                                             Return funciones.UsuarioValidacion(
-                                            UsuarioBox.Text.Trim(),
-                                            PasswordBox.Text,
-                                            IsLoginReport
-                                        )
+                                        UsuarioBox.Text.Trim(),
+                                        PasswordBox.Text,
+                                        IsLoginReport
+                                    )
                                         End Function)
 
             If userBD Is Nothing Then
@@ -74,19 +59,74 @@ Public Class Login
                 Return
             End If
 
-            NombreUsario = userBD.Nombre
-            DialogResult = DialogResult.OK
-            Close()
+            ' Guardar usuario en memoria
+            userBD.logeado = True
+            SesionActual.UsuarioLogueado = userBD
+
+            ' Marcar logeado = True en el JSON
+
+            RegistraroActualizarUsuario(userBD)
+
+            ' Retornar OK y cerrar login
+            Me.DialogResult = DialogResult.OK
+            Me.Close()
 
         Catch ex As Exception
             TextoValidar.Text = ""
             complementos.MostrarMensajePersonalizado(ex.Message)
-
         Finally
             Button1.Enabled = True
         End Try
     End Sub
+    Private Sub RegistraroActualizarUsuario(usuario As UsuarioValidacion)
 
+        Try
+            Dim jsonusuarios As List(Of UsuarioValidacion)
+
+            ' Si el archivo no existe → lista nueva
+            If Not File.Exists(RutaConfigUsuarios) Then
+                jsonusuarios = New List(Of UsuarioValidacion)
+            Else
+                Dim json = File.ReadAllText(RutaConfigUsuarios)
+
+                jsonusuarios = JsonSerializer.Deserialize(Of List(Of UsuarioValidacion))(json, New JsonSerializerOptions With {.PropertyNameCaseInsensitive = True})
+
+                If jsonusuarios Is Nothing Then
+                    jsonusuarios = New List(Of UsuarioValidacion)
+                End If
+            End If
+
+            ' Buscar usuario existente
+            Dim usuarioExistente = jsonusuarios.FirstOrDefault(Function(u) u.Nombre = usuario.Nombre AndAlso u.login = usuario.login)
+
+            If usuarioExistente IsNot Nothing Then
+                ' Actualizar
+                usuarioExistente.Servidor = Environment.MachineName
+                usuarioExistente.logeado = True
+                usuarioExistente.Password = ""
+                'usuarioExistente.Password = usuario.Password
+            Else
+                ' Insertar
+                usuario.Servidor = Environment.MachineName
+                usuario.logeado = True
+                usuario.Password = ""
+                jsonusuarios.Add(usuario)
+            End If
+
+            ' Guardar
+            Dim jsonFinal = JsonSerializer.Serialize(jsonusuarios, New JsonSerializerOptions With {.WriteIndented = True})
+
+            File.WriteAllText(RutaConfigUsuarios, jsonFinal)
+        Catch ex As Exception
+            Throw
+        Finally
+            Me.DialogResult = DialogResult.OK
+            Me.Close()
+        End Try
+
+    End Sub
+
+#Region "validaciones"
     Private Function ValidarCampos() As Boolean
         If String.IsNullOrWhiteSpace(UsuarioBox.Text) AndAlso
        String.IsNullOrWhiteSpace(PasswordBox.Text) Then
@@ -106,21 +146,8 @@ Public Class Login
         TextoValidar.Text = ""
         Return True
     End Function
+#End Region
 
-
-
-
-    Private Sub LabelGestorDatosSIGE_Click(sender As Object, e As EventArgs) Handles LabelGestorDatosSIGE.Click
-
-    End Sub
-
-    'Private Sub Button2_Click(sender As Object, e As EventArgs)
-    '    Try
-    '        excel()
-    '    Catch ex As Exception
-
-    '    End Try
-    'End Sub
     Sub excel()
         ' Ruta del archivo original y del archivo nuevo
         Dim rutaOrigen As String = "C:  \Users\ErickCC\Desktop\Erick\estructura_cnae2009_v3.xlsx"
@@ -174,4 +201,5 @@ Public Class Login
 
         Console.WriteLine("Archivo generado correctamente en: " & rutaDestino)
     End Sub
+
 End Class

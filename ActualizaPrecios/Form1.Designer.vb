@@ -47,7 +47,7 @@ Partial Class Form1
         Timer1 = New Timer(components)
         RadioButton3 = New RadioButton()
         Button17 = New Button()
-        Button23 = New Button()
+        BotonConsultar = New Button()
         CheckBox5 = New CheckBox()
         Label7 = New Label()
         DateTimePicker2 = New DateTimePicker()
@@ -65,9 +65,9 @@ Partial Class Form1
         Label4 = New Label()
         CheckBox4 = New CheckBox()
         Button7 = New Button()
-        TextBox3 = New TextBox()
-        TextBox1 = New TextBox()
-        Button1 = New Button()
+        TextViejoTarifaGrupo = New TextBox()
+        TextTarifaGrupo = New TextBox()
+        BotonActualizar = New Button()
         Label1 = New Label()
         DateTimePicker1 = New DateTimePicker()
         Label6 = New Label()
@@ -308,18 +308,18 @@ Partial Class Form1
         Button17.Text = "Aplicar Precios"
         Button17.UseVisualStyleBackColor = True
         ' 
-        ' Button23
+        ' BotonConsultar
         ' 
-        Button23.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
-        Button23.FlatAppearance.BorderColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
-        Button23.FlatStyle = FlatStyle.Popup
-        Button23.ForeColor = Color.White
-        Button23.Location = New Point(3, 263)
-        Button23.Name = "Button23"
-        Button23.Size = New Size(311, 30)
-        Button23.TabIndex = 29
-        Button23.Text = "Consultar"
-        Button23.UseVisualStyleBackColor = False
+        BotonConsultar.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        BotonConsultar.FlatAppearance.BorderColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        BotonConsultar.FlatStyle = FlatStyle.Popup
+        BotonConsultar.ForeColor = Color.White
+        BotonConsultar.Location = New Point(3, 263)
+        BotonConsultar.Name = "BotonConsultar"
+        BotonConsultar.Size = New Size(311, 30)
+        BotonConsultar.TabIndex = 29
+        BotonConsultar.Text = "Consultar"
+        BotonConsultar.UseVisualStyleBackColor = False
         ' 
         ' CheckBox5
         ' 
@@ -506,37 +506,37 @@ Partial Class Form1
         Button7.Text = "Revisar"
         Button7.UseVisualStyleBackColor = True
         ' 
-        ' TextBox3
+        ' TextViejoTarifaGrupo
         ' 
-        TextBox3.Enabled = False
-        TextBox3.Location = New Point(10, 245)
-        TextBox3.Name = "TextBox3"
-        TextBox3.PlaceholderText = "Tarifa grupo actual..."
-        TextBox3.Size = New Size(299, 23)
-        TextBox3.TabIndex = 20
+        TextViejoTarifaGrupo.Enabled = False
+        TextViejoTarifaGrupo.Location = New Point(10, 245)
+        TextViejoTarifaGrupo.Name = "TextViejoTarifaGrupo"
+        TextViejoTarifaGrupo.PlaceholderText = "Tarifa grupo actual..."
+        TextViejoTarifaGrupo.Size = New Size(299, 23)
+        TextViejoTarifaGrupo.TabIndex = 20
         ' 
-        ' TextBox1
+        ' TextTarifaGrupo
         ' 
-        TextBox1.Enabled = False
-        TextBox1.Location = New Point(10, 216)
-        TextBox1.Name = "TextBox1"
-        TextBox1.PlaceholderText = "Ingrese la nueva tarifa grupo"
-        TextBox1.Size = New Size(299, 23)
-        TextBox1.TabIndex = 4
+        TextTarifaGrupo.Enabled = False
+        TextTarifaGrupo.Location = New Point(10, 216)
+        TextTarifaGrupo.Name = "TextTarifaGrupo"
+        TextTarifaGrupo.PlaceholderText = "Ingrese la nueva tarifa grupo"
+        TextTarifaGrupo.Size = New Size(299, 23)
+        TextTarifaGrupo.TabIndex = 4
         ' 
-        ' Button1
+        ' BotonActualizar
         ' 
-        Button1.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
-        Button1.Enabled = False
-        Button1.FlatAppearance.BorderColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
-        Button1.FlatStyle = FlatStyle.Popup
-        Button1.ForeColor = Color.White
-        Button1.Location = New Point(125, 293)
-        Button1.Name = "Button1"
-        Button1.Size = New Size(181, 23)
-        Button1.TabIndex = 0
-        Button1.Text = "Actualizar"
-        Button1.UseVisualStyleBackColor = False
+        BotonActualizar.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        BotonActualizar.Enabled = False
+        BotonActualizar.FlatAppearance.BorderColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        BotonActualizar.FlatStyle = FlatStyle.Popup
+        BotonActualizar.ForeColor = Color.White
+        BotonActualizar.Location = New Point(125, 293)
+        BotonActualizar.Name = "BotonActualizar"
+        BotonActualizar.Size = New Size(181, 23)
+        BotonActualizar.TabIndex = 0
+        BotonActualizar.Text = "Actualizar"
+        BotonActualizar.UseVisualStyleBackColor = False
         ' 
         ' Label1
         ' 
@@ -1045,13 +1045,13 @@ Partial Class Form1
         pnlContenido.Controls.Add(CheckBox2)
         pnlContenido.Controls.Add(Label1)
         pnlContenido.Controls.Add(CheckBox4)
-        pnlContenido.Controls.Add(Button1)
+        pnlContenido.Controls.Add(BotonActualizar)
         pnlContenido.Controls.Add(CheckBox1)
         pnlContenido.Controls.Add(Separador)
         pnlContenido.Controls.Add(Button7)
-        pnlContenido.Controls.Add(TextBox1)
+        pnlContenido.Controls.Add(TextTarifaGrupo)
         pnlContenido.Controls.Add(CheckBox3)
-        pnlContenido.Controls.Add(TextBox3)
+        pnlContenido.Controls.Add(TextViejoTarifaGrupo)
         pnlContenido.Dock = DockStyle.Fill
         pnlContenido.Location = New Point(1, 1)
         pnlContenido.Name = "pnlContenido"
@@ -1072,7 +1072,7 @@ Partial Class Form1
         ' 
         Panel4.BackColor = Color.White
         Panel4.Controls.Add(Panel8)
-        Panel4.Controls.Add(Button23)
+        Panel4.Controls.Add(BotonConsultar)
         Panel4.Controls.Add(Panel6)
         Panel4.Controls.Add(Label9)
         Panel4.Controls.Add(Panel5)
@@ -1173,7 +1173,7 @@ Partial Class Form1
     Friend WithEvents RadioButton1 As RadioButton
     Friend WithEvents RadioButton3 As RadioButton
     Friend WithEvents Button17 As Button
-    Friend WithEvents Button23 As Button
+    Friend WithEvents BotonConsultar As Button
     Friend WithEvents CheckBox5 As CheckBox
     Friend WithEvents Label7 As Label
     Friend WithEvents DateTimePicker2 As DateTimePicker
@@ -1192,9 +1192,9 @@ Partial Class Form1
     Friend WithEvents Label4 As Label
     Friend WithEvents CheckBox4 As CheckBox
     Friend WithEvents Button7 As Button
-    Friend WithEvents TextBox3 As TextBox
-    Friend WithEvents TextBox1 As TextBox
-    Friend WithEvents Button1 As Button
+    Friend WithEvents TextViejoTarifaGrupo As TextBox
+    Friend WithEvents TextTarifaGrupo As TextBox
+    Friend WithEvents BotonActualizar As Button
     Friend WithEvents Label1 As Label
     Friend WithEvents DateTimePicker1 As DateTimePicker
     Friend WithEvents Label6 As Label

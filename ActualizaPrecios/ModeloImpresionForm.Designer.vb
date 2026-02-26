@@ -29,7 +29,11 @@ Partial Class ModeloImpresionForm
         DataModeloImpresionView = New DataGridView()
         AgregarBDBotton = New Button()
         RecargaModelos = New Button()
+        LabelServidor = New Label()
+        LoadImagen = New PictureBox()
+        TextConsultando = New Label()
         CType(DataModeloImpresionView, ComponentModel.ISupportInitialize).BeginInit()
+        CType(LoadImagen, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
         ' BDEmpresaCombo
@@ -43,9 +47,10 @@ Partial Class ModeloImpresionForm
         ' BDLabel
         ' 
         BDLabel.AutoSize = True
+        BDLabel.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point)
         BDLabel.Location = New Point(21, 15)
         BDLabel.Name = "BDLabel"
-        BDLabel.Size = New Size(70, 15)
+        BDLabel.Size = New Size(71, 15)
         BDLabel.TabIndex = 1
         BDLabel.Text = "BD Empresa"
         ' 
@@ -99,21 +104,58 @@ Partial Class ModeloImpresionForm
         RecargaModelos.Text = "Recargar Modelos"
         RecargaModelos.UseVisualStyleBackColor = False
         ' 
+        ' LabelServidor
+        ' 
+        LabelServidor.AutoSize = True
+        LabelServidor.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        LabelServidor.Location = New Point(345, 15)
+        LabelServidor.Name = "LabelServidor"
+        LabelServidor.Size = New Size(51, 15)
+        LabelServidor.TabIndex = 6
+        LabelServidor.Text = "Servidor"
+        ' 
+        ' LoadImagen
+        ' 
+        LoadImagen.Image = CType(resources.GetObject("LoadImagen.Image"), Image)
+        LoadImagen.Location = New Point(988, 1)
+        LoadImagen.Name = "LoadImagen"
+        LoadImagen.Size = New Size(54, 36)
+        LoadImagen.TabIndex = 44
+        LoadImagen.TabStop = False
+        LoadImagen.Visible = False
+        ' 
+        ' TextConsultando
+        ' 
+        TextConsultando.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        TextConsultando.Location = New Point(903, 12)
+        TextConsultando.MaximumSize = New Size(400, 0)
+        TextConsultando.Name = "TextConsultando"
+        TextConsultando.Size = New Size(78, 18)
+        TextConsultando.TabIndex = 45
+        TextConsultando.Text = "Eliminando..."
+        TextConsultando.Visible = False
+        ' 
         ' ModeloImpresionForm
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.FromArgb(CByte(213), CByte(220), CByte(227))
         ClientSize = New Size(1321, 569)
+        Controls.Add(TextConsultando)
+        Controls.Add(LoadImagen)
+        Controls.Add(LabelServidor)
         Controls.Add(RecargaModelos)
         Controls.Add(AgregarBDBotton)
         Controls.Add(DataModeloImpresionView)
         Controls.Add(BDLabel)
         Controls.Add(BDEmpresaCombo)
+        FormBorderStyle = FormBorderStyle.FixedSingle
         Icon = CType(resources.GetObject("$this.Icon"), Icon)
+        MaximizeBox = False
         Name = "ModeloImpresionForm"
         Text = "Modelo Impresion"
         CType(DataModeloImpresionView, ComponentModel.ISupportInitialize).EndInit()
+        CType(LoadImagen, ComponentModel.ISupportInitialize).EndInit()
         ResumeLayout(False)
         PerformLayout()
     End Sub
@@ -123,4 +165,7 @@ Partial Class ModeloImpresionForm
     Friend WithEvents DataModeloImpresionView As DataGridView
     Friend WithEvents AgregarBDBotton As Button
     Friend WithEvents RecargaModelos As Button
+    Friend WithEvents LabelServidor As Label
+    Friend WithEvents LoadImagen As PictureBox
+    Friend WithEvents TextConsultando As Label
 End Class

@@ -5,7 +5,7 @@ Imports System.IO
 Public Class ModeloImpresionForm
 
     Private Empresas As List(Of EmpresaBD)
-    Private RutaConfig As String = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Json", "EmpresasBD.json")
+    Private RutaConfig As String = RutaConfigEmpresas
     Private _complementos As New Complementos
     Private _GlobalConnecString As String
 
@@ -17,6 +17,9 @@ Public Class ModeloImpresionForm
     Private Sub ValorCambia(sender As Object, e As EventArgs) Handles BDEmpresaCombo.TextChanged
         Try
             CargarModelos()
+            Dim emp As EmpresaBD = CType(BDEmpresaCombo.SelectedItem, EmpresaBD)
+            If emp Is Nothing Then Return
+            LabelServidor.Text = $"Servidor: {emp.Servidor} - Base Datos: {emp.BaseDatos}"
         Catch ex As Exception
             _complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
@@ -68,7 +71,7 @@ Public Class ModeloImpresionForm
         BDEmpresaCombo.DataSource = Nothing
         BDEmpresaCombo.DataSource = Empresas
         BDEmpresaCombo.DisplayMember = "Nombre"
-
+        LabelServidor.Text = $"Servidor: {Empresas.FirstOrDefault.Servidor} - Base Datos: {Empresas.FirstOrDefault.BaseDatos}"
     End Sub
     Private Function GetConnectionString(Emp1 As EmpresaBD) As String
         Dim emp As EmpresaBD = Emp1
@@ -135,7 +138,7 @@ Public Class ModeloImpresionForm
         End Try
     End Sub
 
-    Private Sub DataModeloImpresionView_UserDeletingRow(sender As Object, e As DataGridViewRowCancelEventArgs) Handles DataModeloImpresionView.UserDeletingRow
+    Private Async Sub DataModeloImpresionView_UserDeletingRow(sender As Object, e As DataGridViewRowCancelEventArgs) Handles DataModeloImpresionView.UserDeletingRow
         Try
             ' Confirmación
             Dim r = MessageBox.Show(
@@ -159,11 +162,17 @@ Public Class ModeloImpresionForm
             End If
             'Aqui hare el borrado
             Dim funciones As New FuncionesGenericas(_GlobalConnecString)
-            Dim delete = funciones.DeleteModeloImpresion(modelo.IdModeloDeImpresion)
+            LoadImagen.Show()
+            TextConsultando.Visible = True
+            TextConsultando.Text = "Eliminando..."
+            Dim delete = Await Task.Run(Function() funciones.DeleteModeloImpresion(modelo.IdModeloDeImpresion))
 
         Catch ex As Exception
             _complementos.MostrarMensajePersonalizado(ex.Message)
         Finally
+            TextConsultando.Visible = False
+            TextConsultando.Text = ""
+            LoadImagen.Hide()
             CargarModelos()
         End Try
     End Sub
@@ -175,4 +184,7 @@ Public Class ModeloImpresionForm
 
         End Try
     End Sub
+    'Private Sub CerrarFormModelo(sender As Object, e As EventArgs) Handles Me.FormClosing
+    '    MarcarUsuarioDesconectado(SesionActual.UsuarioLogueado)
+    'End Sub
 End Class

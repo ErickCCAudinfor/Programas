@@ -124,7 +124,7 @@ Public Class Form1
     'End Sub
 #Region "Actualizar Precios Refactorizado"
 
-    Private Async Sub Actualizar(sender As Object, e As EventArgs) Handles Button1.Click
+    Private Async Sub Actualizar(sender As Object, e As EventArgs) Handles BotonActualizar.Click
         Try
             Dim ExcelDatos As New Excel
             PictureBox2.Visible = False
@@ -231,7 +231,7 @@ Public Class Form1
 
         For Each cod In lista
             Dim ct = ContratoTarifaSrv.GetContratoTarifaPersonalizadaByCodigoContrato(
-                     cod, TextBox3.Text, CheckBox4.Checked)
+                     cod, TextViejoTarifaGrupo.Text, CheckBox4.Checked)
 
             If ct IsNot Nothing AndAlso ct.IdContratoTarifa > 0 Then
                 result.Add(ct)
@@ -250,7 +250,7 @@ Public Class Form1
             Exit Sub
         End If
 
-        Dim contratoAct = ContratoTarifaSrv.UpdateContratoTarifa(elment, TextBox1.Text, TextBox3.Text, CheckBox4.Checked)
+        Dim contratoAct = ContratoTarifaSrv.UpdateContratoTarifa(elment, TextTarifaGrupo.Text, TextViejoTarifaGrupo.Text, CheckBox4.Checked)
 
         If contratoAct Is Nothing OrElse contratoAct.IdContratoTarifa <= 0 Then
             RegistrarError(datos, $"Contrato {elment.CodigoContrato}: No se pudo actualizar ContratoTarifa")
@@ -586,8 +586,8 @@ Public Class Form1
         Try
 
             TextBox2.Text = ""
-            TextBox1.Text = ""
-            TextBox3.Text = ""
+            TextTarifaGrupo.Text = ""
+            TextViejoTarifaGrupo.Text = ""
 
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)
@@ -647,12 +647,12 @@ Public Class Form1
     Private Sub TextBox2_TextChanged(sender As Object, e As EventArgs) Handles TextBox2.TextChanged
         If TextBox2.Enabled AndAlso TextBox2.Text.Trim.Length >= 1 Then
             ' Si CheckBox3 está marcado, deshabilitar CheckBox1 y CheckBox2
-            TextBox1.Enabled = True
+            TextTarifaGrupo.Enabled = True
             Button17.Enabled = True
             'TextBox2.Height = TextRenderer.MeasureText(TextBox2.Text, TextBox2.Font, New Size(TextBox2.Width, Int32.MaxValue), TextFormatFlags.WordBreak).Height + 5 ' Añade un pequeño margen
         Else
             ' Si CheckBox3 no está marcado, habilitar CheckBox1 y CheckBox2
-            TextBox1.Enabled = False
+            TextTarifaGrupo.Enabled = False
             Button17.Enabled = False
         End If
 
@@ -662,11 +662,11 @@ Public Class Form1
     Private Sub CheckBox4_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox4.CheckedChanged
         Try
             If CheckBox4.Checked = False Then
-                TextBox3.Enabled = True
+                TextViejoTarifaGrupo.Enabled = True
             End If
 
             If CheckBox4.Checked Then
-                TextBox3.Enabled = False
+                TextViejoTarifaGrupo.Enabled = False
             End If
         Catch ex As Exception
 
@@ -674,7 +674,7 @@ Public Class Form1
     End Sub
 
     Private Sub HabilitarDesHabilitarButtons(Habilitar As Boolean)
-        Button1.Enabled = Habilitar
+        BotonActualizar.Enabled = Habilitar
         Button2.Enabled = Habilitar
         Button3.Enabled = Habilitar
         Button5.Enabled = Habilitar
@@ -747,12 +747,12 @@ Public Class Form1
 #End Region
 
     'Habilitar o deshabilitar el botón de actualizar si no hay un texto de tarifa grupo 
-    Private Sub TextBox1_TextChanged(sender As Object, e As EventArgs) Handles TextBox1.TextChanged
+    Private Sub TextBox1_TextChanged(sender As Object, e As EventArgs) Handles TextTarifaGrupo.TextChanged
         Try
-            If TextBox1.Text.Trim.Length > 0 Then
-                Button1.Enabled = True
+            If TextTarifaGrupo.Text.Trim.Length > 0 Then
+                BotonActualizar.Enabled = True
             Else
-                Button1.Enabled = False
+                BotonActualizar.Enabled = False
             End If
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)
@@ -1991,7 +1991,7 @@ Public Class Form1
 
                                For Each c In contratos
 
-                                   Dim tgNuevo = Funciones.GetCalendarioNuevoTarifa(c.IdContratoTarifa, TextBox3.Text, TextBox1.Text, c.FechaHasta)
+                                   Dim tgNuevo = Funciones.GetCalendarioNuevoTarifa(c.IdContratoTarifa, TextViejoTarifaGrupo.Text, TextTarifaGrupo.Text, c.FechaHasta)
 
                                    Dim codigoContrato = Funciones.GetOnlyCodigoContratobyIdContratoTarifa(c.IdContratoTarifa)
 
@@ -2127,7 +2127,7 @@ Public Class Form1
     End Function
 
     'buscar Consultas checks
-    Private Async Sub Button23_Click(sender As Object, e As EventArgs) Handles Button23.Click
+    Private Async Sub Button23_Click(sender As Object, e As EventArgs) Handles BotonConsultar.Click
         Try
             Dim conexion = connectionString
             Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO"
@@ -3330,4 +3330,7 @@ Public Class Form1
         End Try
     End Sub
 
+    'Private Sub CerrarForm(sender As Object, e As EventArgs) Handles Me.FormClosing
+    '    MarcarUsuarioDesconectado(SesionActual.UsuarioLogueado)
+    'End Sub
 End Class
