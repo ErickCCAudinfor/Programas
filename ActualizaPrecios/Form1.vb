@@ -2000,33 +2000,24 @@ Public Class Form1
         Await Task.Run(Sub()
 
                            Dim contador As Integer = 1
-
+                           Dim contadorErrores As Integer = 1
                            For Each c In contratos
 
                                Dim tgActual = Funciones.GetContratoTarifabyCodContrato(c.CodigoContrato, c.textotarifagrupoViejo)
 
                                If tgActual Is Nothing OrElse tgActual.IdContratoTarifa <= 0 Then
                                    noRealizados.Add(c)
-                                   SetTextSafe(TextConsultando, $"Error: {contador}/{total}")
-                                   contador += 1
+                                   contadorErrores += 1
                                    Continue For
                                End If
-
                                Dim tgNuevo = Funciones.GetCalendarioNuevoTarifa(tgActual.IdContratoTarifa, c.textotarifagrupoViejo, c.textotarifagrupoNuevo, c.FechaHasta)
-
                                Dim codigoContrato = Funciones.GetOnlyCodigoContratobyIdContratoTarifa(tgActual.IdContratoTarifa)
-
                                If codigoContrato > 0 AndAlso tgNuevo IsNot Nothing AndAlso tgNuevo.IdTarifaGrupo <> 0 Then
-
                                    Funciones.InsertTarifaGrupoCalendario(tgNuevo.Entorno, codigoContrato, tgNuevo.IdTarifaGrupo, tgNuevo.IdTarifa, tgNuevo.IdPerfilFacturacion, c.FechaDesde)
-
                                    Funciones.AplicarPreciosV2(codigoContrato, c.FechaDesde)
-
-                                   SetTextSafe(TextConsultando, $"Insertando y aplicando precios: {contador}/{total}")
                                End If
-
+                               SetTextSafe(TextConsultando, $"Insertando y/o aplicando precios: {contador}/{total}. Posibles errores {contadorErrores}/{total}")
                                contador += 1
-
                            Next
 
                        End Sub)
