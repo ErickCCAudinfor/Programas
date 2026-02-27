@@ -1,4 +1,5 @@
 ﻿
+Imports System.Collections.Concurrent
 Imports System.Drawing.Drawing2D
 Imports System.IO
 Imports System.Reflection.PortableExecutable
@@ -45,6 +46,12 @@ Public Class Form1
         Else
             ctrl.Text = text
         End If
+    End Sub
+
+    Private Sub MostrarLoading(mostrar As Boolean)
+        PictureBox2.Visible = mostrar
+        TextConsultando.Visible = mostrar
+        If Not mostrar Then TextConsultando.Text = ""
     End Sub
 
     ''Para saber si PRO o AUT
@@ -1957,10 +1964,10 @@ Public Class Form1
     Private Async Sub Button21_Click(sender As Object, e As EventArgs) Handles Button21.Click
         Try
             Dim rutaArchivo = SeleccionarArchivo()
-            If String.IsNullOrEmpty(rutaArchivo) Then Return
+            If String.IsNullOrWhiteSpace(rutaArchivo) Then Return
 
-            Dim excell As New Excel
-            Dim contratos = excell.LeerContratosDesdeExcel(rutaArchivo)
+            Dim excel As New Excel()
+            Dim contratos = excel.LeerContratosDesdeExcel(rutaArchivo)
 
             If contratos.Count = 0 Then
                 complementos.MostrarMensajePersonalizado("Sin contratos")
@@ -1972,47 +1979,63 @@ Public Class Form1
                 Return
             End If
 
-            PictureBox2.Visible = True
-            TextConsultando.Text = $""
+            MostrarLoading(True)
+
             Await ProcesarContratosAsync(contratos)
-            PictureBox2.Visible = False
 
             complementos.MostrarMensajePersonalizado($"Contratos procesados: {contratos.Count}")
 
         Catch ex As Exception
-            PictureBox2.Visible = False
             complementos.MostrarMensajePersonalizado("Exception: " & ex.Message)
+        Finally
+            MostrarLoading(False)
         End Try
     End Sub
 
     Private Async Function ProcesarContratosAsync(contratos As List(Of ContratoTarifa)) As Task
-        Try
-            TextConsultando.Text = ""
-            TextConsultando.Visible = True
-            Await Task.Run(Sub()
-                               Dim contador = 1L
-                               For Each c In contratos
-                                   Dim tgActual = Funciones.GetContratoTarifabyCodContrato(c.CodigoContrato)
-                                   Dim tgNuevo = Funciones.GetCalendarioNuevoTarifa(tgActual.IdContratoTarifa, c.textotarifagrupoViejo, c.textotarifagrupoNuevo, c.FechaHasta)
 
-                                   Dim codigoContrato = Funciones.GetOnlyCodigoContratobyIdContratoTarifa(tgActual.IdContratoTarifa)
+        Dim noRealizados As New ConcurrentBag(Of ContratoTarifa)
+        Dim total = contratos.Count
 
-                                   If codigoContrato > 0 AndAlso tgNuevo.IdTarifaGrupo <> 0 Then
+        Await Task.Run(Sub()
 
-                                       Funciones.InsertTarifaGrupoCalendario(tgNuevo.Entorno, codigoContrato, tgNuevo.IdTarifaGrupo, tgNuevo.IdTarifa, tgNuevo.IdPerfilFacturacion, c.FechaDesde)
+                           Dim contador As Integer = 1
 
-                                       Funciones.AplicarPreciosV2(codigoContrato, c.FechaDesde)
-                                       SetTextSafe(TextConsultando, $"Insertando y aplicando precios: {contador}/{contratos.Count}")
-                                       contador += 1
-                                   End If
-                               Next
+                           For Each c In contratos
 
-                           End Sub)
-            TextConsultando.Visible = False
-            TextConsultando.Text = ""
-        Catch ex As Exception
-            Throw
-        End Try
+                               Dim tgActual = Funciones.GetContratoTarifabyCodContrato(c.CodigoContrato, c.textotarifagrupoViejo)
+
+                               If tgActual Is Nothing OrElse tgActual.IdContratoTarifa <= 0 Then
+                                   noRealizados.Add(c)
+                                   SetTextSafe(TextConsultando, $"Error: {contador}/{total}")
+                                   contador += 1
+                                   Continue For
+                               End If
+
+                               Dim tgNuevo = Funciones.GetCalendarioNuevoTarifa(tgActual.IdContratoTarifa, c.textotarifagrupoViejo, c.textotarifagrupoNuevo, c.FechaHasta)
+
+                               Dim codigoContrato = Funciones.GetOnlyCodigoContratobyIdContratoTarifa(tgActual.IdContratoTarifa)
+
+                               If codigoContrato > 0 AndAlso tgNuevo IsNot Nothing AndAlso tgNuevo.IdTarifaGrupo <> 0 Then
+
+                                   Funciones.InsertTarifaGrupoCalendario(tgNuevo.Entorno, codigoContrato, tgNuevo.IdTarifaGrupo, tgNuevo.IdTarifa, tgNuevo.IdPerfilFacturacion, c.FechaDesde)
+
+                                   Funciones.AplicarPreciosV2(codigoContrato, c.FechaDesde)
+
+                                   SetTextSafe(TextConsultando, $"Insertando y aplicando precios: {contador}/{total}")
+                               End If
+
+                               contador += 1
+
+                           Next
+
+                       End Sub)
+
+        ' Guardar errores fuera del Task (mejor)
+        For Each er In noRealizados
+            EscribirEnArchivo($"{er.CodigoContrato}--{er.textotarifagrupoViejo}--{er.textotarifagrupoNuevo}", "ErroresMasivoCalendario")
+        Next
+
     End Function
 
 
@@ -2745,16 +2768,15 @@ Public Class Form1
         End Try
     End Sub
 
-    Public Sub EscribirEnArchivo(Errores As String)
+    Public Sub EscribirEnArchivo(Errores As String, Optional NombreFicheroTXT As String = "Errores")
         Try
             ' Si el archivo no existe, se creará; de lo contrario, se anexará al archivo existente
-            Using writer As StreamWriter = New StreamWriter($"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO\archivo.txt", True)
+            Using writer As StreamWriter = New StreamWriter($"{rutaCarpetaGlobal}\{NombreFicheroTXT}.txt", True)
                 ' Escribir los valores en el archivo de texto
                 writer.WriteLine($"{Errores}")
             End Using
         Catch ex As Exception
-            ' Manejar cualquier excepción que pueda ocurrir durante la escritura en el archivo
-            Console.WriteLine("Error al escribir en el archivo: " & ex.Message)
+            Throw
         End Try
     End Sub
 

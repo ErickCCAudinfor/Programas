@@ -2452,10 +2452,12 @@ inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagr
         Return ContratoTarifaBD
     End Function
 
-    Public Function GetContratoTarifabyCodContrato(codigocontrato As Long) As ContratoTarifa
+    Public Function GetContratoTarifabyCodContrato(codigocontrato As Long, tarifagrupo As String) As ContratoTarifa
         Dim ContratoTarifaBD As New ContratoTarifa
         Try
-            Dim query As String = $"select * from ContratoTarifa where CodigoContrato={codigocontrato}  and FechaHasta is null"
+            Dim query As String = $" select ct.* from ContratoTarifa ct
+inner join tarifagrupo  tg on ct.idtarifagrupo = tg.idtarifagrupo
+where codigocontrato = {codigocontrato} and TextoTarifaGrupo='{tarifagrupo}' and FechaHasta is null"
             'tgn.entorno,idtarifa,textotarifagrupo textotarifagrupoNuevo,tgn.idperfilfacturacion, textoGrupoOld, idperfilfacturacionOld
             Dim result = Helper.QuerySelect(query, connectionString)
             Dim errores = Helper.GetError(result)
