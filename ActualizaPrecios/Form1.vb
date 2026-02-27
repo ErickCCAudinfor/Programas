@@ -1973,6 +1973,7 @@ Public Class Form1
             End If
 
             PictureBox2.Visible = True
+            TextConsultando.Text = $""
             Await ProcesarContratosAsync(contratos)
             PictureBox2.Visible = False
 
@@ -1986,24 +1987,29 @@ Public Class Form1
 
     Private Async Function ProcesarContratosAsync(contratos As List(Of ContratoTarifa)) As Task
         Try
-
+            TextConsultando.Text = ""
+            TextConsultando.Visible = True
             Await Task.Run(Sub()
-
+                               Dim contador = 1L
                                For Each c In contratos
+                                   Dim tgActual = Funciones.GetContratoTarifabyCodContrato(c.CodigoContrato)
+                                   Dim tgNuevo = Funciones.GetCalendarioNuevoTarifa(tgActual.IdContratoTarifa, c.textotarifagrupoViejo, c.textotarifagrupoNuevo, c.FechaHasta)
 
-                                   Dim tgNuevo = Funciones.GetCalendarioNuevoTarifa(c.IdContratoTarifa, TextViejoTarifaGrupo.Text, TextTarifaGrupo.Text, c.FechaHasta)
-
-                                   Dim codigoContrato = Funciones.GetOnlyCodigoContratobyIdContratoTarifa(c.IdContratoTarifa)
+                                   Dim codigoContrato = Funciones.GetOnlyCodigoContratobyIdContratoTarifa(tgActual.IdContratoTarifa)
 
                                    If codigoContrato > 0 AndAlso tgNuevo.IdTarifaGrupo <> 0 Then
 
                                        Funciones.InsertTarifaGrupoCalendario(tgNuevo.Entorno, codigoContrato, tgNuevo.IdTarifaGrupo, tgNuevo.IdTarifa, tgNuevo.IdPerfilFacturacion, c.FechaDesde)
 
                                        Funciones.AplicarPreciosV2(codigoContrato, c.FechaDesde)
+                                       SetTextSafe(TextConsultando, $"Insertando y aplicando precios: {contador}/{contratos.Count}")
+                                       contador += 1
                                    End If
                                Next
 
                            End Sub)
+            TextConsultando.Visible = False
+            TextConsultando.Text = ""
         Catch ex As Exception
             Throw
         End Try

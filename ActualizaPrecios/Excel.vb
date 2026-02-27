@@ -45,7 +45,11 @@ Public Class Excel
         Dim resultado As New List(Of ContratoTarifa)
         Try
 
-
+            'Columna 1 codigocontrato
+            'Columna 2 fechaaplicar nueva
+            'Columna 3 fechacierre anterior calendario
+            'Columna 4 grupo tarifa vieja 
+            'Columna 5 grupo tarifa nueva
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial
 
             Using package As New ExcelPackage(New FileInfo(rutaArchivo))
@@ -54,25 +58,27 @@ Public Class Excel
 
                 For row = 2 To rowCount
 
-                    Dim idTexto = worksheet.Cells(row, 2).Value?.ToString()
-                    If String.IsNullOrWhiteSpace(idTexto) Then Continue For
+                    Dim CodContratoTexto = worksheet.Cells(row, 1).Value?.ToString()
+                    If String.IsNullOrWhiteSpace(CodContratoTexto) Then Continue For
 
-                    Dim id As Long
-                    If Not Long.TryParse(idTexto, id) Then Continue For
+                    Dim codContrato As Long
+                    If Not Long.TryParse(CodContratoTexto, codContrato) Then Continue For
 
                     Dim fechaAplicar As Date
-                    Date.TryParse(worksheet.Cells(row, 3).Value?.ToString(), fechaAplicar)
+                    Date.TryParse(worksheet.Cells(row, 2).Value?.ToString(), fechaAplicar)
 
                     Dim fechaCierre As Date
-                    Date.TryParse(worksheet.Cells(row, 4).Value?.ToString(), fechaCierre)
+                    Date.TryParse(worksheet.Cells(row, 3).Value?.ToString(), fechaCierre)
 
-
+                    Dim grupoviejo = worksheet.Cells(row, 4).Value?.ToString()
+                    Dim gruponuevo = worksheet.Cells(row, 5).Value?.ToString()
 
                     resultado.Add(New ContratoTarifa With {
-                    .IdContratoTarifa = id,
-                    .CodigoContrato = worksheet.Cells(row, 1).Value?.ToString(),
-                    .FechaHasta = fechaCierre,
-                    .FechaDesde = fechaAplicar
+                    .CodigoContrato = codContrato, 'Columna 1                    
+                    .FechaDesde = fechaAplicar, ' Columna 2
+                    .FechaHasta = fechaCierre, 'Columna 3
+                    .textotarifagrupoViejo = grupoviejo, ' 4
+                    .textotarifagrupoNuevo = gruponuevo '5
                 })
                 Next
             End Using

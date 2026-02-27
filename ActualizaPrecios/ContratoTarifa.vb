@@ -322,9 +322,6 @@ Partial Class ContratoTarifa
             _TextoPerfilFacturacion = value
         End Set
     End Property
-
-
-
     Private _PerfilFacturacion As PerfilFacturacion
     <DataMember()> Public Property PerfilFacturacion As PerfilFacturacion
         Get
@@ -334,4 +331,24 @@ Partial Class ContratoTarifa
             _PerfilFacturacion = value
         End Set
     End Property
+
+    Private _textotarifagrupoNuevo As String
+    Public Property textotarifagrupoNuevo As String
+        Get
+            Return _textotarifagrupoNuevo
+        End Get
+        Set(ByVal value As String)
+            _textotarifagrupoNuevo = value
+        End Set
+    End Property
+    Private _textotarifagrupoViejo As String
+    Public Property textotarifagrupoViejo As String
+        Get
+            Return _textotarifagrupoViejo
+        End Get
+        Set(ByVal value As String)
+            _textotarifagrupoViejo = value
+        End Set
+    End Property
+
 End Class

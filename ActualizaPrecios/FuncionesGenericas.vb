@@ -2451,6 +2451,31 @@ inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagr
 
         Return ContratoTarifaBD
     End Function
+
+    Public Function GetContratoTarifabyCodContrato(codigocontrato As Long) As ContratoTarifa
+        Dim ContratoTarifaBD As New ContratoTarifa
+        Try
+            Dim query As String = $"select * from ContratoTarifa where CodigoContrato={codigocontrato}  and FechaHasta is null"
+            'tgn.entorno,idtarifa,textotarifagrupo textotarifagrupoNuevo,tgn.idperfilfacturacion, textoGrupoOld, idperfilfacturacionOld
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim TGBBDD = Helper.FillObjectFromDatatable(result.Tables(0), GetType(ContratoTarifa)).Cast(Of ContratoTarifa).FirstOrDefault
+                If Not IsNothing(TGBBDD) AndAlso TGBBDD.CodigoContrato > 0 Then
+                    ContratoTarifaBD = TGBBDD
+
+                End If
+            End If
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return ContratoTarifaBD
+    End Function
+
     Public Function GetContratoSituacion() As List(Of ContratoSituacion)
         Dim SituacionesContratos As New List(Of ContratoSituacion)
         'Dim ListaContratov2 As New List(Of Integer)
