@@ -2290,7 +2290,7 @@ Public Class Form1
         TextConsultando.Visible = False
         TextConsultando.Text = ""
 
-        complementos.Complementos_MostrarMensajePersonalizadoCopiar("Consulta generada correctamente", "")
+        complementos.Complementos_MostrarMensajePersonalizadoCopiar($"Consulta generada correctamente. {rutaCarpeta}", "")
 
     End Function
 
