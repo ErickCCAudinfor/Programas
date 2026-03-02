@@ -1996,7 +1996,7 @@ Public Class Form1
 
         Dim noRealizados As New ConcurrentBag(Of ContratoTarifa)
         Dim total = contratos.Count
-
+        Dim NombreArchivo = $"ErroresCalendarioMasivo_{Now.ToString("ddMMyyyy_HHmmss")}"
         Await Task.Run(Sub()
 
                            Dim contador As Integer = 1
@@ -2005,11 +2005,20 @@ Public Class Form1
 
                                Dim tgActual = Funciones.GetContratoTarifabyCodContrato(c.CodigoContrato, c.textotarifagrupoViejo)
 
+
                                If tgActual Is Nothing OrElse tgActual.IdContratoTarifa <= 0 Then
                                    noRealizados.Add(c)
                                    contadorErrores += 1
                                    Continue For
                                End If
+
+                               If Not CambioCalendarioValido(tgActual.FechaDesde, c.FechaDesde) Then
+                                   'noRealizados.Add(c)
+                                   contadorErrores += 1
+                                   EscribirEnArchivo($"{c.CodigoContrato} - Nueva fecha ({c.FechaDesde:dd/MM/yyyy}) anterior a la tarifa actual ({tgActual.FechaDesde:dd/MM/yyyy})", NombreArchivo)
+                                   Continue For
+                               End If
+
                                Dim tgNuevo = Funciones.GetCalendarioNuevoTarifa(tgActual.IdContratoTarifa, c.textotarifagrupoViejo, c.textotarifagrupoNuevo, c.FechaHasta)
                                Dim codigoContrato = Funciones.GetOnlyCodigoContratobyIdContratoTarifa(tgActual.IdContratoTarifa)
                                If codigoContrato > 0 AndAlso tgNuevo IsNot Nothing AndAlso tgNuevo.IdTarifaGrupo <> 0 Then
@@ -2024,12 +2033,22 @@ Public Class Form1
 
         ' Guardar errores fuera del Task (mejor)
         For Each er In noRealizados
-            EscribirEnArchivo($"{er.CodigoContrato}--{er.textotarifagrupoViejo}--{er.textotarifagrupoNuevo}", "ErroresMasivoCalendario")
+            EscribirEnArchivo($"{er.CodigoContrato}--{er.textotarifagrupoViejo}--{er.textotarifagrupoNuevo}", NombreArchivo)
         Next
 
     End Function
 
+    Private Function CambioCalendarioValido(fechaDesdeActual As Date, nuevaFechaDesde As Date) As Boolean
 
+        ' No puedes crear una tarifa antes de la actual
+        ' porque al cerrar la actual generas intervalo inválido
+        If nuevaFechaDesde < fechaDesdeActual Then
+            Return False
+        End If
+
+        Return True
+
+    End Function
 
     Private Sub Button22_Click(sender As Object, e As EventArgs) Handles Button22.Click
         Dim rutaExcel = "C:\Users\ErickCC\Downloads\Industriales_2024S1_v2.xlsx"
