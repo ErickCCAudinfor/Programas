@@ -268,6 +268,10 @@
 
         Return resultado
     End Function
+
+    Public Shared Function LimpiarCups(cups As List(Of String)) As List(Of String)
+        Return cups.Select(Function(c) Replace(c, " ", "").Substring(0, Math.Min(20, c.Length))).ToList()
+    End Function
 End Class
 Public Class ErrorConsulta
     Public Property HasError As Boolean = False

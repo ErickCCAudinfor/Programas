@@ -8,7 +8,6 @@ Imports System.Text.RegularExpressions
 Imports System.Threading
 Imports System.Xml
 Imports ClosedXML.Excel
-Imports DocumentFormat.OpenXml.Wordprocessing
 Imports OfficeOpenXml
 Imports PdfSharp.Pdf
 Imports PdfSharp.Pdf.IO
@@ -2168,243 +2167,412 @@ Public Class Form1
     'buscar Consultas checks
     Private Async Sub Button23_Click(sender As Object, e As EventArgs) Handles BotonConsultar.Click
         Try
-            Dim conexion = connectionString
-            Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO"
-            Dim DesdeF = DateTimePicker3.Value.Date.ToString("dd/MM/yyyy")
-            Dim HastaF = DateTimePicker2.Value.Date.ToString("dd/MM/yyyy")
-
-            ' Verificar si la carpeta existe, y si no, crearla
-            If Not Directory.Exists(rutaCarpeta) Then
-                Directory.CreateDirectory(rutaCarpeta)
-            End If
-
-            ' Lista para las tareas
-            Dim tasks As New List(Of Task)
-
-            PictureBox2.Visible = True
-            TextConsultando.Visible = True
-            Dim RutaFinal = rutaCarpeta + ":"
-            ' Si el CheckBox5 está marcado, crear archivo para Luz y Gas
-            If CheckBox5.Checked Then
-                tasks.Add(Task.Run(Sub()
-                                       Dim Name = "Consulta_ClicksTODO" ' Nombre específico para esta consulta
-                                       Dim rutaArchivoLuzGas = Path.Combine(rutaCarpeta, $"{Name}_LuzGas_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim consultaLuz = ConsultasSQL.GetClickLuz
-                                       SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} Luz entre fechas {DesdeF}-{HastaF}")
-                                       ExportarConsultaAExcel(conexion, consultaLuz, rutaArchivoLuzGas, "Luz")
-                                       Dim consultaGas = ConsultasSQL.GetClickGas
-                                       SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} Gas entre fechas {DesdeF}-{HastaF}")
-                                       ExportarConsultaAExcel(conexion, consultaGas, rutaArchivoLuzGas, "Gas")
-                                       RutaFinal += " " + Name
-                                   End Sub))
-            End If
-
-            ' Si el CheckBox6 está marcado, crear archivo para Hunosa
-            If CheckBox6.Checked Then
-                tasks.Add(Task.Run(Sub()
-                                       Dim Name = "Hunosa"
-                                       Dim rutaArchivoHunosa = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim Hunosa = ConsultasSQL.GetHunosa(DesdeF, HastaF)
-                                       SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} entre fechas {DesdeF}-{HastaF}")
-                                       ExportarConsultaAExcel(conexion, Hunosa, rutaArchivoHunosa, "Hunosa")
-                                       RutaFinal += " " + Name
-                                   End Sub))
-            End If
-
-            ' Si el CheckBox8 está marcado, crear archivo para Cadasa
-            If CheckBox8.Checked Then
-                tasks.Add(Task.Run(Sub()
-                                       Dim Name = "Cadasa"
-                                       Dim rutaArchivoCadasa = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim Cadasa = ConsultasSQL.GetCadasa(DesdeF, HastaF)
-                                       SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} entre fechas {DesdeF}-{HastaF}")
-                                       ExportarConsultaAExcel(conexion, Cadasa, rutaArchivoCadasa, "Cadasa")
-                                       RutaFinal += " " + Name
-                                   End Sub))
-            End If
-
-            ' Si el CheckBox9 está marcado, crear archivo para Quantum
-            If CheckBox9.Checked Then
-                tasks.Add(Task.Run(Sub()
-                                       Dim Name = "Quantum"
-                                       Dim rutaArchivoQuantum = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim Quantum = ConsultasSQL.GetQuantum(DesdeF, HastaF)
-                                       SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} entre fechas {DesdeF}-{HastaF}")
-                                       ExportarConsultaAExcel(conexion, Quantum, rutaArchivoQuantum, "Quantum")
-                                       RutaFinal += " " + Name
-                                   End Sub))
-            End If
-
-            ' Si el CheckBox10 está marcado, crear archivo para RechazosVeolia
-            If CheckBox10.Checked Then
-                tasks.Add(Task.Run(Sub()
-                                       Dim Name = "RechazosVeolia"
-                                       Dim rutaArchivoRechazosVeolia = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim RechazosVeolia = ConsultasSQL.GetRechazosVeolia
-                                       SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} entre fechas {DesdeF}-{HastaF}")
-                                       ExportarConsultaAExcel(conexion, RechazosVeolia, rutaArchivoRechazosVeolia, "Veolia")
-                                       RutaFinal += " " + Name
-                                   End Sub))
-            End If
-
-            If CheckBox11.Checked Then
-                tasks.Add(Task.Run(Sub()
-                                       Dim Name = "GAM"
-                                       Dim rutaArchivoGAM = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim ConsultaGAM = ConsultasSQL.GetGAM(DesdeF, HastaF)
-                                       SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} entre fechas {DesdeF}-{HastaF}")
-                                       ExportarConsultaAExcel(conexion, ConsultaGAM, rutaArchivoGAM, Name)
-                                       RutaFinal += " " + Name
-                                   End Sub))
-            End If
-
-            'Check Cups
-            If CheckBox1.Checked Then
-                Dim Cups = GetConSinSplitCupsCIFS(TextBox2.Text)
-                Dim conexionv2 = "data source=172.31.100.30;initial catalog=SigeTotalTM;User ID=Sige;Password=SigeNew;"
-                If CheckBox12.Checked AndAlso Cups.Count > 0 Then
-                    tasks.Add(Task.Run(Sub()
-                                           Dim Name = "CurvaHoraria"
-                                           Dim rutaArchivoCurva = Path.Combine(rutaCarpeta, $"{Name}_{DateTimePicker3.Value.Date.ToString("ddMMyyyy")}_{DateTimePicker2.Value.Date.ToString("ddMMyyyy")}.xlsx")
-                                           Dim listaCups As New List(Of String)
-                                           For Each c In Cups
-                                               listaCups.Add(Replace(c, " ", "").Substring(0, Math.Min(20, c.Length)))
-                                           Next
-                                           If DividirChck.Checked Then ' divide en excels
-                                               For Each fCups In listaCups
-                                                   Dim ConsultaCurva = ConsultasSQL.GetCurvaHoraria(DesdeF, HastaF, , fCups)
-                                                   SetTextSafe(TextConsultando, $"Consultando Cups: {fCups}")
-                                                   ExportarConsultaAExcel(conexionv2, ConsultaCurva, Path.Combine(rutaCarpeta, $"{Name}_{fCups}.xlsx"), fCups)
-                                                   RutaFinal += " " + fCups
-                                               Next
-
-                                           Else
-                                               Dim ConsultaCurva = ConsultasSQL.GetCurvaHoraria(DesdeF, HastaF, listaCups)
-                                               SetTextSafe(TextConsultando, $"Consultando y generando Excel de {listaCups.Count} CUPS")
-                                               ExportarConsultaAExcel(conexionv2, ConsultaCurva, rutaArchivoCurva, Name)
-                                               RutaFinal += " " + Name
-                                           End If
-                                       End Sub))
-                End If
-
-                If CheckBox13.Checked AndAlso Cups.Count > 0 Then
-                    tasks.Add(Task.Run(Sub()
-                                           Dim Name = "CuartoHoraria"
-                                           Dim rutaArchivoCuartoHoraria = Path.Combine(rutaCarpeta, $"{Name}_{DateTimePicker3.Value.Date.ToString("ddMMyyyy")}_{DateTimePicker2.Value.Date.ToString("ddMMyyyy")}.xlsx")
-                                           Dim listaCups As New List(Of String)
-                                           For Each c In Cups
-                                               listaCups.Add(Replace(c, " ", "").Substring(0, Math.Min(20, c.Length)))
-                                           Next
-                                           If DividirChck.Checked Then ' divide en excels
-                                               For Each fCups In listaCups
-                                                   Dim ConsultaCurvaCuarto = ConsultasSQL.GetCurvaCuartoHoraria(DesdeF, HastaF, , fCups)
-                                                   SetTextSafe(TextConsultando, $"Consultando Cups: {fCups}")
-                                                   ExportarConsultaAExcel(conexionv2, ConsultaCurvaCuarto, Path.Combine(rutaCarpeta, $"{Name}_{fCups}.xlsx"), fCups)
-                                                   RutaFinal += " " + fCups
-                                               Next
-
-                                           Else
-                                               Dim ConsultaCurvaCuarto = ConsultasSQL.GetCurvaCuartoHoraria(DesdeF, HastaF, listaCups)
-                                               SetTextSafe(TextConsultando, $"Consultando y generando Excel de {listaCups.Count} CUPS")
-                                               ExportarConsultaAExcel(conexionv2, ConsultaCurvaCuarto, rutaArchivoCuartoHoraria, Name)
-                                               RutaFinal += " " + Name
-                                           End If
-
-                                       End Sub))
-                End If
-                If CheckFacturable.Checked AndAlso Cups.Count > 0 Then
-                    tasks.Add(Task.Run(Sub()
-                                           Dim Name = "Facturable"
-                                           Dim rutaArchivoFacturable = Path.Combine(rutaCarpeta, $"{Name}_{DateTimePicker3.Value.Date.ToString("ddMMyyyy")}_{DateTimePicker2.Value.Date.ToString("ddMMyyyy")}.xlsx")
-                                           Dim listaCups As New List(Of String)
-                                           For Each c In Cups
-                                               listaCups.Add(Replace(c, " ", "").Substring(0, Math.Min(20, c.Length)))
-                                           Next
-                                           If DividirChck.Checked Then ' divide en excels
-                                               For Each fCups In listaCups
-                                                   Dim ConsultaFacturable = ConsultasSQL.GetCurvaFacturable(DesdeF, HastaF, , fCups)
-                                                   SetTextSafe(TextConsultando, $"Consultando Cups: {fCups}")
-                                                   ExportarConsultaAExcel(conexionv2, ConsultaFacturable, Path.Combine(rutaCarpeta, $"{Name}_{fCups}.xlsx"), fCups)
-                                                   RutaFinal += " " + fCups
-                                               Next
-
-                                           Else
-                                               Dim ConsultaFacturable = ConsultasSQL.GetCurvaFacturable(DesdeF, HastaF, listaCups)
-                                               SetTextSafe(TextConsultando, $"Consultando y generando Excel de {listaCups.Count} CUPS")
-                                               ExportarConsultaAExcel(conexionv2, ConsultaFacturable, rutaArchivoFacturable, Name)
-                                               RutaFinal += " " + Name
-                                           End If
-
-                                       End Sub))
-                End If
-            End If
-
-            If Norauto.Checked Then
-                'Check Cliente
-                If CheckBox3.Checked Then
-                    Dim CIFS = GetConSinSplitCupsCIFS(TextBox2.Text)
-                    Dim completed = 0
-                    For Each cif In CIFS
-                        tasks.Add(Task.Run(Sub()
-                                               Dim Name = cif
-                                               Dim rutaArchivoNor = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today:ddMMyyyy}.xlsx")
-                                               Dim ConsultaNor = ConsultasSQL.GetConsultaNorauto(DesdeF, HastaF, cif)
-                                               ExportarConsultaAExcel(conexion, ConsultaNor, rutaArchivoNor, Name)
-                                               Interlocked.Increment(completed)
-                                               SetTextSafe(TextConsultando, $"Progreso: {completed}/{CIFS.Count} completados...")
-                                           End Sub))
-                    Next
-                End If
-            End If
-
-            If CAMCheck.Checked Then
-                tasks.Add(Task.Run(Sub()
-                                       Dim Name = "CAM"
-                                       Dim rutaArchivoCAM = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim ConsultaCAM = ConsultasSQL.GetCAM(DesdeF, HastaF)
-                                       SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} entre fechas {DesdeF}-{HastaF}")
-                                       ExportarConsultaAExcel(conexion, ConsultaCAM, rutaArchivoCAM, Name)
-                                       RutaFinal += " " + Name
-                                   End Sub))
-            End If
-            If TrebolCheck.Checked Then
-                tasks.Add(Task.Run(Sub()
-                                       Dim Name = "TREBOL_LUZ"
-                                       Dim rutaArchivoTrebol = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim ConsultaTrebol = ConsultasSQL.GetTrebolLuz(DesdeF, HastaF)
-                                       SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} entre fechas {DesdeF}-{HastaF}")
-                                       ExportarConsultaAExcel(conexion, ConsultaTrebol, rutaArchivoTrebol, Name)
-                                       RutaFinal += " " + Name
-                                   End Sub))
-
-                tasks.Add(Task.Run(Sub()
-                                       Dim Name = "TREBOL_GAS"
-                                       Dim rutaArchivoTrebol = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
-                                       Dim ConsultaTrebol = ConsultasSQL.GetTrebolGas(DesdeF, HastaF)
-                                       SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} entre fechas {DesdeF}-{HastaF}")
-                                       ExportarConsultaAExcel(conexion, ConsultaTrebol, rutaArchivoTrebol, Name)
-                                       RutaFinal += " " + Name
-                                   End Sub))
-            End If
-
-
-
-
-            ' Esperar a que todas las tareas se completen
-            Await Task.WhenAll(tasks)
-            PictureBox2.Visible = False
-            TextConsultando.Visible = False
-            TextConsultando.Text = ""
-            complementos.Complementos_MostrarMensajePersonalizadoCopiar($"Consulta generada en:{RutaFinal}", "")
+            Await EjecutarConsultasAsync()
         Catch ex As Exception
             PictureBox2.Visible = False
-            'PictureBox2.Visible = False
-            complementos.MostrarMensajePersonalizado("Exception: " + ex.Message)
-            'Finally
-            'PictureBox2.Visible = False
-            'PictureBox2.Visible = False
+            TextConsultando.Visible = False
+            complementos.MostrarMensajePersonalizado("Exception: " & ex.Message)
         End Try
     End Sub
+    Private Async Function EjecutarConsultasAsync() As Task
+
+        Dim conexion = connectionString
+        Dim rutaCarpeta = rutaCarpetaGlobal
+        Dim desdeF = DateTimePicker3.Value.Date.ToString("dd/MM/yyyy")
+        Dim hastaF = DateTimePicker2.Value.Date.ToString("dd/MM/yyyy")
+
+        If Not Directory.Exists(rutaCarpeta) Then
+            Directory.CreateDirectory(rutaCarpeta)
+        End If
+
+        PictureBox2.Visible = True
+        TextConsultando.Visible = True
+
+        Dim tasks As New List(Of Task)
+
+        ' ==============================
+        ' CONSULTAS SIMPLES
+        ' ==============================
+
+        If CheckBox5.Checked Then
+            tasks.Add(CrearTareaLuzGas(conexion, rutaCarpeta, desdeF, hastaF))
+        End If
+
+        If CheckBox6.Checked Then
+            tasks.Add(CrearTareaConsulta("Hunosa", conexion, rutaCarpeta, "Hunosa",
+            Function() ConsultasSQL.GetHunosa(desdeF, hastaF)))
+        End If
+
+        If CheckBox8.Checked Then
+            tasks.Add(CrearTareaConsulta("Cadasa", conexion, rutaCarpeta, "Cadasa",
+            Function() ConsultasSQL.GetCadasa(desdeF, hastaF)))
+        End If
+
+        If CheckBox9.Checked Then
+            tasks.Add(CrearTareaConsulta("Quantum", conexion, rutaCarpeta, "Quantum",
+            Function() ConsultasSQL.GetQuantum(desdeF, hastaF)))
+        End If
+
+        If CheckBox10.Checked Then
+            tasks.Add(CrearTareaConsulta("RechazosVeolia", conexion, rutaCarpeta, "Veolia",
+            Function() ConsultasSQL.GetRechazosVeolia))
+        End If
+
+        If CheckBox11.Checked Then
+            tasks.Add(CrearTareaConsulta("GAM", conexion, rutaCarpeta, "GAM",
+            Function() ConsultasSQL.GetGAM(desdeF, hastaF)))
+        End If
+
+        If CAMCheck.Checked Then
+            tasks.Add(CrearTareaConsulta("CAM", conexion, rutaCarpeta, "CAM",
+            Function() ConsultasSQL.GetCAM(desdeF, hastaF)))
+        End If
+
+        If TrebolCheck.Checked Then
+            tasks.Add(CrearTareaConsulta("TREBOL_LUZ", conexion, rutaCarpeta, "TREBOL_LUZ",
+            Function() ConsultasSQL.GetTrebolLuz(desdeF, hastaF)))
+
+            tasks.Add(CrearTareaConsulta("TREBOL_GAS", conexion, rutaCarpeta, "TREBOL_GAS",
+            Function() ConsultasSQL.GetTrebolGas(desdeF, hastaF)))
+        End If
+
+        ' ==============================
+        ' CUPS
+        ' ==============================
+
+        If CheckBox1.Checked Then
+            Dim cups = GetConSinSplitCupsCIFS(TextBox2.Text)
+            If cups.Count > 0 Then
+                Dim conexionv2 = "data source=172.31.100.30;initial catalog=SigeTotalTM;User ID=Sige;Password=SigeNew;"
+                Dim listaCups = Helper.LimpiarCups(cups)
+
+                If CheckBox12.Checked Then
+                    tasks.Add(CrearTareaCurva("CurvaHoraria", conexionv2, rutaCarpeta, desdeF, hastaF, listaCups, DividirChck.Checked,
+                    Function(c) ConsultasSQL.GetCurvaHoraria(desdeF, hastaF, , c)))
+                End If
+
+                If CheckBox13.Checked Then
+                    tasks.Add(CrearTareaCurva("CuartoHoraria", conexionv2, rutaCarpeta, desdeF, hastaF, listaCups, DividirChck.Checked,
+                    Function(c) ConsultasSQL.GetCurvaCuartoHoraria(desdeF, hastaF, , c)))
+                End If
+
+                If CheckFacturable.Checked Then
+                    tasks.Add(CrearTareaCurva("Facturable", conexionv2, rutaCarpeta, desdeF, hastaF, listaCups, DividirChck.Checked,
+                    Function(c) ConsultasSQL.GetCurvaFacturable(desdeF, hastaF, , c)))
+                End If
+            End If
+        End If
+
+        ' ==============================
+        ' NORAUTO
+        ' ==============================
+
+        If Norauto.Checked AndAlso CheckBox3.Checked Then
+            Dim cifs = GetConSinSplitCupsCIFS(TextBox2.Text)
+            Dim completed = 0
+
+            For Each cif In cifs
+                tasks.Add(Task.Run(Sub()
+                                       Dim ruta = Path.Combine(rutaCarpeta, $"{cif}_{Date.Today:ddMMyyyy}.xlsx")
+                                       ExportarConsultaAExcel(conexion,
+                                       ConsultasSQL.GetConsultaNorauto(desdeF, hastaF, cif),
+                                       ruta, cif)
+
+                                       Interlocked.Increment(completed)
+                                       SetTextSafe(TextConsultando, $"Progreso: {completed}/{cifs.Count}")
+                                   End Sub))
+            Next
+        End If
+
+        Await Task.WhenAll(tasks)
+
+        PictureBox2.Visible = False
+        TextConsultando.Visible = False
+        TextConsultando.Text = ""
+
+        complementos.Complementos_MostrarMensajePersonalizadoCopiar("Consulta generada correctamente", "")
+
+    End Function
+
+    Private Function CrearTareaConsulta(nombre As String, conexion As String, rutaCarpeta As String, hoja As String, consultaFactory As Func(Of String)) As Task
+
+        Return Task.Run(Sub()
+                            Dim ruta = Path.Combine(rutaCarpeta, $"{nombre}_{Date.Today:ddMMyyyy}.xlsx")
+                            SetTextSafe(TextConsultando, $"Consultando {nombre}")
+                            ExportarConsultaAExcel(conexion, consultaFactory(), ruta, hoja)
+                        End Sub)
+    End Function
+    Private Function CrearTareaLuzGas(conexion As String, rutaCarpeta As String, desdeF As String, hastaF As String) As Task
+
+        Return Task.Run(Sub()
+
+                            Dim name = "Consulta_ClicksTODO"
+                            Dim ruta = Path.Combine(rutaCarpeta, $"{name}_LuzGas_{Date.Today:ddMMyyyy}.xlsx")
+
+                            SetTextSafe(TextConsultando, "Consultando Luz")
+                            ExportarConsultaAExcel(conexion, ConsultasSQL.GetClickLuz, ruta, "Luz")
+
+                            SetTextSafe(TextConsultando, "Consultando Gas")
+                            ExportarConsultaAExcel(conexion, ConsultasSQL.GetClickGas, ruta, "Gas")
+
+                        End Sub)
+    End Function
+
+    Private Function CrearTareaCurva(nombre As String, conexion As String, rutaCarpeta As String, desdeF As String, hastaF As String, cups As List(Of String), dividir As Boolean, consultaFactory As Func(Of String, String)) As Task
+        Return Task.Run(Sub()
+
+                            If dividir Then
+                                For Each c In cups
+                                    SetTextSafe(TextConsultando, $"Consultando Cups: {c}")
+                                    Dim ruta = Path.Combine(rutaCarpeta, $"{nombre}_{c}.xlsx")
+                                    ExportarConsultaAExcel(conexion, consultaFactory(c), ruta, c)
+                                Next
+                            Else
+                                Dim ruta = Path.Combine(rutaCarpeta, $"{nombre}_{Date.Today:ddMMyyyy}.xlsx")
+                                ExportarConsultaAExcel(conexion, consultaFactory(Nothing), ruta, nombre)
+                            End If
+
+                        End Sub)
+    End Function
+    'Private Async Sub Button23_Click(sender As Object, e As EventArgs) Handles BotonConsultar.Click
+    '    Try
+    '        Dim conexion = connectionString
+    '        Dim rutaCarpeta = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO"
+    '        Dim DesdeF = DateTimePicker3.Value.Date.ToString("dd/MM/yyyy")
+    '        Dim HastaF = DateTimePicker2.Value.Date.ToString("dd/MM/yyyy")
+
+    '        ' Verificar si la carpeta existe, y si no, crearla
+    '        If Not Directory.Exists(rutaCarpeta) Then
+    '            Directory.CreateDirectory(rutaCarpeta)
+    '        End If
+
+    '        ' Lista para las tareas
+    '        Dim tasks As New List(Of Task)
+
+    '        PictureBox2.Visible = True
+    '        TextConsultando.Visible = True
+    '        Dim RutaFinal = rutaCarpeta + ":"
+    '        ' Si el CheckBox5 está marcado, crear archivo para Luz y Gas
+    '        If CheckBox5.Checked Then
+    '            tasks.Add(Task.Run(Sub()
+    '                                   Dim Name = "Consulta_ClicksTODO" ' Nombre específico para esta consulta
+    '                                   Dim rutaArchivoLuzGas = Path.Combine(rutaCarpeta, $"{Name}_LuzGas_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+    '                                   Dim consultaLuz = ConsultasSQL.GetClickLuz
+    '                                   SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} Luz entre fechas {DesdeF}-{HastaF}")
+    '                                   ExportarConsultaAExcel(conexion, consultaLuz, rutaArchivoLuzGas, "Luz")
+    '                                   Dim consultaGas = ConsultasSQL.GetClickGas
+    '                                   SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} Gas entre fechas {DesdeF}-{HastaF}")
+    '                                   ExportarConsultaAExcel(conexion, consultaGas, rutaArchivoLuzGas, "Gas")
+    '                                   RutaFinal += " " + Name
+    '                               End Sub))
+    '        End If
+
+    '        ' Si el CheckBox6 está marcado, crear archivo para Hunosa
+    '        If CheckBox6.Checked Then
+    '            tasks.Add(Task.Run(Sub()
+    '                                   Dim Name = "Hunosa"
+    '                                   Dim rutaArchivoHunosa = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+    '                                   Dim Hunosa = ConsultasSQL.GetHunosa(DesdeF, HastaF)
+    '                                   SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} entre fechas {DesdeF}-{HastaF}")
+    '                                   ExportarConsultaAExcel(conexion, Hunosa, rutaArchivoHunosa, "Hunosa")
+    '                                   RutaFinal += " " + Name
+    '                               End Sub))
+    '        End If
+
+    '        ' Si el CheckBox8 está marcado, crear archivo para Cadasa
+    '        If CheckBox8.Checked Then
+    '            tasks.Add(Task.Run(Sub()
+    '                                   Dim Name = "Cadasa"
+    '                                   Dim rutaArchivoCadasa = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+    '                                   Dim Cadasa = ConsultasSQL.GetCadasa(DesdeF, HastaF)
+    '                                   SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} entre fechas {DesdeF}-{HastaF}")
+    '                                   ExportarConsultaAExcel(conexion, Cadasa, rutaArchivoCadasa, "Cadasa")
+    '                                   RutaFinal += " " + Name
+    '                               End Sub))
+    '        End If
+
+    '        ' Si el CheckBox9 está marcado, crear archivo para Quantum
+    '        If CheckBox9.Checked Then
+    '            tasks.Add(Task.Run(Sub()
+    '                                   Dim Name = "Quantum"
+    '                                   Dim rutaArchivoQuantum = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+    '                                   Dim Quantum = ConsultasSQL.GetQuantum(DesdeF, HastaF)
+    '                                   SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} entre fechas {DesdeF}-{HastaF}")
+    '                                   ExportarConsultaAExcel(conexion, Quantum, rutaArchivoQuantum, "Quantum")
+    '                                   RutaFinal += " " + Name
+    '                               End Sub))
+    '        End If
+
+    '        ' Si el CheckBox10 está marcado, crear archivo para RechazosVeolia
+    '        If CheckBox10.Checked Then
+    '            tasks.Add(Task.Run(Sub()
+    '                                   Dim Name = "RechazosVeolia"
+    '                                   Dim rutaArchivoRechazosVeolia = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+    '                                   Dim RechazosVeolia = ConsultasSQL.GetRechazosVeolia
+    '                                   SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} entre fechas {DesdeF}-{HastaF}")
+    '                                   ExportarConsultaAExcel(conexion, RechazosVeolia, rutaArchivoRechazosVeolia, "Veolia")
+    '                                   RutaFinal += " " + Name
+    '                               End Sub))
+    '        End If
+
+    '        If CheckBox11.Checked Then
+    '            tasks.Add(Task.Run(Sub()
+    '                                   Dim Name = "GAM"
+    '                                   Dim rutaArchivoGAM = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+    '                                   Dim ConsultaGAM = ConsultasSQL.GetGAM(DesdeF, HastaF)
+    '                                   SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} entre fechas {DesdeF}-{HastaF}")
+    '                                   ExportarConsultaAExcel(conexion, ConsultaGAM, rutaArchivoGAM, Name)
+    '                                   RutaFinal += " " + Name
+    '                               End Sub))
+    '        End If
+
+    '        'Check Cups
+    '        If CheckBox1.Checked Then
+    '            Dim Cups = GetConSinSplitCupsCIFS(TextBox2.Text)
+    '            Dim conexionv2 = "data source=172.31.100.30;initial catalog=SigeTotalTM;User ID=Sige;Password=SigeNew;"
+    '            If CheckBox12.Checked AndAlso Cups.Count > 0 Then
+    '                tasks.Add(Task.Run(Sub()
+    '                                       Dim Name = "CurvaHoraria"
+    '                                       Dim rutaArchivoCurva = Path.Combine(rutaCarpeta, $"{Name}_{DateTimePicker3.Value.Date.ToString("ddMMyyyy")}_{DateTimePicker2.Value.Date.ToString("ddMMyyyy")}.xlsx")
+    '                                       Dim listaCups As New List(Of String)
+    '                                       For Each c In Cups
+    '                                           listaCups.Add(Replace(c, " ", "").Substring(0, Math.Min(20, c.Length)))
+    '                                       Next
+    '                                       If DividirChck.Checked Then ' divide en excels
+    '                                           For Each fCups In listaCups
+    '                                               Dim ConsultaCurva = ConsultasSQL.GetCurvaHoraria(DesdeF, HastaF, , fCups)
+    '                                               SetTextSafe(TextConsultando, $"Consultando Cups: {fCups}")
+    '                                               ExportarConsultaAExcel(conexionv2, ConsultaCurva, Path.Combine(rutaCarpeta, $"{Name}_{fCups}.xlsx"), fCups)
+    '                                               RutaFinal += " " + fCups
+    '                                           Next
+
+    '                                       Else
+    '                                           Dim ConsultaCurva = ConsultasSQL.GetCurvaHoraria(DesdeF, HastaF, listaCups)
+    '                                           SetTextSafe(TextConsultando, $"Consultando y generando Excel de {listaCups.Count} CUPS")
+    '                                           ExportarConsultaAExcel(conexionv2, ConsultaCurva, rutaArchivoCurva, Name)
+    '                                           RutaFinal += " " + Name
+    '                                       End If
+    '                                   End Sub))
+    '            End If
+
+    '            If CheckBox13.Checked AndAlso Cups.Count > 0 Then
+    '                tasks.Add(Task.Run(Sub()
+    '                                       Dim Name = "CuartoHoraria"
+    '                                       Dim rutaArchivoCuartoHoraria = Path.Combine(rutaCarpeta, $"{Name}_{DateTimePicker3.Value.Date.ToString("ddMMyyyy")}_{DateTimePicker2.Value.Date.ToString("ddMMyyyy")}.xlsx")
+    '                                       Dim listaCups As New List(Of String)
+    '                                       For Each c In Cups
+    '                                           listaCups.Add(Replace(c, " ", "").Substring(0, Math.Min(20, c.Length)))
+    '                                       Next
+    '                                       If DividirChck.Checked Then ' divide en excels
+    '                                           For Each fCups In listaCups
+    '                                               Dim ConsultaCurvaCuarto = ConsultasSQL.GetCurvaCuartoHoraria(DesdeF, HastaF, , fCups)
+    '                                               SetTextSafe(TextConsultando, $"Consultando Cups: {fCups}")
+    '                                               ExportarConsultaAExcel(conexionv2, ConsultaCurvaCuarto, Path.Combine(rutaCarpeta, $"{Name}_{fCups}.xlsx"), fCups)
+    '                                               RutaFinal += " " + fCups
+    '                                           Next
+
+    '                                       Else
+    '                                           Dim ConsultaCurvaCuarto = ConsultasSQL.GetCurvaCuartoHoraria(DesdeF, HastaF, listaCups)
+    '                                           SetTextSafe(TextConsultando, $"Consultando y generando Excel de {listaCups.Count} CUPS")
+    '                                           ExportarConsultaAExcel(conexionv2, ConsultaCurvaCuarto, rutaArchivoCuartoHoraria, Name)
+    '                                           RutaFinal += " " + Name
+    '                                       End If
+
+    '                                   End Sub))
+    '            End If
+    '            If CheckFacturable.Checked AndAlso Cups.Count > 0 Then
+    '                tasks.Add(Task.Run(Sub()
+    '                                       Dim Name = "Facturable"
+    '                                       Dim rutaArchivoFacturable = Path.Combine(rutaCarpeta, $"{Name}_{DateTimePicker3.Value.Date.ToString("ddMMyyyy")}_{DateTimePicker2.Value.Date.ToString("ddMMyyyy")}.xlsx")
+    '                                       Dim listaCups As New List(Of String)
+    '                                       For Each c In Cups
+    '                                           listaCups.Add(Replace(c, " ", "").Substring(0, Math.Min(20, c.Length)))
+    '                                       Next
+    '                                       If DividirChck.Checked Then ' divide en excels
+    '                                           For Each fCups In listaCups
+    '                                               Dim ConsultaFacturable = ConsultasSQL.GetCurvaFacturable(DesdeF, HastaF, , fCups)
+    '                                               SetTextSafe(TextConsultando, $"Consultando Cups: {fCups}")
+    '                                               ExportarConsultaAExcel(conexionv2, ConsultaFacturable, Path.Combine(rutaCarpeta, $"{Name}_{fCups}.xlsx"), fCups)
+    '                                               RutaFinal += " " + fCups
+    '                                           Next
+
+    '                                       Else
+    '                                           Dim ConsultaFacturable = ConsultasSQL.GetCurvaFacturable(DesdeF, HastaF, listaCups)
+    '                                           SetTextSafe(TextConsultando, $"Consultando y generando Excel de {listaCups.Count} CUPS")
+    '                                           ExportarConsultaAExcel(conexionv2, ConsultaFacturable, rutaArchivoFacturable, Name)
+    '                                           RutaFinal += " " + Name
+    '                                       End If
+
+    '                                   End Sub))
+    '            End If
+    '        End If
+
+    '        If Norauto.Checked Then
+    '            'Check Cliente
+    '            If CheckBox3.Checked Then
+    '                Dim CIFS = GetConSinSplitCupsCIFS(TextBox2.Text)
+    '                Dim completed = 0
+    '                For Each cif In CIFS
+    '                    tasks.Add(Task.Run(Sub()
+    '                                           Dim Name = cif
+    '                                           Dim rutaArchivoNor = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today:ddMMyyyy}.xlsx")
+    '                                           Dim ConsultaNor = ConsultasSQL.GetConsultaNorauto(DesdeF, HastaF, cif)
+    '                                           ExportarConsultaAExcel(conexion, ConsultaNor, rutaArchivoNor, Name)
+    '                                           Interlocked.Increment(completed)
+    '                                           SetTextSafe(TextConsultando, $"Progreso: {completed}/{CIFS.Count} completados...")
+    '                                       End Sub))
+    '                Next
+    '            End If
+    '        End If
+
+    '        If CAMCheck.Checked Then
+    '            tasks.Add(Task.Run(Sub()
+    '                                   Dim Name = "CAM"
+    '                                   Dim rutaArchivoCAM = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+    '                                   Dim ConsultaCAM = ConsultasSQL.GetCAM(DesdeF, HastaF)
+    '                                   SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} entre fechas {DesdeF}-{HastaF}")
+    '                                   ExportarConsultaAExcel(conexion, ConsultaCAM, rutaArchivoCAM, Name)
+    '                                   RutaFinal += " " + Name
+    '                               End Sub))
+    '        End If
+    '        If TrebolCheck.Checked Then
+    '            tasks.Add(Task.Run(Sub()
+    '                                   Dim Name = "TREBOL_LUZ"
+    '                                   Dim rutaArchivoTrebol = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+    '                                   Dim ConsultaTrebol = ConsultasSQL.GetTrebolLuz(DesdeF, HastaF)
+    '                                   SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} entre fechas {DesdeF}-{HastaF}")
+    '                                   ExportarConsultaAExcel(conexion, ConsultaTrebol, rutaArchivoTrebol, Name)
+    '                                   RutaFinal += " " + Name
+    '                               End Sub))
+
+    '            tasks.Add(Task.Run(Sub()
+    '                                   Dim Name = "TREBOL_GAS"
+    '                                   Dim rutaArchivoTrebol = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+    '                                   Dim ConsultaTrebol = ConsultasSQL.GetTrebolGas(DesdeF, HastaF)
+    '                                   SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} entre fechas {DesdeF}-{HastaF}")
+    '                                   ExportarConsultaAExcel(conexion, ConsultaTrebol, rutaArchivoTrebol, Name)
+    '                                   RutaFinal += " " + Name
+    '                               End Sub))
+    '        End If
+
+
+
+
+    '        ' Esperar a que todas las tareas se completen
+    '        Await Task.WhenAll(tasks)
+    '        PictureBox2.Visible = False
+    '        TextConsultando.Visible = False
+    '        TextConsultando.Text = ""
+    '        complementos.Complementos_MostrarMensajePersonalizadoCopiar($"Consulta generada en:{RutaFinal}", "")
+    '    Catch ex As Exception
+    '        PictureBox2.Visible = False
+    '        'PictureBox2.Visible = False
+    '        complementos.MostrarMensajePersonalizado("Exception: " + ex.Message)
+    '        'Finally
+    '        'PictureBox2.Visible = False
+    '        'PictureBox2.Visible = False
+    '    End Try
+    'End Sub
 
     'DEVS
     Private Async Sub BotonBuscarF(sender As Object, e As EventArgs) Handles BuscarFButton.Click
