@@ -55,7 +55,7 @@ Partial Class Form1
         Label8 = New Label()
         Label9 = New Label()
         CheckBox6 = New CheckBox()
-        CheckBox7 = New CheckBox()
+        CAMCheck = New CheckBox()
         CheckBox8 = New CheckBox()
         CheckBox9 = New CheckBox()
         CheckBox10 = New CheckBox()
@@ -116,6 +116,7 @@ Partial Class Form1
         Panel4 = New Panel()
         Panel8 = New Panel()
         Panel7 = New Panel()
+        TrebolCheck = New CheckBox()
         Panel1.SuspendLayout()
         CType(PictureBox2, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
@@ -397,17 +398,16 @@ Partial Class Form1
         CheckBox6.Text = "Hunosa"
         CheckBox6.UseVisualStyleBackColor = False
         ' 
-        ' CheckBox7
+        ' CAMCheck
         ' 
-        CheckBox7.AutoSize = True
-        CheckBox7.BackColor = Color.Transparent
-        CheckBox7.Enabled = False
-        CheckBox7.Location = New Point(8, 22)
-        CheckBox7.Name = "CheckBox7"
-        CheckBox7.Size = New Size(53, 19)
-        CheckBox7.TabIndex = 36
-        CheckBox7.Text = "CAM"
-        CheckBox7.UseVisualStyleBackColor = False
+        CAMCheck.AutoSize = True
+        CAMCheck.BackColor = Color.Transparent
+        CAMCheck.Location = New Point(8, 22)
+        CAMCheck.Name = "CAMCheck"
+        CAMCheck.Size = New Size(53, 19)
+        CAMCheck.TabIndex = 36
+        CAMCheck.Text = "CAM"
+        CAMCheck.UseVisualStyleBackColor = False
         ' 
         ' CheckBox8
         ' 
@@ -989,17 +989,18 @@ Partial Class Form1
         ' Panel5
         ' 
         Panel5.BackColor = Color.Transparent
+        Panel5.Controls.Add(TrebolCheck)
         Panel5.Controls.Add(CheckBox6)
         Panel5.Controls.Add(CheckBox5)
-        Panel5.Controls.Add(CheckBox7)
+        Panel5.Controls.Add(CAMCheck)
         Panel5.Controls.Add(Norauto)
         Panel5.Controls.Add(CheckBox8)
         Panel5.Controls.Add(CheckBox9)
         Panel5.Controls.Add(CheckBox10)
         Panel5.Controls.Add(CheckBox11)
-        Panel5.Location = New Point(76, 6)
+        Panel5.Location = New Point(8, 19)
         Panel5.Name = "Panel5"
-        Panel5.Size = New Size(191, 92)
+        Panel5.Size = New Size(302, 86)
         Panel5.TabIndex = 48
         ' 
         ' Panel6
@@ -1107,6 +1108,17 @@ Partial Class Form1
         Panel7.Size = New Size(310, 1)
         Panel7.TabIndex = 2
         ' 
+        ' TrebolCheck
+        ' 
+        TrebolCheck.AutoSize = True
+        TrebolCheck.BackColor = Color.Transparent
+        TrebolCheck.Location = New Point(186, 2)
+        TrebolCheck.Name = "TrebolCheck"
+        TrebolCheck.Size = New Size(113, 19)
+        TrebolCheck.TabIndex = 45
+        TrebolCheck.Text = "Trebol (LuzyGas)"
+        TrebolCheck.UseVisualStyleBackColor = False
+        ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
@@ -1181,7 +1193,7 @@ Partial Class Form1
     Friend WithEvents Label8 As Label
     Friend WithEvents Label9 As Label
     Friend WithEvents CheckBox6 As CheckBox
-    Friend WithEvents CheckBox7 As CheckBox
+    Friend WithEvents CAMCheck As CheckBox
     Friend WithEvents CheckBox8 As CheckBox
     Friend WithEvents CheckBox9 As CheckBox
     Friend WithEvents CheckBox10 As CheckBox
@@ -1245,4 +1257,5 @@ Partial Class Form1
     Friend WithEvents Panel7 As Panel
     Friend WithEvents AplicarPreciosExcelButton As Button
     Friend WithEvents TrocearXMLButton As Button
+    Friend WithEvents TrebolCheck As CheckBox
 End Class

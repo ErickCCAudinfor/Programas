@@ -2356,6 +2356,40 @@ Public Class Form1
                     Next
                 End If
             End If
+
+            If CAMCheck.Checked Then
+                tasks.Add(Task.Run(Sub()
+                                       Dim Name = "CAM"
+                                       Dim rutaArchivoCAM = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                                       Dim ConsultaCAM = ConsultasSQL.GetCAM(DesdeF, HastaF)
+                                       SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} entre fechas {DesdeF}-{HastaF}")
+                                       ExportarConsultaAExcel(conexion, ConsultaCAM, rutaArchivoCAM, Name)
+                                       RutaFinal += " " + Name
+                                   End Sub))
+            End If
+            If TrebolCheck.Checked Then
+                tasks.Add(Task.Run(Sub()
+                                       Dim Name = "TREBOL_LUZ"
+                                       Dim rutaArchivoTrebol = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                                       Dim ConsultaTrebol = ConsultasSQL.GetTrebolLuz(DesdeF, HastaF)
+                                       SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} entre fechas {DesdeF}-{HastaF}")
+                                       ExportarConsultaAExcel(conexion, ConsultaTrebol, rutaArchivoTrebol, Name)
+                                       RutaFinal += " " + Name
+                                   End Sub))
+
+                tasks.Add(Task.Run(Sub()
+                                       Dim Name = "TREBOL_GAS"
+                                       Dim rutaArchivoTrebol = Path.Combine(rutaCarpeta, $"{Name}_{Date.Today.ToString("ddMMyyyy")}.xlsx")
+                                       Dim ConsultaTrebol = ConsultasSQL.GetTrebolGas(DesdeF, HastaF)
+                                       SetTextSafe(TextConsultando, $"Consultando y generando Excel {Name} entre fechas {DesdeF}-{HastaF}")
+                                       ExportarConsultaAExcel(conexion, ConsultaTrebol, rutaArchivoTrebol, Name)
+                                       RutaFinal += " " + Name
+                                   End Sub))
+            End If
+
+
+
+
             ' Esperar a que todas las tareas se completen
             Await Task.WhenAll(tasks)
             PictureBox2.Visible = False
