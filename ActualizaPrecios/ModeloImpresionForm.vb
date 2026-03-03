@@ -184,6 +184,43 @@ Public Class ModeloImpresionForm
 
         End Try
     End Sub
+
+    Private Sub BotonBackUp_Click(sender As Object, e As EventArgs) Handles BotonBackUp.Click
+        Try
+            Dim ListaReport As New List(Of ModeloDeImpresion)
+            Dim funciones As New FuncionesGenericas(_GlobalConnecString)
+
+            ' Recorremos todas las filas seleccionadas
+            For Each row As DataGridViewRow In DataModeloImpresionView.SelectedRows
+                Dim modelo As ModeloDeImpresion = CType(row.DataBoundItem, ModeloDeImpresion)
+                Dim ReportBin = funciones.GetModeloImpreisonYbinario(modelo.IdModeloDeImpresion)
+                ListaReport.Add(ReportBin)
+            Next
+
+            ' Pedimos al usuario la carpeta donde guardar
+            Using fbd As New FolderBrowserDialog()
+                fbd.Description = "Seleccione la carpeta donde guardar los reports"
+                If fbd.ShowDialog() = DialogResult.OK Then
+                    Dim carpetaDestino As String = fbd.SelectedPath
+
+                    ' Guardamos cada report en un archivo .rpt
+                    For Each modelor In ListaReport
+                        ' Sanitizamos el nombre para que no tenga caracteres inválidos
+                        Dim nombreArchivo As String = String.Concat(modelor.DescripcionModeloDeImpresion.Split(Path.GetInvalidFileNameChars()))
+                        Dim rutaCompleta As String = Path.Combine(carpetaDestino, nombreArchivo & ".rpt")
+
+                        ' Guardamos el binario en archivo
+                        File.WriteAllBytes(rutaCompleta, modelor.Modelo)
+                    Next
+
+                    _complementos.MostrarMensajePersonalizado("BackUp completado con éxito.")
+                End If
+            End Using
+
+        Catch ex As Exception
+            _complementos.MostrarMensajePersonalizado(ex.Message)
+        End Try
+    End Sub
     'Private Sub CerrarFormModelo(sender As Object, e As EventArgs) Handles Me.FormClosing
     '    MarcarUsuarioDesconectado(SesionActual.UsuarioLogueado)
     'End Sub

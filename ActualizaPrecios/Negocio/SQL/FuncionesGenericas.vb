@@ -2555,6 +2555,32 @@ where codigocontrato = {codigocontrato} and TextoTarifaGrupo='{tarifagrupo}' and
         Return ModelosFacs
     End Function
 
+    Public Function GetModeloImpreisonYbinario(idmodelodeimpresion As Long) As ModeloDeImpresion
+        Dim ModelosRe As New ModeloDeImpresion
+        'Dim ListaContratov2 As New List(Of Integer)
+        Try
+
+            Dim query As String = $"select idmodelodeimpresion, Entorno,DescripcionModeloDeImpresion, CodigoTipoModeloDeImpresion,RptFileName, classname,Modelo from ModeloDeImpresion where idmodelodeimpresion={idmodelodeimpresion}"
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ListaModelosFacs = Helper.FillObjectFromDatatable(result.Tables(0), GetType(ModeloDeImpresion)).Cast(Of ModeloDeImpresion).ToList
+                If Not IsNothing(ListaModelosFacs) AndAlso ListaModelosFacs.Count > 0 Then
+                    ModelosRe = ListaModelosFacs.FirstOrDefault
+
+                End If
+            End If
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return ModelosRe
+    End Function
+
 
     Public Function GetCNAE() As List(Of CNAE)
         Dim CANES As New List(Of CNAE)

@@ -32,6 +32,7 @@ Partial Class ModeloImpresionForm
         LabelServidor = New Label()
         LoadImagen = New PictureBox()
         TextConsultando = New Label()
+        BotonBackUp = New Button()
         CType(DataModeloImpresionView, ComponentModel.ISupportInitialize).BeginInit()
         CType(LoadImagen, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
@@ -70,7 +71,6 @@ Partial Class ModeloImpresionForm
         DataModeloImpresionView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
         DataModeloImpresionView.EnableHeadersVisualStyles = False
         DataModeloImpresionView.Location = New Point(21, 41)
-        DataModeloImpresionView.MultiSelect = False
         DataModeloImpresionView.Name = "DataModeloImpresionView"
         DataModeloImpresionView.RowHeadersVisible = False
         DataModeloImpresionView.RowTemplate.Height = 25
@@ -135,12 +135,26 @@ Partial Class ModeloImpresionForm
         TextConsultando.Text = "Eliminando..."
         TextConsultando.Visible = False
         ' 
+        ' BotonBackUp
+        ' 
+        BotonBackUp.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        BotonBackUp.FlatAppearance.BorderColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        BotonBackUp.FlatStyle = FlatStyle.Popup
+        BotonBackUp.ForeColor = SystemColors.Control
+        BotonBackUp.Location = New Point(21, 538)
+        BotonBackUp.Name = "BotonBackUp"
+        BotonBackUp.Size = New Size(112, 23)
+        BotonBackUp.TabIndex = 46
+        BotonBackUp.Text = "BackUp"
+        BotonBackUp.UseVisualStyleBackColor = False
+        ' 
         ' ModeloImpresionForm
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.FromArgb(CByte(213), CByte(220), CByte(227))
         ClientSize = New Size(1321, 569)
+        Controls.Add(BotonBackUp)
         Controls.Add(TextConsultando)
         Controls.Add(LoadImagen)
         Controls.Add(LabelServidor)
@@ -168,4 +182,5 @@ Partial Class ModeloImpresionForm
     Friend WithEvents LabelServidor As Label
     Friend WithEvents LoadImagen As PictureBox
     Friend WithEvents TextConsultando As Label
+    Friend WithEvents BotonBackUp As Button
 End Class
