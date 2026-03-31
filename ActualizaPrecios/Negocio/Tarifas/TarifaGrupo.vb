@@ -984,3 +984,14 @@ Public Class TarifaGrupo
         End Set
     End Property
 End Class
+Partial Class TarifaGrupo
+    Private _idperfilfacturacionoNuevo As Long
+    Public Property idperfilfacturacionoNuevo As Long
+        Get
+            Return _idperfilfacturacionoNuevo
+        End Get
+        Set(ByVal value As Long)
+            _idperfilfacturacionoNuevo = value
+        End Set
+    End Property
+End Class

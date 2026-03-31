@@ -73,12 +73,20 @@ Public Class Excel
                     Dim grupoviejo = worksheet.Cells(row, 4).Value?.ToString()
                     Dim gruponuevo = worksheet.Cells(row, 5).Value?.ToString()
 
+                    Dim IsQ As Boolean
+                    Boolean.TryParse(worksheet.Cells(row, 6).Value?.ToString(), IsQ)
+
+                    Dim IsMantenerPerfil As Boolean
+                    Boolean.TryParse(worksheet.Cells(row, 7).Value?.ToString(), IsMantenerPerfil)
+
                     resultado.Add(New ContratoTarifa With {
                     .CodigoContrato = codContrato, 'Columna 1                    
                     .FechaDesde = fechaAplicar, ' Columna 2
                     .FechaHasta = fechaCierre, 'Columna 3
                     .textotarifagrupoViejo = grupoviejo, ' 4
-                    .textotarifagrupoNuevo = gruponuevo '5
+                    .textotarifagrupoNuevo = gruponuevo, '5
+                    .IsQ = IsQ,'6
+                    .MantenerPerfil = IsMantenerPerfil '7
                 })
                 Next
             End Using

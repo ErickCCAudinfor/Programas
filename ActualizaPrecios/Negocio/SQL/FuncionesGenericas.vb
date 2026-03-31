@@ -2139,7 +2139,7 @@ order by c.CodigoContrato
     End Function
 
 
-    Public Sub AplicarPrecios(CodContrato As Long, FechaVigencia As Date?)
+    Public Sub AplicarPrecios(CodContrato As Long, FechaVigencia As Date?, Optional IsQ As Boolean = False)
         Try
             Dim ContratoTarifaSrv As New ContratoTarifaSrv(connectionString)
             Dim TarifaPrecioContratoSrv As New TarifaPrecioContratoSrv(connectionString)
@@ -2208,7 +2208,7 @@ order by c.CodigoContrato
             Throw
         End Try
     End Sub
-    Public Sub AplicarPreciosV2(CodContrato As Long, FechaVigencia As Date?)
+    Public Sub AplicarPreciosV2(CodContrato As Long, FechaVigencia As Date?, IsQ As Boolean)
         Try
             Dim objContratoTarifa = GetContratoTarifabyCodContratoFechaVigencia(CodContrato, FechaVigencia)
 
@@ -2218,7 +2218,7 @@ order by c.CodigoContrato
                 Dim tarifasPrecioContratoGuardar As New List(Of TarifaPrecioContrato)
 
                 Dim isFijoIndex As Boolean = False
-                If objContratoTarifa.PerfilFacturacion.isPerfilIndexado() Then
+                If objContratoTarifa.PerfilFacturacion.isPerfilIndexado() AndAlso Not IsQ Then
                     isFijoIndex = True
                     If objContratoTarifa.Entorno = "G1" Then
                         ' IndexadoPrecioSrv
@@ -2235,6 +2235,8 @@ order by c.CodigoContrato
                             Next
                         End If
                     End If
+                ElseIf Not objContratoTarifa.PerfilFacturacion.isPerfilIndexado Then
+                    AplicarPrecios(CodContrato, FechaVigencia)
                 End If
                 If tarifasPrecioContratoGuardar.Count > 0 Then
                     For Each tpc In tarifasPrecioContratoGuardar
@@ -2379,7 +2381,7 @@ VALUES
 inner join tarifagrupo  tg on ct.idtarifagrupo = tg.idtarifagrupo
 where idcontratotarifa ={ListaIdContratoTarifa})
 
-select tgN.entorno,tgN.idtarifagrupo,tgN.idtarifa,grupoviejo.idperfilfacturacionold idperfilfacturacion  from TarifaGrupo tgN
+select tgN.entorno,tgN.idtarifagrupo,tgN.idtarifa,grupoviejo.idperfilfacturacionold idperfilfacturacion,tgn.IdPerfilFacturacion idperfilfacturacionoNuevo   from TarifaGrupo tgN
 inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagrupo = replace(GrupoViejo.textoGrupoOld,'{TGVIEJO}','{TGNUEVO}')" 'CAM
             'inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagrupo = replace(GrupoViejo.textoGrupoOld,'2024','2025') SUEZ
             'inner join GrupoViejo on tgN.idtarifa = GrupoViejo.idtarifaold and textotarifagrupo = replace(GrupoViejo.textoGrupoOld,'MADRID','MADRID 2025') CAM

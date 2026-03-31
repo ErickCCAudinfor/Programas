@@ -351,4 +351,23 @@ Partial Class ContratoTarifa
         End Set
     End Property
 
+    Private _IsQ As Boolean?
+    Public Property IsQ As Boolean?
+        Get
+            Return _IsQ
+        End Get
+        Set(ByVal value As Boolean?)
+            _IsQ = value
+        End Set
+    End Property
+
+    Private _MantenerPerfil As Boolean?
+    Public Property MantenerPerfil As Boolean?
+        Get
+            Return _MantenerPerfil
+        End Get
+        Set(ByVal value As Boolean?)
+            _MantenerPerfil = value
+        End Set
+    End Property
 End Class

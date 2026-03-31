@@ -2021,8 +2021,18 @@ Public Class Form1
                                Dim tgNuevo = Funciones.GetCalendarioNuevoTarifa(tgActual.IdContratoTarifa, c.textotarifagrupoViejo, c.textotarifagrupoNuevo, c.FechaHasta)
                                Dim codigoContrato = Funciones.GetOnlyCodigoContratobyIdContratoTarifa(tgActual.IdContratoTarifa)
                                If codigoContrato > 0 AndAlso tgNuevo IsNot Nothing AndAlso tgNuevo.IdTarifaGrupo <> 0 Then
-                                   Funciones.InsertTarifaGrupoCalendario(tgNuevo.Entorno, codigoContrato, tgNuevo.IdTarifaGrupo, tgNuevo.IdTarifa, tgNuevo.IdPerfilFacturacion, c.FechaDesde)
-                                   Funciones.AplicarPreciosV2(codigoContrato, c.FechaDesde)
+
+                                   ' 1. Determinamos qué perfil usar
+                                   ' Usamos el nuevo si es "Q" o si NO hay que mantener el anterior
+                                   Dim idPerfil As Integer = If(c.IsQ OrElse Not c.MantenerPerfil, tgNuevo.idperfilfacturacionoNuevo, tgNuevo.IdPerfilFacturacion)
+
+                                   ' 2. Una única llamada limpia
+                                   Funciones.InsertTarifaGrupoCalendario(tgNuevo.Entorno, codigoContrato, tgNuevo.IdTarifaGrupo, tgNuevo.IdTarifa, idPerfil, c.FechaDesde)
+
+                                   ' 3. Aplicar precios
+                                   Dim fechaAplicacion = If(Not c.IsQ, c.FechaDesde, tgActual.FechaDesde)
+                                   Funciones.AplicarPreciosV2(codigoContrato, fechaAplicacion, c.IsQ)
+
                                End If
                                SetTextSafe(TextConsultando, $"Insertando y/o aplicando precios: {contador}/{total}. Posibles errores {contadorErrores}/{total}")
                                contador += 1
