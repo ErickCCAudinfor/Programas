@@ -2239,11 +2239,17 @@ Public Class Form1
         End If
 
         If TrebolCheck.Checked Then
-            tasks.Add(CrearTareaConsulta("TREBOL_LUZ", conexion, rutaCarpeta, "TREBOL_LUZ",
-            Function() ConsultasSQL.GetTrebolLuz(desdeF, hastaF)))
+            Dim cifs = GetConSinSplitCupsCIFS(TextBox2.Text)
+            For Each cif In cifs
+                'tasks.Add(
+                CrearTareaConsulta_V2($"TREBOL_LUZ_{cif}", conexion, rutaCarpeta, $"TREBOL_LUZ_{cif}", Function() ConsultasSQL.GetTrebolLuz_V2(cif))
+                ')
+            Next
 
-            tasks.Add(CrearTareaConsulta("TREBOL_GAS", conexion, rutaCarpeta, "TREBOL_GAS",
-            Function() ConsultasSQL.GetTrebolGas(desdeF, hastaF)))
+
+
+            'tasks.Add(CrearTareaConsulta("TREBOL_GAS", conexion, rutaCarpeta, "TREBOL_GAS",
+            'Function() ConsultasSQL.GetTrebolGas(desdeF, hastaF)))
         End If
 
         ' ==============================
@@ -2311,6 +2317,13 @@ Public Class Form1
                             SetTextSafe(TextConsultando, $"Consultando {nombre}")
                             ExportarConsultaAExcel(conexion, consultaFactory(), ruta, hoja)
                         End Sub)
+    End Function
+    Private Function CrearTareaConsulta_V2(nombre As String, conexion As String, rutaCarpeta As String, hoja As String, consultaFactory As Func(Of String))
+
+        Dim ruta = Path.Combine(rutaCarpeta, $"{nombre}_{Date.Today:ddMMyyyy}.xlsx")
+        SetTextSafe(TextConsultando, $"Consultando {nombre}")
+        ExportarConsultaAExcel(conexion, consultaFactory(), ruta, hoja)
+
     End Function
     Private Function CrearTareaLuzGas(conexion As String, rutaCarpeta As String, desdeF As String, hastaF As String) As Task
 
@@ -3574,11 +3587,125 @@ Public Class Form1
     Private Sub TrocearXMLButton_Click(sender As Object, e As EventArgs) Handles TrocearXMLButton.Click
         Try
             Dim Trocear = New TrocearXMLForm()
-            Trocear.show
+            Trocear.Show()
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
+
+    'Para detectar errores en el XML de COntratos
+    Private Sub Button1_Click(sender As Object, e As EventArgs)
+        Dim filePath As String = "C:\Users\ErickCC\Desktop\Erick\ESCONT_20260421_004446.xml"
+        Dim contratoCount As Integer = 0
+        Dim tieneGrupoTarifa As Boolean = False
+        Dim idContratoActual As String = ""
+        Dim cupsActual As String = ""
+
+        'Console.WriteLine("Iniciando análisis de XML masivo...")
+
+        Try
+            ' Configuramos el lector para ser eficiente
+            Dim settings As New XmlReaderSettings()
+            settings.IgnoreWhitespace = True
+
+            Using reader As XmlReader = XmlReader.Create(filePath, settings)
+                While reader.Read()
+                    ' Cuando entramos en un nuevo contrato
+                    If reader.NodeType = XmlNodeType.Element AndAlso reader.Name = "Contrato" Then
+                        contratoCount += 1
+                        tieneGrupoTarifa = False
+                        idContratoActual = "No encontrado"
+                        cupsActual = "No encontrado"
+                    End If
+
+                    ' Leemos los datos internos para informar en caso de error
+                    If reader.NodeType = XmlNodeType.Element Then
+                        Select Case reader.Name
+                            Case "IdContrato"
+                                idContratoActual = reader.ReadElementContentAsString()
+                            Case "CodigoCUPS"
+                                cupsActual = reader.ReadElementContentAsString()
+                            Case "GrupoTarifa"
+                                tieneGrupoTarifa = True
+                        End Select
+                    End If
+
+                    ' Al cerrar el contrato, verificamos si le faltaba la etiqueta
+                    If reader.NodeType = XmlNodeType.EndElement AndAlso reader.Name = "Contrato" Then
+                        If Not tieneGrupoTarifa Then
+                            complementos.MostrarMensajePersonalizado($"--- ERROR DETECTADO --- {idContratoActual}")
+                            ' Si quieres que se detenga en el primero, activa la siguiente línea:
+                            ' Exit While
+                        End If
+                    End If
+                End While
+            End Using
+
+
+
+        Catch ex As Exception
+            Console.WriteLine("Error crítico: " & ex.Message)
+        End Try
+    End Sub
+    'Para detectar errores en el XML de COntratos
+    Private Sub Button1_Click_Facs(sender As Object, e As EventArgs)
+        Dim filePath As String = "C:\Users\ErickCC\Desktop\Erick\ESUNI_20260425_000414.xml"
+        Dim contratoCount As Integer = 0
+        Dim tieneGrupoTarifa As Boolean = False
+        Dim idContratoActual As String = ""
+        Dim cupsActual As String = ""
+
+        'Console.WriteLine("Iniciando análisis de XML masivo...")
+
+        Try
+            ' Configuramos el lector para ser eficiente
+            Dim settings As New XmlReaderSettings()
+            settings.IgnoreWhitespace = True
+
+            Using reader As XmlReader = XmlReader.Create(filePath, settings)
+                While reader.Read()
+                    ' Cuando entramos en un nuevo contrato
+                    If reader.NodeType = XmlNodeType.Element AndAlso reader.Name = "Factura" Then
+                        contratoCount += 1
+                        tieneGrupoTarifa = False
+                        idContratoActual = "No encontrado"
+                        cupsActual = "No encontrado"
+                    End If
+
+                    ' Leemos los datos internos para informar en caso de error
+                    If reader.NodeType = XmlNodeType.Element Then
+                        Select Case reader.Name
+                            Case "IdContrato"
+                                idContratoActual = reader.ReadElementContentAsString()
+                            Case "CodContrato"
+                                cupsActual = reader.ReadElementContentAsString()
+                            Case "CodigoProducto"
+                                tieneGrupoTarifa = True
+                        End Select
+                    End If
+
+                    ' Al cerrar el contrato, verificamos si le faltaba la etiqueta
+                    If reader.NodeType = XmlNodeType.EndElement AndAlso reader.Name = "Factura" Then
+                        If Not tieneGrupoTarifa Then
+                            complementos.MostrarMensajePersonalizado($"--- ERROR DETECTADO --- {idContratoActual}")
+                            ' Si quieres que se detenga en el primero, activa la siguiente línea:
+                            ' Exit While
+                        End If
+                    End If
+                End While
+            End Using
+
+
+
+        Catch ex As Exception
+            Console.WriteLine("Error crítico: " & ex.Message)
+        End Try
+
+        'Console.WriteLine("Presiona cualquier tecla para salir...")
+        'Console.ReadKey()
+    End Sub
+
+
 
     'Private Sub CerrarForm(sender As Object, e As EventArgs) Handles Me.FormClosing
     '    MarcarUsuarioDesconectado(SesionActual.UsuarioLogueado)

@@ -286,4 +286,11 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
 		consulta = consulta.Replace("hastaFechaReplace", hastaFecha.ToString("dd/MM/yyyy"))
 		Return consulta
 	End Function
+
+	Public Shared Function GetTrebolLuz_V2(Identidad As String) As String
+		Dim consulta As String = ObtenerConsulta("ConsultaFacturasTrebol_ELEC_By_Identidad")
+		consulta = consulta.Replace("identidadReplace", Identidad)
+		Return consulta
+
+	End Function
 End Class

@@ -108,6 +108,7 @@ Partial Class Form1
         Label10 = New Label()
         DividirChck = New CheckBox()
         Panel5 = New Panel()
+        TrebolCheck = New CheckBox()
         Panel6 = New Panel()
         Separador = New Panel()
         pblBorde = New Panel()
@@ -116,7 +117,6 @@ Partial Class Form1
         Panel4 = New Panel()
         Panel8 = New Panel()
         Panel7 = New Panel()
-        TrebolCheck = New CheckBox()
         Panel1.SuspendLayout()
         CType(PictureBox2, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
@@ -1003,6 +1003,17 @@ Partial Class Form1
         Panel5.Size = New Size(302, 86)
         Panel5.TabIndex = 48
         ' 
+        ' TrebolCheck
+        ' 
+        TrebolCheck.AutoSize = True
+        TrebolCheck.BackColor = Color.Transparent
+        TrebolCheck.Location = New Point(186, 2)
+        TrebolCheck.Name = "TrebolCheck"
+        TrebolCheck.Size = New Size(113, 19)
+        TrebolCheck.TabIndex = 45
+        TrebolCheck.Text = "Trebol (LuzyGas)"
+        TrebolCheck.UseVisualStyleBackColor = False
+        ' 
         ' Panel6
         ' 
         Panel6.BackColor = Color.Transparent
@@ -1107,17 +1118,6 @@ Partial Class Form1
         Panel7.Name = "Panel7"
         Panel7.Size = New Size(310, 1)
         Panel7.TabIndex = 2
-        ' 
-        ' TrebolCheck
-        ' 
-        TrebolCheck.AutoSize = True
-        TrebolCheck.BackColor = Color.Transparent
-        TrebolCheck.Location = New Point(186, 2)
-        TrebolCheck.Name = "TrebolCheck"
-        TrebolCheck.Size = New Size(113, 19)
-        TrebolCheck.TabIndex = 45
-        TrebolCheck.Text = "Trebol (LuzyGas)"
-        TrebolCheck.UseVisualStyleBackColor = False
         ' 
         ' Form1
         ' 
