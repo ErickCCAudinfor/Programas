@@ -7308,7 +7308,7 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "http://SRVDEVAPI02.audin.local:8090/Nuget": {},
+        "\\\\LOBEZNO.audin.local.\\Desarrollo\\NugetRepository": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -7389,12 +7389,6 @@
     }
   },
   "logs": [
-    {
-      "code": "NU1803",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Está ejecutando la operación \"restore\" con un origen \"HTTP\", \"http://SRVDEVAPI02.audin.local:8090/Nuget\". El acceso que no sea HTTPS se quitará en una versión futura. Considere la posibilidad de migrar a un origen \"HTTPS\"."
-    },
     {
       "code": "NU1701",
       "level": "Warning",

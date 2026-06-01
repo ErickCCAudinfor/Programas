@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "2inhLfniC63GcecC48mKf3HYTLyozczMIyMVjrhwhzWYf4HubzglpsUPRwdX32cMPLzhES0aui+hgFKDniS4aw==",
+  "dgSpecHash": "FmMw/83DIYno9SzE5KNc91rh0VC80+2JDqnk/NXSaARy6m1BXAFCduto6KScoC8ngiepEDoOe0p4LftujsKyAQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\ErickCC\\Documents\\TotalDoc\\Programas\\ActualizaPrecios\\ActualizaPrecios.vbproj",
   "expectedPackageFiles": [
@@ -132,12 +132,6 @@
     "C:\\Users\\ErickCC\\.nuget\\packages\\xlparser\\1.5.2\\xlparser.1.5.2.nupkg.sha512"
   ],
   "logs": [
-    {
-      "code": "NU1803",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Está ejecutando la operación \"restore\" con un origen \"HTTP\", \"http://SRVDEVAPI02.audin.local:8090/Nuget\". El acceso que no sea HTTPS se quitará en una versión futura. Considere la posibilidad de migrar a un origen \"HTTPS\"."
-    },
     {
       "code": "NU1701",
       "level": "Warning",
