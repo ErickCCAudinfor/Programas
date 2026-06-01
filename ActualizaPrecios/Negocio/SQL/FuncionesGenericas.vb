@@ -2777,6 +2777,43 @@ where serienumfactura='{Fac}'"
 
         Return ClienteB
     End Function
+    Public Function GetNumPedidoFacturacionbyFac(Fac As String) As ClienteBasic
+        Dim ClienteB As New ClienteBasic
+        'Dim ListaContratov2 As New List(Of Integer)
+        Try
+
+            Dim query As String = $"select 
+identidad 
+,dbo.formateardenominacion(nombre,apellido1,Apellido2, RazonSocial) denominacion,
+NumPedidoFacturacion
+from facturaventacabecera fv
+inner join cliente cl on fv.idcliente = cl.idcliente
+inner join contrato c on fv.codigocontrato= c.codigocontrato
+inner join cups on c.idcups = cups.IdCups
+where serienumfactura='{Fac}'"
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If errores.HasError Then
+                'Escribir errores en un log'
+            Else
+                Dim ClienteBBBDD = Helper.FillObjectFromDatatable(result.Tables(0), GetType(ClienteBasic)).Cast(Of ClienteBasic).ToList
+                If Not IsNothing(ClienteBBBDD) AndAlso ClienteBBBDD.Count > 0 Then
+                    For Each B In ClienteBBBDD
+                        If Not String.IsNullOrEmpty(B.NumPedidoFacturacion) Then
+                            ClienteB = B
+                        End If
+                    Next
+
+                End If
+            End If
+
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return ClienteB
+    End Function
 
 
     Public Function UpdateMarcarPerfilarLectura(QueryFacturasATR As String) As Long

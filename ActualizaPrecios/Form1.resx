@@ -441,6 +441,20 @@ Aplicar precios Excel: C1 FechaAplicar, C2 IdContratoTarifa, C3 IdTarifaGrupo, C
         ltnLmBeamNHxAl8X7/nP2adxUwAAAABJRU5ErkJggg==
 </value>
   </data>
+  <data name="PDFBotonAgrupado.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAA
+        cAAAAHABznhikwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAHESURBVDhPlZNP
+        SBRRHMcn6NTJ/kCngi5BqKkzJXgIll0VTTwonjoLXgMhkAqmmWktnP3nirWwlxUvtQWrELG6S0KipJBi
+        BKbQxUsdFLzYvN++eV+ZRdfdh7brFz7w5vd+vw8Mj5+ilKXJYPUtBsVUy0nItAYpd9fErfL+ygAXVJN9
+        vm8d3GgcxWWZ9ghtBsK03/AS1+XRYtp0XFFN561cP05XlFanVoTrD9GeT0edfK+0BnFVs5w3cv04niC/
+        DSSXRcFv018tgUsVDTUIvs78EPAkEwsu+Wy2o+i4WGqoJmgLs8bOCOU7I7Tk4bPZb82gwVJDNYEczWCP
+        VJP1K6rJ7nTHaKMnTj+7Y7TbEy+ez6QjSnlZ0G/nXO79W/YXkF4XmN8C0mui+J3ZEMWad+8xkCjsnClI
+        Lgm8mnPxfJbjyUeOpzMcIxmOqZVzCJ7NciQWBUazLl584hj+wPF+rUbB9KrAu+8C2U3gcZrDzrmIfnFL
+        w6cLLNY3kuE89U2gFnrjhT8VgmYddYEIM/whGn8w5qwHQuz1//CFaKgksFjfycMeLZOm/7spL5KMpuOa
+        ZrJUU9C5fSKoss7ltJjO5D3TeejNHAImat3CU8KnrgAAAABJRU5ErkJggg==
+</value>
+  </data>
   <data name="CheckearPerfilar.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAA

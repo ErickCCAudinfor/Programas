@@ -3705,6 +3705,61 @@ Public Class Form1
         'Console.ReadKey()
     End Sub
 
+    Private Async Sub Button1_Click_1(sender As Object, e As EventArgs) Handles PDFBotonAgrupado.Click
+        Try
+            Dim listaFacs = GetFacsSinSplit(TextBox2.Text)
+            If listaFacs.Count = 0 Then
+                complementos.MostrarMensajePersonalizado("No hay facturas en los filtros")
+                Return
+            End If
+
+            Dim DestinoBase = $"C:\Users\{NombreUsuarioEquipo}\Desktop\ConsultasBO\PDFFacturas"
+            If Not Directory.Exists(DestinoBase) Then Directory.CreateDirectory(DestinoBase)
+
+
+
+            PictureBox2.Visible = True
+            Await Task.Run(Sub()
+                               ' Agrupar facturas por numpedidofacturacion
+                               ' Supongo que Funciones.ObtenerCliente(fac) devuelve un objeto con Nombre e Identidad y numpedidofacturacion
+                               Dim facturasPorCliente As New Dictionary(Of String, List(Of String))
+                               For Each fac In listaFacs
+                                   Dim cliente = Funciones.GetNumPedidoFacturacionbyFac(fac) ' {numpedidofacturacion}
+                                   Dim claveCarpeta = $"{cliente.NumPedidoFacturacion}"
+                                   If Not facturasPorCliente.ContainsKey(claveCarpeta) Then
+                                       facturasPorCliente(claveCarpeta) = New List(Of String)
+                                   End If
+                                   facturasPorCliente(claveCarpeta).Add(fac)
+                               Next
+
+                               For Each kvp In facturasPorCliente
+                                   Dim carpetaCliente = Path.Combine(DestinoBase, kvp.Key)
+                                   If Not Directory.Exists(carpetaCliente) Then Directory.CreateDirectory(carpetaCliente)
+
+                                   For Each fac In kvp.Value
+                                       Dim pdfBytes = Funciones.ExtraerPDFFactura(fac)
+                                       If pdfBytes Is Nothing Then Continue For
+
+                                       Dim NameFac = Replace(fac, "FELEC", "FELEC_")
+                                       Dim originalFileName = $"{NameFac}.PDF"
+                                       Dim nameWithoutExtension = Path.GetFileNameWithoutExtension(originalFileName)
+                                       Dim newFileName = Mid(nameWithoutExtension, 1, 100) & Path.GetExtension(originalFileName)
+                                       Dim TempFileName = Path.Combine(carpetaCliente, newFileName)
+
+                                       File.WriteAllBytes(TempFileName, pdfBytes)
+                                   Next
+                               Next
+                           End Sub)
+            PictureBox2.Visible = False
+
+            complementos.MostrarMensajePersonalizado("PDFs descargados. Pulse Aceptar para abrir la carpeta contenedora")
+            Process.Start("explorer.exe", DestinoBase)
+
+        Catch ex As Exception
+            complementos.MostrarMensajePersonalizado(ex.Message)
+        End Try
+    End Sub
+
 
 
     'Private Sub CerrarForm(sender As Object, e As EventArgs) Handles Me.FormClosing

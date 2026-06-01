@@ -91,6 +91,7 @@ Partial Class Form1
         Button21 = New Button()
         Button22 = New Button()
         Panel2 = New Panel()
+        PDFBotonAgrupado = New Button()
         CheckearPerfilar = New Button()
         btnExpandir = New Button()
         Button29 = New Button()
@@ -724,7 +725,7 @@ Partial Class Form1
         ' 
         ' Button14
         ' 
-        Button14.Location = New Point(229, 152)
+        Button14.Location = New Point(18, 323)
         Button14.Name = "Button14"
         Button14.Size = New Size(180, 23)
         Button14.TabIndex = 25
@@ -789,6 +790,7 @@ Partial Class Form1
         ' Panel2
         ' 
         Panel2.BackColor = Color.Transparent
+        Panel2.Controls.Add(PDFBotonAgrupado)
         Panel2.Controls.Add(CheckearPerfilar)
         Panel2.Controls.Add(Button2)
         Panel2.Controls.Add(btnExpandir)
@@ -796,7 +798,6 @@ Partial Class Form1
         Panel2.Controls.Add(Button25)
         Panel2.Controls.Add(Button19)
         Panel2.Controls.Add(Button18)
-        Panel2.Controls.Add(Button14)
         Panel2.Controls.Add(Button16)
         Panel2.Controls.Add(Button12)
         Panel2.Controls.Add(Button11)
@@ -811,6 +812,18 @@ Partial Class Form1
         Panel2.Name = "Panel2"
         Panel2.Size = New Size(617, 185)
         Panel2.TabIndex = 22
+        ' 
+        ' PDFBotonAgrupado
+        ' 
+        PDFBotonAgrupado.Font = New Font("Segoe UI", 6F, FontStyle.Regular, GraphicsUnit.Point)
+        PDFBotonAgrupado.Image = CType(resources.GetObject("PDFBotonAgrupado.Image"), Image)
+        PDFBotonAgrupado.ImageAlign = ContentAlignment.BottomLeft
+        PDFBotonAgrupado.Location = New Point(229, 152)
+        PDFBotonAgrupado.Name = "PDFBotonAgrupado"
+        PDFBotonAgrupado.Size = New Size(180, 23)
+        PDFBotonAgrupado.TabIndex = 47
+        PDFBotonAgrupado.Text = "Extraer PDF Facs Agrupado NumPedido"
+        PDFBotonAgrupado.UseVisualStyleBackColor = True
         ' 
         ' CheckearPerfilar
         ' 
@@ -925,6 +938,7 @@ Partial Class Form1
         PanelLateral.Controls.Add(Button28)
         PanelLateral.Controls.Add(BuscarFButton)
         PanelLateral.Controls.Add(Button24)
+        PanelLateral.Controls.Add(Button14)
         PanelLateral.Controls.Add(Button27)
         PanelLateral.Controls.Add(Button20)
         PanelLateral.Controls.Add(Button22)
@@ -1038,7 +1052,7 @@ Partial Class Form1
         ' 
         pblBorde.BackColor = Color.FromArgb(CByte(98), CByte(125), CByte(153))
         pblBorde.Controls.Add(pnlContenido)
-        pblBorde.Location = New Point(20, 15)
+        pblBorde.Location = New Point(18, 9)
         pblBorde.Name = "pblBorde"
         pblBorde.Padding = New Padding(1)
         pblBorde.Size = New Size(319, 381)
@@ -1124,7 +1138,7 @@ Partial Class Form1
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.FromArgb(CByte(213), CByte(220), CByte(227))
-        ClientSize = New Size(667, 640)
+        ClientSize = New Size(659, 640)
         Controls.Add(Panel3)
         Controls.Add(pblBorde)
         Controls.Add(PanelLateral)
@@ -1258,4 +1272,5 @@ Partial Class Form1
     Friend WithEvents AplicarPreciosExcelButton As Button
     Friend WithEvents TrocearXMLButton As Button
     Friend WithEvents TrebolCheck As CheckBox
+    Friend WithEvents PDFBotonAgrupado As Button
 End Class
