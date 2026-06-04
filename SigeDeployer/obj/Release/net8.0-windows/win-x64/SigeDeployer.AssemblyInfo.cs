@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SigeDeployer")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+93f7e4eb9f78d11a17d03da592263fc5e01e574c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+72121002d2593298deee67cd0d679e9438792e70")]
 [assembly: System.Reflection.AssemblyProductAttribute("SigeDeployer")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SigeDeployer")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

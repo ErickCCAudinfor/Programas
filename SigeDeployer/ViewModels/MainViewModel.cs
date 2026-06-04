@@ -172,16 +172,20 @@ namespace SigeDeployer.ViewModels
         private async Task StartStopServiceAsync(ServiceEntry? entry, bool start)
         {
             if (entry == null || _deployer == null) return;
+            entry.IsLoading = true;
             IsBusy = true;
             BusyText = start ? $"Iniciando {entry.ServiceName}..." : $"Deteniendo {entry.ServiceName}...";
             try
             {
                 if (start) await _deployer.StartServiceAsync(entry.ServiceName);
                 else await _deployer.StopServiceAsync(entry.ServiceName);
-                await Task.Delay(1500);
                 entry.Status = _deployer.GetServiceStatus(entry.ServiceName);
             }
-            finally { IsBusy = false; }
+            finally
+            {
+                entry.IsLoading = false;
+                IsBusy = false;
+            }
         }
 
         private void AddLog(string message, LogLevel level)

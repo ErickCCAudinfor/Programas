@@ -205,11 +205,19 @@ namespace SigeDeployer.Services
                 try
                 {
                     using var svc = new ServiceController(name);
-                    if (svc.Status != ServiceControllerStatus.Running)
+                    if (svc.Status == ServiceControllerStatus.Running)
                     {
-                        svc.Start();
-                        _log($"  Iniciado: {name}", LogLevel.Success);
+                        _log($"  {name} ya está en ejecución.", LogLevel.Warning);
+                        return;
                     }
+                    _log($"  Iniciando {name}...", LogLevel.Warning);
+                    svc.Start();
+                    svc.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(30));
+                    _log($"  {name} → Iniciado ✔", LogLevel.Success);
+                }
+                catch (System.ServiceProcess.TimeoutException)
+                {
+                    _log($"  Timeout esperando inicio de {name}.", LogLevel.Error);
                 }
                 catch (Exception ex)
                 {
@@ -276,11 +284,19 @@ namespace SigeDeployer.Services
                 try
                 {
                     using var svc = new ServiceController(serviceName);
-                    if (svc.Status != ServiceControllerStatus.Running)
+                    if (svc.Status == ServiceControllerStatus.Running)
                     {
-                        svc.Start();
-                        _log($"Servicio iniciado: {serviceName}", LogLevel.Success);
+                        _log($"{serviceName} ya está en ejecución.", LogLevel.Warning);
+                        return;
                     }
+                    _log($"Iniciando {serviceName}...", LogLevel.Warning);
+                    svc.Start();
+                    svc.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(30));
+                    _log($"{serviceName} → Iniciado ✔", LogLevel.Success);
+                }
+                catch (System.ServiceProcess.TimeoutException)
+                {
+                    _log($"Timeout al iniciar {serviceName}.", LogLevel.Error);
                 }
                 catch (Exception ex)
                 {
@@ -296,11 +312,19 @@ namespace SigeDeployer.Services
                 try
                 {
                     using var svc = new ServiceController(serviceName);
-                    if (svc.Status != ServiceControllerStatus.Stopped)
+                    if (svc.Status == ServiceControllerStatus.Stopped)
                     {
-                        svc.Stop();
-                        _log($"Servicio detenido: {serviceName}", LogLevel.Success);
+                        _log($"{serviceName} ya está detenido.", LogLevel.Warning);
+                        return;
                     }
+                    _log($"Deteniendo {serviceName}...", LogLevel.Warning);
+                    svc.Stop();
+                    svc.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(30));
+                    _log($"{serviceName} → Detenido ✔", LogLevel.Success);
+                }
+                catch (System.ServiceProcess.TimeoutException)
+                {
+                    _log($"Timeout al detener {serviceName}.", LogLevel.Error);
                 }
                 catch (Exception ex)
                 {
