@@ -1,0 +1,17 @@
+{
+  "Name": "Nueva Empresa 2",
+  "BasePath": "C:\\Versiones\\",
+  "WinRarPath": "C:\\Program Files\\WinRAR\\WinRAR.exe",
+  "RarPrefix": "Sige.ServerWCF_1_0_",
+  "RarSuffix": "_0",
+  "StopTimeoutSeconds": 40,
+  "UnlockWaitSeconds": 30,
+  "ExtractionWaitSeconds": 10,
+  "CopyRetries": 4,
+  "Services": [
+    {
+      "ServiceName": "Ppe",
+      "DestinationPath": "C:\\Ruta\\Destino"
+    }
+  ]
+}

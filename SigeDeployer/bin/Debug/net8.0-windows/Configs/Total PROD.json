@@ -1,0 +1,49 @@
+{
+  "Name": "Total PROD",
+  "BasePath": "C:\\Users\\administrador.AUDINSERV\\Desktop\\Versiones\\",
+  "WinRarPath": "C:\\Program Files\\WinRAR\\WinRAR.exe",
+  "RarPrefix": "Sige.ServerWCF_1_0_",
+  "RarSuffix": "_0",
+  "StopTimeoutSeconds": 40,
+  "UnlockWaitSeconds": 30,
+  "ExtractionWaitSeconds": 10,
+  "CopyRetries": 4,
+  "Services": [
+    {
+      "ServiceName": "SigeTotal",
+      "DestinationPath": "F:\\SigeServer\\SigeTotal"
+    },
+    {
+      "ServiceName": "SigeTotalBO",
+      "DestinationPath": "F:\\SigeServer\\SigeTotalBO"
+    },
+    {
+      "ServiceName": "SigeTotalFacturacion",
+      "DestinationPath": "F:\\SigeServer\\SigeTotalFacturacion"
+    },
+    {
+      "ServiceName": "SigeTotalFinanzas",
+      "DestinationPath": "F:\\SigeServer\\SigeTotalFinanzas"
+    },
+    {
+      "ServiceName": "SigeTotalSwitching",
+      "DestinationPath": "F:\\SigeServer\\SigeTotalSwitching"
+    },
+    {
+      "ServiceName": "SigeTotalBatch",
+      "DestinationPath": "G:\\SigeServer\\SigeTotalBatch"
+    },
+    {
+      "ServiceName": "SigeTotalBatch2",
+      "DestinationPath": "G:\\SigeServer\\SigeTotalBatch2"
+    },
+    {
+      "ServiceName": "SigeTotalBatch3",
+      "DestinationPath": "G:\\SigeServer\\SigeTotalBatch3"
+    },
+    {
+      "ServiceName": "SigeTotalBatch4",
+      "DestinationPath": "G:\\SigeServer\\SigeTotalBatch4"
+    }
+  ]
+}
