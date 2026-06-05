@@ -3335,10 +3335,92 @@ Public Class Form1
         Try
             PanelLateral.Width = 0
             PanelExpandido = False
+            AplicarTema()
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
 
+    End Sub
+
+    Private Sub AplicarTema()
+        Dim colorPrincipal As Color = Color.FromArgb(35, 85, 155)
+        Dim colorBordePrincipal As Color = Color.FromArgb(70, 120, 190)
+        Dim colorDeshabilitado As Color = Color.FromArgb(90, 115, 155)
+        Dim colorBordeDes As Color = Color.FromArgb(110, 135, 175)
+
+        ' --- Botones Panel2 (área de acciones) ---
+        Dim botonesPanel2 As Button() = {
+            Button2, Button3, Button5, Button9, Button11,
+            Button18, Button19, Button8, Button12, Button29,
+            PDFBotonAgrupado, Button4, Button16, Button25,
+            CheckearPerfilar, Button17
+        }
+        For Each btn As Button In botonesPanel2
+            If btn.Enabled Then
+                EstiloBotonFlat(btn, colorPrincipal, colorBordePrincipal)
+            Else
+                EstiloBotonFlat(btn, colorDeshabilitado, colorBordeDes)
+            End If
+        Next
+
+        ' btnExpandir como toggle destacado
+        EstiloBotonFlat(btnExpandir, Color.FromArgb(25, 118, 210), Color.FromArgb(70, 150, 230))
+        btnExpandir.Font = New Font("Segoe UI", 9F, FontStyle.Regular)
+
+        ' Label3 "Otras opciones" (cabecera Panel2)
+        Label3.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold)
+        Label3.ForeColor = Color.FromArgb(25, 65, 120)
+
+        ' --- Botones PanelLateral (menú lateral) ---
+        Dim botonesSideMenu As Button() = {
+            Button13, Button21, Button6, Button15,
+            Button14, Button24, BuscarFButton, Button27,
+            Button28, Button30, AplicarPreciosExcelButton, TrocearXMLButton
+        }
+        Dim colorSide As Color = Color.FromArgb(40, 100, 185)
+        Dim colorBordeSide As Color = Color.FromArgb(75, 135, 215)
+        For Each btn As Button In botonesSideMenu
+            EstiloBotonFlat(btn, colorSide, colorBordeSide)
+        Next
+        ' Botones deshabilitados del lateral
+        For Each btn As Button In {Button20, Button22}
+            EstiloBotonFlat(btn, Color.FromArgb(50, 80, 125), Color.FromArgb(70, 100, 150))
+            btn.ForeColor = Color.FromArgb(140, 165, 205)
+        Next
+
+        ' Título del panel lateral
+        Dim lblSideTitle As New Label With {
+            .Text = "Opciones Extra",
+            .Font = New Font("Segoe UI Semibold", 9.5F, FontStyle.Bold),
+            .ForeColor = Color.FromArgb(200, 220, 255),
+            .BackColor = Color.FromArgb(12, 40, 85),
+            .Location = New Point(0, 0),
+            .Size = New Size(220, 34),
+            .TextAlign = ContentAlignment.MiddleCenter
+        }
+        PanelLateral.Controls.Add(lblSideTitle)
+        lblSideTitle.BringToFront()
+        ' Desplazar botones para dejar espacio al título
+        For Each ctrl As Control In PanelLateral.Controls
+            If TypeOf ctrl Is Button Then ctrl.Top += 36
+        Next
+
+        ' --- Botones en pnlContenido (panel blanco izquierdo) ---
+        EstiloBotonFlat(Button7, Color.FromArgb(25, 118, 210), Color.FromArgb(70, 150, 230))
+        EstiloBotonFlat(Button10, Color.FromArgb(85, 108, 138), Color.FromArgb(105, 128, 158))
+        If BotonActualizar.Enabled Then
+            EstiloBotonFlat(BotonActualizar, Color.FromArgb(25, 118, 210), Color.FromArgb(70, 150, 230))
+        End If
+    End Sub
+
+    Private Sub EstiloBotonFlat(btn As Button, fondo As Color, borde As Color)
+        btn.FlatStyle = FlatStyle.Flat
+        btn.BackColor = fondo
+        btn.ForeColor = Color.White
+        btn.FlatAppearance.BorderColor = borde
+        btn.FlatAppearance.BorderSize = 1
+        btn.Cursor = Cursors.Hand
+        btn.UseVisualStyleBackColor = False
     End Sub
 
     Private Sub btnExpandir_Click(sender As Object, e As EventArgs) Handles btnExpandir.Click

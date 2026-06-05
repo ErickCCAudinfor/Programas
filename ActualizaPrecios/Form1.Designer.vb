@@ -202,7 +202,7 @@ Partial Class Form1
         ' 
         ' Panel1
         ' 
-        Panel1.BackColor = Color.Transparent
+        Panel1.BackColor = Color.FromArgb(CByte(232), CByte(240), CByte(252))
         Panel1.Controls.Add(TextConsultando)
         Panel1.Controls.Add(PictureBox2)
         Panel1.Controls.Add(Label5)
@@ -314,7 +314,10 @@ Partial Class Form1
         ' 
         BotonConsultar.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
         BotonConsultar.FlatAppearance.BorderColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
-        BotonConsultar.FlatStyle = FlatStyle.Popup
+        BotonConsultar.FlatStyle = FlatStyle.Flat
+        BotonConsultar.FlatAppearance.BorderColor = Color.FromArgb(CByte(70), CByte(150), CByte(230))
+        BotonConsultar.FlatAppearance.BorderSize = 1
+        BotonConsultar.Cursor = Cursors.Hand
         BotonConsultar.ForeColor = Color.White
         BotonConsultar.Location = New Point(3, 263)
         BotonConsultar.Name = "BotonConsultar"
@@ -530,7 +533,10 @@ Partial Class Form1
         BotonActualizar.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
         BotonActualizar.Enabled = False
         BotonActualizar.FlatAppearance.BorderColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
-        BotonActualizar.FlatStyle = FlatStyle.Popup
+        BotonActualizar.FlatStyle = FlatStyle.Flat
+        BotonActualizar.FlatAppearance.BorderColor = Color.FromArgb(CByte(70), CByte(150), CByte(230))
+        BotonActualizar.FlatAppearance.BorderSize = 1
+        BotonActualizar.Cursor = Cursors.Hand
         BotonActualizar.ForeColor = Color.White
         BotonActualizar.Location = New Point(125, 293)
         BotonActualizar.Name = "BotonActualizar"
@@ -789,7 +795,7 @@ Partial Class Form1
         ' 
         ' Panel2
         ' 
-        Panel2.BackColor = Color.Transparent
+        Panel2.BackColor = Color.FromArgb(CByte(232), CByte(240), CByte(252))
         Panel2.Controls.Add(PDFBotonAgrupado)
         Panel2.Controls.Add(CheckearPerfilar)
         Panel2.Controls.Add(Button2)
@@ -930,7 +936,7 @@ Partial Class Form1
         ' 
         ' PanelLateral
         ' 
-        PanelLateral.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        PanelLateral.BackColor = Color.FromArgb(CByte(20), CByte(55), CByte(110))
         PanelLateral.Controls.Add(TrocearXMLButton)
         PanelLateral.Controls.Add(AplicarPreciosExcelButton)
         PanelLateral.Controls.Add(Button30)
@@ -1050,7 +1056,7 @@ Partial Class Form1
         ' 
         ' pblBorde
         ' 
-        pblBorde.BackColor = Color.FromArgb(CByte(98), CByte(125), CByte(153))
+        pblBorde.BackColor = Color.FromArgb(CByte(25), CByte(65), CByte(120))
         pblBorde.Controls.Add(pnlContenido)
         pblBorde.Location = New Point(18, 9)
         pblBorde.Name = "pblBorde"
@@ -1086,7 +1092,7 @@ Partial Class Form1
         ' 
         ' Panel3
         ' 
-        Panel3.BackColor = Color.FromArgb(CByte(98), CByte(125), CByte(153))
+        Panel3.BackColor = Color.FromArgb(CByte(25), CByte(65), CByte(120))
         Panel3.Controls.Add(Panel4)
         Panel3.Location = New Point(340, 15)
         Panel3.Name = "Panel3"
@@ -1137,7 +1143,7 @@ Partial Class Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        BackColor = Color.FromArgb(CByte(213), CByte(220), CByte(227))
+        BackColor = Color.FromArgb(CByte(245), CByte(248), CByte(252))
         ClientSize = New Size(659, 640)
         Controls.Add(Panel3)
         Controls.Add(pblBorde)
@@ -1150,7 +1156,7 @@ Partial Class Form1
         Icon = CType(resources.GetObject("$this.Icon"), Icon)
         Name = "Form1"
         StartPosition = FormStartPosition.CenterScreen
-        Text = "Gestor de Datos SIGE (versión 2.0)"
+        Text = "Gestor de Datos SIGE (versión 2.1)"
         TransparencyKey = Color.YellowGreen
         Panel1.ResumeLayout(False)
         Panel1.PerformLayout()

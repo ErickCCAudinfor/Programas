@@ -125,7 +125,7 @@ Partial Class Login
         Label1.Name = "Label1"
         Label1.Size = New Size(51, 12)
         Label1.TabIndex = 10
-        Label1.Text = "version 2.0"
+        Label1.Text = "version 2.1"
         ' 
         ' ValidacionLabel
         ' 

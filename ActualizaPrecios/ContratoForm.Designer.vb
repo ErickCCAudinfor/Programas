@@ -394,7 +394,10 @@ Partial Class ContratoForm
         ' Button1
         ' 
         Button1.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
-        Button1.FlatStyle = FlatStyle.Popup
+        Button1.Cursor = Cursors.Hand
+        Button1.FlatAppearance.BorderColor = Color.FromArgb(CByte(70), CByte(150), CByte(230))
+        Button1.FlatAppearance.BorderSize = 1
+        Button1.FlatStyle = FlatStyle.Flat
         Button1.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
         Button1.ForeColor = Color.White
         Button1.Location = New Point(750, 636)
@@ -839,7 +842,7 @@ Partial Class ContratoForm
         ' 
         ' pblBorde
         ' 
-        pblBorde.BackColor = Color.FromArgb(CByte(218), CByte(220), CByte(224))
+        pblBorde.BackColor = Color.FromArgb(CByte(25), CByte(65), CByte(120))
         pblBorde.Controls.Add(pnlContenido)
         pblBorde.Location = New Point(24, 33)
         pblBorde.Name = "pblBorde"
@@ -891,7 +894,7 @@ Partial Class ContratoForm
         ' 
         ' Panel2
         ' 
-        Panel2.BackColor = Color.FromArgb(CByte(218), CByte(220), CByte(224))
+        Panel2.BackColor = Color.FromArgb(CByte(25), CByte(65), CByte(120))
         Panel2.Controls.Add(Panel3)
         Panel2.Location = New Point(25, 169)
         Panel2.Name = "Panel2"
@@ -944,7 +947,7 @@ Partial Class ContratoForm
         ' 
         ' Panel6
         ' 
-        Panel6.BackColor = Color.FromArgb(CByte(218), CByte(220), CByte(224))
+        Panel6.BackColor = Color.FromArgb(CByte(25), CByte(65), CByte(120))
         Panel6.Controls.Add(Panel7)
         Panel6.Location = New Point(25, 321)
         Panel6.Name = "Panel6"
@@ -994,7 +997,7 @@ Partial Class ContratoForm
         ' 
         ' Panel10
         ' 
-        Panel10.BackColor = Color.FromArgb(CByte(218), CByte(220), CByte(224))
+        Panel10.BackColor = Color.FromArgb(CByte(25), CByte(65), CByte(120))
         Panel10.Controls.Add(Panel11)
         Panel10.Location = New Point(24, 409)
         Panel10.Name = "Panel10"
@@ -1081,7 +1084,7 @@ Partial Class ContratoForm
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        BackColor = Color.FromArgb(CByte(213), CByte(220), CByte(227))
+        BackColor = Color.FromArgb(CByte(245), CByte(248), CByte(252))
         BackgroundImageLayout = ImageLayout.Center
         ClientSize = New Size(958, 682)
         Controls.Add(Panel10)

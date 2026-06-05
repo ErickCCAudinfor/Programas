@@ -23,10 +23,57 @@ Public Class ContratoForm
             Me.AmbosEntornos = AmbosEntornos
             Label2.Text = $"Para realizar una modificación masiva hay que marcar la opción que se desea actualizar en los contratos, es decir, si desea actualizar la situacion del {vbCr}contrato, debes marcar el check situado al lado izquierdo de la opción, posteriormente elegir la situación del contrato y por último darle al botón de actualizar.{vbCr}¡Ojo!, si no se marca el check situado al lado izquierdo la actualización del campo deseado no se llevara  acabo.{vbCr}Cada modificación que se realizara la APP generara una consulta antes y despues, con la finalidad para saber si se ha hecho correctamente la modificacion."
             InicializarCombos()
+            AplicarTema()
         Catch ex As Exception
             Throw
         End Try
         ' Esta llamada es exigida por el diseñador.
+    End Sub
+
+    Private Sub AplicarTema()
+        ' Cabeceras de sección: Book Antiqua → Segoe UI Semibold, navy
+        Dim fuenteSeccion As New Font("Segoe UI Semibold", 9F, FontStyle.Bold)
+        Dim colorSeccion As Color = Color.FromArgb(20, 55, 110)
+        For Each lbl As Windows.Forms.Label In New Windows.Forms.Label() {Label1, Label3, Label8, Label6, Label4, Label5}
+            lbl.Font = fuenteSeccion
+            lbl.ForeColor = colorSeccion
+            lbl.BackColor = Color.Transparent
+        Next
+
+        ' Paneles de contenido: blanco puro → azul-blanco suave
+        For Each pnl As Panel In {pnlContenido, Panel3, Panel7, Panel11}
+            pnl.BackColor = Color.FromArgb(250, 252, 255)
+        Next
+
+        ' Button2 (Buscar Cliente Pago): gris → azul plano
+        Button2.FlatStyle = FlatStyle.Flat
+        Button2.BackColor = Color.FromArgb(35, 85, 155)
+        Button2.ForeColor = Color.White
+        Button2.FlatAppearance.BorderColor = Color.FromArgb(70, 120, 190)
+        Button2.FlatAppearance.BorderSize = 1
+        Button2.Cursor = Cursors.Hand
+        Button2.UseVisualStyleBackColor = False
+
+        ' Auto-ajustar ancho desplegable en todos los combos
+        For Each combo As ComboBox In New ComboBox() {
+            ComboBox1, ComboBox2, ComboBox3, ComboBox4, ComboBox5,
+            ComboBox6, ComboBox7, ComboBox8, ComboBox9, ComboBox10,
+            ComboTipoAutoconsumo
+        }
+            AjustarAnchoDropDown(combo)
+        Next
+    End Sub
+
+    Private Sub AjustarAnchoDropDown(combo As ComboBox)
+        If combo.Items.Count = 0 Then Return
+        Dim maxWidth As Integer = combo.Width
+        Using g As Graphics = combo.CreateGraphics()
+            For Each item As Object In combo.Items
+                Dim w As Integer = CInt(g.MeasureString(combo.GetItemText(item), combo.Font).Width) + 24
+                If w > maxWidth Then maxWidth = w
+            Next
+        End Using
+        combo.DropDownWidth = maxWidth
     End Sub
 
     Private Sub InicializarCombos()
