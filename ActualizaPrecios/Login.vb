@@ -15,6 +15,33 @@ Public Class Login
         originalSize = ExitPicture.Size
         originalLocation = ExitPicture.Location
         PasswordBox.PasswordChar = "*"c
+        AplicarTema()
+    End Sub
+
+    Private Sub AplicarTema()
+        ' Card interior: blanco puro → azul-blanco suave
+        pnlContenido.BackColor = Color.FromArgb(248, 251, 255)
+
+        ' Separadores visibles (eran blancos sobre blanco)
+        Panel1.BackColor = Color.FromArgb(195, 215, 245)
+        Panel2.BackColor = Color.FromArgb(195, 215, 245)
+
+        ' Inputs: fondo igual al card
+        UsuarioBox.BackColor = Color.FromArgb(248, 251, 255)
+        PasswordBox.BackColor = Color.FromArgb(248, 251, 255)
+
+        ' Labels de campo: Segoe UI Semibold navy
+        Dim fuenteLbl As New Font("Segoe UI Semibold", 8.5F, FontStyle.Bold)
+        Dim colorNavy As Color = Color.FromArgb(20, 55, 110)
+        UsuarioLbl.Font = fuenteLbl
+        UsuarioLbl.ForeColor = colorNavy
+        Clavelbl.Font = fuenteLbl
+        Clavelbl.ForeColor = colorNavy
+
+        ' Copyright: tono suave
+        Dim colorCopy As Color = Color.FromArgb(110, 135, 175)
+        Label4.ForeColor = colorCopy
+        Label5.ForeColor = colorCopy
     End Sub
 
 #Region "eventos"

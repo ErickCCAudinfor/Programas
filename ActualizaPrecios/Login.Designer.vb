@@ -141,7 +141,7 @@ Partial Class Login
         ' 
         ' pblBorde
         ' 
-        pblBorde.BackColor = Color.FromArgb(CByte(218), CByte(220), CByte(224))
+        pblBorde.BackColor = Color.FromArgb(CByte(20), CByte(55), CByte(110))
         pblBorde.Controls.Add(pnlContenido)
         pblBorde.Location = New Point(186, 69)
         pblBorde.Name = "pblBorde"
@@ -234,12 +234,14 @@ Partial Class Login
         ' Button1
         ' 
         Button1.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        Button1.Cursor = Cursors.Hand
+        Button1.FlatAppearance.BorderColor = Color.FromArgb(CByte(70), CByte(150), CByte(230))
         Button1.FlatAppearance.BorderSize = 0
         Button1.FlatStyle = FlatStyle.Flat
         Button1.ForeColor = Color.White
         Button1.Location = New Point(15, 97)
         Button1.Name = "Button1"
-        Button1.Size = New Size(203, 23)
+        Button1.Size = New Size(203, 28)
         Button1.TabIndex = 4
         Button1.Text = "Entrar"
         Button1.UseVisualStyleBackColor = False
@@ -254,7 +256,7 @@ Partial Class Login
         ' 
         ' Panel6
         ' 
-        Panel6.BackColor = Color.FromArgb(CByte(218), CByte(220), CByte(224))
+        Panel6.BackColor = Color.FromArgb(CByte(20), CByte(55), CByte(110))
         Panel6.Controls.Add(Panel7)
         Panel6.Location = New Point(-2, -1)
         Panel6.Name = "Panel6"
@@ -346,8 +348,8 @@ Partial Class Login
         ' 
         LabelSesion.AutoSize = True
         LabelSesion.BackColor = Color.Transparent
-        LabelSesion.Font = New Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point)
-        LabelSesion.ForeColor = Color.Black
+        LabelSesion.Font = New Font("Segoe UI Semibold", 11F, FontStyle.Bold, GraphicsUnit.Point)
+        LabelSesion.ForeColor = Color.FromArgb(CByte(20), CByte(55), CByte(110))
         LabelSesion.Location = New Point(186, 37)
         LabelSesion.Name = "LabelSesion"
         LabelSesion.Size = New Size(89, 17)
@@ -359,7 +361,7 @@ Partial Class Login
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        BackColor = Color.FromArgb(CByte(244), CByte(246), CByte(248))
+        BackColor = Color.FromArgb(CByte(228), CByte(236), CByte(250))
         ClientSize = New Size(459, 270)
         Controls.Add(LabelSesion)
         Controls.Add(Panel6)
