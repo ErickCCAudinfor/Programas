@@ -1,19 +1,18 @@
 # Archivos generados por la compilación
-/bin/
-/obj/
+**/bin/
+**/obj/
 
-# Archivos de configuración del entorno de desarrollo de Visual Studio
-.vs/
+# Caché de Visual Studio
+**/.vs/
 *.suo
 *.user
 *.userosscache
 *.sln.docstates
 
-# Otros archivos generados automáticamente
+# Artefactos de compilación
 *.dll
 *.exe
 *.pdb
 *.vsidx
-*.suo
 *.v2
 *.cache
