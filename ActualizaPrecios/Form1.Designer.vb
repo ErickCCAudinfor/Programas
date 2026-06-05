@@ -269,7 +269,7 @@ Partial Class Form1
         ' 
         Button10.Location = New Point(192, 180)
         Button10.Name = "Button10"
-        Button10.Size = New Size(106, 21)
+        Button10.Size = New Size(106, 25)
         Button10.TabIndex = 25
         Button10.Text = "Limpiar"
         Button10.UseVisualStyleBackColor = True
@@ -313,11 +313,9 @@ Partial Class Form1
         ' BotonConsultar
         ' 
         BotonConsultar.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
-        BotonConsultar.FlatAppearance.BorderColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
-        BotonConsultar.FlatStyle = FlatStyle.Flat
-        BotonConsultar.FlatAppearance.BorderColor = Color.FromArgb(CByte(70), CByte(150), CByte(230))
-        BotonConsultar.FlatAppearance.BorderSize = 1
         BotonConsultar.Cursor = Cursors.Hand
+        BotonConsultar.FlatAppearance.BorderColor = Color.FromArgb(CByte(70), CByte(150), CByte(230))
+        BotonConsultar.FlatStyle = FlatStyle.Flat
         BotonConsultar.ForeColor = Color.White
         BotonConsultar.Location = New Point(3, 263)
         BotonConsultar.Name = "BotonConsultar"
@@ -531,12 +529,10 @@ Partial Class Form1
         ' BotonActualizar
         ' 
         BotonActualizar.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
-        BotonActualizar.Enabled = False
-        BotonActualizar.FlatAppearance.BorderColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
-        BotonActualizar.FlatStyle = FlatStyle.Flat
-        BotonActualizar.FlatAppearance.BorderColor = Color.FromArgb(CByte(70), CByte(150), CByte(230))
-        BotonActualizar.FlatAppearance.BorderSize = 1
         BotonActualizar.Cursor = Cursors.Hand
+        BotonActualizar.Enabled = False
+        BotonActualizar.FlatAppearance.BorderColor = Color.FromArgb(CByte(70), CByte(150), CByte(230))
+        BotonActualizar.FlatStyle = FlatStyle.Flat
         BotonActualizar.ForeColor = Color.White
         BotonActualizar.Location = New Point(125, 293)
         BotonActualizar.Name = "BotonActualizar"
@@ -859,7 +855,7 @@ Partial Class Form1
         ' 
         ' Button29
         ' 
-        Button29.Font = New Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point)
+        Button29.Font = New Font("Segoe UI", 7.25F, FontStyle.Regular, GraphicsUnit.Point)
         Button29.Location = New Point(311, 125)
         Button29.Name = "Button29"
         Button29.Size = New Size(99, 23)
