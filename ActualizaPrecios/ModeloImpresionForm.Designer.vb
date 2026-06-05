@@ -37,6 +37,8 @@ Partial Class ModeloImpresionForm
         LoadImagen = New PictureBox()
         TextConsultando = New Label()
         BotonBackUp = New Button()
+        LabelFiltro = New Label()
+        TextFiltro = New TextBox()
         PanelHeader.SuspendLayout()
         PanelFooter.SuspendLayout()
         CType(DataModeloImpresionView, ComponentModel.ISupportInitialize).BeginInit()
@@ -52,6 +54,8 @@ Partial Class ModeloImpresionForm
         PanelHeader.Controls.Add(TextConsultando)
         PanelHeader.Controls.Add(LabelServidor)
         PanelHeader.Controls.Add(BDEmpresaCombo)
+        PanelHeader.Controls.Add(TextFiltro)
+        PanelHeader.Controls.Add(LabelFiltro)
         PanelHeader.Controls.Add(BDLabel)
         PanelHeader.Location = New Point(0, 0)
         PanelHeader.Name = "PanelHeader"
@@ -74,15 +78,35 @@ Partial Class ModeloImpresionForm
         BDEmpresaCombo.FormattingEnabled = True
         BDEmpresaCombo.Location = New Point(102, 17)
         BDEmpresaCombo.Name = "BDEmpresaCombo"
-        BDEmpresaCombo.Size = New Size(240, 23)
+        BDEmpresaCombo.Size = New Size(200, 23)
         BDEmpresaCombo.TabIndex = 0
+        ' 
+        ' LabelFiltro
+        ' 
+        LabelFiltro.AutoSize = True
+        LabelFiltro.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        LabelFiltro.ForeColor = Color.FromArgb(CByte(200), CByte(220), CByte(255))
+        LabelFiltro.Location = New Point(316, 22)
+        LabelFiltro.Name = "LabelFiltro"
+        LabelFiltro.TabIndex = 102
+        LabelFiltro.Text = "Filtrar:"
+        ' 
+        ' TextFiltro
+        ' 
+        TextFiltro.BorderStyle = BorderStyle.FixedSingle
+        TextFiltro.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        TextFiltro.Location = New Point(368, 17)
+        TextFiltro.Name = "TextFiltro"
+        TextFiltro.PlaceholderText = "Buscar..."
+        TextFiltro.Size = New Size(175, 23)
+        TextFiltro.TabIndex = 103
         ' 
         ' LabelServidor
         ' 
         LabelServidor.AutoSize = True
         LabelServidor.Font = New Font("Segoe UI", 8.5F, FontStyle.Regular, GraphicsUnit.Point)
         LabelServidor.ForeColor = Color.FromArgb(CByte(175), CByte(210), CByte(255))
-        LabelServidor.Location = New Point(358, 22)
+        LabelServidor.Location = New Point(560, 22)
         LabelServidor.Name = "LabelServidor"
         LabelServidor.Size = New Size(51, 15)
         LabelServidor.TabIndex = 6
@@ -240,6 +264,8 @@ Partial Class ModeloImpresionForm
     Friend WithEvents DataModeloImpresionView As DataGridView
     Friend WithEvents AgregarBDBotton As Button
     Friend WithEvents RecargaModelos As Button
+    Friend WithEvents LabelFiltro As Label
+    Friend WithEvents TextFiltro As TextBox
     Friend WithEvents LabelServidor As Label
     Friend WithEvents LoadImagen As PictureBox
     Friend WithEvents TextConsultando As Label

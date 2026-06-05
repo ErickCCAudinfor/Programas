@@ -16,7 +16,7 @@ Imports System.Reflection
 <Assembly: System.Reflection.AssemblyCompanyAttribute("ActualizaPrecios"),  _
  Assembly: System.Reflection.AssemblyConfigurationAttribute("Debug"),  _
  Assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0"),  _
- Assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5c1d80b3205200f72f9cf4c16fc7c27a990ad267"),  _
+ Assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d0038abd416855b52baced57a7c96b75d972619c"),  _
  Assembly: System.Reflection.AssemblyProductAttribute("ActualizaPrecios"),  _
  Assembly: System.Reflection.AssemblyTitleAttribute("ActualizaPrecios"),  _
  Assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0"),  _

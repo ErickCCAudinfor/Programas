@@ -27,18 +27,30 @@ Public Class EditarModeloImpresionForm
     Private Sub EditarModeloImpresionForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If Not _esNuevo Then
             TextIdModelo.Text = _Modelo.IdModeloDeImpresion.ToString()
-            TextEntorno.Text = _Modelo.Entorno
             TextDescripModelo.Text = _Modelo.DescripcionModeloDeImpresion
             TextClassName.Text = _Modelo.ClassName
             TextRptFileName.Text = _Modelo.RptFileName
             Dim bin = _Funciones.GetModeloBinario(_Modelo.IdModeloDeImpresion).Modelo
             LabelBinario.Text = bin?.Length.ToString
             _Modelo.Modelo = bin
-
         Else
             TextIdModelo.Text = "(nuevo)"
         End If
+        InicializarComboEntorno(If(Not _esNuevo, _Modelo.Entorno, Nothing))
         InicializarComboTipoModelo(_Modelo.CodigoTipoModeloDeImpresion)
+    End Sub
+
+    Private Sub InicializarComboEntorno(Optional valorActual As String = Nothing)
+        ComboEntorno.Items.Clear()
+        ComboEntorno.Items.Add("Electricidad (G1)")
+        ComboEntorno.Items.Add("Gas (G2)")
+        If valorActual = "G1" Then
+            ComboEntorno.SelectedIndex = 0
+        ElseIf valorActual = "G2" Then
+            ComboEntorno.SelectedIndex = 1
+        Else
+            ComboEntorno.SelectedIndex = -1
+        End If
     End Sub
 
 
@@ -84,7 +96,14 @@ Public Class EditarModeloImpresionForm
 
 
     Private Sub PrepararModeloDesdeUI()
-        _Modelo.Entorno = TextEntorno.Text
+        Select Case ComboEntorno.SelectedIndex
+            Case 0
+                _Modelo.Entorno = "G1"
+            Case 1
+                _Modelo.Entorno = "G2"
+            Case Else
+                _Modelo.Entorno = String.Empty
+        End Select
         _Modelo.DescripcionModeloDeImpresion = TextDescripModelo.Text
         _Modelo.CodigoTipoModeloDeImpresion = CInt(ComboTipoModelo.SelectedValue)
         _Modelo.ClassName = TextClassName.Text

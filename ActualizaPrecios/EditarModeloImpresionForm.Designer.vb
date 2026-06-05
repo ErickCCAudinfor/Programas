@@ -23,215 +23,292 @@ Partial Class EditarModeloImpresionForm
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(EditarModeloImpresionForm))
-        Label1 = New Label()
-        Label2 = New Label()
-        Label3 = New Label()
-        Label4 = New Label()
-        Label5 = New Label()
-        Label6 = New Label()
-        Label7 = New Label()
-        Guardar = New Button()
-        ComboTipoModelo = New ComboBox()
-        TextIdModelo = New TextBox()
-        TextEntorno = New TextBox()
-        TextDescripModelo = New TextBox()
-        TextClassName = New TextBox()
-        TextRptFileName = New TextBox()
-        Button2 = New Button()
-        LabelBinario = New Label()
+        PanelHeader = New Panel()
+        LabelTitulo = New Label()
+        PanelFooter = New Panel()
         PictureBox2 = New PictureBox()
         TextConsultando = New Label()
+        Guardar = New Button()
+        Label7 = New Label()
+        TextIdModelo = New TextBox()
+        Label1 = New Label()
+        ComboEntorno = New ComboBox()
+        Label2 = New Label()
+        TextDescripModelo = New TextBox()
+        Label3 = New Label()
+        ComboTipoModelo = New ComboBox()
+        Label4 = New Label()
+        TextClassName = New TextBox()
+        Label5 = New Label()
+        TextRptFileName = New TextBox()
+        Label6 = New Label()
+        Button2 = New Button()
+        LabelBinario = New Label()
+        PanelHeader.SuspendLayout()
+        PanelFooter.SuspendLayout()
         CType(PictureBox2, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
-        ' Label1
+        ' PanelHeader
         ' 
-        Label1.AutoSize = True
-        Label1.Location = New Point(31, 33)
-        Label1.Name = "Label1"
-        Label1.Size = New Size(49, 15)
-        Label1.TabIndex = 0
-        Label1.Text = "Entorno"
+        PanelHeader.BackColor = Color.FromArgb(CByte(20), CByte(55), CByte(110))
+        PanelHeader.Controls.Add(LabelTitulo)
+        PanelHeader.Location = New Point(0, 0)
+        PanelHeader.Name = "PanelHeader"
+        PanelHeader.Size = New Size(450, 55)
+        PanelHeader.TabIndex = 100
         ' 
-        ' Label2
+        ' LabelTitulo
         ' 
-        Label2.AutoSize = True
-        Label2.Location = New Point(31, 60)
-        Label2.Name = "Label2"
-        Label2.Size = New Size(117, 15)
-        Label2.TabIndex = 1
-        Label2.Text = "Drescripcion Modelo"
+        LabelTitulo.AutoSize = True
+        LabelTitulo.Font = New Font("Segoe UI Semibold", 11F, FontStyle.Bold, GraphicsUnit.Point)
+        LabelTitulo.ForeColor = Color.White
+        LabelTitulo.Location = New Point(16, 15)
+        LabelTitulo.Name = "LabelTitulo"
+        LabelTitulo.TabIndex = 200
+        LabelTitulo.Text = "Editar Modelo de Impresión"
         ' 
-        ' Label3
-        ' 
-        Label3.AutoSize = True
-        Label3.Location = New Point(31, 88)
-        Label3.Name = "Label3"
-        Label3.Size = New Size(75, 15)
-        Label3.TabIndex = 2
-        Label3.Text = "Tipo Modelo"
-        Label3.TextAlign = ContentAlignment.BottomRight
-        ' 
-        ' Label4
-        ' 
-        Label4.AutoSize = True
-        Label4.Location = New Point(31, 112)
-        Label4.Name = "Label4"
-        Label4.Size = New Size(66, 15)
-        Label4.TabIndex = 3
-        Label4.Text = "ClassName"
-        ' 
-        ' Label5
-        ' 
-        Label5.AutoSize = True
-        Label5.Location = New Point(31, 137)
-        Label5.Name = "Label5"
-        Label5.Size = New Size(81, 15)
-        Label5.TabIndex = 4
-        Label5.Text = "Rpt File Name"
-        ' 
-        ' Label6
-        ' 
-        Label6.AutoSize = True
-        Label6.Location = New Point(31, 163)
-        Label6.Name = "Label6"
-        Label6.Size = New Size(48, 15)
-        Label6.TabIndex = 5
-        Label6.Text = "Modelo"
-        ' 
-        ' Label7
+        ' Label7 (Id Modelo)
         ' 
         Label7.AutoSize = True
-        Label7.Location = New Point(31, 9)
+        Label7.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        Label7.ForeColor = Color.FromArgb(CByte(65), CByte(80), CByte(105))
+        Label7.Location = New Point(20, 72)
         Label7.Name = "Label7"
-        Label7.Size = New Size(58, 15)
         Label7.TabIndex = 6
-        Label7.Text = "IdModelo"
-        ' 
-        ' Guardar
-        ' 
-        Guardar.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
-        Guardar.FlatAppearance.BorderColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
-        Guardar.FlatStyle = FlatStyle.Popup
-        Guardar.ForeColor = SystemColors.Control
-        Guardar.Location = New Point(194, 199)
-        Guardar.Name = "Guardar"
-        Guardar.Size = New Size(180, 23)
-        Guardar.TabIndex = 7
-        Guardar.Text = "Guardar"
-        Guardar.UseVisualStyleBackColor = False
-        ' 
-        ' ComboTipoModelo
-        ' 
-        ComboTipoModelo.FormattingEnabled = True
-        ComboTipoModelo.Location = New Point(194, 83)
-        ComboTipoModelo.Name = "ComboTipoModelo"
-        ComboTipoModelo.Size = New Size(180, 23)
-        ComboTipoModelo.TabIndex = 8
+        Label7.Text = "Id Modelo"
         ' 
         ' TextIdModelo
         ' 
+        TextIdModelo.BackColor = Color.FromArgb(CByte(240), CByte(242), CByte(246))
+        TextIdModelo.BorderStyle = BorderStyle.FixedSingle
         TextIdModelo.Enabled = False
-        TextIdModelo.Location = New Point(194, 6)
+        TextIdModelo.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        TextIdModelo.ForeColor = Color.FromArgb(CByte(110), CByte(115), CByte(130))
+        TextIdModelo.Location = New Point(188, 68)
         TextIdModelo.Name = "TextIdModelo"
-        TextIdModelo.Size = New Size(180, 23)
+        TextIdModelo.Size = New Size(240, 23)
         TextIdModelo.TabIndex = 9
         ' 
-        ' TextEntorno
+        ' Label1 (Entorno)
         ' 
-        TextEntorno.Location = New Point(194, 31)
-        TextEntorno.Name = "TextEntorno"
-        TextEntorno.Size = New Size(180, 23)
-        TextEntorno.TabIndex = 10
+        Label1.AutoSize = True
+        Label1.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        Label1.ForeColor = Color.FromArgb(CByte(65), CByte(80), CByte(105))
+        Label1.Location = New Point(20, 110)
+        Label1.Name = "Label1"
+        Label1.TabIndex = 0
+        Label1.Text = "Entorno"
+        ' 
+        ' ComboEntorno
+        ' 
+        ComboEntorno.DropDownStyle = ComboBoxStyle.DropDownList
+        ComboEntorno.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        ComboEntorno.FormattingEnabled = True
+        ComboEntorno.Location = New Point(188, 106)
+        ComboEntorno.Name = "ComboEntorno"
+        ComboEntorno.Size = New Size(240, 23)
+        ComboEntorno.TabIndex = 10
+        ' 
+        ' Label2 (Descripcion)
+        ' 
+        Label2.AutoSize = True
+        Label2.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        Label2.ForeColor = Color.FromArgb(CByte(65), CByte(80), CByte(105))
+        Label2.Location = New Point(20, 148)
+        Label2.Name = "Label2"
+        Label2.TabIndex = 1
+        Label2.Text = "Descripción Modelo"
         ' 
         ' TextDescripModelo
         ' 
-        TextDescripModelo.Location = New Point(194, 58)
+        TextDescripModelo.BorderStyle = BorderStyle.FixedSingle
+        TextDescripModelo.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        TextDescripModelo.Location = New Point(188, 144)
         TextDescripModelo.Name = "TextDescripModelo"
-        TextDescripModelo.Size = New Size(180, 23)
+        TextDescripModelo.Size = New Size(240, 23)
         TextDescripModelo.TabIndex = 11
+        ' 
+        ' Label3 (Tipo Modelo)
+        ' 
+        Label3.AutoSize = True
+        Label3.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        Label3.ForeColor = Color.FromArgb(CByte(65), CByte(80), CByte(105))
+        Label3.Location = New Point(20, 186)
+        Label3.Name = "Label3"
+        Label3.TabIndex = 2
+        Label3.Text = "Tipo Modelo"
+        ' 
+        ' ComboTipoModelo
+        ' 
+        ComboTipoModelo.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        ComboTipoModelo.FormattingEnabled = True
+        ComboTipoModelo.Location = New Point(188, 182)
+        ComboTipoModelo.Name = "ComboTipoModelo"
+        ComboTipoModelo.Size = New Size(240, 23)
+        ComboTipoModelo.TabIndex = 8
+        ' 
+        ' Label4 (ClassName)
+        ' 
+        Label4.AutoSize = True
+        Label4.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        Label4.ForeColor = Color.FromArgb(CByte(65), CByte(80), CByte(105))
+        Label4.Location = New Point(20, 224)
+        Label4.Name = "Label4"
+        Label4.TabIndex = 3
+        Label4.Text = "ClassName"
         ' 
         ' TextClassName
         ' 
-        TextClassName.Location = New Point(194, 109)
+        TextClassName.BorderStyle = BorderStyle.FixedSingle
+        TextClassName.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        TextClassName.Location = New Point(188, 220)
         TextClassName.Name = "TextClassName"
-        TextClassName.Size = New Size(180, 23)
+        TextClassName.Size = New Size(240, 23)
         TextClassName.TabIndex = 12
+        ' 
+        ' Label5 (Rpt File Name)
+        ' 
+        Label5.AutoSize = True
+        Label5.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        Label5.ForeColor = Color.FromArgb(CByte(65), CByte(80), CByte(105))
+        Label5.Location = New Point(20, 262)
+        Label5.Name = "Label5"
+        Label5.TabIndex = 4
+        Label5.Text = "Rpt File Name"
         ' 
         ' TextRptFileName
         ' 
-        TextRptFileName.Location = New Point(194, 134)
+        TextRptFileName.BorderStyle = BorderStyle.FixedSingle
+        TextRptFileName.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        TextRptFileName.Location = New Point(188, 258)
         TextRptFileName.Name = "TextRptFileName"
-        TextRptFileName.Size = New Size(180, 23)
+        TextRptFileName.Size = New Size(240, 23)
         TextRptFileName.TabIndex = 13
         ' 
-        ' Button2
+        ' Label6 (Modelo)
         ' 
-        Button2.Location = New Point(194, 158)
+        Label6.AutoSize = True
+        Label6.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        Label6.ForeColor = Color.FromArgb(CByte(65), CByte(80), CByte(105))
+        Label6.Location = New Point(20, 300)
+        Label6.Name = "Label6"
+        Label6.TabIndex = 5
+        Label6.Text = "Modelo"
+        ' 
+        ' Button2 (Cargar Modelo)
+        ' 
+        Button2.BackColor = Color.FromArgb(CByte(35), CByte(85), CByte(155))
+        Button2.Cursor = Cursors.Hand
+        Button2.FlatAppearance.BorderColor = Color.FromArgb(CByte(70), CByte(120), CByte(190))
+        Button2.FlatAppearance.BorderSize = 1
+        Button2.FlatStyle = FlatStyle.Flat
+        Button2.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        Button2.ForeColor = Color.White
+        Button2.Location = New Point(188, 295)
         Button2.Name = "Button2"
-        Button2.Size = New Size(94, 23)
+        Button2.Size = New Size(120, 26)
         Button2.TabIndex = 14
         Button2.Text = "Cargar Modelo"
-        Button2.UseVisualStyleBackColor = True
+        Button2.UseVisualStyleBackColor = False
         ' 
         ' LabelBinario
         ' 
         LabelBinario.AutoSize = True
-        LabelBinario.Location = New Point(294, 162)
+        LabelBinario.Font = New Font("Segoe UI", 8.5F, FontStyle.Regular, GraphicsUnit.Point)
+        LabelBinario.ForeColor = Color.FromArgb(CByte(80), CByte(120), CByte(170))
+        LabelBinario.Location = New Point(315, 299)
         LabelBinario.Name = "LabelBinario"
-        LabelBinario.Size = New Size(0, 15)
         LabelBinario.TabIndex = 15
+        ' 
+        ' PanelFooter
+        ' 
+        PanelFooter.BackColor = Color.FromArgb(CByte(236), CByte(242), CByte(250))
+        PanelFooter.Controls.Add(PictureBox2)
+        PanelFooter.Controls.Add(TextConsultando)
+        PanelFooter.Controls.Add(Guardar)
+        PanelFooter.Location = New Point(0, 334)
+        PanelFooter.Name = "PanelFooter"
+        PanelFooter.Size = New Size(450, 46)
+        PanelFooter.TabIndex = 101
         ' 
         ' PictureBox2
         ' 
         PictureBox2.Image = CType(resources.GetObject("PictureBox2.Image"), Image)
-        PictureBox2.Location = New Point(31, 186)
+        PictureBox2.Location = New Point(10, 5)
         PictureBox2.Name = "PictureBox2"
-        PictureBox2.Size = New Size(54, 36)
+        PictureBox2.Size = New Size(36, 36)
+        PictureBox2.SizeMode = PictureBoxSizeMode.Zoom
         PictureBox2.TabIndex = 44
         PictureBox2.TabStop = False
         PictureBox2.Visible = False
         ' 
         ' TextConsultando
         ' 
-        TextConsultando.Location = New Point(91, 199)
+        TextConsultando.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        TextConsultando.ForeColor = Color.FromArgb(CByte(50), CByte(100), CByte(170))
+        TextConsultando.Location = New Point(54, 15)
         TextConsultando.MaximumSize = New Size(400, 0)
         TextConsultando.Name = "TextConsultando"
-        TextConsultando.Size = New Size(97, 20)
+        TextConsultando.Size = New Size(97, 18)
         TextConsultando.TabIndex = 45
+        ' 
+        ' Guardar
+        ' 
+        Guardar.BackColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
+        Guardar.Cursor = Cursors.Hand
+        Guardar.FlatAppearance.BorderColor = Color.FromArgb(CByte(70), CByte(150), CByte(230))
+        Guardar.FlatAppearance.BorderSize = 1
+        Guardar.FlatStyle = FlatStyle.Flat
+        Guardar.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        Guardar.ForeColor = Color.White
+        Guardar.Location = New Point(258, 9)
+        Guardar.Name = "Guardar"
+        Guardar.Size = New Size(180, 28)
+        Guardar.TabIndex = 7
+        Guardar.Text = "Guardar"
+        Guardar.UseVisualStyleBackColor = False
         ' 
         ' EditarModeloImpresionForm
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        BackColor = Color.FromArgb(CByte(213), CByte(220), CByte(227))
-        ClientSize = New Size(405, 233)
-        Controls.Add(TextConsultando)
-        Controls.Add(PictureBox2)
-        Controls.Add(LabelBinario)
-        Controls.Add(Button2)
-        Controls.Add(TextRptFileName)
-        Controls.Add(TextClassName)
-        Controls.Add(TextDescripModelo)
-        Controls.Add(TextEntorno)
-        Controls.Add(TextIdModelo)
-        Controls.Add(ComboTipoModelo)
-        Controls.Add(Guardar)
+        BackColor = Color.FromArgb(CByte(248), CByte(250), CByte(254))
+        ClientSize = New Size(450, 380)
         Controls.Add(Label7)
-        Controls.Add(Label6)
-        Controls.Add(Label5)
-        Controls.Add(Label4)
-        Controls.Add(Label3)
-        Controls.Add(Label2)
+        Controls.Add(TextIdModelo)
         Controls.Add(Label1)
+        Controls.Add(ComboEntorno)
+        Controls.Add(Label2)
+        Controls.Add(TextDescripModelo)
+        Controls.Add(Label3)
+        Controls.Add(ComboTipoModelo)
+        Controls.Add(Label4)
+        Controls.Add(TextClassName)
+        Controls.Add(Label5)
+        Controls.Add(TextRptFileName)
+        Controls.Add(Label6)
+        Controls.Add(Button2)
+        Controls.Add(LabelBinario)
+        Controls.Add(PanelHeader)
+        Controls.Add(PanelFooter)
+        FormBorderStyle = FormBorderStyle.FixedSingle
         Icon = CType(resources.GetObject("$this.Icon"), Icon)
+        MaximizeBox = False
         Name = "EditarModeloImpresionForm"
         Text = "Editar Modelo"
+        PanelHeader.ResumeLayout(False)
+        PanelHeader.PerformLayout()
+        PanelFooter.ResumeLayout(False)
+        PanelFooter.PerformLayout()
         CType(PictureBox2, ComponentModel.ISupportInitialize).EndInit()
         ResumeLayout(False)
         PerformLayout()
     End Sub
 
+    Friend WithEvents PanelHeader As Panel
+    Friend WithEvents LabelTitulo As Label
+    Friend WithEvents PanelFooter As Panel
     Friend WithEvents Label1 As Label
     Friend WithEvents Label2 As Label
     Friend WithEvents Label3 As Label
@@ -241,8 +318,8 @@ Partial Class EditarModeloImpresionForm
     Friend WithEvents Label7 As Label
     Friend WithEvents Guardar As Button
     Friend WithEvents ComboTipoModelo As ComboBox
+    Friend WithEvents ComboEntorno As ComboBox
     Friend WithEvents TextIdModelo As TextBox
-    Friend WithEvents TextEntorno As TextBox
     Friend WithEvents TextDescripModelo As TextBox
     Friend WithEvents TextClassName As TextBox
     Friend WithEvents TextRptFileName As TextBox

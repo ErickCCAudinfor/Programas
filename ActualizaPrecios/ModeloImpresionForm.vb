@@ -8,6 +8,7 @@ Public Class ModeloImpresionForm
     Private RutaConfig As String = RutaConfigEmpresas
     Private _complementos As New Complementos
     Private _GlobalConnecString As String
+    Private _todosModelos As List(Of ModeloDeImpresion)
 
     Public Sub New()
         InitializeComponent()
@@ -33,23 +34,45 @@ Public Class ModeloImpresionForm
             Dim connStr As String = GetConnectionString(emp)
             _GlobalConnecString = connStr
             Dim funciones As New FuncionesGenericas(connStr)
-            Dim report = funciones.GetAllModelosImpresion()
-
-            ' Convertir a BindingList para que sea editable y permita añadir filas
-            Dim bindingList As New BindingList(Of ModeloDeImpresion)(report)
-            Dim source As New BindingSource(bindingList, Nothing)
-
-            DataModeloImpresionView.DataSource = source
-
-            ' Configurar columnas ReadOnly si hace falta
-            DataModeloImpresionView.Columns("IdModeloDeImpresion").ReadOnly = True
-            If DataModeloImpresionView.Columns.Contains("Modelo") Then
-                DataModeloImpresionView.Columns("Modelo").Visible = False
-            End If
+            _todosModelos = funciones.GetAllModelosImpresion()
+            TextFiltro.Text = ""
+            AplicarFiltro()
         Catch ex As Exception
             Return
         End Try
+    End Sub
 
+    Private Sub AplicarFiltro()
+        If _todosModelos Is Nothing Then Return
+
+        Dim filtro As String = TextFiltro.Text.Trim().ToLower()
+        Dim lista As List(Of ModeloDeImpresion)
+
+        If filtro.Length > 0 Then
+            lista = _todosModelos.Where(Function(m)
+                                            Return If(m.DescripcionModeloDeImpresion, "").ToLower().Contains(filtro) OrElse
+                       If(m.Entorno, "").ToLower().Contains(filtro) OrElse
+                       If(m.ClassName, "").ToLower().Contains(filtro) OrElse
+                       If(m.RptFileName, "").ToLower().Contains(filtro)
+                                        End Function).ToList()
+        Else
+            lista = _todosModelos
+        End If
+
+        Dim bindingList As New BindingList(Of ModeloDeImpresion)(lista)
+        Dim source As New BindingSource(bindingList, Nothing)
+        DataModeloImpresionView.DataSource = source
+
+        If DataModeloImpresionView.Columns.Contains("IdModeloDeImpresion") Then
+            DataModeloImpresionView.Columns("IdModeloDeImpresion").ReadOnly = True
+        End If
+        If DataModeloImpresionView.Columns.Contains("Modelo") Then
+            DataModeloImpresionView.Columns("Modelo").Visible = False
+        End If
+    End Sub
+
+    Private Sub TextFiltro_TextChanged(sender As Object, e As EventArgs) Handles TextFiltro.TextChanged
+        AplicarFiltro()
     End Sub
 
     Private Sub DataModeloImpresionView_DataError(sender As Object, e As DataGridViewDataErrorEventArgs) Handles DataModeloImpresionView.DataError
