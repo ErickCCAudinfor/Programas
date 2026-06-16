@@ -34,7 +34,7 @@ Public Class TarifaPrecioContratoSrv
                             isFijoIndex = True
                             If objContratoTarifa.Entorno = "G1" Then
                                 ' IndexadoPrecioSrv
-                                Dim indexadosPrecios As List(Of IndexadoPrecio) = funciones.GetDTOAllPeriodosIndx(objContratoTarifa.IdTarifa, objContratoTarifa.IdTarifaGrupo, FechaVigenciaNueva)
+                                Dim indexadosPrecios As List(Of IndexadoPrecio) = funciones.GetDTOAllPeriodosIndxByFechaFinPresupuesto(objContratoTarifa.Entorno, objContratoTarifa.IdTarifa, objContratoTarifa.IdTarifaGrupo, FechaVigenciaNueva)
                                 ''Avisar si no hay precios para grabar
                                 If Not IsNothing(indexadosPrecios) AndAlso indexadosPrecios.Count > 0 Then
                                     For Each indexadoPrecio As IndexadoPrecio In indexadosPrecios

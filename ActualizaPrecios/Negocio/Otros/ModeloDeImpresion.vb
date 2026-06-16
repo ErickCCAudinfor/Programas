@@ -27,6 +27,7 @@ Public Enum TipoModeloImpresionGeneral As Integer
     <EnumMember> CartaAvisoJuridico = 13
     <EnumMember> ContratoSwap = 14
     <EnumMember> FacturaCompra = 15
+    <EnumMember> ContratoResumen = 16
 End Enum
 
 Public Enum TipoModeloImpresionTotal As Integer
@@ -49,4 +50,5 @@ Public Enum TipoModeloImpresionTotal As Integer
     <EnumMember> AvisoRescision = 16
     <EnumMember> PreVencimiento = 17
     <EnumMember> CartaReclamacion = 18
+    <EnumMember> ContratoResumen = 19
 End Enum

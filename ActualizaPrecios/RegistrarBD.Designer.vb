@@ -34,6 +34,7 @@ Partial Class RegistrarBD
         UsuarioLabel = New Label()
         ClaveLabel = New Label()
         ClaveBox = New TextBox()
+        VPNCheck = New CheckBox()
         SuspendLayout()
         ' 
         ' NombreBox
@@ -79,7 +80,7 @@ Partial Class RegistrarBD
         AgregarBDBoton.FlatAppearance.BorderColor = Color.FromArgb(CByte(25), CByte(118), CByte(210))
         AgregarBDBoton.FlatStyle = FlatStyle.Popup
         AgregarBDBoton.ForeColor = SystemColors.Control
-        AgregarBDBoton.Location = New Point(190, 143)
+        AgregarBDBoton.Location = New Point(190, 172)
         AgregarBDBoton.Name = "AgregarBDBoton"
         AgregarBDBoton.Size = New Size(87, 23)
         AgregarBDBoton.TabIndex = 5
@@ -129,12 +130,23 @@ Partial Class RegistrarBD
         ClaveBox.Size = New Size(100, 23)
         ClaveBox.TabIndex = 10
         ' 
+        ' VPNCheck
+        ' 
+        VPNCheck.AutoSize = True
+        VPNCheck.Location = New Point(84, 172)
+        VPNCheck.Name = "VPNCheck"
+        VPNCheck.Size = New Size(50, 19)
+        VPNCheck.TabIndex = 11
+        VPNCheck.Text = "VPN"
+        VPNCheck.UseVisualStyleBackColor = True
+        ' 
         ' RegistrarBD
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.FromArgb(CByte(213), CByte(220), CByte(227))
-        ClientSize = New Size(289, 180)
+        ClientSize = New Size(289, 210)
+        Controls.Add(VPNCheck)
         Controls.Add(ClaveBox)
         Controls.Add(ClaveLabel)
         Controls.Add(UsuarioLabel)
@@ -164,4 +176,5 @@ Partial Class RegistrarBD
     Friend WithEvents UsuarioLabel As Label
     Friend WithEvents ClaveLabel As Label
     Friend WithEvents ClaveBox As TextBox
+    Friend WithEvents VPNCheck As CheckBox
 End Class

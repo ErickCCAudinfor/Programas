@@ -17,6 +17,17 @@ Public Class ModeloImpresionForm
 
     Private Sub ValorCambia(sender As Object, e As EventArgs) Handles BDEmpresaCombo.TextChanged
         Try
+            If CheckVPN.Checked Then
+                'Con VPN activo no se cargan los modelos automáticamente (solo con RecargaModelos)
+                Dim empVPN As EmpresaBD = CType(BDEmpresaCombo.SelectedItem, EmpresaBD)
+                If empVPN Is Nothing Then Return
+                _GlobalConnecString = GetConnectionString(empVPN)
+                _todosModelos = Nothing
+                DataModeloImpresionView.DataSource = Nothing
+                LabelServidor.Text = $"Servidor: {empVPN.Servidor} - Base Datos: {empVPN.BaseDatos}"
+                Return
+            End If
+
             CargarModelos()
             Dim emp As EmpresaBD = CType(BDEmpresaCombo.SelectedItem, EmpresaBD)
             If emp Is Nothing Then Return
@@ -91,10 +102,30 @@ Public Class ModeloImpresionForm
         Empresas = JsonSerializer.Deserialize(Of List(Of EmpresaBD))(json,
         New JsonSerializerOptions With {.PropertyNameCaseInsensitive = True})
 
+        Dim listaCombo As List(Of EmpresaBD) = If(CheckVPN.Checked,
+            Empresas.Where(Function(x) x.VPN).ToList(),
+            Empresas)
+
         BDEmpresaCombo.DataSource = Nothing
-        BDEmpresaCombo.DataSource = Empresas
+        BDEmpresaCombo.DataSource = listaCombo
         BDEmpresaCombo.DisplayMember = "Nombre"
-        LabelServidor.Text = $"Servidor: {Empresas.FirstOrDefault.Servidor} - Base Datos: {Empresas.FirstOrDefault.BaseDatos}"
+
+        If listaCombo.Count > 0 Then
+            LabelServidor.Text = $"Servidor: {listaCombo.First.Servidor} - Base Datos: {listaCombo.First.BaseDatos}"
+        Else
+            LabelServidor.Text = "Servidor: -"
+            _GlobalConnecString = String.Empty
+            _todosModelos = Nothing
+            DataModeloImpresionView.DataSource = Nothing
+        End If
+    End Sub
+
+    Private Sub CheckVPN_CheckedChanged(sender As Object, e As EventArgs) Handles CheckVPN.CheckedChanged
+        Try
+            CargarEmpresas()
+        Catch ex As Exception
+            _complementos.MostrarMensajePersonalizado(ex.Message)
+        End Try
     End Sub
     Private Function GetConnectionString(Emp1 As EmpresaBD) As String
         Dim emp As EmpresaBD = Emp1
@@ -244,6 +275,52 @@ Public Class ModeloImpresionForm
             _complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
     End Sub
+    Private Sub ButtonGenerarXML_Click(sender As Object, e As EventArgs) Handles ButtonGenerarXML.Click
+        If String.IsNullOrEmpty(_GlobalConnecString) Then
+            _complementos.MostrarMensajePersonalizado("Selecciona primero una empresa/base de datos.")
+            Return
+        End If
+
+        Using opciones As New GenerarXMLOpcionesForm(_GlobalConnecString)
+            If opciones.ShowDialog(Me) <> DialogResult.OK Then Return
+
+            Using sfd As New SaveFileDialog()
+                sfd.Filter = "Archivo XML (*.xml)|*.xml"
+                sfd.Title = "Guardar XML de Report"
+                sfd.FileName = $"RptFichasFacturaOptENDTO_{opciones.IdFacturaVentaCabecera}.xml"
+
+                If sfd.ShowDialog(Me) <> DialogResult.OK Then Return
+
+                Try
+                    ButtonGenerarXML.Enabled = False
+                    Dim generador As New GeneradorXMLFactura(_GlobalConnecString)
+
+                    Select Case opciones.TipoSeleccionado
+                        Case GenerarXMLOpcionesForm.TipoXML.FacturasGeneral
+                            generador.GenerarXMLFacturasGeneral(opciones.IdFacturaVentaCabecera, sfd.FileName)
+                    End Select
+
+                    MessageBox.Show($"XML generado correctamente en:{Environment.NewLine}{sfd.FileName}",
+                                    "Generar XML", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                Catch ex As Exception
+                    _complementos.MostrarMensajePersonalizado($"Error al generar el XML: {ex.Message}")
+                Finally
+                    ButtonGenerarXML.Enabled = True
+                End Try
+            End Using
+        End Using
+    End Sub
+
+    Private Sub BotonAnadirMasivo_Click(sender As Object, e As EventArgs) Handles BotonAnadirMasivo.Click
+        Try
+            Using frm As New AnadirMasivoEmpresaForm(Empresas)
+                frm.ShowDialog(Me)
+            End Using
+        Catch ex As Exception
+            _complementos.MostrarMensajePersonalizado(ex.Message)
+        End Try
+    End Sub
+
     'Private Sub CerrarFormModelo(sender As Object, e As EventArgs) Handles Me.FormClosing
     '    MarcarUsuarioDesconectado(SesionActual.UsuarioLogueado)
     'End Sub

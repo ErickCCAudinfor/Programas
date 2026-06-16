@@ -4,4 +4,5 @@
     Public Property BaseDatos As String
     Public Property Usuario As String
     Public Property Password As String
+    Public Property VPN As Boolean
 End Class

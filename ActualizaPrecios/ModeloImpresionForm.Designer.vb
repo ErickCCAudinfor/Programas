@@ -29,6 +29,7 @@ Partial Class ModeloImpresionForm
         PanelHeader = New Panel()
         PanelFooter = New Panel()
         BDEmpresaCombo = New ComboBox()
+        CheckVPN = New CheckBox()
         BDLabel = New Label()
         DataModeloImpresionView = New DataGridView()
         AgregarBDBotton = New Button()
@@ -37,6 +38,8 @@ Partial Class ModeloImpresionForm
         LoadImagen = New PictureBox()
         TextConsultando = New Label()
         BotonBackUp = New Button()
+        ButtonGenerarXML = New Button()
+        BotonAnadirMasivo = New Button()
         LabelFiltro = New Label()
         TextFiltro = New TextBox()
         PanelHeader.SuspendLayout()
@@ -54,6 +57,7 @@ Partial Class ModeloImpresionForm
         PanelHeader.Controls.Add(TextConsultando)
         PanelHeader.Controls.Add(LabelServidor)
         PanelHeader.Controls.Add(BDEmpresaCombo)
+        PanelHeader.Controls.Add(CheckVPN)
         PanelHeader.Controls.Add(TextFiltro)
         PanelHeader.Controls.Add(LabelFiltro)
         PanelHeader.Controls.Add(BDLabel)
@@ -81,12 +85,24 @@ Partial Class ModeloImpresionForm
         BDEmpresaCombo.Size = New Size(200, 23)
         BDEmpresaCombo.TabIndex = 0
         ' 
+        ' CheckVPN
+        ' 
+        CheckVPN.AutoSize = True
+        CheckVPN.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        CheckVPN.ForeColor = Color.FromArgb(CByte(200), CByte(220), CByte(255))
+        CheckVPN.Location = New Point(312, 19)
+        CheckVPN.Name = "CheckVPN"
+        CheckVPN.Size = New Size(50, 19)
+        CheckVPN.TabIndex = 104
+        CheckVPN.Text = "VPN"
+        CheckVPN.UseVisualStyleBackColor = True
+        ' 
         ' LabelFiltro
         ' 
         LabelFiltro.AutoSize = True
         LabelFiltro.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point)
         LabelFiltro.ForeColor = Color.FromArgb(CByte(200), CByte(220), CByte(255))
-        LabelFiltro.Location = New Point(316, 22)
+        LabelFiltro.Location = New Point(376, 22)
         LabelFiltro.Name = "LabelFiltro"
         LabelFiltro.TabIndex = 102
         LabelFiltro.Text = "Filtrar:"
@@ -95,7 +111,7 @@ Partial Class ModeloImpresionForm
         ' 
         TextFiltro.BorderStyle = BorderStyle.FixedSingle
         TextFiltro.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
-        TextFiltro.Location = New Point(368, 17)
+        TextFiltro.Location = New Point(428, 17)
         TextFiltro.Name = "TextFiltro"
         TextFiltro.PlaceholderText = "Buscar..."
         TextFiltro.Size = New Size(175, 23)
@@ -106,7 +122,7 @@ Partial Class ModeloImpresionForm
         LabelServidor.AutoSize = True
         LabelServidor.Font = New Font("Segoe UI", 8.5F, FontStyle.Regular, GraphicsUnit.Point)
         LabelServidor.ForeColor = Color.FromArgb(CByte(175), CByte(210), CByte(255))
-        LabelServidor.Location = New Point(560, 22)
+        LabelServidor.Location = New Point(620, 22)
         LabelServidor.Name = "LabelServidor"
         LabelServidor.Size = New Size(51, 15)
         LabelServidor.TabIndex = 6
@@ -212,10 +228,28 @@ Partial Class ModeloImpresionForm
         ' 
         PanelFooter.BackColor = Color.FromArgb(CByte(236), CByte(242), CByte(250))
         PanelFooter.Controls.Add(BotonBackUp)
+        PanelFooter.Controls.Add(ButtonGenerarXML)
+        PanelFooter.Controls.Add(BotonAnadirMasivo)
         PanelFooter.Location = New Point(0, 514)
         PanelFooter.Name = "PanelFooter"
         PanelFooter.Size = New Size(1321, 55)
         PanelFooter.TabIndex = 101
+        ' 
+        ' ButtonGenerarXML
+        ' 
+        ButtonGenerarXML.BackColor = Color.FromArgb(CByte(35), CByte(85), CByte(155))
+        ButtonGenerarXML.Cursor = Cursors.Hand
+        ButtonGenerarXML.FlatAppearance.BorderColor = Color.FromArgb(CByte(70), CByte(120), CByte(190))
+        ButtonGenerarXML.FlatAppearance.BorderSize = 1
+        ButtonGenerarXML.FlatStyle = FlatStyle.Flat
+        ButtonGenerarXML.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        ButtonGenerarXML.ForeColor = Color.White
+        ButtonGenerarXML.Location = New Point(144, 12)
+        ButtonGenerarXML.Name = "ButtonGenerarXML"
+        ButtonGenerarXML.Size = New Size(120, 30)
+        ButtonGenerarXML.TabIndex = 47
+        ButtonGenerarXML.Text = "Generar XML"
+        ButtonGenerarXML.UseVisualStyleBackColor = False
         ' 
         ' BotonBackUp
         ' 
@@ -232,6 +266,22 @@ Partial Class ModeloImpresionForm
         BotonBackUp.TabIndex = 46
         BotonBackUp.Text = "BackUp"
         BotonBackUp.UseVisualStyleBackColor = False
+        ' 
+        ' BotonAnadirMasivo
+        ' 
+        BotonAnadirMasivo.BackColor = Color.FromArgb(CByte(35), CByte(85), CByte(155))
+        BotonAnadirMasivo.Cursor = Cursors.Hand
+        BotonAnadirMasivo.FlatAppearance.BorderColor = Color.FromArgb(CByte(70), CByte(120), CByte(190))
+        BotonAnadirMasivo.FlatAppearance.BorderSize = 1
+        BotonAnadirMasivo.FlatStyle = FlatStyle.Flat
+        BotonAnadirMasivo.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        BotonAnadirMasivo.ForeColor = Color.White
+        BotonAnadirMasivo.Location = New Point(274, 12)
+        BotonAnadirMasivo.Name = "BotonAnadirMasivo"
+        BotonAnadirMasivo.Size = New Size(170, 30)
+        BotonAnadirMasivo.TabIndex = 48
+        BotonAnadirMasivo.Text = "Añadir masivo Empresa"
+        BotonAnadirMasivo.UseVisualStyleBackColor = False
         ' 
         ' ModeloImpresionForm
         ' 
@@ -260,6 +310,7 @@ Partial Class ModeloImpresionForm
     Friend WithEvents PanelHeader As Panel
     Friend WithEvents PanelFooter As Panel
     Friend WithEvents BDEmpresaCombo As ComboBox
+    Friend WithEvents CheckVPN As CheckBox
     Friend WithEvents BDLabel As Label
     Friend WithEvents DataModeloImpresionView As DataGridView
     Friend WithEvents AgregarBDBotton As Button
@@ -270,4 +321,6 @@ Partial Class ModeloImpresionForm
     Friend WithEvents LoadImagen As PictureBox
     Friend WithEvents TextConsultando As Label
     Friend WithEvents BotonBackUp As Button
+    Friend WithEvents ButtonGenerarXML As Button
+    Friend WithEvents BotonAnadirMasivo As Button
 End Class

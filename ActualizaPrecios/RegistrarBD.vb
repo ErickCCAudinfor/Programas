@@ -18,6 +18,7 @@ Public Class RegistrarBD
             BDAgregar.BaseDatos = BDBox.Text
             BDAgregar.Usuario = CryptoHelper.Cifrar(UsuarioBox.Text)
             BDAgregar.Password = CryptoHelper.Cifrar(ClaveBox.Text)
+            BDAgregar.VPN = VPNCheck.Checked
             _Empresas.Add(BDAgregar)
 
             Dim json = JsonSerializer.Serialize(_Empresas, New JsonSerializerOptions With {.WriteIndented = True})

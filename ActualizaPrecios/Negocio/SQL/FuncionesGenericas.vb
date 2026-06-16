@@ -384,6 +384,46 @@ from contrato where idcups in (select idcups from iddc)"
         Return PerfilFacturacionConfiguracion
     End Function
 
+    Public Function GetDTOAllPeriodosIndxByFechaFinPresupuesto(Entorno As String, IdTarifa As Long?, IdTarifaGrupo As Long?, FechaPresupuesto As DateTime?) As List(Of IndexadoPrecio)
+        Dim IndexadoPrecioGas As New List(Of IndexadoPrecio)
+        Dim TarifaPeriodoSrv As New TarifaPeriodoSrv(connectionString)
+        Dim ret As New List(Of IndexadoPrecio)
+        Dim IndexPrecioGas = GetDTOAllPeriodosIndxbyFechaPresupuesto(IdTarifa, IdTarifaGrupo, FechaPresupuesto)
+        Try
+            Dim IndexadoPrecioGasBBDD As New List(Of IndexadoPrecio)
+            If Not IsNothing(IndexPrecioGas) AndAlso IndexPrecioGas.IdIndexadoPrecio > 0 Then
+                Dim Query = $"SELECT *
+FROM IndexadoPrecio TP
+WHERE TP.Entorno = '{Entorno}'
+  AND ISNULL(TP.IdTarifa, 0) = ISNULL({IndexPrecioGas.IdTarifa}, 0)
+  AND ISNULL(TP.IdTarifaGrupo, 0) = ISNULL({IndexPrecioGas.IdTarifaGrupo}, 0)
+  AND ISNULL(TP.fechafinpresupuesto, '31-12-9999') = ISNULL('{IndexPrecioGas.FechaFinPresupuesto}', GETDATE());
+
+"
+                Dim result = Helper.QuerySelect(Query, connectionString)
+                Dim errores = Helper.GetError(result)
+                If Not errores.HasError Then
+                    Dim TIndexadoPrecioGas = Helper.FillObjectFromDatatable(result.Tables(0), GetType(IndexadoPrecio)).Cast(Of IndexadoPrecio).ToList
+                    If Not IsNothing(TIndexadoPrecioGas) AndAlso TIndexadoPrecioGas.Count > 0 Then
+                        IndexadoPrecioGas = TIndexadoPrecioGas
+                    End If
+                End If
+            End If
+
+            Dim objIndexadoPrecioGas As IndexadoPrecio
+            For Each ele In IndexadoPrecioGas
+                objIndexadoPrecioGas = ele
+                objIndexadoPrecioGas.tarifaperiodo = TarifaPeriodoSrv.GetDTO(If(objIndexadoPrecioGas.IdTarifaPeriodo, 0L))
+                ret.Add(objIndexadoPrecioGas)
+            Next
+
+        Catch ex As Exception
+            Throw
+        End Try
+
+        Return ret
+    End Function
+
     Public Function GetDTOAllPeriodosIndx(IdTarifa As Long?, IdTarifaGrupo As Long?, FechaPresupuesto As DateTime?) As List(Of IndexadoPrecio)
         Dim IndexadoPrecio As New List(Of IndexadoPrecio)
 
@@ -392,10 +432,10 @@ from contrato where idcups in (select idcups from iddc)"
             Using conexion As New SqlConnection(connectionString)
                 conexion.Open()
 
-                Dim query As String = $"SELECT top {top} IdIndexadoPrecio,IndexadoPrecio.Entorno,IndexadoPrecio.IdTarifa,IdTarifaGrupo,IdIndexadoConcepto,tp.IdTarifaPeriodo,tp.TextoTarifaPeriodo
+                Dim query As String = $"SELECT IdIndexadoPrecio,IndexadoPrecio.Entorno,IndexadoPrecio.IdTarifa,IdTarifaGrupo,IdIndexadoConcepto,tp.IdTarifaPeriodo,tp.TextoTarifaPeriodo
                     FROM IndexadoPrecio
                     Inner join TarifaPeriodo tp on IndexadoPrecio.IdTarifaPeriodo = tp.IdTarifaPeriodo
-                    WHERE IndexadoPrecio.IdTarifa = {IdTarifa} AND IdTarifaGrupo = {IdTarifaGrupo} order by IdIndexadoPrecio desc"
+                    WHERE IndexadoPrecio.IdTarifa = {IdTarifa} AND IdTarifaGrupo = {IdTarifaGrupo} order by idindexadoprecio desc"
                 'and FechaFinPresupuesto ='{FechaPresupuesto}' 
                 Dim comando As New SqlCommand(query, conexion)
                 comando.CommandTimeout = 3600
@@ -417,6 +457,34 @@ from contrato where idcups in (select idcups from iddc)"
 
                 readerQuery.Close()
             End Using
+        Catch ex As Exception
+            Console.WriteLine(ex)
+            Console.WriteLine(ex.StackTrace)
+        End Try
+
+        Return IndexadoPrecio
+    End Function
+
+    Public Function GetDTOAllPeriodosIndxbyFechaPresupuesto(IdTarifa As Long?, IdTarifaGrupo As Long?, FechaPresupuesto As DateTime?) As IndexadoPrecio
+        Dim IndexadoPrecio As New IndexadoPrecio
+
+        Try
+            Dim top = If(IdTarifa = 202020, 3, 6)
+
+
+            Dim query As String = $"SELECT IdIndexadoPrecio,IndexadoPrecio.Entorno,IndexadoPrecio.IdTarifa,IdTarifaGrupo,IdIndexadoConcepto,tp.IdTarifaPeriodo,tp.TextoTarifaPeriodo,FechaFinPresupuesto
+                    FROM IndexadoPrecio
+                    Inner join TarifaPeriodo tp on IndexadoPrecio.IdTarifaPeriodo = tp.IdTarifaPeriodo
+                    WHERE IndexadoPrecio.IdTarifa = {IdTarifa} AND IdTarifaGrupo = {IdTarifaGrupo} and isnull(FechaFinPresupuesto,'31-12-9999')>=isnull('{FechaPresupuesto}',getdate())"
+            'and FechaFinPresupuesto ='{FechaPresupuesto}' 
+            Dim result = Helper.QuerySelect(query, connectionString)
+            Dim errores = Helper.GetError(result)
+            If Not errores.HasError Then
+                Dim tp = Helper.FillObjectFromDatatable(result.Tables(0), GetType(IndexadoPrecio)).Cast(Of IndexadoPrecio).ToList
+                If Not IsNothing(tp) AndAlso tp.Count > 0 Then
+                    IndexadoPrecio = tp.OrderBy(Function(f) f.FechaFinPresupuesto.Value).FirstOrDefault
+                End If
+            End If
         Catch ex As Exception
             Console.WriteLine(ex)
             Console.WriteLine(ex.StackTrace)
@@ -3010,6 +3078,29 @@ where serienumfactura='{Fac}'"
         End Using
 
         Return idInsertado
+
+    End Function
+
+    Public Function ExisteModeloImpresionPorTipo(codigoTipo As Integer, descripcion As String) As Boolean
+
+        Using conexion As New SqlConnection(connectionString)
+            Using comando As New SqlCommand("
+            SELECT idmodelodeimpresion
+            FROM ModeloDeImpresion
+            WHERE CodigoTipoModeloDeImpresion = @CodigoTipo
+              AND LEN(modelo) >= 10
+              AND DescripcionModeloDeImpresion = @Descripcion
+        ", conexion)
+
+                comando.Parameters.Add("@CodigoTipo", SqlDbType.Int).Value = codigoTipo
+                comando.Parameters.Add("@Descripcion", SqlDbType.NVarChar, 250).Value = If(descripcion, String.Empty)
+
+                conexion.Open()
+                Using reader = comando.ExecuteReader()
+                    Return reader.Read()
+                End Using
+            End Using
+        End Using
 
     End Function
 
