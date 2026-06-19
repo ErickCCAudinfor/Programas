@@ -42,6 +42,7 @@ Partial Class AnadirMasivoEmpresaForm
         LabelReport = New Label()
         BotonSubirMasivo = New Button()
         BotonComprobarModelo = New Button()
+        BotonActualizarMasivo = New Button()
         LabelEstado = New Label()
         CType(GridEmpresas, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
@@ -241,11 +242,28 @@ Partial Class AnadirMasivoEmpresaForm
         BotonComprobarModelo.Text = "Comprobar Modelo"
         BotonComprobarModelo.UseVisualStyleBackColor = False
         ' 
+        ' BotonActualizarMasivo
+        ' 
+        BotonActualizarMasivo.BackColor = Color.FromArgb(CByte(21), CByte(128), CByte(61))
+        BotonActualizarMasivo.Cursor = Cursors.Hand
+        BotonActualizarMasivo.Enabled = False
+        BotonActualizarMasivo.FlatAppearance.BorderColor = Color.FromArgb(CByte(60), CByte(170), CByte(100))
+        BotonActualizarMasivo.FlatAppearance.BorderSize = 1
+        BotonActualizarMasivo.FlatStyle = FlatStyle.Flat
+        BotonActualizarMasivo.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        BotonActualizarMasivo.ForeColor = Color.White
+        BotonActualizarMasivo.Location = New Point(368, 455)
+        BotonActualizarMasivo.Name = "BotonActualizarMasivo"
+        BotonActualizarMasivo.Size = New Size(175, 30)
+        BotonActualizarMasivo.TabIndex = 15
+        BotonActualizarMasivo.Text = "Actualizar Report Masivo"
+        BotonActualizarMasivo.UseVisualStyleBackColor = False
+        ' 
         ' LabelEstado
         ' 
         LabelEstado.AutoSize = True
         LabelEstado.ForeColor = Color.FromArgb(CByte(25), CByte(65), CByte(120))
-        LabelEstado.Location = New Point(368, 462)
+        LabelEstado.Location = New Point(558, 462)
         LabelEstado.Name = "LabelEstado"
         LabelEstado.Size = New Size(0, 15)
         LabelEstado.TabIndex = 13
@@ -257,6 +275,7 @@ Partial Class AnadirMasivoEmpresaForm
         BackColor = Color.FromArgb(CByte(248), CByte(250), CByte(254))
         ClientSize = New Size(892, 500)
         Controls.Add(LabelEstado)
+        Controls.Add(BotonActualizarMasivo)
         Controls.Add(BotonComprobarModelo)
         Controls.Add(BotonSubirMasivo)
         Controls.Add(LabelReport)
@@ -299,5 +318,6 @@ Partial Class AnadirMasivoEmpresaForm
     Friend WithEvents LabelReport As Label
     Friend WithEvents BotonSubirMasivo As Button
     Friend WithEvents BotonComprobarModelo As Button
+    Friend WithEvents BotonActualizarMasivo As Button
     Friend WithEvents LabelEstado As Label
 End Class

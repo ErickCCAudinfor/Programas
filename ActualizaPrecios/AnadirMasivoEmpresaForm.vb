@@ -84,6 +84,7 @@ Public Class AnadirMasivoEmpresaForm
         BotonElegirReport.Enabled = haySeleccion
         BotonSubirMasivo.Enabled = haySeleccion AndAlso _Modelo.Modelo IsNot Nothing
         BotonComprobarModelo.Enabled = haySeleccion
+        BotonActualizarMasivo.Enabled = haySeleccion AndAlso _Modelo.Modelo IsNot Nothing
     End Sub
 
     Private Sub BotonElegirReport_Click(sender As Object, e As EventArgs) Handles BotonElegirReport.Click
@@ -268,13 +269,86 @@ Public Class AnadirMasivoEmpresaForm
         _Modelo.ClassName = TextClassName.Text
     End Sub
 
+    Private Async Sub BotonActualizarMasivo_Click(sender As Object, e As EventArgs) Handles BotonActualizarMasivo.Click
+        Dim seleccionadas = GetEmpresasSeleccionadas()
+
+        If seleccionadas.Count = 0 Then
+            _complementos.MostrarMensajePersonalizado("No hay empresas seleccionadas.")
+            Return
+        End If
+
+        If _Modelo.Modelo Is Nothing Then
+            _complementos.MostrarMensajePersonalizado("No hay ningún report cargado.")
+            Return
+        End If
+
+        If String.IsNullOrWhiteSpace(TextDescripcion.Text) Then
+            _complementos.MostrarMensajePersonalizado("Indica la descripción del modelo a actualizar.")
+            Return
+        End If
+
+        If ComboEntorno.SelectedIndex < 0 Then
+            _complementos.MostrarMensajePersonalizado("Selecciona el entorno.")
+            Return
+        End If
+
+        If ComboTipoModelo.SelectedValue Is Nothing Then
+            _complementos.MostrarMensajePersonalizado("Selecciona el tipo de modelo.")
+            Return
+        End If
+
+        Dim exitos As Integer = 0
+        Dim sinCambios As New List(Of String)
+        Dim fallidos As New List(Of (Empresa As String, Detalle As String))
+
+        Try
+            PrepararModeloDesdeUI()
+            MostrarEstadoGuardando(True)
+
+            For Each emp In seleccionadas
+                Try
+                    LabelEstado.Text = $"Actualizando {emp.Nombre}..."
+                    Dim funciones As New FuncionesGenericas(GetConnectionString(emp))
+                    Dim numFilas = Await Task.Run(Function() funciones.UpdateModeloImpresionPorClave(_Modelo))
+
+                    If numFilas > 0 Then
+                        exitos += 1
+                    Else
+                        sinCambios.Add(emp.Nombre)
+                    End If
+
+                Catch ex As Exception
+                    fallidos.Add((emp.Nombre, ex.Message))
+                End Try
+            Next
+
+            Dim mensaje = $"Actualización masiva finalizada. Éxitos: {exitos} de {seleccionadas.Count}."
+            If sinCambios.Count > 0 Then
+                mensaje &= Environment.NewLine & "Sin cambios (modelo no encontrado en estas empresas):" &
+                    Environment.NewLine & String.Join(Environment.NewLine, sinCambios)
+            End If
+            If fallidos.Count > 0 Then
+                mensaje &= Environment.NewLine & "Errores:" & Environment.NewLine &
+                    String.Join(Environment.NewLine, fallidos.Select(Function(f) $"{f.Empresa}: {f.Detalle}"))
+            End If
+            _complementos.MostrarMensajePersonalizado(mensaje)
+
+        Catch ex As Exception
+            _complementos.MostrarMensajePersonalizado(ex.Message)
+
+        Finally
+            MostrarEstadoGuardando(False)
+        End Try
+    End Sub
+
     Private Sub MostrarEstadoGuardando(mostrar As Boolean)
         BotonSubirMasivo.Enabled = Not mostrar
         BotonComprobarModelo.Enabled = Not mostrar
+        BotonActualizarMasivo.Enabled = Not mostrar
         BotonElegirReport.Enabled = Not mostrar
         GridEmpresas.Enabled = Not mostrar
         CheckSeleccionarTodo.Enabled = Not mostrar
-        LabelEstado.Text = If(mostrar, "Subiendo...", String.Empty)
+        LabelEstado.Text = If(mostrar, "Procesando...", String.Empty)
         If Not mostrar Then ActualizarEstadoBotones()
     End Sub
 

@@ -3104,6 +3104,40 @@ where serienumfactura='{Fac}'"
 
     End Function
 
+    Public Function UpdateModeloImpresionPorClave(modelo As ModeloDeImpresion) As Long
+
+        Dim filasAfectadas As Long = 0
+
+        Using conexion As New SqlConnection(connectionString)
+            Using comando As New SqlCommand("
+            UPDATE modelodeimpresion 
+            SET 
+                ClassName = @ClassName,
+                RptFileName = @RptFileName,
+                Modelo = @Modelo
+            WHERE DescripcionModeloDeImpresion = @Descripcion
+              AND Entorno = @Entorno
+              AND CodigoTipoModeloDeImpresion = @CodigoTipo", conexion)
+
+                comando.Parameters.Add("@Descripcion", SqlDbType.NVarChar, 250).Value = modelo.DescripcionModeloDeImpresion
+                comando.Parameters.Add("@Entorno", SqlDbType.VarChar, 10).Value = modelo.Entorno
+                comando.Parameters.Add("@CodigoTipo", SqlDbType.Int).Value = modelo.CodigoTipoModeloDeImpresion
+                comando.Parameters.Add("@ClassName", SqlDbType.NVarChar, 250).Value = If(modelo.ClassName, DBNull.Value)
+                comando.Parameters.Add("@RptFileName", SqlDbType.NVarChar, -1).Value = If(modelo.RptFileName, DBNull.Value)
+
+                Dim pModelo As New SqlParameter("@Modelo", SqlDbType.VarBinary, -1)
+                pModelo.Value = If(modelo.Modelo IsNot Nothing, modelo.Modelo, DBNull.Value)
+                comando.Parameters.Add(pModelo)
+
+                conexion.Open()
+                filasAfectadas = comando.ExecuteNonQuery()
+            End Using
+        End Using
+
+        Return filasAfectadas
+
+    End Function
+
     Public Function DeleteModeloImpresion(idModelo As Long) As Long
 
         Dim filasAfectadas As Long = 0
