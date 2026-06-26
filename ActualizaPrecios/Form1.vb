@@ -2263,18 +2263,18 @@ Public Class Form1
                 Dim listaCups = Helper.LimpiarCups(cups)
 
                 If CheckBox12.Checked Then
-                    tasks.Add(CrearTareaCurva("CurvaHoraria", conexionv2, rutaCarpeta, desdeF, hastaF, listaCups, DividirChck.Checked,
-                    Function(c) ConsultasSQL.GetCurvaHoraria(desdeF, hastaF, , c)))
+                    tasks.Add(CrearTareaCurva("CH", conexionv2, rutaCarpeta, desdeF, hastaF, listaCups, DividirChck.Checked,
+                    Function(c) ConsultasSQL.GetCurvaHoraria(desdeF, hastaF, If(String.IsNullOrEmpty(c), listaCups, Nothing), If(String.IsNullOrEmpty(c), "", c))))
                 End If
 
                 If CheckBox13.Checked Then
-                    tasks.Add(CrearTareaCurva("CuartoHoraria", conexionv2, rutaCarpeta, desdeF, hastaF, listaCups, DividirChck.Checked,
-                    Function(c) ConsultasSQL.GetCurvaCuartoHoraria(desdeF, hastaF, , c)))
+                    tasks.Add(CrearTareaCurva("QH", conexionv2, rutaCarpeta, desdeF, hastaF, listaCups, DividirChck.Checked,
+                    Function(c) ConsultasSQL.GetCurvaCuartoHoraria(desdeF, hastaF, If(String.IsNullOrEmpty(c), listaCups, Nothing), If(String.IsNullOrEmpty(c), "", c))))
                 End If
 
                 If CheckFacturable.Checked Then
-                    tasks.Add(CrearTareaCurva("Facturable", conexionv2, rutaCarpeta, desdeF, hastaF, listaCups, DividirChck.Checked,
-                    Function(c) ConsultasSQL.GetCurvaFacturable(desdeF, hastaF, , c)))
+                    tasks.Add(CrearTareaCurva("CF", conexionv2, rutaCarpeta, desdeF, hastaF, listaCups, DividirChck.Checked,
+                    Function(c) ConsultasSQL.GetCurvaFacturable(desdeF, hastaF, If(String.IsNullOrEmpty(c), listaCups, Nothing), If(String.IsNullOrEmpty(c), "", c))))
                 End If
             End If
         End If
