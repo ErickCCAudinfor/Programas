@@ -23,11 +23,26 @@ namespace SigeDeployer.ViewModels
         private string _busyText = string.Empty;
         private CancellationTokenSource? _cts;
         private DeploymentService? _deployer;
+        private readonly PoolDeploymentService _poolDeployer;
         private readonly DispatcherTimer _refreshTimer;
+        private PoolConfig? _selectedPool;
 
         public ObservableCollection<CompanyConfig> Companies { get; } = new();
         public ObservableCollection<ServiceEntry> ServiceEntries { get; } = new();
         public ObservableCollection<LogEntry> LogEntries { get; } = new();
+        public ObservableCollection<PoolConfig> Pools { get; } = new();
+        public ObservableCollection<PoolServerEntry> PoolServerEntries { get; } = new();
+
+        public PoolConfig? SelectedPool
+        {
+            get => _selectedPool;
+            set
+            {
+                _selectedPool = value;
+                OnPropertyChanged();
+                LoadPoolServerEntries();
+            }
+        }
 
         public CompanyConfig? SelectedCompany
         {
@@ -74,6 +89,13 @@ namespace SigeDeployer.ViewModels
         public ICommand AddServiceCommand { get; }
         public ICommand RemoveServiceCommand { get; }
         public ICommand ClearLogCommand { get; }
+        public ICommand UpdatePoolCommand { get; }
+        public ICommand CleanPoolCommand { get; }
+        public ICommand SavePoolCommand { get; }
+        public ICommand AddPoolCommand { get; }
+        public ICommand DeletePoolCommand { get; }
+        public ICommand AddPoolServerCommand { get; }
+        public ICommand RemovePoolServerCommand { get; }
 
         public MainViewModel()
         {
@@ -89,8 +111,18 @@ namespace SigeDeployer.ViewModels
             AddServiceCommand = new RelayCommand(_ => AddService(), _ => SelectedCompany != null);
             RemoveServiceCommand = new RelayCommand(p => RemoveService(p as ServiceEntry), _ => SelectedCompany != null);
             ClearLogCommand = new RelayCommand(_ => LogEntries.Clear());
+            UpdatePoolCommand = new RelayCommand(async _ => await ExecutePoolDeployAsync(), _ => IsIdle && SelectedPool != null);
+            CleanPoolCommand = new RelayCommand(async _ => await ExecutePoolCleanAsync(), _ => IsIdle && SelectedPool != null);
+            SavePoolCommand = new RelayCommand(_ => SaveCurrentPool(), _ => SelectedPool != null);
+            AddPoolCommand = new RelayCommand(_ => AddPool());
+            DeletePoolCommand = new RelayCommand(_ => DeleteCurrentPool(), _ => SelectedPool != null && Pools.Count > 1);
+            AddPoolServerCommand = new RelayCommand(_ => AddPoolServer(), _ => SelectedPool != null);
+            RemovePoolServerCommand = new RelayCommand(p => RemovePoolServer(p as PoolServerEntry), _ => SelectedPool != null);
+
+            _poolDeployer = new PoolDeploymentService(AddLog);
 
             LoadCompanies();
+            LoadPools();
 
             _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
             _refreshTimer.Tick += async (_, _) => { if (IsIdle) await RefreshStatusAsync(); };
@@ -237,6 +269,149 @@ namespace SigeDeployer.ViewModels
         private void RemoveService(ServiceEntry? entry)
         {
             if (entry != null) ServiceEntries.Remove(entry);
+        }
+
+        private void LoadPools()
+        {
+            var list = PoolConfigService.LoadAll();
+            Pools.Clear();
+            foreach (var p in list) Pools.Add(p);
+            SelectedPool = Pools.FirstOrDefault();
+        }
+
+        private void LoadPoolServerEntries()
+        {
+            PoolServerEntries.Clear();
+            if (_selectedPool == null) return;
+            foreach (var srv in _selectedPool.Servers)
+                PoolServerEntries.Add(new PoolServerEntry { ServerPath = srv.Path, IsChecked = srv.Enabled });
+        }
+
+        private async Task ExecutePoolDeployAsync()
+        {
+            if (SelectedPool == null) return;
+            var servers = PoolServerEntries.Where(e => e.IsChecked)
+                .Select(e => e.ServerPath)
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .ToList();
+
+            if (!servers.Any())
+            {
+                AddLog("No hay servidores seleccionados.", LogLevel.Warning);
+                return;
+            }
+
+            _cts = new CancellationTokenSource();
+            IsBusy = true;
+            BusyText = $"Actualizando {SelectedPool.Name}...";
+
+            try
+            {
+                bool ok = await _poolDeployer.DeployPoolAsync(SelectedPool, servers, _cts.Token);
+                AddLog(ok ? "✔ Pool actualizado correctamente en todos los servidores." : "✘ La actualización del pool terminó con errores.", ok ? LogLevel.Success : LogLevel.Error);
+            }
+            catch (OperationCanceledException)
+            {
+                AddLog("Operación cancelada por el usuario.", LogLevel.Warning);
+            }
+            catch (Exception ex)
+            {
+                AddLog($"Error inesperado: {ex.Message}", LogLevel.Error);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        private async Task ExecutePoolCleanAsync()
+        {
+            if (SelectedPool == null) return;
+            var servers = PoolServerEntries.Where(e => e.IsChecked)
+                .Select(e => e.ServerPath)
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .ToList();
+
+            if (!servers.Any())
+            {
+                AddLog("No hay servidores seleccionados.", LogLevel.Warning);
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"Se eliminarán los backups de {SelectedPool.Name} en {servers.Count} servidor(es).\n\n" +
+                "El ejecutable activo NO se toca, solo los .exe renombrados con fecha.\n\n¿Continuar?",
+                "Limpieza de backups",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes) return;
+
+            _cts = new CancellationTokenSource();
+            IsBusy = true;
+            BusyText = $"Limpiando backups de {SelectedPool.Name}...";
+
+            try
+            {
+                bool ok = await _poolDeployer.CleanBackupsAsync(SelectedPool, servers, _cts.Token);
+                if (!ok)
+                    AddLog("✘ La limpieza terminó con errores en algunos servidores.", LogLevel.Error);
+            }
+            catch (OperationCanceledException)
+            {
+                AddLog("Operación cancelada por el usuario.", LogLevel.Warning);
+            }
+            catch (Exception ex)
+            {
+                AddLog($"Error inesperado: {ex.Message}", LogLevel.Error);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        private void SaveCurrentPool()
+        {
+            if (SelectedPool == null) return;
+            SelectedPool.Servers = PoolServerEntries
+                .Select(e => new PoolServer { Path = e.ServerPath, Enabled = e.IsChecked })
+                .ToList();
+            PoolConfigService.SaveAll(Pools.ToList());
+            AddLog($"Configuración de pool guardada: {SelectedPool.Name}", LogLevel.Success);
+        }
+
+        private void AddPool()
+        {
+            var newPool = new PoolConfig
+            {
+                Name = $"Nuevo Pool {Pools.Count + 1}",
+                SourceExePath = @"C:\Users\Administrador.AUDINSERV\Desktop\VersionPool\SigePool.exe",
+                ExeName = "SigePool.exe",
+                Servers = new List<PoolServer>()
+            };
+            Pools.Add(newPool);
+            PoolConfigService.SaveAll(Pools.ToList());
+            SelectedPool = newPool;
+        }
+
+        private void DeleteCurrentPool()
+        {
+            if (SelectedPool == null || Pools.Count <= 1) return;
+            var toDelete = SelectedPool;
+            Pools.Remove(toDelete);
+            PoolConfigService.SaveAll(Pools.ToList());
+            SelectedPool = Pools.FirstOrDefault();
+        }
+
+        private void AddPoolServer()
+        {
+            PoolServerEntries.Add(new PoolServerEntry { ServerPath = @"\\172.31.100.XX\c$\Audinfor\SigePool" });
+        }
+
+        private void RemovePoolServer(PoolServerEntry? entry)
+        {
+            if (entry != null) PoolServerEntries.Remove(entry);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

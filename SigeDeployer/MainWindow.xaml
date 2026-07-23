@@ -169,6 +169,39 @@
             <Setter Property="Margin"      Value="0,0,0,6"/>
         </Style>
 
+        <!-- Tab styles -->
+        <Style TargetType="TabControl">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+        <Style TargetType="TabItem">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="TabBorder" Background="Transparent"
+                                BorderBrush="Transparent" BorderThickness="0,0,0,2"
+                                Padding="16,8" Margin="0,0,4,0" Cursor="Hand">
+                            <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="TabBorder" Property="BorderBrush" Value="{StaticResource AccentBlue}"/>
+                                <Setter TargetName="TabBorder" Property="Background" Value="#252540"/>
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabBorder" Property="Background" Value="#20205A"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Log entry color by level -->
         <DataTemplate x:Key="LogTemplate">
             <TextBlock Text="{Binding Message}" FontFamily="Consolas" FontSize="11"
@@ -196,8 +229,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="56"/>   <!-- Header -->
-            <RowDefinition Height="*"/>    <!-- Main content -->
-            <RowDefinition Height="Auto"/> <!-- Deploy bar -->
+            <RowDefinition Height="*"/>    <!-- Tabs -->
             <RowDefinition Height="200"/>  <!-- Log -->
             <RowDefinition Height="28"/>   <!-- Status bar -->
         </Grid.RowDefinitions>
@@ -237,8 +269,19 @@
             </Grid>
         </Border>
 
-        <!-- ═══════════════════════ MAIN CONTENT ═══════════════════════ -->
-        <Grid Grid.Row="1" Margin="12,8,12,4">
+        <!-- ═══════════════════════ TABS ═══════════════════════ -->
+        <TabControl Grid.Row="1" Margin="12,4,12,0">
+
+        <!-- ═══════════ TAB: SIGE ═══════════ -->
+        <TabItem Header="⚙ SIGE">
+        <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- MAIN CONTENT -->
+        <Grid Grid.Row="0" Margin="0,8,0,4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="320" MinWidth="240"/>
                 <ColumnDefinition Width="8"/>
@@ -483,8 +526,8 @@
             </Border>
         </Grid>
 
-        <!-- ═══════════════════════ DEPLOY BAR ═══════════════════════ -->
-        <Border Grid.Row="2" Background="#16162A" BorderBrush="{StaticResource BorderColor}"
+        <!-- DEPLOY BAR -->
+        <Border Grid.Row="1" Background="#16162A" BorderBrush="{StaticResource BorderColor}"
                 BorderThickness="0,1,0,1" Margin="0,4,0,0">
             <Grid Margin="16,8">
                 <Grid.ColumnDefinitions>
@@ -550,9 +593,218 @@
                 </StackPanel>
             </Grid>
         </Border>
+        </Grid>
+        </TabItem>
+
+        <!-- ═══════════ TAB: POOL GESTOR ═══════════ -->
+        <TabItem Header="📦 Pool Gestor">
+        <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- POOL MAIN CONTENT -->
+        <Grid Grid.Row="0" Margin="0,8,0,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="420" MinWidth="300"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- LEFT: Servidores -->
+            <Border Grid.Column="0" Background="{StaticResource SurfaceBg}"
+                    CornerRadius="6" Padding="12">
+                <DockPanel>
+                    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8" LastChildFill="False">
+                        <TextBlock Text="SERVIDORES" Style="{StaticResource SectionHeader}" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                        <Button DockPanel.Dock="Right" Content="+ Servidor" Style="{StaticResource BtnSmall}"
+                                Command="{Binding AddPoolServerCommand}" ToolTip="Agregar servidor"/>
+                    </DockPanel>
+
+                    <Separator DockPanel.Dock="Top" Background="{StaticResource BorderColor}" Margin="0,0,0,8"/>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding PoolServerEntries}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{StaticResource PanelBg}" CornerRadius="4"
+                                            Margin="0,0,0,4" Padding="8,6">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <CheckBox Grid.Column="0" IsChecked="{Binding IsChecked}"
+                                                      VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                            <TextBox Grid.Column="1"
+                                                     Text="{Binding ServerPath, UpdateSourceTrigger=PropertyChanged}"
+                                                     FontSize="11" VerticalAlignment="Center" Margin="0,0,4,0"
+                                                     ToolTip="Ruta UNC del servidor (ej: \\172.31.100.19\c$\Audinfor\SigePool)"/>
+                                            <Button Grid.Column="2" Content="✕" Style="{StaticResource BtnSmall}"
+                                                    Command="{Binding DataContext.RemovePoolServerCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}"
+                                                    Padding="4,2" FontSize="10"
+                                                    ToolTip="Quitar de la lista"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <GridSplitter Grid.Column="1" Width="8" HorizontalAlignment="Stretch"
+                          Background="Transparent" Cursor="SizeWE"/>
+
+            <!-- RIGHT: Configuración de pool -->
+            <Border Grid.Column="2" Background="{StaticResource SurfaceBg}" CornerRadius="6" Padding="16">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="CONFIGURACIÓN DE POOL" Style="{StaticResource SectionHeader}"/>
+                        <Separator Background="{StaticResource BorderColor}" Margin="0,0,0,12"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="130"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="80"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="8"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="8"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="8"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Nombre pool -->
+                            <Label Grid.Row="0" Grid.Column="0" Content="Nombre pool:" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"
+                                     Text="{Binding SelectedPool.Name, UpdateSourceTrigger=PropertyChanged}"/>
+
+                            <!-- Ejecutable origen -->
+                            <Label Grid.Row="2" Grid.Column="0" Content="Exe origen:" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="2" Grid.Column="1"
+                                     Text="{Binding SelectedPool.SourceExePath, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="Ruta del ejecutable nuevo a distribuir"/>
+                            <Button Grid.Row="2" Grid.Column="2" Content="Examinar" Style="{StaticResource BtnGray}"
+                                    Margin="4,0,0,0" Click="BrowsePoolSource_Click"/>
+
+                            <!-- Nombre exe destino -->
+                            <Label Grid.Row="4" Grid.Column="0" Content="Nombre exe:" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
+                                     Text="{Binding SelectedPool.ExeName, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="Nombre del ejecutable en los servidores destino"/>
+                        </Grid>
+
+                        <!-- Ayuda -->
+                        <Border Background="#1A1A2E" CornerRadius="4" Padding="10" Margin="0,16,0,0">
+                            <StackPanel>
+                                <TextBlock Text="ℹ Proceso de actualización:" Foreground="{StaticResource AccentBlue}" FontSize="11" FontWeight="SemiBold"/>
+                                <TextBlock Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap">
+                                    <Run Text="  1. En cada servidor, el exe actual se renombra como backup: "/>
+                                    <Run Text="_[nombre]_[ddMMyyyy].exe" Foreground="{StaticResource AccentOrange}"/>
+                                    <LineBreak/>
+                                    <Run Text="  2. Se copia el exe nuevo desde la ruta origen."/>
+                                    <LineBreak/>
+                                    <Run Text="  Solo se procesan los servidores marcados ✓."/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- POOL ACTION BAR -->
+        <Border Grid.Row="1" Background="#16162A" BorderBrush="{StaticResource BorderColor}"
+                BorderThickness="0,1,0,1" Margin="0,4,0,0">
+            <Grid Margin="16,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="TIPO POOL:" Foreground="{StaticResource TextSecondary}"
+                           FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox Grid.Column="1" ItemsSource="{Binding Pools}"
+                          SelectedItem="{Binding SelectedPool}"
+                          DisplayMemberPath="Name" VerticalAlignment="Center"
+                          Style="{StaticResource DarkComboBox}" Height="34"
+                          Foreground="Black"/>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                    <Button Content="+ Nuevo" Style="{StaticResource BtnSmall}"
+                            Command="{Binding AddPoolCommand}" ToolTip="Agregar tipo de pool"/>
+                    <Button Content="Guardar" Style="{StaticResource BtnSmall}" Margin="4,0,0,0"
+                            Command="{Binding SavePoolCommand}" ToolTip="Guardar configuración del pool"/>
+                    <Button Content="✕" Style="{StaticResource BtnSmall}" Margin="4,0,0,0"
+                            Command="{Binding DeletePoolCommand}" ToolTip="Eliminar tipo de pool"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4" Orientation="Horizontal">
+                    <Button Content="🚀  Actualizar Pool"
+                            Style="{StaticResource BtnGreen}" FontSize="13" Height="36" Padding="16,6"
+                            Command="{Binding UpdatePoolCommand}"
+                            ToolTip="Renombra el exe actual como backup y copia el nuevo en los servidores marcados"
+                            IsEnabled="{Binding IsIdle, Mode=OneWay}"/>
+
+                    <Button Content="🧹  Limpiar Backups"
+                            Style="{StaticResource BtnOrange}" FontSize="13" Height="36" Padding="16,6" Margin="8,0,0,0"
+                            Command="{Binding CleanPoolCommand}"
+                            ToolTip="Elimina los .exe de backup (renombrados con fecha) en los servidores marcados"
+                            IsEnabled="{Binding IsIdle, Mode=OneWay}"/>
+                </StackPanel>
+
+                <Button Grid.Column="6" Content="✕  Cancelar"
+                        Style="{StaticResource BtnRed}" FontSize="13" Height="36" Padding="14,6"
+                        Command="{Binding CancelCommand}"
+                        IsEnabled="{Binding IsBusy, Mode=OneWay}"/>
+
+                <StackPanel Grid.Column="7" Orientation="Horizontal" VerticalAlignment="Center"
+                            HorizontalAlignment="Right"
+                            Visibility="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="⟳ " Foreground="{StaticResource AccentOrange}" FontSize="16"
+                               RenderTransformOrigin="0.5,0.5" VerticalAlignment="Center">
+                        <TextBlock.RenderTransform>
+                            <RotateTransform x:Name="PoolSpinTransform" Angle="0"/>
+                        </TextBlock.RenderTransform>
+                        <TextBlock.Triggers>
+                            <EventTrigger RoutedEvent="Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard RepeatBehavior="Forever">
+                                        <DoubleAnimation Storyboard.TargetName="PoolSpinTransform"
+                                                         Storyboard.TargetProperty="Angle"
+                                                         From="0" To="360" Duration="0:0:1"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </TextBlock.Triggers>
+                    </TextBlock>
+                    <TextBlock Text="{Binding BusyText}" Foreground="{StaticResource AccentOrange}"
+                               FontSize="12" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+        </Grid>
+        </TabItem>
+
+        </TabControl>
 
         <!-- ═══════════════════════ LOG ═══════════════════════ -->
-        <Border Grid.Row="3" Background="{StaticResource SurfaceBg}"
+        <Border Grid.Row="2" Background="{StaticResource SurfaceBg}"
                 BorderBrush="{StaticResource BorderColor}" BorderThickness="0,0,0,0"
                 Margin="12,4,12,4">
             <DockPanel Margin="10,8">
@@ -571,7 +823,7 @@
         </Border>
 
         <!-- ═══════════════════════ STATUS BAR ═══════════════════════ -->
-        <Border Grid.Row="4" Background="#12121E" Padding="12,0">
+        <Border Grid.Row="3" Background="#12121E" Padding="12,0">
             <DockPanel VerticalAlignment="Center">
                 <TextBlock DockPanel.Dock="Left"
                            Foreground="{StaticResource TextSecondary}" FontSize="10">

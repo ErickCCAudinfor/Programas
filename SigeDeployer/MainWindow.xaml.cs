@@ -42,5 +42,19 @@ namespace SigeDeployer
             if (dialog.ShowDialog() == true && _vm.SelectedCompany != null)
                 _vm.SelectedCompany.WinRarPath = dialog.FileName;
         }
+
+        private void BrowsePoolSource_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "Seleccionar ejecutable del pool",
+                Filter = "Ejecutables (*.exe)|*.exe"
+            };
+            if (dialog.ShowDialog() == true && _vm.SelectedPool != null)
+            {
+                _vm.SelectedPool.SourceExePath = dialog.FileName;
+                _vm.SelectedPool.ExeName = System.IO.Path.GetFileName(dialog.FileName);
+            }
+        }
     }
 }
