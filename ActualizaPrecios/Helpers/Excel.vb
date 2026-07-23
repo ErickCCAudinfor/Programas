@@ -65,6 +65,7 @@ Public Class Excel
                     If Not Long.TryParse(CodContratoTexto, codContrato) Then Continue For
 
                     Dim fechaAplicar As Date
+                    Dim fechaAplicar2 As Date
                     Date.TryParse(worksheet.Cells(row, 2).Value?.ToString(), fechaAplicar)
 
                     Dim fechaCierre As Date
@@ -78,7 +79,7 @@ Public Class Excel
 
                     Dim IsMantenerPerfil As Boolean
                     Boolean.TryParse(worksheet.Cells(row, 7).Value?.ToString(), IsMantenerPerfil)
-
+                    Date.TryParse(worksheet.Cells(row, 8).Value?.ToString(), fechaAplicar2)
                     resultado.Add(New ContratoTarifa With {
                     .CodigoContrato = codContrato, 'Columna 1                    
                     .FechaDesde = fechaAplicar, ' Columna 2
@@ -86,7 +87,8 @@ Public Class Excel
                     .textotarifagrupoViejo = grupoviejo, ' 4
                     .textotarifagrupoNuevo = gruponuevo, '5
                     .IsQ = IsQ,'6
-                    .MantenerPerfil = IsMantenerPerfil '7
+                    .MantenerPerfil = IsMantenerPerfil, '7                    
+                    .FechaAplicar = fechaAplicar2 '8
                 })
                 Next
             End Using

@@ -8,6 +8,7 @@
     Private _TextoPerfilFacturacion As String
     Private _IdTarifa As Long
     Private _TextoTarifa As String
+    Private _FechaDesde As Date?
     Public Sub New()
         _IdContratoTarifa = 0 ' Long
         _CodigoContrato = 0 ' Long
@@ -16,7 +17,7 @@
         _TextoPerfilFacturacion = String.Empty ' String
         _IdTarifa = 0 ' Long
         _TextoTarifa = String.Empty ' String
-
+        _FechaDesde = Nothing
     End Sub
 
     Public Property IdContratoTarifa As Long
@@ -81,7 +82,14 @@
             _TextoTarifa = value
         End Set
     End Property
-
+    Public Property FechaDesde As String
+        Get
+            Return _FechaDesde
+        End Get
+        Set(value As String)
+            _FechaDesde = value
+        End Set
+    End Property
     Public Overloads Function Equals(other As ContratoTarifaPersonalizado) As Boolean Implements IEquatable(Of ContratoTarifaPersonalizado).Equals
         Return Me.IdContratoTarifa = other.IdContratoTarifa AndAlso
                Me.CodigoContrato = other.CodigoContrato AndAlso
@@ -90,6 +98,7 @@
                Me.TextoPerfilFacturacion = other.TextoPerfilFacturacion AndAlso
                Me.IdTarifa = other.IdTarifa
         Me.TextoTarifa = other.TextoTarifa
+        Me.FechaDesde = other.FechaDesde
     End Function
 
 End Class

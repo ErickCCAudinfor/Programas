@@ -435,7 +435,7 @@ WHERE TP.Entorno = '{Entorno}'
                 Dim query As String = $"SELECT IdIndexadoPrecio,IndexadoPrecio.Entorno,IndexadoPrecio.IdTarifa,IdTarifaGrupo,IdIndexadoConcepto,tp.IdTarifaPeriodo,tp.TextoTarifaPeriodo
                     FROM IndexadoPrecio
                     Inner join TarifaPeriodo tp on IndexadoPrecio.IdTarifaPeriodo = tp.IdTarifaPeriodo
-                    WHERE IndexadoPrecio.IdTarifa = {IdTarifa} AND IdTarifaGrupo = {IdTarifaGrupo} order by idindexadoprecio desc"
+                    WHERE IndexadoPrecio.IdTarifa = {IdTarifa} AND IdTarifaGrupo = {IdTarifaGrupo} and FechaFinPresupuesto>='{FechaPresupuesto}' order by idindexadoprecio desc"
                 'and FechaFinPresupuesto ='{FechaPresupuesto}' 
                 Dim comando As New SqlCommand(query, conexion)
                 comando.CommandTimeout = 3600
@@ -475,7 +475,7 @@ WHERE TP.Entorno = '{Entorno}'
             Dim query As String = $"SELECT IdIndexadoPrecio,IndexadoPrecio.Entorno,IndexadoPrecio.IdTarifa,IdTarifaGrupo,IdIndexadoConcepto,tp.IdTarifaPeriodo,tp.TextoTarifaPeriodo,FechaFinPresupuesto
                     FROM IndexadoPrecio
                     Inner join TarifaPeriodo tp on IndexadoPrecio.IdTarifaPeriodo = tp.IdTarifaPeriodo
-                    WHERE IndexadoPrecio.IdTarifa = {IdTarifa} AND IdTarifaGrupo = {IdTarifaGrupo} and isnull(FechaFinPresupuesto,'31-12-9999')>=isnull('{FechaPresupuesto}',getdate())"
+                    WHERE IndexadoPrecio.IdTarifa = {IdTarifa} AND IdTarifaGrupo = {IdTarifaGrupo} and isnull(FechaFinPresupuesto,'31-12-9999')>=isnull('{FechaPresupuesto}',getdate()) and FechaFinPresupuesto is not null"
             'and FechaFinPresupuesto ='{FechaPresupuesto}' 
             Dim result = Helper.QuerySelect(query, connectionString)
             Dim errores = Helper.GetError(result)
@@ -1039,11 +1039,11 @@ WHERE tp.Entorno = '{Entorno}'
         Return Productos
     End Function
 
-    Public Function GetProductosbyTextoProducto(ProductoBuscar As String) As Producto
+    Public Function GetProductosbyTextoProducto(ProductoBuscar As String, Entorno As String) As Producto
         Dim Producto As New Producto
 
         Try
-            Dim query As String = $"select * from Producto where  textoproducto = '{ProductoBuscar}' "
+            Dim query As String = $"select * from Producto where  textoproducto = '{ProductoBuscar}' and entorno='{Entorno}'"
             Dim result = Helper.QuerySelect(query, connectionString)
             Dim errores = Helper.GetError(result)
             If errores.HasError Then
@@ -2134,16 +2134,16 @@ where CONCAT(fv.SerieFactura,fv.NumeroFactura) ='{Factura}' and FacturaConcepto 
         Dim JoinContrato = String.Join(",", CodContrato)
         Try
 
-            Dim query As String = $"select ct.idcontratotarifa, ct.codigocontrato,tg.IdTarifaGrupo,tg.textotarifagrupo, pf.TextoPerfilFacturacion, t.IdTarifa,t.TextoTarifa
+            Dim query As String = $"select ct.idcontratotarifa, ct.codigocontrato,tg.IdTarifaGrupo,tg.textotarifagrupo, pf.TextoPerfilFacturacion, t.IdTarifa,t.TextoTarifa,ct.fechadesde
 from contratotarifa ct
 left join TarifaGrupo tg on ct.idtarifagrupo = tg.idtarifagrupo
 left join perfilfacturacion pf on ct.idperfilfacturacion = pf.idperfilfacturacion
 left join tarifa t  on ct.idtarifa = t.idtarifa
 left join contrato c on ct.CodigoContrato = c.CodigoContrato
-where c.codigocontrato in (
+where ct.idcontratotarifa in (
 {JoinContrato}
 )
-and ct.FechaHasta is null
+
 order by c.CodigoContrato
 
 "
@@ -2237,9 +2237,9 @@ order by c.CodigoContrato
                     Dim Contrato = GetContrato(objContratoTarifa.CodigoContrato)
                     'Dim fechacontrato = objDatosContratos.Select(Function(f) f.IdContratoTarifa).Distinct.ToList
                     Dim ContratoTarifaEnFechas As Boolean = If(objContratoTarifa.FechaDesde >= Contrato.FechaAlta, False)
-                    If ContratoTarifaEnFechas = True Then
-                        Dim TarPrecioContrato = TarifaPrecioContratoSrv.ActualizarPreciosVigentes(idcontratoT, PreciosOriginales, If(FechaVigencia, Date.MinValue))
-                    End If
+                    'If ContratoTarifaEnFechas = True Then
+                    Dim TarPrecioContrato = TarifaPrecioContratoSrv.ActualizarPreciosVigentes(idcontratoT, PreciosOriginales, If(FechaVigencia, Date.MinValue))
+                    'End If
                     'Fin de comprobacion 351
                 Catch ex As Exception
                     'Dim ContratoTarifa = objContratoTarifaSrv.GetDTO(ID)
@@ -2276,9 +2276,15 @@ order by c.CodigoContrato
             Throw
         End Try
     End Sub
-    Public Sub AplicarPreciosV2(CodContrato As Long, FechaVigencia As Date?, IsQ As Boolean)
+    Public Sub AplicarPreciosV2(CodContrato As Long, FechaVigencia As Date?, IsQ As Boolean, fechaAplicar As Date?)
         Try
             Dim objContratoTarifa = GetContratoTarifabyCodContratoFechaVigencia(CodContrato, FechaVigencia)
+            Dim UsarFechaAplicar = False
+            ' Opción 1: verificar que tiene valor Y no es la fecha mínima
+            If fechaAplicar.HasValue AndAlso fechaAplicar.Value > Date.MinValue Then
+                ' fechaAplicar tiene una fecha real
+                FechaVigencia = fechaAplicar
+            End If
 
             If Not IsNothing(objContratoTarifa.IdPerfilFacturacion) Then
                 objContratoTarifa.PerfilFacturacion = GetPerfilFacturacion(If(objContratoTarifa.IdPerfilFacturacion, 0))

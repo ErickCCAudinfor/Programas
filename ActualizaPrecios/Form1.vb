@@ -50,7 +50,11 @@ Public Class Form1
     Private Sub MostrarLoading(mostrar As Boolean)
         PictureBox2.Visible = mostrar
         TextConsultando.Visible = mostrar
-        If Not mostrar Then TextConsultando.Text = ""
+        LblContadorCups.Visible = mostrar
+        If Not mostrar Then
+            TextConsultando.Text = ""
+            LblContadorCups.Text = ""
+        End If
     End Sub
 
     ''Para saber si PRO o AUT
@@ -1588,10 +1592,10 @@ Public Class Form1
     Private Sub RadioButton3_CheckedChanged(sender As Object, e As EventArgs) Handles RadioButton3.CheckedChanged
         Try
             If RadioButton3.Checked Then
-                Label5.Text = "BD UAT  172.31.100.50 SigeTotalUAT"
+                Label5.Text = "BD UAT  10.10.123.12 SigeTotalUAT"
                 RadioButton1.Checked = False
                 RadioButton2.Checked = False
-                ipDB = "data source=172.31.100.50;"
+                ipDB = "data source=10.10.123.12;"
                 nameDB = "initial catalog=SigeTotalUAT;"
                 connectionString = $"{ipDB}{nameDB}{userDB}{passDB}"
                 Funciones = New FuncionesGenericas(connectionString)
@@ -1646,7 +1650,7 @@ Public Class Form1
                 Await Task.Run(Sub()
                                    Dim ContratosC = Funciones.GetContratoTarifaPersonalizado(ListaContratos)
                                    For Each c In ContratosC
-                                       Dim FechaVigencia = DateTimePicker1.Value
+                                       Dim FechaVigencia = DateTimePicker1.Value.Date
                                        Funciones.AplicarPrecios(c.CodigoContrato, FechaVigencia)
                                    Next
                                End Sub)
@@ -2031,7 +2035,11 @@ Public Class Form1
 
                                    ' 3. Aplicar precios
                                    Dim fechaAplicacion = If(Not c.IsQ, c.FechaDesde, tgActual.FechaDesde)
-                                   Funciones.AplicarPreciosV2(codigoContrato, fechaAplicacion, c.IsQ)
+                                   'If c.FechaAplicar IsNot Nothing Then
+                                   '    fechaAplicacion = c.FechaAplicar
+                                   'End If
+
+                                   Funciones.AplicarPreciosV2(codigoContrato, fechaAplicacion, c.IsQ, c.FechaAplicar)
 
                                End If
                                SetTextSafe(TextConsultando, $"Insertando y/o aplicando precios: {contador}/{total}. Posibles errores {contadorErrores}/{total}")
@@ -2181,6 +2189,7 @@ Public Class Form1
         Catch ex As Exception
             PictureBox2.Visible = False
             TextConsultando.Visible = False
+            LblContadorCups.Visible = False
             complementos.MostrarMensajePersonalizado("Exception: " & ex.Message)
         End Try
     End Sub
@@ -2197,6 +2206,8 @@ Public Class Form1
 
         PictureBox2.Visible = True
         TextConsultando.Visible = True
+        LblContadorCups.Visible = True
+        LblContadorCups.Text = ""
 
         Dim tasks As New List(Of Task)
 
@@ -2300,11 +2311,19 @@ Public Class Form1
             Next
         End If
 
+        If CheckEnergiaReactiva.Checked Then
+            Dim ListaF = GetFacsSinSplit(TextBox2.Text)
+            tasks.Add(CrearTareaConsulta("EnergiaActivaReactiva", conexion, rutaCarpeta, "ActivaReactiva",
+            Function() ConsultasSQL.ConsultaLecturaActivaReactivayVarios(ListaF)))
+        End If
+
         Await Task.WhenAll(tasks)
 
         PictureBox2.Visible = False
         TextConsultando.Visible = False
         TextConsultando.Text = ""
+        LblContadorCups.Visible = False
+        LblContadorCups.Text = ""
 
         complementos.Complementos_MostrarMensajePersonalizadoCopiar($"Consulta generada correctamente. {rutaCarpeta}", "")
 
@@ -2345,14 +2364,77 @@ Public Class Form1
         Return Task.Run(Sub()
 
                             If dividir Then
+                                Dim processed = 0
                                 For Each c In cups
+                                    processed += 1
                                     SetTextSafe(TextConsultando, $"Consultando Cups: {c}")
+                                    SetTextSafe(LblContadorCups, $"Procesados: {processed} / {cups.Count}")
+                                    Dim dt = FetchDataTable(conexion, consultaFactory(c))
+                                    If dt.Rows.Count = 0 Then Continue For
+
                                     Dim ruta = Path.Combine(rutaCarpeta, $"{nombre}_{c}.xlsx")
-                                    ExportarConsultaAExcel(conexion, consultaFactory(c), ruta, c)
+                                    If dt.Rows.Count <= EXCEL_MAX_ROWS Then
+                                        EscribirDataTableAExcel(dt, ruta, c)
+                                    Else
+                                        Dim sheetIdx = 1
+                                        Dim offset = 0
+                                        While offset < dt.Rows.Count
+                                            Dim batch = Math.Min(EXCEL_MAX_ROWS, dt.Rows.Count - offset)
+                                            Dim subDt = dt.Clone()
+                                            For i = offset To offset + batch - 1
+                                                subDt.ImportRow(dt.Rows(i))
+                                            Next
+                                            EscribirDataTableAExcel(subDt, ruta, $"{c}_{sheetIdx}")
+                                            subDt.Dispose()
+                                            offset += batch
+                                            sheetIdx += 1
+                                        End While
+                                    End If
+                                    dt.Dispose()
                                 Next
                             Else
-                                Dim ruta = Path.Combine(rutaCarpeta, $"{nombre}_{Date.Today:ddMMyyyy}.xlsx")
-                                ExportarConsultaAExcel(conexion, consultaFactory(Nothing), ruta, nombre)
+                                ' Acumular todos los CUPS en un DataTable maestro (más ligero en RAM que ClosedXML)
+                                ' y escribir el Excel una sola vez al final para evitar OutOfMemoryException
+                                Dim masterDt As DataTable = Nothing
+                                Dim processedNoDividir = 0
+
+                                For Each c In cups
+                                    processedNoDividir += 1
+                                    SetTextSafe(TextConsultando, $"Consultando Cups: {c}")
+                                    SetTextSafe(LblContadorCups, $"Procesados: {processedNoDividir} / {cups.Count}")
+                                    Dim dt = FetchDataTable(conexion, consultaFactory(c))
+                                    If dt.Rows.Count = 0 Then
+                                        dt.Dispose()
+                                        Continue For
+                                    End If
+                                    If masterDt Is Nothing Then
+                                        masterDt = dt.Clone()
+                                    End If
+                                    For Each row As DataRow In dt.Rows
+                                        masterDt.ImportRow(row)
+                                    Next
+                                    dt.Dispose()
+                                    GC.Collect()
+                                Next
+
+                                If masterDt IsNot Nothing AndAlso masterDt.Rows.Count > 0 Then
+                                    SetTextSafe(TextConsultando, $"Escribiendo Excel: {masterDt.Rows.Count} filas...")
+                                    Dim allRows = masterDt.Rows.Cast(Of DataRow)().ToList()
+                                    masterDt.Dispose()
+                                    GC.Collect()
+                                    Dim fileIdx = 1
+                                    Dim offset = 0
+                                    While offset < allRows.Count
+                                        Dim ruta = If(allRows.Count <= EXCEL_MAX_ROWS,
+                                                      Path.Combine(rutaCarpeta, $"{nombre}_{Date.Today:ddMMyyyy}.xlsx"),
+                                                      Path.Combine(rutaCarpeta, $"{nombre}_{fileIdx:D2}_{Date.Today:ddMMyyyy}.xlsx"))
+                                        Dim batch = Math.Min(EXCEL_MAX_ROWS, allRows.Count - offset)
+                                        Dim rowsSegmento = allRows.Skip(offset).Take(batch)
+                                        EscribirStreamingAExcel(rowsSegmento, allRows(0).Table.Columns, ruta, nombre)
+                                        offset += batch
+                                        fileIdx += 1
+                                    End While
+                                End If
                             End If
 
                         End Sub)

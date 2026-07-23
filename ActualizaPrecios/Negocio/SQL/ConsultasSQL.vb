@@ -39,49 +39,72 @@
 		Return consulta
 	End Function
 	Public Shared Function GetCurvaHoraria(DesdeFecha As Date, hastaFecha As Date, Optional ListaCups As List(Of String) = Nothing, Optional Cups As String = "") As String
-		Dim joinCups = ""
+		Dim allCups As New List(Of String)
+
 		If Cups.Length > 1 Then
-			joinCups = $"'{Cups}'"
+			allCups.Add(Cups.Trim())
 		End If
 		If Not ListaCups Is Nothing AndAlso ListaCups.Count >= 1 Then
-			joinCups = String.Join(",", ListaCups.Select(Function(c) $"'{c.Trim}'"))
+			allCups.AddRange(ListaCups.Select(Function(c) c.Trim()))
 		End If
 
+		Dim cupsLikeCondition As String = String.Join(" OR ",
+		allCups.Select(Function(c)
+						   Dim prefix = If(c.Length > 20, c.Substring(0, 20), c)
+						   Return $"cups LIKE N'{prefix}%'"
+					   End Function))
+
 		Dim consulta As String = ObtenerConsulta("CurvaHoraria")
-		consulta = consulta.Replace("joinCupsReplace", joinCups)
-		consulta = consulta.Replace("DesdeFechaReplace", DesdeFecha.ToString("dd/MM/yyyy"))
-		consulta = consulta.Replace("hastaFechaReplace", hastaFecha.ToString("dd/MM/yyyy"))
+		consulta = consulta.Replace("cupsLikeReplace", cupsLikeCondition)
+		consulta = consulta.Replace("DesdeFechaReplace", DesdeFecha.ToString("yyyyMMdd"))
+		consulta = consulta.Replace("hastaFechaReplace", hastaFecha.ToString("yyyyMMdd"))
 		Return consulta
 	End Function
 
 
 	Public Shared Function GetCurvaCuartoHoraria(DesdeFecha As Date, hastaFecha As Date, Optional ListaCups As List(Of String) = Nothing, Optional Cups As String = "") As String
-		Dim joinCups = ""
+		Dim allCups As New List(Of String)
+
 		If Cups.Length > 1 Then
-			joinCups = $"'{Cups}'"
+			allCups.Add(Cups.Trim())
 		End If
 		If Not ListaCups Is Nothing AndAlso ListaCups.Count >= 1 Then
-			joinCups = String.Join(",", ListaCups.Select(Function(c) $"'{c.Trim}'"))
+			allCups.AddRange(ListaCups.Select(Function(c) c.Trim()))
 		End If
+
+		Dim cupsLikeCondition As String = String.Join(" OR ",
+		allCups.Select(Function(c)
+						   Dim prefix = If(c.Length > 20, c.Substring(0, 20), c)
+						   Return $"cups LIKE N'{prefix}%'"
+					   End Function))
+
 		Dim consulta As String = ObtenerConsulta("CurvaCuartoHoraria")
-		consulta = consulta.Replace("joinCupsReplace", joinCups)
-		consulta = consulta.Replace("DesdeFechaReplace", DesdeFecha.ToString("dd/MM/yyyy"))
-		consulta = consulta.Replace("hastaFechaReplace", hastaFecha.ToString("dd/MM/yyyy"))
+		consulta = consulta.Replace("cupsLikeReplace", cupsLikeCondition)
+		consulta = consulta.Replace("DesdeFechaReplace", DesdeFecha.ToString("yyyyMMdd"))
+		consulta = consulta.Replace("hastaFechaReplace", hastaFecha.ToString("yyyyMMdd"))
 		Return consulta
 	End Function
 
 	Public Shared Function GetCurvaFacturable(DesdeFecha As Date, hastaFecha As Date, Optional ListaCups As List(Of String) = Nothing, Optional Cups As String = "") As String
-		Dim joinCups = ""
+		Dim allCups As New List(Of String)
+
 		If Cups.Length > 1 Then
-			joinCups = $"'{Cups}'"
+			allCups.Add(Cups.Trim())
 		End If
 		If Not ListaCups Is Nothing AndAlso ListaCups.Count >= 1 Then
-			joinCups = String.Join(",", ListaCups.Select(Function(c) $"'{c.Trim}'"))
+			allCups.AddRange(ListaCups.Select(Function(c) c.Trim()))
 		End If
+
+		Dim cupsLikeCondition As String = String.Join(" OR ",
+		allCups.Select(Function(c)
+						   Dim prefix = If(c.Length > 20, c.Substring(0, 20), c)
+						   Return $"cups LIKE N'{prefix}%'"
+					   End Function))
+
 		Dim consulta As String = ObtenerConsulta("CurvaFacturable")
-		consulta = consulta.Replace("joinCupsReplace", joinCups)
-		consulta = consulta.Replace("DesdeFechaReplace", DesdeFecha.ToString("dd/MM/yyyy"))
-		consulta = consulta.Replace("hastaFechaReplace", hastaFecha.ToString("dd/MM/yyyy"))
+		consulta = consulta.Replace("cupsLikeReplace", cupsLikeCondition)
+		consulta = consulta.Replace("DesdeFechaReplace", DesdeFecha.ToString("yyyyMMdd"))
+		consulta = consulta.Replace("hastaFechaReplace", hastaFecha.ToString("yyyyMMdd"))
 		Return consulta
 	End Function
 	Public Shared Function GetConsultaContrato(codCntrato As List(Of Long)) As String
@@ -290,6 +313,14 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
 	Public Shared Function GetTrebolLuz_V2(Identidad As String) As String
 		Dim consulta As String = ObtenerConsulta("ConsultaFacturasTrebol_ELEC_By_Identidad")
 		consulta = consulta.Replace("identidadReplace", Identidad)
+		Return consulta
+
+	End Function
+
+	Public Shared Function ConsultaLecturaActivaReactivayVarios(ListaFacturas As List(Of String)) As String
+		Dim consulta As String = ObtenerConsulta("ConsultaLecturaActivaReactivayVarios")
+		Dim ListaFacturasParam = "'" & String.Join("','", ListaFacturas) & "'"
+		consulta = consulta.Replace("ListaFacturasParam", ListaFacturasParam)
 		Return consulta
 
 	End Function

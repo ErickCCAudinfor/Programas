@@ -370,4 +370,14 @@ Partial Class ContratoTarifa
             _MantenerPerfil = value
         End Set
     End Property
+
+    Private _FechaAplicar As Nullable(Of Date)
+    Public Property FechaAplicar As Nullable(Of Date)
+        Get
+            Return _FechaAplicar
+        End Get
+        Set(ByVal value As Nullable(Of Date))
+            _FechaAplicar = value
+        End Set
+    End Property
 End Class

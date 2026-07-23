@@ -197,7 +197,8 @@ Public Class ProductosAsig
                     Dim ContratoBD = Funciones.GetContrato(CLng(CodContrato))
                     If Not ContratoBD Is Nothing AndAlso ContratoBD.IdContrato > 0 Then
                         Dim TextoProducto = worksheet.Cells(row, 2).Value?.ToString
-                        Dim ProductoBD = Funciones.GetProductosbyTextoProducto(TextoProducto)
+                        Dim EntornoContrato = If(String.Equals(ContratoBD.Entorno, "E1"), "G1", "G2")
+                        Dim ProductoBD = Funciones.GetProductosbyTextoProducto(TextoProducto, EntornoContrato)
                         If Not ProductoBD Is Nothing AndAlso ProductoBD.IdProducto > 0 Then
                             Dim ProductoInsertar As New ProductoAsignacion
                             ProductoInsertar.IdContrato = ContratoBD.IdContrato
