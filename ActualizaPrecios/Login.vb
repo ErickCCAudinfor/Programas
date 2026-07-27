@@ -19,6 +19,9 @@ Public Class Login
     End Sub
 
     Private Sub AplicarTema()
+        ' Versión publicada: siempre desde AppInfo, nunca un literal en el diseñador
+        Label1.Text = AppInfo.VersionEtiqueta
+
         ' Card interior: blanco puro → azul-blanco suave
         pnlContenido.BackColor = Color.FromArgb(248, 251, 255)
 

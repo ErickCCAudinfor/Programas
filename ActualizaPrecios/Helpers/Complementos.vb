@@ -2,7 +2,7 @@
     Implements IComplementos
     Public Sub MostrarMensajePersonalizado(mensaje As String) Implements IComplementos.MostrarMensajePersonalizado
         Dim mensajeForm As New Form()
-        mensajeForm.Text = "Gestor de Datos SIGE"
+        mensajeForm.Text = AppInfo.Nombre
         mensajeForm.Size = New System.Drawing.Size(300, 150)
         mensajeForm.FormBorderStyle = FormBorderStyle.FixedDialog
         mensajeForm.StartPosition = FormStartPosition.CenterScreen
@@ -32,7 +32,7 @@
     Public Sub Complementos_MostrarMensajePersonalizadoCopiar(mensaje As String, TextoCopiarOpcional As String) Implements IComplementos.MostrarMensajePersonalizadoCopiar
         ' Crear el formulario personalizado
         Dim mensajeForm As New Form()
-        mensajeForm.Text = "Gestor de Datos SIGE"
+        mensajeForm.Text = AppInfo.Nombre
         mensajeForm.Size = New System.Drawing.Size(300, 180)
         mensajeForm.FormBorderStyle = FormBorderStyle.FixedDialog
         mensajeForm.StartPosition = FormStartPosition.CenterScreen

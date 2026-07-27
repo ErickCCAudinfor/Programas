@@ -36,7 +36,7 @@ Public Class Form1
     Public Sub New(NombreLogin As String)
         InitializeComponent()
         Me.NombreLogin = NombreLogin
-        Text += " - " + NombreLogin
+        Text = $"{AppInfo.TituloVentana} - {NombreLogin}"
     End Sub
 
     Private Sub SetTextSafe(ctrl As System.Windows.Forms.Control, text As String)
@@ -3418,6 +3418,7 @@ Public Class Form1
             PanelLateral.Width = 0
             PanelExpandido = False
             AplicarTema()
+            InicializarNovedades()
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)
         End Try
@@ -3447,10 +3448,10 @@ Public Class Form1
 
         ' btnExpandir como toggle destacado
         EstiloBotonFlat(btnExpandir, Color.FromArgb(25, 118, 210), Color.FromArgb(70, 150, 230))
-        btnExpandir.Font = New Font("Segoe UI", 9F, FontStyle.Regular)
+        btnExpandir.Font = New Font("Segoe UI", 9.0F, FontStyle.Regular)
 
         ' Label3 "Otras opciones" (cabecera Panel2)
-        Label3.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold)
+        Label3.Font = New Font("Segoe UI Semibold", 9.0F, FontStyle.Bold)
         Label3.ForeColor = Color.FromArgb(25, 65, 120)
 
         ' --- Botones PanelLateral (menú lateral) ---
@@ -3504,6 +3505,83 @@ Public Class Form1
         btn.Cursor = Cursors.Hand
         btn.UseVisualStyleBackColor = False
     End Sub
+
+#Region "novedades"
+
+    Private ReadOnly ColorNovedadesAviso As Color = Color.FromArgb(245, 158, 11)
+    Private ReadOnly ColorNovedadesBordeAviso As Color = Color.FromArgb(255, 196, 90)
+    Private ReadOnly ColorNovedadesLeido As Color = Color.FromArgb(90, 115, 155)
+    Private ReadOnly ColorNovedadesBordeLeido As Color = Color.FromArgb(110, 135, 175)
+
+    ''' <summary>Versión que el usuario tenía leída al arrancar; marca las entradas "NUEVO".</summary>
+    Private VersionNovedadesPrevia As String = ""
+    Private ParpadeoEncendido As Boolean = False
+
+    Private Sub InicializarNovedades()
+
+        Dim usuario = SesionActual.UsuarioLogueado
+        VersionNovedadesPrevia = NovedadesUsuario.VersionLeidaDe(usuario)
+
+        If NovedadesUsuario.HayNovedadesSinLeer(usuario) Then
+            ToolTop1.SetToolTip(btnNovedades, "Hay novedades sin leer. Pulsa para verlas.")
+            TimerNovedades.Start()
+        Else
+            PintarNovedadesLeidas()
+        End If
+
+    End Sub
+
+    ''' <summary>Alterna el color del botón mientras haya novedades pendientes.</summary>
+    Private Sub TimerNovedades_Tick(sender As Object, e As EventArgs) Handles TimerNovedades.Tick
+
+        ParpadeoEncendido = Not ParpadeoEncendido
+
+        If ParpadeoEncendido Then
+            EstiloBotonFlat(btnNovedades, ColorNovedadesAviso, ColorNovedadesBordeAviso)
+            btnNovedades.Text = "¡Novedades!"
+        Else
+            EstiloBotonFlat(btnNovedades, Color.FromArgb(25, 65, 120), Color.FromArgb(70, 120, 190))
+            btnNovedades.Text = "Novedades"
+        End If
+
+    End Sub
+
+    Private Sub btnNovedades_Click(sender As Object, e As EventArgs) Handles btnNovedades.Click
+
+        Try
+            ' Se para el parpadeo nada más abrir: para el usuario ya están vistas.
+            TimerNovedades.Stop()
+
+            Using frm As New NovedadesForm(VersionNovedadesPrevia)
+                frm.ShowDialog(Me)
+            End Using
+
+            ' Se marca leído se cierre como se cierre (botón o aspa).
+            If Not NovedadesUsuario.MarcarNovedadesLeidas(SesionActual.UsuarioLogueado) Then
+                ' No se pudo persistir: volverá a avisar en el próximo arranque.
+                ToolTop1.SetToolTip(btnNovedades, "Novedades de la versión " & AppInfo.Version & " (no se pudo guardar la lectura)")
+            End If
+
+            VersionNovedadesPrevia = NovedadesApp.VersionActual
+            PintarNovedadesLeidas()
+
+        Catch ex As Exception
+            complementos.MostrarMensajePersonalizado(ex.Message)
+        End Try
+
+    End Sub
+
+    Private Sub PintarNovedadesLeidas()
+
+        TimerNovedades.Stop()
+        ParpadeoEncendido = False
+        btnNovedades.Text = "Novedades"
+        EstiloBotonFlat(btnNovedades, ColorNovedadesLeido, ColorNovedadesBordeLeido)
+        ToolTop1.SetToolTip(btnNovedades, "Ver el historial de cambios (versión " & AppInfo.Version & ")")
+
+    End Sub
+
+#End Region
 
     Private Sub btnExpandir_Click(sender As Object, e As EventArgs) Handles btnExpandir.Click
         TimerPanel.Start()

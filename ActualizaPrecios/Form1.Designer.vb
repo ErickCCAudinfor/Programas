@@ -118,6 +118,8 @@ Partial Class Form1
         Panel4 = New Panel()
         gbGenerales = New GroupBox()
         gbPool = New GroupBox()
+        btnNovedades = New Button()
+        TimerNovedades = New Timer(components)
         Panel1.SuspendLayout()
         CType(PictureBox2, ComponentModel.ISupportInitialize).BeginInit()
         CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
@@ -1028,6 +1030,7 @@ Partial Class Form1
         ' 
         CheckEnergiaReactiva.AutoSize = True
         CheckEnergiaReactiva.BackColor = Color.Transparent
+        CheckEnergiaReactiva.Enabled = False
         CheckEnergiaReactiva.Location = New Point(3, 78)
         CheckEnergiaReactiva.Name = "CheckEnergiaReactiva"
         CheckEnergiaReactiva.Size = New Size(157, 19)
@@ -1143,12 +1146,29 @@ Partial Class Form1
         gbPool.TabStop = False
         gbPool.Text = "Consultas Pool (CUPS)"
         ' 
+        ' btnNovedades
+        ' 
+        btnNovedades.Cursor = Cursors.Hand
+        btnNovedades.FlatStyle = FlatStyle.Flat
+        btnNovedades.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        btnNovedades.Location = New Point(455, 328)
+        btnNovedades.Name = "btnNovedades"
+        btnNovedades.Size = New Size(185, 36)
+        btnNovedades.TabIndex = 55
+        btnNovedades.Text = "Novedades"
+        btnNovedades.UseVisualStyleBackColor = False
+        ' 
+        ' TimerNovedades
+        ' 
+        TimerNovedades.Interval = 550
+        ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.FromArgb(CByte(245), CByte(248), CByte(252))
         ClientSize = New Size(659, 657)
+        Controls.Add(btnNovedades)
         Controls.Add(Panel3)
         Controls.Add(pblBorde)
         Controls.Add(PanelLateral)
@@ -1160,7 +1180,7 @@ Partial Class Form1
         Icon = CType(resources.GetObject("$this.Icon"), Icon)
         Name = "Form1"
         StartPosition = FormStartPosition.CenterScreen
-        Text = "Gestor de Datos SIGE (versión 2.1)"
+        Text = "Gestor de Datos SIGE"
         TransparencyKey = Color.YellowGreen
         Panel1.ResumeLayout(False)
         Panel1.PerformLayout()
@@ -1279,6 +1299,8 @@ Partial Class Form1
     Friend WithEvents pnlContenido As Panel
     Friend WithEvents Panel3 As Panel
     Friend WithEvents Panel4 As Panel
+    Friend WithEvents btnNovedades As Button
+    Friend WithEvents TimerNovedades As Timer
     Friend WithEvents AplicarPreciosExcelButton As Button
     Friend WithEvents TrocearXMLButton As Button
     Friend WithEvents TrebolCheck As CheckBox

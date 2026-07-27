@@ -37,6 +37,9 @@
     <Compile Update="ModeloImpresionForm.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="NovedadesForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="ProductosAsig.vb">
       <SubType>Form</SubType>
     </Compile>

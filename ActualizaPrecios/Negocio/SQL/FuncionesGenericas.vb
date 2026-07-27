@@ -2237,9 +2237,9 @@ order by c.CodigoContrato
                     Dim Contrato = GetContrato(objContratoTarifa.CodigoContrato)
                     'Dim fechacontrato = objDatosContratos.Select(Function(f) f.IdContratoTarifa).Distinct.ToList
                     Dim ContratoTarifaEnFechas As Boolean = If(objContratoTarifa.FechaDesde >= Contrato.FechaAlta, False)
-                    'If ContratoTarifaEnFechas = True Then
-                    Dim TarPrecioContrato = TarifaPrecioContratoSrv.ActualizarPreciosVigentes(idcontratoT, PreciosOriginales, If(FechaVigencia, Date.MinValue))
-                    'End If
+                    If ContratoTarifaEnFechas = True Then
+                        Dim TarPrecioContrato = TarifaPrecioContratoSrv.ActualizarPreciosVigentes(idcontratoT, PreciosOriginales, If(FechaVigencia, Date.MinValue))
+                    End If
                     'Fin de comprobacion 351
                 Catch ex As Exception
                     'Dim ContratoTarifa = objContratoTarifaSrv.GetDTO(ID)

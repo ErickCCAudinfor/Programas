@@ -125,7 +125,8 @@ Partial Class Login
         Label1.Name = "Label1"
         Label1.Size = New Size(51, 12)
         Label1.TabIndex = 10
-        Label1.Text = "version 2.1"
+        ' El número lo pone AplicarTema() desde AppInfo; aquí no se escribe a mano.
+        Label1.Text = "version"
         ' 
         ' ValidacionLabel
         ' 
