@@ -22,14 +22,19 @@ Public Module NovedadesApp
 
     Public ReadOnly Historial As New List(Of Novedad) From {
         New Novedad With {
-            .Version = "2.2",
+            .Version = "2.3",
             .Fecha = New Date(2026, 7, 27),
-            .Titulo = "Aviso de novedades",
+            .Titulo = "Aviso de novedades y consultas rediseñadas",
             .Cambios = New List(Of String) From {
                 "Nueva campana de novedades: parpadea cuando hay cambios sin leer y se apaga al abrirla.",
                 "Cada usuario guarda por separado qué versión de novedades ha leído.",
                 "Se ha corregido un bug al momento de importar productos con la plantilla. Faltaba filtrar por entorno el producto",
-                "Se han mejorado las consultas de Curvas, son un 80% más rápidas"
+                "Se han mejorado las consultas de Curvas, son un 80% más rápidas",
+                "Las consultas generales y de pool se eligen ahora en un desplegable, una cada vez, en lugar de marcar casillas.",
+                "Al elegir una consulta se habilitan solo los campos que necesita, y avisa si falta alguno en vez de no hacer nada.",
+                "Las consultas se pueden cancelar: mientras se ejecuta, el botón Consultar pasa a ser Cancelar.",
+                "Al terminar se indica cuántas filas y qué ficheros se han generado. Si la consulta no devuelve datos, ahora lo dice.",
+                "Corregido: la consulta de Trébol dejaba la aplicación bloqueada mientras se ejecutaba."
             }
         }
     }

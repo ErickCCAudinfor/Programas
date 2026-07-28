@@ -2182,263 +2182,227 @@ Public Class Form1
         Return element
     End Function
 
-    'buscar Consultas checks
-    Private Async Sub Button23_Click(sender As Object, e As EventArgs) Handles BotonConsultar.Click
-        Try
-            Await EjecutarConsultasAsync()
-        Catch ex As Exception
-            PictureBox2.Visible = False
-            TextConsultando.Visible = False
-            LblContadorCups.Visible = False
-            complementos.MostrarMensajePersonalizado("Exception: " & ex.Message)
-        End Try
+#Region "consultas"
+
+    ' Curvas y pool van contra SigeTotalTM; el resto contra la conexión general (connectionString).
+    Private ReadOnly connectionStringTM As String = "data source=172.31.100.30;initial catalog=SigeTotalTM;User ID=Sige;Password=SigeNew;"
+
+    ''' <summary>Vivo solo mientras hay una consulta en marcha. Nothing = no hay nada ejecutándose.</summary>
+    Private CancelacionConsulta As CancellationTokenSource = Nothing
+    Private PlaceholderFiltrosOriginal As String = ""
+
+    Private ReadOnly Property ConsultaSeleccionada As DefinicionConsulta
+        Get
+            Return TryCast(cmbConsulta.SelectedItem, DefinicionConsulta)
+        End Get
+    End Property
+
+    ''' <summary>Llena el desplegable desde el catálogo. Añadir consultas se hace allí, no aquí.</summary>
+    Private Sub CargarCatalogoConsultas()
+
+        PlaceholderFiltrosOriginal = TextBox2.PlaceholderText
+
+        cmbConsulta.Items.Clear()
+        For Each def In CatalogoConsultas.Todas
+            cmbConsulta.Items.Add(def)
+        Next
+
+        If cmbConsulta.Items.Count > 0 Then cmbConsulta.SelectedIndex = 0
+        EstiloBotonFlat(BotonConsultar, Color.FromArgb(25, 118, 210), Color.FromArgb(70, 150, 230))
+
     End Sub
-    Private Async Function EjecutarConsultasAsync() As Task
 
-        Dim conexion = connectionString
-        Dim rutaCarpeta = rutaCarpetaGlobal
-        Dim desdeF = DateTimePicker3.Value.Date.ToString("dd/MM/yyyy")
-        Dim hastaF = DateTimePicker2.Value.Date.ToString("dd/MM/yyyy")
+    Private Sub cmbConsulta_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbConsulta.SelectedIndexChanged
+        AplicarConsultaSeleccionada()
+    End Sub
 
-        If Not Directory.Exists(rutaCarpeta) Then
-            Directory.CreateDirectory(rutaCarpeta)
+    ''' <summary>Habilita únicamente los campos que pide la consulta elegida y explica cuáles son.</summary>
+    Private Sub AplicarConsultaSeleccionada()
+
+        Dim def = ConsultaSeleccionada
+        If def Is Nothing Then Exit Sub
+
+        Dim pideFechas = def.Requiere.HasFlag(EntradasConsulta.Fechas)
+        Label8.Enabled = pideFechas
+        Label9.Enabled = pideFechas
+        DateTimePicker3.Enabled = pideFechas
+        DateTimePicker2.Enabled = pideFechas
+
+        DividirChck.Visible = def.PermiteDividir
+        If Not def.PermiteDividir Then DividirChck.Checked = False
+
+        Dim necesitaLista = PideLista(def)
+        If necesitaLista Then
+            ' El cuadro de Filtros es de donde salen CUPS, CIF y facturas.
+            TextBox2.Enabled = True
+            TextBox2.PlaceholderText = $"Pega aquí {EtiquetaLista(def)} (separados por coma o salto de línea)"
+        Else
+            TextBox2.PlaceholderText = PlaceholderFiltrosOriginal
         End If
 
-        PictureBox2.Visible = True
-        TextConsultando.Visible = True
-        LblContadorCups.Visible = True
-        LblContadorCups.Text = ""
+        Dim ayuda As New List(Of String)
+        If Not String.IsNullOrWhiteSpace(def.Descripcion) Then ayuda.Add(def.Descripcion)
+        ayuda.Add(def.TextoEntradas())
+        If necesitaLista Then ayuda.Add($"Escribe {EtiquetaLista(def)} en el cuadro de la izquierda.")
+        lblRequiere.Text = String.Join(vbCrLf, ayuda)
 
-        Dim tasks As New List(Of Task)
+    End Sub
 
-        ' ==============================
-        ' CONSULTAS SIMPLES
-        ' ==============================
+    Private Function PideLista(def As DefinicionConsulta) As Boolean
+        Return def.Requiere.HasFlag(EntradasConsulta.Cups) OrElse
+               def.Requiere.HasFlag(EntradasConsulta.Cifs) OrElse
+               def.Requiere.HasFlag(EntradasConsulta.Facturas)
+    End Function
 
-        If CheckBox5.Checked Then
-            tasks.Add(CrearTareaLuzGas(conexion, rutaCarpeta, desdeF, hastaF))
+    Private Function EtiquetaLista(def As DefinicionConsulta) As String
+        If def.Requiere.HasFlag(EntradasConsulta.Cups) Then Return "los CUPS"
+        If def.Requiere.HasFlag(EntradasConsulta.Cifs) Then Return "los CIF"
+        If def.Requiere.HasFlag(EntradasConsulta.Facturas) Then Return "las facturas"
+        Return "los datos"
+    End Function
+
+    ''' <summary>Trocea el cuadro de Filtros según lo que espere la consulta.</summary>
+    Private Function ConstruirEntradas(def As DefinicionConsulta) As List(Of String)
+
+        If def.Requiere.HasFlag(EntradasConsulta.Cups) Then
+            Return Helper.LimpiarCups(GetConSinSplitCupsCIFS(TextBox2.Text))
+        ElseIf def.Requiere.HasFlag(EntradasConsulta.Cifs) Then
+            Return GetConSinSplitCupsCIFS(TextBox2.Text)
+        ElseIf def.Requiere.HasFlag(EntradasConsulta.Facturas) Then
+            Return GetFacsSinSplit(TextBox2.Text)
         End If
 
-        If CheckBox6.Checked Then
-            tasks.Add(CrearTareaConsulta("Hunosa", conexion, rutaCarpeta, "Hunosa",
-            Function() ConsultasSQL.GetHunosa(desdeF, hastaF)))
-        End If
-
-        If CheckBox8.Checked Then
-            tasks.Add(CrearTareaConsulta("Cadasa", conexion, rutaCarpeta, "Cadasa",
-            Function() ConsultasSQL.GetCadasa(desdeF, hastaF)))
-        End If
-
-        If CheckBox9.Checked Then
-            tasks.Add(CrearTareaConsulta("Quantum", conexion, rutaCarpeta, "Quantum",
-            Function() ConsultasSQL.GetQuantum(desdeF, hastaF)))
-        End If
-
-        If CheckBox10.Checked Then
-            tasks.Add(CrearTareaConsulta("RechazosVeolia", conexion, rutaCarpeta, "Veolia",
-            Function() ConsultasSQL.GetRechazosVeolia))
-        End If
-
-        If CheckBox11.Checked Then
-            tasks.Add(CrearTareaConsulta("GAM", conexion, rutaCarpeta, "GAM",
-            Function() ConsultasSQL.GetGAM(desdeF, hastaF)))
-        End If
-
-        If CAMCheck.Checked Then
-            tasks.Add(CrearTareaConsulta("CAM", conexion, rutaCarpeta, "CAM",
-            Function() ConsultasSQL.GetCAM(desdeF, hastaF)))
-        End If
-
-        If TrebolCheck.Checked Then
-            Dim cifs = GetConSinSplitCupsCIFS(TextBox2.Text)
-            For Each cif In cifs
-                'tasks.Add(
-                CrearTareaConsulta_V2($"TREBOL_LUZ_{cif}", conexion, rutaCarpeta, $"TREBOL_LUZ_{cif}", Function() ConsultasSQL.GetTrebolLuz_V2(cif))
-                ')
-            Next
-
-
-
-            'tasks.Add(CrearTareaConsulta("TREBOL_GAS", conexion, rutaCarpeta, "TREBOL_GAS",
-            'Function() ConsultasSQL.GetTrebolGas(desdeF, hastaF)))
-        End If
-
-        ' ==============================
-        ' CUPS
-        ' ==============================
-
-        If CheckBox1.Checked Then
-            Dim cups = GetConSinSplitCupsCIFS(TextBox2.Text)
-            If cups.Count > 0 Then
-                Dim conexionv2 = "data source=172.31.100.30;initial catalog=SigeTotalTM;User ID=Sige;Password=SigeNew;"
-                Dim listaCups = Helper.LimpiarCups(cups)
-
-                If CheckBox12.Checked Then
-                    tasks.Add(CrearTareaCurva("CH", conexionv2, rutaCarpeta, desdeF, hastaF, listaCups, DividirChck.Checked,
-                    Function(c) ConsultasSQL.GetCurvaHoraria(desdeF, hastaF, If(String.IsNullOrEmpty(c), listaCups, Nothing), If(String.IsNullOrEmpty(c), "", c))))
-                End If
-
-                If CheckBox13.Checked Then
-                    tasks.Add(CrearTareaCurva("QH", conexionv2, rutaCarpeta, desdeF, hastaF, listaCups, DividirChck.Checked,
-                    Function(c) ConsultasSQL.GetCurvaCuartoHoraria(desdeF, hastaF, If(String.IsNullOrEmpty(c), listaCups, Nothing), If(String.IsNullOrEmpty(c), "", c))))
-                End If
-
-                If CheckFacturable.Checked Then
-                    tasks.Add(CrearTareaCurva("CF", conexionv2, rutaCarpeta, desdeF, hastaF, listaCups, DividirChck.Checked,
-                    Function(c) ConsultasSQL.GetCurvaFacturable(desdeF, hastaF, If(String.IsNullOrEmpty(c), listaCups, Nothing), If(String.IsNullOrEmpty(c), "", c))))
-                End If
-            End If
-        End If
-
-        ' ==============================
-        ' NORAUTO
-        ' ==============================
-
-        If Norauto.Checked AndAlso CheckBox3.Checked Then
-            Dim cifs = GetConSinSplitCupsCIFS(TextBox2.Text)
-            Dim completed = 0
-
-            For Each cif In cifs
-                tasks.Add(Task.Run(Sub()
-                                       Dim ruta = Path.Combine(rutaCarpeta, $"{cif}_{Date.Today:ddMMyyyy}.xlsx")
-                                       ExportarConsultaAExcel(conexion,
-                                       ConsultasSQL.GetConsultaNorauto(desdeF, hastaF, cif),
-                                       ruta, cif)
-
-                                       Interlocked.Increment(completed)
-                                       SetTextSafe(TextConsultando, $"Progreso: {completed}/{cifs.Count}")
-                                   End Sub))
-            Next
-        End If
-
-        If CheckEnergiaReactiva.Checked Then
-            Dim ListaF = GetFacsSinSplit(TextBox2.Text)
-            tasks.Add(CrearTareaConsulta("EnergiaActivaReactiva", conexion, rutaCarpeta, "ActivaReactiva",
-            Function() ConsultasSQL.ConsultaLecturaActivaReactivayVarios(ListaF)))
-        End If
-
-        Await Task.WhenAll(tasks)
-
-        PictureBox2.Visible = False
-        TextConsultando.Visible = False
-        TextConsultando.Text = ""
-        LblContadorCups.Visible = False
-        LblContadorCups.Text = ""
-
-        complementos.Complementos_MostrarMensajePersonalizadoCopiar($"Consulta generada correctamente. {rutaCarpeta}", "")
+        Return New List(Of String)
 
     End Function
 
-    Private Function CrearTareaConsulta(nombre As String, conexion As String, rutaCarpeta As String, hoja As String, consultaFactory As Func(Of String)) As Task
+    ''' <summary>Devuelve el motivo por el que no se puede lanzar, o cadena vacía si todo está bien.</summary>
+    Private Function ValidarConsulta(def As DefinicionConsulta, entradas As List(Of String)) As String
 
-        Return Task.Run(Sub()
-                            Dim ruta = Path.Combine(rutaCarpeta, $"{nombre}_{Date.Today:ddMMyyyy}.xlsx")
-                            SetTextSafe(TextConsultando, $"Consultando {nombre}")
-                            ExportarConsultaAExcel(conexion, consultaFactory(), ruta, hoja)
-                        End Sub)
-    End Function
-    Private Function CrearTareaConsulta_V2(nombre As String, conexion As String, rutaCarpeta As String, hoja As String, consultaFactory As Func(Of String))
+        If PideLista(def) AndAlso entradas.Count = 0 Then
+            Return $"La consulta ""{def.Nombre}"" necesita {EtiquetaLista(def)}. Escríbelos en el cuadro de Filtros."
+        End If
 
-        Dim ruta = Path.Combine(rutaCarpeta, $"{nombre}_{Date.Today:ddMMyyyy}.xlsx")
-        SetTextSafe(TextConsultando, $"Consultando {nombre}")
-        ExportarConsultaAExcel(conexion, consultaFactory(), ruta, hoja)
+        If def.Requiere.HasFlag(EntradasConsulta.Fechas) AndAlso DateTimePicker3.Value.Date > DateTimePicker2.Value.Date Then
+            Return "La fecha ""Desde"" no puede ser posterior a la fecha ""Hasta""."
+        End If
 
-    End Function
-    Private Function CrearTareaLuzGas(conexion As String, rutaCarpeta As String, desdeF As String, hastaF As String) As Task
+        Return ""
 
-        Return Task.Run(Sub()
-
-                            Dim name = "Consulta_ClicksTODO"
-                            Dim ruta = Path.Combine(rutaCarpeta, $"{name}_LuzGas_{Date.Today:ddMMyyyy}.xlsx")
-
-                            SetTextSafe(TextConsultando, "Consultando Luz")
-                            ExportarConsultaAExcel(conexion, ConsultasSQL.GetClickLuz, ruta, "Luz")
-
-                            SetTextSafe(TextConsultando, "Consultando Gas")
-                            ExportarConsultaAExcel(conexion, ConsultasSQL.GetClickGas, ruta, "Gas")
-
-                        End Sub)
     End Function
 
-    Private Function CrearTareaCurva(nombre As String, conexion As String, rutaCarpeta As String, desdeF As String, hastaF As String, cups As List(Of String), dividir As Boolean, consultaFactory As Func(Of String, String)) As Task
-        Return Task.Run(Sub()
+    Private Async Sub BotonConsultar_Click(sender As Object, e As EventArgs) Handles BotonConsultar.Click
 
-                            If dividir Then
-                                Dim processed = 0
-                                For Each c In cups
-                                    processed += 1
-                                    SetTextSafe(TextConsultando, $"Consultando Cups: {c}")
-                                    SetTextSafe(LblContadorCups, $"Procesados: {processed} / {cups.Count}")
-                                    Dim dt = FetchDataTable(conexion, consultaFactory(c))
-                                    If dt.Rows.Count = 0 Then Continue For
+        ' Mientras hay una consulta en marcha, el mismo botón sirve para abortarla.
+        If CancelacionConsulta IsNot Nothing Then
+            CancelacionConsulta.Cancel()
+            TextConsultando.Text = "Cancelando..."
+            BotonConsultar.Enabled = False
+            Exit Sub
+        End If
 
-                                    Dim ruta = Path.Combine(rutaCarpeta, $"{nombre}_{c}.xlsx")
-                                    If dt.Rows.Count <= EXCEL_MAX_ROWS Then
-                                        EscribirDataTableAExcel(dt, ruta, c)
-                                    Else
-                                        Dim sheetIdx = 1
-                                        Dim offset = 0
-                                        While offset < dt.Rows.Count
-                                            Dim batch = Math.Min(EXCEL_MAX_ROWS, dt.Rows.Count - offset)
-                                            Dim subDt = dt.Clone()
-                                            For i = offset To offset + batch - 1
-                                                subDt.ImportRow(dt.Rows(i))
-                                            Next
-                                            EscribirDataTableAExcel(subDt, ruta, $"{c}_{sheetIdx}")
-                                            subDt.Dispose()
-                                            offset += batch
-                                            sheetIdx += 1
-                                        End While
-                                    End If
-                                    dt.Dispose()
-                                Next
-                            Else
-                                ' Acumular todos los CUPS en un DataTable maestro (más ligero en RAM que ClosedXML)
-                                ' y escribir el Excel una sola vez al final para evitar OutOfMemoryException
-                                Dim masterDt As DataTable = Nothing
-                                Dim processedNoDividir = 0
+        Await LanzarConsultaAsync()
 
-                                For Each c In cups
-                                    processedNoDividir += 1
-                                    SetTextSafe(TextConsultando, $"Consultando Cups: {c}")
-                                    SetTextSafe(LblContadorCups, $"Procesados: {processedNoDividir} / {cups.Count}")
-                                    Dim dt = FetchDataTable(conexion, consultaFactory(c))
-                                    If dt.Rows.Count = 0 Then
-                                        dt.Dispose()
-                                        Continue For
-                                    End If
-                                    If masterDt Is Nothing Then
-                                        masterDt = dt.Clone()
-                                    End If
-                                    For Each row As DataRow In dt.Rows
-                                        masterDt.ImportRow(row)
-                                    Next
-                                    dt.Dispose()
-                                    GC.Collect()
-                                Next
+    End Sub
 
-                                If masterDt IsNot Nothing AndAlso masterDt.Rows.Count > 0 Then
-                                    SetTextSafe(TextConsultando, $"Escribiendo Excel: {masterDt.Rows.Count} filas...")
-                                    Dim allRows = masterDt.Rows.Cast(Of DataRow)().ToList()
-                                    masterDt.Dispose()
-                                    GC.Collect()
-                                    Dim fileIdx = 1
-                                    Dim offset = 0
-                                    While offset < allRows.Count
-                                        Dim ruta = If(allRows.Count <= EXCEL_MAX_ROWS,
-                                                      Path.Combine(rutaCarpeta, $"{nombre}_{Date.Today:ddMMyyyy}.xlsx"),
-                                                      Path.Combine(rutaCarpeta, $"{nombre}_{fileIdx:D2}_{Date.Today:ddMMyyyy}.xlsx"))
-                                        Dim batch = Math.Min(EXCEL_MAX_ROWS, allRows.Count - offset)
-                                        Dim rowsSegmento = allRows.Skip(offset).Take(batch)
-                                        EscribirStreamingAExcel(rowsSegmento, allRows(0).Table.Columns, ruta, nombre)
-                                        offset += batch
-                                        fileIdx += 1
-                                    End While
-                                End If
-                            End If
+    Private Async Function LanzarConsultaAsync() As Task
 
-                        End Sub)
+        Dim def = ConsultaSeleccionada
+        If def Is Nothing Then
+            complementos.MostrarMensajePersonalizado("Elige una consulta en el desplegable.")
+            Return
+        End If
+
+        Dim entradas = ConstruirEntradas(def)
+        Dim motivo = ValidarConsulta(def, entradas)
+        If motivo <> "" Then
+            complementos.MostrarMensajePersonalizado(motivo)
+            Return
+        End If
+
+        If Not Directory.Exists(rutaCarpetaGlobal) Then Directory.CreateDirectory(rutaCarpetaGlobal)
+
+        ' Todo lo que la consulta necesita se captura aquí, en el hilo de UI.
+        Dim ctx As New ContextoConsulta With {
+            .Conexion = If(def.UsaConexionTM, connectionStringTM, connectionString),
+            .CarpetaDestino = rutaCarpetaGlobal,
+            .Desde = DateTimePicker3.Value.Date,
+            .Hasta = DateTimePicker2.Value.Date,
+            .Entradas = entradas,
+            .Dividir = def.PermiteDividir AndAlso DividirChck.Checked,
+            .Progreso = New Progress(Of ProgresoConsulta)(AddressOf MostrarProgresoConsulta)
+        }
+
+        CancelacionConsulta = New CancellationTokenSource()
+        ctx.Cancelacion = CancelacionConsulta.Token
+
+        ModoConsultaEnCurso(True)
+        lblResumenConsulta.Text = ""
+
+        Try
+            Dim resultado = Await Task.Run(Function() def.Ejecutar(ctx))
+            MostrarResultadoConsulta(def, resultado)
+
+        Catch ex As OperationCanceledException
+            lblResumenConsulta.Text = $"{def.Nombre}: cancelada. Puede que se hayan generado ficheros parciales."
+
+        Catch ex As Exception
+            lblResumenConsulta.Text = $"{def.Nombre}: error."
+            complementos.MostrarMensajePersonalizado($"Error en la consulta ""{def.Nombre}"": {ex.Message}")
+
+        Finally
+            CancelacionConsulta.Dispose()
+            CancelacionConsulta = Nothing
+            ModoConsultaEnCurso(False)
+        End Try
+
     End Function
+
+    ''' <summary>Progress(Of T) se crea en el hilo de UI, así que esto ya llega marshalado.</summary>
+    Private Sub MostrarProgresoConsulta(p As ProgresoConsulta)
+        TextConsultando.Text = p.Mensaje
+        If Not String.IsNullOrEmpty(p.Contador) Then LblContadorCups.Text = p.Contador
+    End Sub
+
+    Private Sub ModoConsultaEnCurso(enCurso As Boolean)
+
+        cmbConsulta.Enabled = Not enCurso
+        DividirChck.Enabled = Not enCurso
+        BotonConsultar.Enabled = True
+        BotonConsultar.Text = If(enCurso, "Cancelar", "Consultar")
+
+        If enCurso Then
+            EstiloBotonFlat(BotonConsultar, Color.FromArgb(192, 57, 43), Color.FromArgb(220, 90, 80))
+        Else
+            EstiloBotonFlat(BotonConsultar, Color.FromArgb(25, 118, 210), Color.FromArgb(70, 150, 230))
+        End If
+
+        MostrarLoading(enCurso)
+
+    End Sub
+
+    ''' <summary>Informa de lo que se ha generado de verdad, incluido el caso de "no hay datos".</summary>
+    Private Sub MostrarResultadoConsulta(def As DefinicionConsulta, resultado As ResultadoConsulta)
+
+        If resultado Is Nothing OrElse resultado.SinDatos Then
+            Dim aviso = $"{def.Nombre}: la consulta no ha devuelto datos, no se ha generado ningún fichero."
+            lblResumenConsulta.Text = aviso
+            complementos.MostrarMensajePersonalizado(aviso)
+            Exit Sub
+        End If
+
+        Dim resumen = $"{def.Nombre}: {resultado.Filas:N0} filas en {resultado.Ficheros.Count} fichero(s)."
+        lblResumenConsulta.Text = resumen & vbCrLf & rutaCarpetaGlobal
+
+        Dim detalle = resumen & vbCrLf & vbCrLf &
+                      String.Join(vbCrLf, resultado.Ficheros.Select(Function(f) "- " & Path.GetFileName(f))) &
+                      vbCrLf & vbCrLf & rutaCarpetaGlobal
+
+        complementos.Complementos_MostrarMensajePersonalizadoCopiar(detalle, rutaCarpetaGlobal)
+
+    End Sub
+
+#End Region
     'Private Async Sub Button23_Click(sender As Object, e As EventArgs) Handles BotonConsultar.Click
     '    Try
     '        Dim conexion = connectionString
@@ -3418,6 +3382,7 @@ Public Class Form1
             PanelLateral.Width = 0
             PanelExpandido = False
             AplicarTema()
+            CargarCatalogoConsultas()
             InicializarNovedades()
         Catch ex As Exception
             complementos.MostrarMensajePersonalizado(ex.Message)

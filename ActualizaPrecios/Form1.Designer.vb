@@ -49,19 +49,14 @@ Partial Class Form1
         RadioButton3 = New RadioButton()
         Button17 = New Button()
         BotonConsultar = New Button()
-        CheckBox5 = New CheckBox()
         DateTimePicker2 = New DateTimePicker()
         DateTimePicker3 = New DateTimePicker()
         Label8 = New Label()
         Label9 = New Label()
-        CheckBox6 = New CheckBox()
-        CAMCheck = New CheckBox()
-        CheckBox8 = New CheckBox()
-        CheckBox9 = New CheckBox()
-        CheckBox10 = New CheckBox()
-        CheckBox11 = New CheckBox()
-        CheckBox12 = New CheckBox()
-        CheckBox13 = New CheckBox()
+        lblConsultaTitulo = New Label()
+        cmbConsulta = New ComboBox()
+        lblRequiere = New Label()
+        lblResumenConsulta = New Label()
         Label4 = New Label()
         CheckBox4 = New CheckBox()
         Button7 = New Button()
@@ -100,24 +95,16 @@ Partial Class Form1
         Button27 = New Button()
         BuscarFButton = New Button()
         Button24 = New Button()
-        CheckFacturable = New CheckBox()
-        Norauto = New CheckBox()
         PanelLateral = New Panel()
         TrocearXMLButton = New Button()
         AplicarPreciosExcelButton = New Button()
         TimerPanel = New Timer(components)
         DividirChck = New CheckBox()
-        Panel5 = New FlowLayoutPanel()
-        TrebolCheck = New CheckBox()
-        CheckEnergiaReactiva = New CheckBox()
-        Panel6 = New FlowLayoutPanel()
         Separador = New Panel()
         pblBorde = New Panel()
         pnlContenido = New Panel()
         Panel3 = New Panel()
         Panel4 = New Panel()
-        gbGenerales = New GroupBox()
-        gbPool = New GroupBox()
         btnNovedades = New Button()
         TimerNovedades = New Timer(components)
         Panel1.SuspendLayout()
@@ -125,14 +112,10 @@ Partial Class Form1
         CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
         Panel2.SuspendLayout()
         PanelLateral.SuspendLayout()
-        Panel5.SuspendLayout()
-        Panel6.SuspendLayout()
         pblBorde.SuspendLayout()
         pnlContenido.SuspendLayout()
         Panel3.SuspendLayout()
         Panel4.SuspendLayout()
-        gbGenerales.SuspendLayout()
-        gbPool.SuspendLayout()
         SuspendLayout()
         ' 
         ' CheckBox1
@@ -338,18 +321,7 @@ Partial Class Form1
         BotonConsultar.TabIndex = 29
         BotonConsultar.Text = "Consultar"
         BotonConsultar.UseVisualStyleBackColor = False
-        ' 
-        ' CheckBox5
-        ' 
-        CheckBox5.AutoSize = True
-        CheckBox5.BackColor = Color.Transparent
-        CheckBox5.Location = New Point(3, 3)
-        CheckBox5.Name = "CheckBox5"
-        CheckBox5.Size = New Size(93, 19)
-        CheckBox5.TabIndex = 30
-        CheckBox5.Text = "Clicks TODO"
-        CheckBox5.UseVisualStyleBackColor = False
-        ' 
+        '
         ' DateTimePicker2
         ' 
         DateTimePicker2.CustomFormat = "dd/MM/yyyy"
@@ -392,95 +364,50 @@ Partial Class Form1
         Label9.Size = New Size(73, 15)
         Label9.TabIndex = 34
         Label9.Text = "Hasta Fecha"
-        ' 
-        ' CheckBox6
-        ' 
-        CheckBox6.AutoSize = True
-        CheckBox6.BackColor = Color.Transparent
-        CheckBox6.Location = New Point(102, 3)
-        CheckBox6.Name = "CheckBox6"
-        CheckBox6.Size = New Size(67, 19)
-        CheckBox6.TabIndex = 35
-        CheckBox6.Text = "Hunosa"
-        CheckBox6.UseVisualStyleBackColor = False
-        ' 
-        ' CAMCheck
-        ' 
-        CAMCheck.AutoSize = True
-        CAMCheck.BackColor = Color.Transparent
-        CAMCheck.Location = New Point(3, 28)
-        CAMCheck.Name = "CAMCheck"
-        CAMCheck.Size = New Size(52, 19)
-        CAMCheck.TabIndex = 36
-        CAMCheck.Text = "CAM"
-        CAMCheck.UseVisualStyleBackColor = False
-        ' 
-        ' CheckBox8
-        ' 
-        CheckBox8.AutoSize = True
-        CheckBox8.BackColor = Color.Transparent
-        CheckBox8.Location = New Point(175, 3)
-        CheckBox8.Name = "CheckBox8"
-        CheckBox8.Size = New Size(63, 19)
-        CheckBox8.TabIndex = 37
-        CheckBox8.Text = "Cadasa"
-        CheckBox8.UseVisualStyleBackColor = False
-        ' 
-        ' CheckBox9
-        ' 
-        CheckBox9.AutoSize = True
-        CheckBox9.BackColor = Color.Transparent
-        CheckBox9.Location = New Point(61, 28)
-        CheckBox9.Name = "CheckBox9"
-        CheckBox9.Size = New Size(77, 19)
-        CheckBox9.TabIndex = 38
-        CheckBox9.Text = "Quantum"
-        CheckBox9.UseVisualStyleBackColor = False
-        ' 
-        ' CheckBox10
-        ' 
-        CheckBox10.AutoSize = True
-        CheckBox10.BackColor = Color.Transparent
-        CheckBox10.Location = New Point(144, 28)
-        CheckBox10.Name = "CheckBox10"
-        CheckBox10.Size = New Size(87, 19)
-        CheckBox10.TabIndex = 39
-        CheckBox10.Text = "Rech.Veolia"
-        CheckBox10.UseVisualStyleBackColor = False
-        ' 
-        ' CheckBox11
-        ' 
-        CheckBox11.AutoSize = True
-        CheckBox11.BackColor = Color.Transparent
-        CheckBox11.Location = New Point(237, 28)
-        CheckBox11.Name = "CheckBox11"
-        CheckBox11.Size = New Size(53, 19)
-        CheckBox11.TabIndex = 40
-        CheckBox11.Text = "GAM"
-        CheckBox11.UseVisualStyleBackColor = False
-        ' 
-        ' CheckBox12
-        ' 
-        CheckBox12.AutoSize = True
-        CheckBox12.BackColor = Color.Transparent
-        CheckBox12.Location = New Point(3, 3)
-        CheckBox12.Name = "CheckBox12"
-        CheckBox12.Size = New Size(98, 19)
-        CheckBox12.TabIndex = 41
-        CheckBox12.Text = "Curva Horaria"
-        CheckBox12.UseVisualStyleBackColor = False
-        ' 
-        ' CheckBox13
-        ' 
-        CheckBox13.AutoSize = True
-        CheckBox13.BackColor = Color.Transparent
-        CheckBox13.Location = New Point(107, 3)
-        CheckBox13.Name = "CheckBox13"
-        CheckBox13.Size = New Size(103, 19)
-        CheckBox13.TabIndex = 42
-        CheckBox13.Text = "Cuarto Horaria"
-        CheckBox13.UseVisualStyleBackColor = False
-        ' 
+        '
+        ' lblConsultaTitulo
+        '
+        lblConsultaTitulo.AutoSize = True
+        lblConsultaTitulo.BackColor = Color.Transparent
+        lblConsultaTitulo.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        lblConsultaTitulo.ForeColor = Color.FromArgb(CByte(25), CByte(65), CByte(120))
+        lblConsultaTitulo.Location = New Point(8, 8)
+        lblConsultaTitulo.Name = "lblConsultaTitulo"
+        lblConsultaTitulo.Size = New Size(60, 15)
+        lblConsultaTitulo.TabIndex = 55
+        lblConsultaTitulo.Text = "Consulta"
+        '
+        ' cmbConsulta
+        '
+        cmbConsulta.DropDownStyle = ComboBoxStyle.DropDownList
+        cmbConsulta.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        cmbConsulta.FormattingEnabled = True
+        cmbConsulta.Location = New Point(8, 27)
+        cmbConsulta.MaxDropDownItems = 15
+        cmbConsulta.Name = "cmbConsulta"
+        cmbConsulta.Size = New Size(300, 23)
+        cmbConsulta.TabIndex = 56
+        '
+        ' lblRequiere
+        '
+        lblRequiere.BackColor = Color.Transparent
+        lblRequiere.Font = New Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point)
+        lblRequiere.ForeColor = Color.FromArgb(CByte(90), CByte(115), CByte(155))
+        lblRequiere.Location = New Point(8, 56)
+        lblRequiere.Name = "lblRequiere"
+        lblRequiere.Size = New Size(300, 46)
+        lblRequiere.TabIndex = 57
+        '
+        ' lblResumenConsulta
+        '
+        lblResumenConsulta.BackColor = Color.Transparent
+        lblResumenConsulta.Font = New Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point)
+        lblResumenConsulta.ForeColor = Color.FromArgb(CByte(110), CByte(135), CByte(175))
+        lblResumenConsulta.Location = New Point(8, 133)
+        lblResumenConsulta.Name = "lblResumenConsulta"
+        lblResumenConsulta.Size = New Size(300, 78)
+        lblResumenConsulta.TabIndex = 58
+        '
         ' Label4
         ' 
         Label4.AutoSize = True
@@ -912,28 +839,6 @@ Partial Class Form1
         Button24.Text = "Extraer Documentos Generales"
         Button24.UseVisualStyleBackColor = True
         ' 
-        ' CheckFacturable
-        ' 
-        CheckFacturable.AutoSize = True
-        CheckFacturable.BackColor = Color.Transparent
-        CheckFacturable.Location = New Point(3, 28)
-        CheckFacturable.Name = "CheckFacturable"
-        CheckFacturable.Size = New Size(81, 19)
-        CheckFacturable.TabIndex = 43
-        CheckFacturable.Text = "Facturable"
-        CheckFacturable.UseVisualStyleBackColor = False
-        ' 
-        ' Norauto
-        ' 
-        Norauto.AutoSize = True
-        Norauto.BackColor = Color.Transparent
-        Norauto.Location = New Point(123, 53)
-        Norauto.Name = "Norauto"
-        Norauto.Size = New Size(83, 19)
-        Norauto.TabIndex = 44
-        Norauto.Text = "Grupo SRS"
-        Norauto.UseVisualStyleBackColor = False
-        ' 
         ' PanelLateral
         ' 
         PanelLateral.BackColor = Color.FromArgb(CByte(20), CByte(55), CByte(110))
@@ -989,67 +894,13 @@ Partial Class Form1
         DividirChck.BackColor = Color.Transparent
         DividirChck.Font = New Font("Segoe UI Semibold", 8.25F, FontStyle.Bold, GraphicsUnit.Point)
         DividirChck.ForeColor = Color.FromArgb(CByte(25), CByte(65), CByte(120))
-        DividirChck.Location = New Point(170, 131)
+        DividirChck.Location = New Point(8, 108)
         DividirChck.Name = "DividirChck"
-        DividirChck.Size = New Size(89, 17)
+        DividirChck.Size = New Size(120, 17)
         DividirChck.TabIndex = 47
         DividirChck.Text = "Dividir Excel"
         DividirChck.UseVisualStyleBackColor = False
-        ' 
-        ' Panel5
-        ' 
-        Panel5.BackColor = Color.Transparent
-        Panel5.Controls.Add(CheckBox5)
-        Panel5.Controls.Add(CheckBox6)
-        Panel5.Controls.Add(CheckBox8)
-        Panel5.Controls.Add(CAMCheck)
-        Panel5.Controls.Add(CheckBox9)
-        Panel5.Controls.Add(CheckBox10)
-        Panel5.Controls.Add(CheckBox11)
-        Panel5.Controls.Add(TrebolCheck)
-        Panel5.Controls.Add(Norauto)
-        Panel5.Controls.Add(CheckEnergiaReactiva)
-        Panel5.Dock = DockStyle.Fill
-        Panel5.Location = New Point(3, 19)
-        Panel5.Name = "Panel5"
-        Panel5.Size = New Size(294, 98)
-        Panel5.TabIndex = 48
-        ' 
-        ' TrebolCheck
-        ' 
-        TrebolCheck.AutoSize = True
-        TrebolCheck.BackColor = Color.Transparent
-        TrebolCheck.Location = New Point(3, 53)
-        TrebolCheck.Name = "TrebolCheck"
-        TrebolCheck.Size = New Size(114, 19)
-        TrebolCheck.TabIndex = 45
-        TrebolCheck.Text = "Trebol (LuzyGas)"
-        TrebolCheck.UseVisualStyleBackColor = False
-        ' 
-        ' CheckEnergiaReactiva
-        ' 
-        CheckEnergiaReactiva.AutoSize = True
-        CheckEnergiaReactiva.BackColor = Color.Transparent
-        CheckEnergiaReactiva.Enabled = False
-        CheckEnergiaReactiva.Location = New Point(3, 78)
-        CheckEnergiaReactiva.Name = "CheckEnergiaReactiva"
-        CheckEnergiaReactiva.Size = New Size(157, 19)
-        CheckEnergiaReactiva.TabIndex = 46
-        CheckEnergiaReactiva.Text = "Energia Activa y Reactiva"
-        CheckEnergiaReactiva.UseVisualStyleBackColor = False
-        ' 
-        ' Panel6
-        ' 
-        Panel6.BackColor = Color.Transparent
-        Panel6.Controls.Add(CheckBox12)
-        Panel6.Controls.Add(CheckBox13)
-        Panel6.Controls.Add(CheckFacturable)
-        Panel6.Dock = DockStyle.Fill
-        Panel6.Location = New Point(3, 19)
-        Panel6.Name = "Panel6"
-        Panel6.Size = New Size(294, 58)
-        Panel6.TabIndex = 49
-        ' 
+        '
         ' Separador
         ' 
         Separador.BackColor = Color.FromArgb(CByte(218), CByte(220), CByte(224))
@@ -1108,9 +959,11 @@ Partial Class Form1
         ' Panel4
         ' 
         Panel4.BackColor = Color.White
-        Panel4.Controls.Add(gbGenerales)
+        Panel4.Controls.Add(lblConsultaTitulo)
+        Panel4.Controls.Add(cmbConsulta)
+        Panel4.Controls.Add(lblRequiere)
         Panel4.Controls.Add(DividirChck)
-        Panel4.Controls.Add(gbPool)
+        Panel4.Controls.Add(lblResumenConsulta)
         Panel4.Controls.Add(BotonConsultar)
         Panel4.Controls.Add(Label9)
         Panel4.Controls.Add(Label8)
@@ -1121,31 +974,7 @@ Partial Class Form1
         Panel4.Name = "Panel4"
         Panel4.Size = New Size(317, 298)
         Panel4.TabIndex = 0
-        ' 
-        ' gbGenerales
-        ' 
-        gbGenerales.Controls.Add(Panel5)
-        gbGenerales.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point)
-        gbGenerales.ForeColor = Color.FromArgb(CByte(25), CByte(65), CByte(120))
-        gbGenerales.Location = New Point(8, 6)
-        gbGenerales.Name = "gbGenerales"
-        gbGenerales.Size = New Size(300, 120)
-        gbGenerales.TabIndex = 53
-        gbGenerales.TabStop = False
-        gbGenerales.Text = "Consultas Generales"
-        ' 
-        ' gbPool
-        ' 
-        gbPool.Controls.Add(Panel6)
-        gbPool.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point)
-        gbPool.ForeColor = Color.FromArgb(CByte(25), CByte(65), CByte(120))
-        gbPool.Location = New Point(8, 130)
-        gbPool.Name = "gbPool"
-        gbPool.Size = New Size(300, 80)
-        gbPool.TabIndex = 54
-        gbPool.TabStop = False
-        gbPool.Text = "Consultas Pool (CUPS)"
-        ' 
+        '
         ' btnNovedades
         ' 
         btnNovedades.Cursor = Cursors.Hand
@@ -1178,6 +1007,8 @@ Partial Class Form1
         DoubleBuffered = True
         FormBorderStyle = FormBorderStyle.FixedSingle
         Icon = CType(resources.GetObject("$this.Icon"), Icon)
+        ' Sin maximizar: el contenido tiene posiciones fijas y al expandir queda descolocado.
+        MaximizeBox = False
         Name = "Form1"
         StartPosition = FormStartPosition.CenterScreen
         Text = "Gestor de Datos SIGE"
@@ -1189,18 +1020,12 @@ Partial Class Form1
         Panel2.ResumeLayout(False)
         Panel2.PerformLayout()
         PanelLateral.ResumeLayout(False)
-        Panel5.ResumeLayout(False)
-        Panel5.PerformLayout()
-        Panel6.ResumeLayout(False)
-        Panel6.PerformLayout()
         pblBorde.ResumeLayout(False)
         pnlContenido.ResumeLayout(False)
         pnlContenido.PerformLayout()
         Panel3.ResumeLayout(False)
         Panel4.ResumeLayout(False)
         Panel4.PerformLayout()
-        gbGenerales.ResumeLayout(False)
-        gbPool.ResumeLayout(False)
         ResumeLayout(False)
         PerformLayout()
     End Sub
@@ -1231,19 +1056,14 @@ Partial Class Form1
     Friend WithEvents RadioButton3 As RadioButton
     Friend WithEvents Button17 As Button
     Friend WithEvents BotonConsultar As Button
-    Friend WithEvents CheckBox5 As CheckBox
     Friend WithEvents DateTimePicker2 As DateTimePicker
     Friend WithEvents DateTimePicker3 As DateTimePicker
     Friend WithEvents Label8 As Label
     Friend WithEvents Label9 As Label
-    Friend WithEvents CheckBox6 As CheckBox
-    Friend WithEvents CAMCheck As CheckBox
-    Friend WithEvents CheckBox8 As CheckBox
-    Friend WithEvents CheckBox9 As CheckBox
-    Friend WithEvents CheckBox10 As CheckBox
-    Friend WithEvents CheckBox11 As CheckBox
-    Friend WithEvents CheckBox12 As CheckBox
-    Friend WithEvents CheckBox13 As CheckBox
+    Friend WithEvents lblConsultaTitulo As Label
+    Friend WithEvents cmbConsulta As ComboBox
+    Friend WithEvents lblRequiere As Label
+    Friend WithEvents lblResumenConsulta As Label
     Friend WithEvents PictureBox2 As PictureBox
     Friend WithEvents Label4 As Label
     Friend WithEvents CheckBox4 As CheckBox
@@ -1276,8 +1096,6 @@ Partial Class Form1
     Friend WithEvents Button22 As Button
     Friend WithEvents Panel2 As Panel
     Friend WithEvents Button24 As Button
-    Friend WithEvents CheckFacturable As CheckBox
-    Friend WithEvents Norauto As CheckBox
     Friend WithEvents BuscarFButton As Button
     Friend WithEvents Button27 As Button
     Friend WithEvents Button28 As Button
@@ -1287,10 +1105,6 @@ Partial Class Form1
     Friend WithEvents TimerPanel As Timer
     Friend WithEvents Button30 As Button
     Friend WithEvents DividirChck As CheckBox
-    Friend WithEvents Panel5 As FlowLayoutPanel
-    Friend WithEvents Panel6 As FlowLayoutPanel
-    Friend WithEvents gbGenerales As GroupBox
-    Friend WithEvents gbPool As GroupBox
     Friend WithEvents TextConsultando As Label
     Friend WithEvents LblContadorCups As Label
     Friend WithEvents CheckearPerfilar As Button
@@ -1303,7 +1117,5 @@ Partial Class Form1
     Friend WithEvents TimerNovedades As Timer
     Friend WithEvents AplicarPreciosExcelButton As Button
     Friend WithEvents TrocearXMLButton As Button
-    Friend WithEvents TrebolCheck As CheckBox
     Friend WithEvents PDFBotonAgrupado As Button
-    Friend WithEvents CheckEnergiaReactiva As CheckBox
 End Class

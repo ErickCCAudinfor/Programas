@@ -22,6 +22,45 @@ Module ExportToExcelDinamico
         End Using
     End Function
 
+    ''' <summary>
+    ''' Igual que FetchDataTable pero cancelable. Al cancelar se llama a SqlCommand.Cancel(),
+    ''' que aborta la consulta en el servidor en vez de dejarla corriendo.
+    ''' timeoutSegundos = 0 significa sin límite de tiempo.
+    ''' </summary>
+    Function FetchDataTableCancelable(connectionString As String, consultaSQL As String,
+                                      token As Threading.CancellationToken,
+                                      timeoutSegundos As Integer) As DataTable
+
+        Using conexion As New SqlConnection(connectionString)
+            Using comando As New SqlCommand(consultaSQL, conexion)
+                comando.CommandTimeout = timeoutSegundos
+
+                Using token.Register(Sub()
+                                         Try
+                                             comando.Cancel()
+                                         Catch
+                                             ' El comando ya había terminado: nada que abortar.
+                                         End Try
+                                     End Sub)
+
+                    Using adaptador As New SqlDataAdapter(comando)
+                        Dim tablaDatos As New DataTable()
+                        conexion.Open()
+                        Try
+                            adaptador.Fill(tablaDatos)
+                        Catch ex As SqlException When token.IsCancellationRequested
+                            ' Cancel() hace que Fill lance SqlException; se traduce a la excepción esperada.
+                            Throw New OperationCanceledException(token)
+                        End Try
+                        Return tablaDatos
+                    End Using
+
+                End Using
+            End Using
+        End Using
+
+    End Function
+
     Function EscribirDataTableAExcel(dt As DataTable, rutaArchivo As String, hojaNombre As String) As Integer
         If dt.Rows.Count = 0 Then Return 0
 
