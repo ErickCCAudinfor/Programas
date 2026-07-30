@@ -317,6 +317,65 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
 
 	End Function
 
+	' OJO: estos dos .sql usan "HastaFechaReplace" con H mayúscula, al contrario que el resto
+	' de consultas del proyecto. String.Replace distingue mayúsculas, no lo cambies.
+	Public Shared Function GetTrebolLuzByIdentidadFechas(Identidad As String, DesdeFecha As Date, HastaFecha As Date) As String
+		Dim consulta As String = ObtenerConsulta("ConsultaFacturasTREBOL_ELEC__ByIdentidadFechas")
+		consulta = consulta.Replace("DesdeFechaReplace", DesdeFecha.ToString("dd/MM/yyyy"))
+		consulta = consulta.Replace("HastaFechaReplace", HastaFecha.ToString("dd/MM/yyyy"))
+		consulta = consulta.Replace("identidadReplace", Identidad)
+		Return consulta
+	End Function
+
+	''' <summary>
+	''' Santa Lucía / Trébol gas (v2). Solo rango de fechas: el propio .sql filtra por
+	''' entorno E2 y por el grupo de tarifa que case con "santa lucia".
+	''' </summary>
+	Public Shared Function GetSantaLuciaTrebolGasV2(DesdeFecha As Date, hastaFecha As Date) As String
+		Dim consulta As String = ObtenerConsulta("ConsultaFacturas_SantaLucia_TREBOL_GAS_v2")
+		consulta = consulta.Replace("DesdeFechaReplace", DesdeFecha.ToString("dd/MM/yyyy"))
+		consulta = consulta.Replace("hastaFechaReplace", hastaFecha.ToString("dd/MM/yyyy"))
+		Return consulta
+	End Function
+
+	''' <summary>Cogeneración: primer paso, filtra por el rango de fechas de lectura.</summary>
+	Public Shared Function GetCogeneracion(DesdeFecha As Date, hastaFecha As Date) As String
+		Dim consulta As String = ObtenerConsulta("ConsultaCogeneracionLidia_V7_2025")
+		consulta = consulta.Replace("DesdeFechaReplace", DesdeFecha.ToString("dd/MM/yyyy"))
+		consulta = consulta.Replace("hastaFechaReplace", hastaFecha.ToString("dd/MM/yyyy"))
+		Return consulta
+	End Function
+
+	''' <summary>
+	''' Cogeneración: segundo paso, por equipo de medida. Recibe los IdFacturaVentaCabecera que
+	''' el usuario copia de la primera hoja. Van dentro de un IN (...), sin comillas.
+	''' </summary>
+	Public Shared Function GetCogeneracionPorFactura(IdsFacturas As List(Of String)) As String
+		Dim consulta As String = ObtenerConsulta("ConsultaCogeneracionLidia__V7_PorEquipo_2025")
+		consulta = consulta.Replace("IdsFacturasReplace", String.Join(",", IdsFacturas))
+		Return consulta
+	End Function
+
+	''' <summary>
+	''' Cuentas LB2B. El nombre de agente va a un LIKE '%...%', así que admite un fragmento.
+	''' Este .sql usa "hastaFechaReplace" en minúscula, al contrario que los de Trébol.
+	''' </summary>
+	Public Shared Function GetCuentasLB2B(NombreAgente As String, DesdeFecha As Date, hastaFecha As Date) As String
+		Dim consulta As String = ObtenerConsulta("Consulta_Cuentas_LB2B")
+		consulta = consulta.Replace("DesdeFechaReplace", DesdeFecha.ToString("dd/MM/yyyy"))
+		consulta = consulta.Replace("hastaFechaReplace", hastaFecha.ToString("dd/MM/yyyy"))
+		consulta = consulta.Replace("NombreAgenteReplace", NombreAgente)
+		Return consulta
+	End Function
+
+	Public Shared Function GetTrebolGasByIdentidadFechas(Identidad As String, DesdeFecha As Date, HastaFecha As Date) As String
+		Dim consulta As String = ObtenerConsulta("ConsultaFacturasTREBOL_GAS_ByIdentidadFechas")
+		consulta = consulta.Replace("DesdeFechaReplace", DesdeFecha.ToString("dd/MM/yyyy"))
+		consulta = consulta.Replace("HastaFechaReplace", HastaFecha.ToString("dd/MM/yyyy"))
+		consulta = consulta.Replace("identidadReplace", Identidad)
+		Return consulta
+	End Function
+
 	Public Shared Function ConsultaLecturaActivaReactivayVarios(ListaFacturas As List(Of String)) As String
 		Dim consulta As String = ObtenerConsulta("ConsultaLecturaActivaReactivayVarios")
 		Dim ListaFacturasParam = "'" & String.Join("','", ListaFacturas) & "'"

@@ -61,9 +61,17 @@ Public Module EjecutorConsultas
     End Function
 
     ''' <summary>
-    ''' Una consulta por cada entrada (CIF, normalmente) y un fichero independiente por cada una.
+    ''' Una consulta por cada entrada (CIF, normalmente). Con "Dividir Excel" genera un fichero
+    ''' por entrada; sin dividir junta todas las filas en un único fichero.
     ''' </summary>
     Public Function EjecutarPorEntrada(ctx As ContextoConsulta, prefijo As String, sql As Func(Of String, String)) As ResultadoConsulta
+
+        If ctx.Dividir Then Return PorEntradaDividida(ctx, prefijo, sql)
+        Return Agrupar(ctx, If(String.IsNullOrEmpty(prefijo), "Consulta", prefijo), sql, "")
+
+    End Function
+
+    Private Function PorEntradaDividida(ctx As ContextoConsulta, prefijo As String, sql As Func(Of String, String)) As ResultadoConsulta
 
         Dim resultado As New ResultadoConsulta
         Dim procesados = 0
@@ -143,6 +151,20 @@ Public Module EjecutorConsultas
     End Function
 
     Private Function CurvaAgrupada(ctx As ContextoConsulta, nombre As String, sql As Func(Of String, String)) As ResultadoConsulta
+        Return Agrupar(ctx, nombre, sql, "Cups", recolectar:=True)
+    End Function
+
+    ''' <summary>
+    ''' Lanza la consulta por cada entrada, acumula todas las filas y las vuelca en un único
+    ''' Excel (troceado en varios ficheros si supera EXCEL_MAX_ROWS).
+    ''' </summary>
+    ''' <param name="etiqueta">Cómo llamar a la entrada en el mensaje de progreso ("Cups", "CIF"...).</param>
+    ''' <param name="recolectar">
+    ''' Fuerza GC.Collect() tras cada entrada. Necesario en las curvas, donde el volumen provocaba
+    ''' OutOfMemoryException; innecesario cuando son unas pocas entradas.
+    ''' </param>
+    Private Function Agrupar(ctx As ContextoConsulta, nombre As String, sql As Func(Of String, String),
+                             etiqueta As String, Optional recolectar As Boolean = False) As ResultadoConsulta
 
         Dim resultado As New ResultadoConsulta
 
@@ -154,7 +176,8 @@ Public Module EjecutorConsultas
         For Each c In ctx.Entradas
             ctx.AbortarSiCancelado()
             procesados += 1
-            ctx.Informar($"Consultando Cups: {c}", $"Procesados: {procesados} / {ctx.Entradas.Count}")
+            Dim textoEntrada = If(String.IsNullOrEmpty(etiqueta), c, $"{etiqueta}: {c}")
+            ctx.Informar($"Consultando {textoEntrada}", $"Procesados: {procesados} / {ctx.Entradas.Count}")
 
             Dim dt = Consultar(ctx, sql(c))
             If dt.Rows.Count = 0 Then
@@ -168,7 +191,7 @@ Public Module EjecutorConsultas
             Next
 
             dt.Dispose()
-            GC.Collect()
+            If recolectar Then GC.Collect()
         Next
 
         If masterDt Is Nothing OrElse masterDt.Rows.Count = 0 Then

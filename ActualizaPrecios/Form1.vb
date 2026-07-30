@@ -2228,8 +2228,17 @@ Public Class Form1
         DateTimePicker3.Enabled = pideFechas
         DateTimePicker2.Enabled = pideFechas
 
+        ' El texto se ajusta a lo que itera la consulta: "Dividir Excel" a secas era ambiguo.
+        DividirChck.Text = $"Un Excel por {UnidadDivision(def)}"
         DividirChck.Visible = def.PermiteDividir
-        If Not def.PermiteDividir Then DividirChck.Checked = False
+        DividirChck.Checked = def.PermiteDividir AndAlso def.DividirPorDefecto
+
+        ' Campo de texto suelto (nombre de agente, etc.), solo si la consulta lo pide.
+        Dim pideTexto = def.Requiere.HasFlag(EntradasConsulta.Texto)
+        lblParametro.Text = def.EtiquetaTexto
+        lblParametro.Visible = pideTexto
+        txtParametro.Visible = pideTexto
+        If Not pideTexto Then txtParametro.Text = ""
 
         Dim necesitaLista = PideLista(def)
         If necesitaLista Then
@@ -2244,9 +2253,17 @@ Public Class Form1
         If Not String.IsNullOrWhiteSpace(def.Descripcion) Then ayuda.Add(def.Descripcion)
         ayuda.Add(def.TextoEntradas())
         If necesitaLista Then ayuda.Add($"Escribe {EtiquetaLista(def)} en el cuadro de la izquierda.")
+        If def.PermiteDividir Then ayuda.Add($"Sin marcar la casilla, todo va a un único Excel.")
         lblRequiere.Text = String.Join(vbCrLf, ayuda)
 
     End Sub
+
+    ''' <summary>Sobre qué se parte el Excel cuando la consulta admite dividirse.</summary>
+    Private Function UnidadDivision(def As DefinicionConsulta) As String
+        If def.Requiere.HasFlag(EntradasConsulta.Cifs) Then Return "CIF"
+        If def.Requiere.HasFlag(EntradasConsulta.Cups) Then Return "CUPS"
+        Return "entrada"
+    End Function
 
     Private Function PideLista(def As DefinicionConsulta) As Boolean
         Return def.Requiere.HasFlag(EntradasConsulta.Cups) OrElse
@@ -2281,6 +2298,10 @@ Public Class Form1
 
         If PideLista(def) AndAlso entradas.Count = 0 Then
             Return $"La consulta ""{def.Nombre}"" necesita {EtiquetaLista(def)}. Escríbelos en el cuadro de Filtros."
+        End If
+
+        If def.Requiere.HasFlag(EntradasConsulta.Texto) AndAlso String.IsNullOrWhiteSpace(txtParametro.Text) Then
+            Return $"La consulta ""{def.Nombre}"" necesita que indiques {def.EtiquetaTexto.ToLower()}."
         End If
 
         If def.Requiere.HasFlag(EntradasConsulta.Fechas) AndAlso DateTimePicker3.Value.Date > DateTimePicker2.Value.Date Then
@@ -2329,6 +2350,7 @@ Public Class Form1
             .Desde = DateTimePicker3.Value.Date,
             .Hasta = DateTimePicker2.Value.Date,
             .Entradas = entradas,
+            .Texto = txtParametro.Text.Trim(),
             .Dividir = def.PermiteDividir AndAlso DividirChck.Checked,
             .Progreso = New Progress(Of ProgresoConsulta)(AddressOf MostrarProgresoConsulta)
         }
@@ -2342,6 +2364,12 @@ Public Class Form1
         Try
             Dim resultado = Await Task.Run(Function() def.Ejecutar(ctx))
             MostrarResultadoConsulta(def, resultado)
+
+            ' Consultas de dos pasos: el segundo necesita datos que el usuario saca del Excel
+            ' del primero, así que se le piden aquí, ya de vuelta en el hilo de UI.
+            If def.Continuacion IsNot Nothing AndAlso resultado IsNot Nothing AndAlso Not resultado.SinDatos Then
+                Await LanzarSegundaFaseAsync(def, ctx, resultado)
+            End If
 
         Catch ex As OperationCanceledException
             lblResumenConsulta.Text = $"{def.Nombre}: cancelada. Puede que se hayan generado ficheros parciales."
@@ -2358,6 +2386,60 @@ Public Class Form1
 
     End Function
 
+    ''' <summary>
+    ''' Pide al usuario los datos del segundo paso y lo ejecuta. Si omite el diálogo o no aporta
+    ''' nada, se queda con el resultado del primer paso sin dar error.
+    ''' </summary>
+    Private Async Function LanzarSegundaFaseAsync(def As DefinicionConsulta, ctxPaso1 As ContextoConsulta,
+                                                 resultadoPaso1 As ResultadoConsulta) As Task
+
+        Dim fase = def.Continuacion
+        Dim excelPaso1 = If(resultadoPaso1.Ficheros.Count > 0, resultadoPaso1.Ficheros(0), Nothing)
+
+        Dim valores As List(Of String)
+        Using dlg As New PedirDatosForm(fase.Nombre, fase.Peticion, excelPaso1, fase.SoloNumeros)
+            If dlg.ShowDialog(Me) <> DialogResult.OK Then
+                lblResumenConsulta.Text = $"{def.Nombre}: paso 2 omitido."
+                Return
+            End If
+            valores = dlg.Valores.ToList()
+        End Using
+
+        If valores.Count = 0 Then Return
+
+        ' Mismo contexto que el paso 1, pero con los valores que ha dado el usuario.
+        Dim ctx2 As New ContextoConsulta With {
+            .Conexion = ctxPaso1.Conexion,
+            .CarpetaDestino = ctxPaso1.CarpetaDestino,
+            .Desde = ctxPaso1.Desde,
+            .Hasta = ctxPaso1.Hasta,
+            .Entradas = valores,
+            .Texto = ctxPaso1.Texto,
+            .Dividir = ctxPaso1.Dividir,
+            .Cancelacion = ctxPaso1.Cancelacion,
+            .Progreso = ctxPaso1.Progreso
+        }
+
+        Dim resultado2 = Await Task.Run(Function() fase.Ejecutar(ctx2))
+
+        If resultado2 Is Nothing OrElse resultado2.SinDatos Then
+            Dim aviso = $"{fase.Nombre}: sin datos para esos {valores.Count} ID(s), no se ha generado el segundo fichero."
+            lblResumenConsulta.Text = aviso
+            complementos.MostrarMensajePersonalizado(aviso)
+            Return
+        End If
+
+        Dim resumen = $"{fase.Nombre}: {resultado2.Filas:N0} filas ({valores.Count} ID(s))."
+        lblResumenConsulta.Text = resumen
+
+        Dim detalle = resumen & vbCrLf & vbCrLf &
+                      String.Join(vbCrLf, resultado2.Ficheros.Select(Function(f) "- " & Path.GetFileName(f))) &
+                      vbCrLf & vbCrLf & rutaCarpetaGlobal
+
+        complementos.Complementos_MostrarMensajePersonalizadoCopiar(detalle, rutaCarpetaGlobal)
+
+    End Function
+
     ''' <summary>Progress(Of T) se crea en el hilo de UI, así que esto ya llega marshalado.</summary>
     Private Sub MostrarProgresoConsulta(p As ProgresoConsulta)
         TextConsultando.Text = p.Mensaje
@@ -2368,6 +2450,7 @@ Public Class Form1
 
         cmbConsulta.Enabled = Not enCurso
         DividirChck.Enabled = Not enCurso
+        txtParametro.Enabled = Not enCurso
         BotonConsultar.Enabled = True
         BotonConsultar.Text = If(enCurso, "Cancelar", "Consultar")
 
@@ -2392,7 +2475,8 @@ Public Class Form1
         End If
 
         Dim resumen = $"{def.Nombre}: {resultado.Filas:N0} filas en {resultado.Ficheros.Count} fichero(s)."
-        lblResumenConsulta.Text = resumen & vbCrLf & rutaCarpetaGlobal
+        ' La carpeta y el detalle van en el diálogo; aquí solo caben dos líneas.
+        lblResumenConsulta.Text = resumen
 
         Dim detalle = resumen & vbCrLf & vbCrLf &
                       String.Join(vbCrLf, resultado.Ficheros.Select(Function(f) "- " & Path.GetFileName(f))) &

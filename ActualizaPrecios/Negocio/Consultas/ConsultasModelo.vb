@@ -11,6 +11,8 @@ Public Enum EntradasConsulta
     Cups = 2
     Cifs = 4
     Facturas = 8
+    ''' <summary>Un único valor de texto (nombre de agente, etc.), no una lista.</summary>
+    Texto = 16
 End Enum
 
 Public Class ProgresoConsulta
@@ -31,6 +33,9 @@ Public Class ContextoConsulta
 
     ''' <summary>CUPS, CIF o números de factura ya troceados y limpios, según lo que pida la consulta.</summary>
     Property Entradas As New List(Of String)
+
+    ''' <summary>Valor suelto que haya escrito el usuario cuando la consulta pide EntradasConsulta.Texto.</summary>
+    Property Texto As String = ""
 
     Property Dividir As Boolean = False
     Property Cancelacion As CancellationToken = CancellationToken.None
@@ -74,6 +79,27 @@ Public Class HojaConsulta
 End Class
 
 ''' <summary>
+''' Segundo paso opcional de una consulta. Se ejecuta cuando el primero ha terminado y solo
+''' si el usuario aporta el dato que se le pide: hay consultas cuyo segundo paso necesita
+''' identificadores que salen del Excel del primero, y eso no se puede automatizar.
+''' Los valores que teclee el usuario llegan al Ejecutar en ContextoConsulta.Entradas.
+''' </summary>
+Public Class SegundaFaseConsulta
+
+    ''' <summary>Nombre del paso, para el resumen final.</summary>
+    Property Nombre As String = ""
+
+    ''' <summary>Lo que se le pide al usuario en el diálogo.</summary>
+    Property Peticion As String = ""
+
+    ''' <summary>Solo se admiten valores numéricos (identificadores).</summary>
+    Property SoloNumeros As Boolean = True
+
+    Property Ejecutar As Func(Of ContextoConsulta, ResultadoConsulta)
+
+End Class
+
+''' <summary>
 ''' Una consulta del catálogo. Añadir una consulta nueva a la aplicación es añadir una
 ''' instancia de esto en CatalogoConsultas: no hay que tocar el diseñador ni el formulario.
 ''' </summary>
@@ -83,8 +109,14 @@ Public Class DefinicionConsulta
     Property Grupo As String = ""
     Property Requiere As EntradasConsulta = EntradasConsulta.Ninguna
 
-    ''' <summary>Si admite la opción "Dividir Excel" (un fichero por CUPS).</summary>
+    ''' <summary>Si admite la opción de partir el resultado en un fichero por CUPS / por CIF.</summary>
     Property PermiteDividir As Boolean = False
+
+    ''' <summary>
+    ''' Cómo aparece marcada esa casilla al elegir la consulta. True en las que siempre se han
+    ''' entregado partidas (Grupo SRS), False en las que por defecto van a un único Excel.
+    ''' </summary>
+    Property DividirPorDefecto As Boolean = False
 
     ''' <summary>True para las que van contra SigeTotalTM en vez de contra SigeTotal.</summary>
     Property UsaConexionTM As Boolean = False
@@ -92,7 +124,16 @@ Public Class DefinicionConsulta
     ''' <summary>Ayuda que se muestra bajo el combo.</summary>
     Property Descripcion As String = ""
 
+    ''' <summary>
+    ''' Rótulo del campo de texto suelto cuando Requiere incluye EntradasConsulta.Texto.
+    ''' Por ejemplo "Nombre del agente".
+    ''' </summary>
+    Property EtiquetaTexto As String = "Valor"
+
     Property Ejecutar As Func(Of ContextoConsulta, ResultadoConsulta)
+
+    ''' <summary>Paso encadenado opcional. Nothing en las consultas de un solo paso.</summary>
+    Property Continuacion As SegundaFaseConsulta = Nothing
 
     Public Overrides Function ToString() As String
         Return $"{Grupo}  ·  {Nombre}"
@@ -106,6 +147,7 @@ Public Class DefinicionConsulta
         If Requiere.HasFlag(EntradasConsulta.Cups) Then partes.Add("lista de CUPS")
         If Requiere.HasFlag(EntradasConsulta.Cifs) Then partes.Add("lista de CIF")
         If Requiere.HasFlag(EntradasConsulta.Facturas) Then partes.Add("lista de facturas")
+        If Requiere.HasFlag(EntradasConsulta.Texto) Then partes.Add(EtiquetaTexto.ToLower())
 
         If partes.Count = 0 Then Return "No necesita ningún dato."
         Return "Necesita: " & String.Join(" + ", partes) & "."

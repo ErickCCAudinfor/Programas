@@ -56,6 +56,8 @@ Partial Class Form1
         lblConsultaTitulo = New Label()
         cmbConsulta = New ComboBox()
         lblRequiere = New Label()
+        lblParametro = New Label()
+        txtParametro = New TextBox()
         lblResumenConsulta = New Label()
         Label4 = New Label()
         CheckBox4 = New CheckBox()
@@ -395,17 +397,39 @@ Partial Class Form1
         lblRequiere.ForeColor = Color.FromArgb(CByte(90), CByte(115), CByte(155))
         lblRequiere.Location = New Point(8, 56)
         lblRequiere.Name = "lblRequiere"
-        lblRequiere.Size = New Size(300, 46)
+        ' Alto para 4 líneas: la ayuda más larga es descripción + entradas + lista + dividir.
+        lblRequiere.Size = New Size(300, 62)
         lblRequiere.TabIndex = 57
+        '
+        ' lblParametro
+        '
+        lblParametro.AutoSize = True
+        lblParametro.BackColor = Color.Transparent
+        lblParametro.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
+        lblParametro.Location = New Point(8, 122)
+        lblParametro.Name = "lblParametro"
+        lblParametro.Size = New Size(100, 15)
+        lblParametro.TabIndex = 59
+        lblParametro.Text = "Valor"
+        lblParametro.Visible = False
+        '
+        ' txtParametro
+        '
+        txtParametro.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        txtParametro.Location = New Point(8, 139)
+        txtParametro.Name = "txtParametro"
+        txtParametro.Size = New Size(300, 23)
+        txtParametro.TabIndex = 60
+        txtParametro.Visible = False
         '
         ' lblResumenConsulta
         '
         lblResumenConsulta.BackColor = Color.Transparent
         lblResumenConsulta.Font = New Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point)
         lblResumenConsulta.ForeColor = Color.FromArgb(CByte(110), CByte(135), CByte(175))
-        lblResumenConsulta.Location = New Point(8, 133)
+        lblResumenConsulta.Location = New Point(8, 189)
         lblResumenConsulta.Name = "lblResumenConsulta"
-        lblResumenConsulta.Size = New Size(300, 78)
+        lblResumenConsulta.Size = New Size(300, 26)
         lblResumenConsulta.TabIndex = 58
         '
         ' Label4
@@ -894,9 +918,9 @@ Partial Class Form1
         DividirChck.BackColor = Color.Transparent
         DividirChck.Font = New Font("Segoe UI Semibold", 8.25F, FontStyle.Bold, GraphicsUnit.Point)
         DividirChck.ForeColor = Color.FromArgb(CByte(25), CByte(65), CByte(120))
-        DividirChck.Location = New Point(8, 108)
+        DividirChck.Location = New Point(8, 168)
         DividirChck.Name = "DividirChck"
-        DividirChck.Size = New Size(120, 17)
+        DividirChck.Size = New Size(160, 17)
         DividirChck.TabIndex = 47
         DividirChck.Text = "Dividir Excel"
         DividirChck.UseVisualStyleBackColor = False
@@ -962,6 +986,8 @@ Partial Class Form1
         Panel4.Controls.Add(lblConsultaTitulo)
         Panel4.Controls.Add(cmbConsulta)
         Panel4.Controls.Add(lblRequiere)
+        Panel4.Controls.Add(lblParametro)
+        Panel4.Controls.Add(txtParametro)
         Panel4.Controls.Add(DividirChck)
         Panel4.Controls.Add(lblResumenConsulta)
         Panel4.Controls.Add(BotonConsultar)
@@ -1063,6 +1089,8 @@ Partial Class Form1
     Friend WithEvents lblConsultaTitulo As Label
     Friend WithEvents cmbConsulta As ComboBox
     Friend WithEvents lblRequiere As Label
+    Friend WithEvents lblParametro As Label
+    Friend WithEvents txtParametro As TextBox
     Friend WithEvents lblResumenConsulta As Label
     Friend WithEvents PictureBox2 As PictureBox
     Friend WithEvents Label4 As Label

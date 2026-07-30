@@ -71,20 +71,65 @@ Public Module CatalogoConsultas
                                                      Function() ConsultasSQL.GetCAM(ctx.Desde, ctx.Hasta))
         },
         New DefinicionConsulta With {
-            .Nombre = "Trébol (Luz y Gas)",
+            .Nombre = "Desglosado Trébol Luz by CIF",
             .Grupo = GrupoGenerales,
-            .Requiere = EntradasConsulta.Cifs,
-            .Descripcion = "Genera un Excel por cada CIF de la lista.",
+            .Requiere = EntradasConsulta.Cifs Or EntradasConsulta.Fechas,
+            .PermiteDividir = True,
+            .Descripcion = "Facturas de luz (Entorno E1) por CIF y rango de fechas.",
             .Ejecutar = Function(ctx) EjecutarPorEntrada(ctx, "TREBOL_LUZ",
-                                                         Function(cif) ConsultasSQL.GetTrebolLuz_V2(cif))
+                                                         Function(cif) ConsultasSQL.GetTrebolLuzByIdentidadFechas(cif, ctx.Desde, ctx.Hasta))
+        },
+        New DefinicionConsulta With {
+            .Nombre = "Desglosado Trébol Gas by CIF",
+            .Grupo = GrupoGenerales,
+            .Requiere = EntradasConsulta.Cifs Or EntradasConsulta.Fechas,
+            .PermiteDividir = True,
+            .Descripcion = "Facturas de gas (Entorno E2) por CIF y rango de fechas.",
+            .Ejecutar = Function(ctx) EjecutarPorEntrada(ctx, "TREBOL_GAS",
+                                                         Function(cif) ConsultasSQL.GetTrebolGasByIdentidadFechas(cif, ctx.Desde, ctx.Hasta))
         },
         New DefinicionConsulta With {
             .Nombre = "Grupo SRS",
             .Grupo = GrupoGenerales,
             .Requiere = EntradasConsulta.Cifs Or EntradasConsulta.Fechas,
-            .Descripcion = "Genera un Excel por cada CIF de la lista.",
+            .PermiteDividir = True,
+            .DividirPorDefecto = True,
+            .Descripcion = "Se entrega partida por CIF, como siempre. Desmarca la casilla para juntarlo todo.",
             .Ejecutar = Function(ctx) EjecutarPorEntrada(ctx, "",
                                                          Function(cif) ConsultasSQL.GetConsultaNorauto(ctx.Desde, ctx.Hasta, cif))
+        },
+        New DefinicionConsulta With {
+            .Nombre = "Santa Lucía Trébol Gas",
+            .Grupo = GrupoGenerales,
+            .Requiere = EntradasConsulta.Fechas,
+            .Descripcion = "Facturas de gas (E2) del grupo de tarifa Santa Lucía.",
+            .Ejecutar = Function(ctx) EjecutarSimple(ctx, "SantaLucia_TREBOL_GAS", "SantaLuciaGas",
+                                                     Function() ConsultasSQL.GetSantaLuciaTrebolGasV2(ctx.Desde, ctx.Hasta))
+        },
+        New DefinicionConsulta With {
+            .Nombre = "Cogeneración",
+            .Grupo = GrupoGenerales,
+            .Requiere = EntradasConsulta.Fechas,
+            .Descripcion = "Dos pasos: al acabar el primero se te pedirán los IDs de factura (columna A) para el detalle por equipo.",
+            .Ejecutar = Function(ctx) EjecutarSimple(ctx, "ConsultaCogeneracion", "Cogeneracion",
+                                                     Function() ConsultasSQL.GetCogeneracion(ctx.Desde, ctx.Hasta)),
+            .Continuacion = New SegundaFaseConsulta With {
+                .Nombre = "Cogeneración por factura",
+                .Peticion = "Abre el Excel que se acaba de generar y copia aquí los IDs de factura de la columna A." & vbCrLf &
+                            "Sepáralos por comas o por saltos de línea. Solo se admiten números.",
+                .SoloNumeros = True,
+                .Ejecutar = Function(ctx) EjecutarSimple(ctx, "ConsultaCogeneracionPorFactura", "PorFactura",
+                                                         Function() ConsultasSQL.GetCogeneracionPorFactura(ctx.Entradas))
+            }
+        },
+        New DefinicionConsulta With {
+            .Nombre = "Cuentas LB2B",
+            .Grupo = GrupoGenerales,
+            .Requiere = EntradasConsulta.Texto Or EntradasConsulta.Fechas,
+            .EtiquetaTexto = "Nombre del agente",
+            .Descripcion = "Busca por parte del nombre del agente, no hace falta escribirlo completo.",
+            .Ejecutar = Function(ctx) EjecutarSimple(ctx, "Cuentas_LB2B", "CuentasLB2B",
+                                                     Function() ConsultasSQL.GetCuentasLB2B(ctx.Texto, ctx.Desde, ctx.Hasta))
         },
         New DefinicionConsulta With {
             .Nombre = "Energía Activa y Reactiva",
