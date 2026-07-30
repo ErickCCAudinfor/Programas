@@ -23,10 +23,17 @@ Partial Class NovedadesForm
         pnlCabecera = New Panel()
         lblTitulo = New Label()
         lblSubtitulo = New Label()
+        tabNovedades = New TabControl()
+        tabActual = New TabPage()
         pnlLista = New Panel()
+        tabAnteriores = New TabPage()
+        pnlHistorial = New Panel()
         pnlPie = New Panel()
         btnCerrar = New Button()
         pnlCabecera.SuspendLayout()
+        tabNovedades.SuspendLayout()
+        tabActual.SuspendLayout()
+        tabAnteriores.SuspendLayout()
         pnlPie.SuspendLayout()
         SuspendLayout()
         '
@@ -63,16 +70,60 @@ Partial Class NovedadesForm
         lblSubtitulo.TabIndex = 1
         lblSubtitulo.Text = "Cambios y mejoras del Gestor de Datos SIGE"
         '
+        ' tabNovedades
+        '
+        tabNovedades.Controls.Add(tabActual)
+        tabNovedades.Controls.Add(tabAnteriores)
+        tabNovedades.Dock = DockStyle.Fill
+        tabNovedades.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
+        tabNovedades.Location = New Point(0, 64)
+        tabNovedades.Name = "tabNovedades"
+        tabNovedades.Padding = New Point(12, 4)
+        tabNovedades.SelectedIndex = 0
+        tabNovedades.Size = New Size(544, 393)
+        tabNovedades.TabIndex = 1
+        '
+        ' tabActual
+        '
+        tabActual.BackColor = Color.FromArgb(CByte(248), CByte(251), CByte(255))
+        tabActual.Controls.Add(pnlLista)
+        tabActual.Location = New Point(4, 26)
+        tabActual.Name = "tabActual"
+        tabActual.Size = New Size(536, 363)
+        tabActual.TabIndex = 0
+        tabActual.Text = "Novedades"
+        '
         ' pnlLista
         '
         pnlLista.AutoScroll = True
         pnlLista.BackColor = Color.FromArgb(CByte(248), CByte(251), CByte(255))
         pnlLista.Dock = DockStyle.Fill
-        pnlLista.Location = New Point(0, 64)
+        pnlLista.Location = New Point(0, 0)
         pnlLista.Name = "pnlLista"
         pnlLista.Padding = New Padding(16, 12, 16, 12)
-        pnlLista.Size = New Size(544, 393)
-        pnlLista.TabIndex = 1
+        pnlLista.Size = New Size(536, 363)
+        pnlLista.TabIndex = 0
+        '
+        ' tabAnteriores
+        '
+        tabAnteriores.BackColor = Color.FromArgb(CByte(248), CByte(251), CByte(255))
+        tabAnteriores.Controls.Add(pnlHistorial)
+        tabAnteriores.Location = New Point(4, 26)
+        tabAnteriores.Name = "tabAnteriores"
+        tabAnteriores.Size = New Size(536, 363)
+        tabAnteriores.TabIndex = 1
+        tabAnteriores.Text = "Versiones anteriores"
+        '
+        ' pnlHistorial
+        '
+        pnlHistorial.AutoScroll = True
+        pnlHistorial.BackColor = Color.FromArgb(CByte(248), CByte(251), CByte(255))
+        pnlHistorial.Dock = DockStyle.Fill
+        pnlHistorial.Location = New Point(0, 0)
+        pnlHistorial.Name = "pnlHistorial"
+        pnlHistorial.Padding = New Padding(16, 12, 16, 12)
+        pnlHistorial.Size = New Size(536, 363)
+        pnlHistorial.TabIndex = 0
         '
         ' pnlPie
         '
@@ -103,7 +154,7 @@ Partial Class NovedadesForm
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.FromArgb(CByte(248), CByte(251), CByte(255))
         ClientSize = New Size(544, 511)
-        Controls.Add(pnlLista)
+        Controls.Add(tabNovedades)
         Controls.Add(pnlPie)
         Controls.Add(pnlCabecera)
         DoubleBuffered = True
@@ -116,6 +167,9 @@ Partial Class NovedadesForm
         Text = "Novedades"
         pnlCabecera.ResumeLayout(False)
         pnlCabecera.PerformLayout()
+        tabNovedades.ResumeLayout(False)
+        tabActual.ResumeLayout(False)
+        tabAnteriores.ResumeLayout(False)
         pnlPie.ResumeLayout(False)
         ResumeLayout(False)
     End Sub
@@ -123,7 +177,11 @@ Partial Class NovedadesForm
     Friend WithEvents pnlCabecera As Panel
     Friend WithEvents lblTitulo As Label
     Friend WithEvents lblSubtitulo As Label
+    Friend WithEvents tabNovedades As TabControl
+    Friend WithEvents tabActual As TabPage
     Friend WithEvents pnlLista As Panel
+    Friend WithEvents tabAnteriores As TabPage
+    Friend WithEvents pnlHistorial As Panel
     Friend WithEvents pnlPie As Panel
     Friend WithEvents btnCerrar As Button
 End Class

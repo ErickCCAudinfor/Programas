@@ -1,6 +1,6 @@
 ''' <summary>
-''' Muestra el historial de novedades de la aplicación. Las versiones posteriores a la
-''' última que leyó el usuario se marcan como "Nuevo".
+''' Muestra las novedades en dos pestañas: la versión actual y el historial de versiones
+''' anteriores. Separarlas evita que la primera pantalla sea una lista interminable.
 ''' </summary>
 Public Class NovedadesForm
 
@@ -28,7 +28,7 @@ Public Class NovedadesForm
         btnCerrar.FlatAppearance.BorderColor = Color.FromArgb(70, 150, 230)
         btnCerrar.FlatAppearance.BorderSize = 1
 
-        ConstruirListado()
+        ConstruirPestanas()
     End Sub
 
     Private Sub btnCerrar_Click(sender As Object, e As EventArgs) Handles btnCerrar.Click
@@ -36,35 +36,63 @@ Public Class NovedadesForm
         Me.Close()
     End Sub
 
-    ''' <summary>
-    ''' Pinta el historial de arriba abajo acumulando la Y de cada bloque.
-    ''' </summary>
-    Private Sub ConstruirListado()
+    Private Sub ConstruirPestanas()
 
-        pnlLista.SuspendLayout()
-        pnlLista.Controls.Clear()
+        Dim historial = NovedadesApp.Historial
+
+        If historial Is Nothing OrElse historial.Count = 0 Then
+            Pintar(pnlLista, New List(Of Novedad), 0)
+            tabNovedades.TabPages.Remove(tabAnteriores)
+            Exit Sub
+        End If
+
+        ' Pestaña 1: solo la versión que se acaba de publicar.
+        Dim actual = historial.Take(1).ToList()
+        tabActual.Text = $"Versión {historial(0).Version}"
+        Pintar(pnlLista, actual, IndiceVersionLeida())
+
+        ' Pestaña 2: el resto. Si no hay historial previo, no se muestra la pestaña.
+        Dim anteriores = historial.Skip(1).ToList()
+        If anteriores.Count = 0 Then
+            tabNovedades.TabPages.Remove(tabAnteriores)
+        Else
+            tabAnteriores.Text = $"Versiones anteriores ({anteriores.Count})"
+            ' El índice se desplaza una posición al quitar la entrada actual de la lista.
+            Pintar(pnlHistorial, anteriores, Math.Max(0, IndiceVersionLeida() - 1))
+        End If
+
+    End Sub
+
+    ''' <summary>
+    ''' Pinta las novedades de arriba abajo acumulando la Y de cada bloque.
+    ''' </summary>
+    ''' <param name="indiceLeida">
+    ''' Posición dentro de esa lista de la última versión leída: lo anterior lleva "NUEVO".
+    ''' </param>
+    Private Sub Pintar(destino As Panel, novedades As List(Of Novedad), indiceLeida As Integer)
+
+        destino.SuspendLayout()
+        destino.Controls.Clear()
 
         ' Se reserva hueco para la barra de desplazamiento vertical.
-        Dim izquierda As Integer = pnlLista.Padding.Left
-        Dim anchoUtil As Integer = pnlLista.ClientSize.Width - pnlLista.Padding.Left - pnlLista.Padding.Right - SystemInformation.VerticalScrollBarWidth
-        Dim y As Integer = pnlLista.Padding.Top
+        Dim izquierda As Integer = destino.Padding.Left
+        Dim anchoUtil As Integer = destino.ClientSize.Width - destino.Padding.Left - destino.Padding.Right - SystemInformation.VerticalScrollBarWidth
+        Dim y As Integer = destino.Padding.Top
 
-        If NovedadesApp.Historial Is Nothing OrElse NovedadesApp.Historial.Count = 0 Then
-            pnlLista.Controls.Add(CrearTexto("Todavía no hay novedades registradas.", izquierda, y, anchoUtil, 9.0F, FontStyle.Italic, ColorSuave))
-            pnlLista.ResumeLayout()
+        If novedades Is Nothing OrElse novedades.Count = 0 Then
+            destino.Controls.Add(CrearTexto("Todavía no hay novedades registradas.", izquierda, y, anchoUtil, 9.0F, FontStyle.Italic, ColorSuave))
+            destino.ResumeLayout()
             Return
         End If
 
-        Dim indiceLeida As Integer = IndiceVersionLeida()
+        For i As Integer = 0 To novedades.Count - 1
 
-        For i As Integer = 0 To NovedadesApp.Historial.Count - 1
-
-            Dim novedad = NovedadesApp.Historial(i)
+            Dim novedad = novedades(i)
             Dim esNueva As Boolean = (i < indiceLeida)
 
             ' --- Cabecera: versión + fecha ---
             Dim lblVersion = CrearTexto($"Versión {novedad.Version}   ·   {novedad.Fecha:dd/MM/yyyy}", izquierda, y, anchoUtil, 10.0F, FontStyle.Bold, ColorNavy)
-            pnlLista.Controls.Add(lblVersion)
+            destino.Controls.Add(lblVersion)
 
             If esNueva Then
                 Dim lblNuevo As New Label With {
@@ -77,7 +105,7 @@ Public Class NovedadesForm
                     .BackColor = ColorAcento,
                     .TextAlign = ContentAlignment.MiddleCenter
                 }
-                pnlLista.Controls.Add(lblNuevo)
+                destino.Controls.Add(lblNuevo)
             End If
 
             y += lblVersion.Height + 2
@@ -85,7 +113,7 @@ Public Class NovedadesForm
             ' --- Título del bloque ---
             If Not String.IsNullOrWhiteSpace(novedad.Titulo) Then
                 Dim lblTit = CrearTexto(novedad.Titulo, izquierda, y, anchoUtil, 9.0F, FontStyle.Bold, ColorTexto)
-                pnlLista.Controls.Add(lblTit)
+                destino.Controls.Add(lblTit)
                 y += lblTit.Height + 4
             End If
 
@@ -93,26 +121,26 @@ Public Class NovedadesForm
             If novedad.Cambios IsNot Nothing Then
                 For Each cambio In novedad.Cambios
                     Dim lblCambio = CrearTexto("•  " & cambio, izquierda + 8, y, anchoUtil - 8, 9.0F, FontStyle.Regular, ColorTexto)
-                    pnlLista.Controls.Add(lblCambio)
+                    destino.Controls.Add(lblCambio)
                     y += lblCambio.Height + 3
                 Next
             End If
 
             ' --- Separador entre versiones ---
-            If i < NovedadesApp.Historial.Count - 1 Then
+            If i < novedades.Count - 1 Then
                 y += 8
                 Dim linea As New Panel With {
                     .BackColor = Color.FromArgb(218, 228, 242),
                     .Location = New Point(izquierda, y),
                     .Size = New Size(anchoUtil, 1)
                 }
-                pnlLista.Controls.Add(linea)
+                destino.Controls.Add(linea)
                 y += 13
             End If
 
         Next
 
-        pnlLista.ResumeLayout()
+        destino.ResumeLayout()
 
     End Sub
 

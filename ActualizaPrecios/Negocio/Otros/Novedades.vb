@@ -22,6 +22,18 @@ Public Module NovedadesApp
 
     Public ReadOnly Historial As New List(Of Novedad) From {
         New Novedad With {
+            .Version = "2.5",
+            .Fecha = New Date(2026, 7, 29),
+            .Titulo = "Varias consultas a la vez",
+            .Cambios = New List(Of String) From {
+                "Ya se pueden lanzar hasta 3 consultas a la vez. El panel ""En curso"" muestra en qué va cada una y permite cancelarlas por separado.",
+                "No se puede lanzar dos veces la misma consulta a la vez, porque las dos escribirían el mismo Excel.",
+                "Aviso bajo el desplegable recordando que conviene lanzar las consultas contra Réplica.",
+                "Las novedades se reparten en dos pestañas: los cambios de esta versión y, aparte, las versiones anteriores.",
+                "Tres consultas nuevas por rango de fechas: ""Trébol Luz"", ""Trébol Gas"" y ""JC Castilla-La Mancha"". Las dos de Trébol sacan todas las facturas del periodo; las de ""Desglosado Trébol ... by CIF"" siguen ahí para filtrar por CIF."
+            }
+        },
+        New Novedad With {
             .Version = "2.4",
             .Fecha = New Date(2026, 7, 29),
             .Titulo = "Aviso de novedades y consultas rediseñadas",

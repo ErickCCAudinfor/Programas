@@ -327,6 +327,30 @@ order by Solicitud.IdSolicitudTipo, Solicitud.FechaApertura"
 		Return consulta
 	End Function
 
+	''' <summary>JC Castilla-La Mancha. Solo rango de fechas de factura.</summary>
+	Public Shared Function GetJCCastillaLaMancha(DesdeFecha As Date, hastaFecha As Date) As String
+		Dim consulta As String = ObtenerConsulta("Consulta_JC CASTILLA LA MANCHA")
+		consulta = consulta.Replace("DesdeFechaReplace", DesdeFecha.ToString("dd/MM/yyyy"))
+		consulta = consulta.Replace("hastaFechaReplace", hastaFecha.ToString("dd/MM/yyyy"))
+		Return consulta
+	End Function
+
+	''' <summary>Trébol luz completa (V5), por rango de fechas. No confundir con la versión por CIF.</summary>
+	Public Shared Function GetTrebolLuzPorFechas(DesdeFecha As Date, hastaFecha As Date) As String
+		Dim consulta As String = ObtenerConsulta("ConsultaFacturasTREBOL_ELEC_V5")
+		consulta = consulta.Replace("DesdeFechaReplace", DesdeFecha.ToString("dd/MM/yyyy"))
+		consulta = consulta.Replace("hastaFechaReplace", hastaFecha.ToString("dd/MM/yyyy"))
+		Return consulta
+	End Function
+
+	''' <summary>Trébol gas completa, por rango de fechas. No confundir con la versión por CIF.</summary>
+	Public Shared Function GetTrebolGasPorFechas(DesdeFecha As Date, hastaFecha As Date) As String
+		Dim consulta As String = ObtenerConsulta("ConsultaFacturasTREBOL_GAS")
+		consulta = consulta.Replace("DesdeFechaReplace", DesdeFecha.ToString("dd/MM/yyyy"))
+		consulta = consulta.Replace("hastaFechaReplace", hastaFecha.ToString("dd/MM/yyyy"))
+		Return consulta
+	End Function
+
 	''' <summary>
 	''' Santa Lucía / Trébol gas (v2). Solo rango de fechas: el propio .sql filtra por
 	''' entorno E2 y por el grupo de tarifa que case con "santa lucia".

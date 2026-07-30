@@ -2184,11 +2184,27 @@ Public Class Form1
 
 #Region "consultas"
 
-    ' Curvas y pool van contra SigeTotalTM; el resto contra la conexión general (connectionString).
+    ' Curvas y pool van contra SigeTotalTM; el resto contra la conexión general (connectionString),
+    ' que cambia según el radio de Producción / Réplica / UAT del pie de la ventana.
     Private ReadOnly connectionStringTM As String = "data source=172.31.100.30;initial catalog=SigeTotalTM;User ID=Sige;Password=SigeNew;"
 
-    ''' <summary>Vivo solo mientras hay una consulta en marcha. Nothing = no hay nada ejecutándose.</summary>
-    Private CancelacionConsulta As CancellationTokenSource = Nothing
+    ''' <summary>
+    ''' Tope de consultas simultáneas. Más de tres a la vez castiga al servidor sin ganar
+    ''' apenas tiempo, porque el cuello de botella es la propia base de datos.
+    ''' </summary>
+    Private Const MaxConsultasSimultaneas As Integer = 3
+
+    ''' <summary>Una consulta lanzada y todavía sin terminar, con su fila en el panel "En curso".</summary>
+    Private Class ConsultaEnCurso
+        Property Def As DefinicionConsulta
+        Property Cancelacion As CancellationTokenSource
+        Property Fila As Panel
+        Property Texto As Label
+        Property Boton As Button
+        Property Estado As String = "En cola..."
+    End Class
+
+    Private ReadOnly EnCurso As New List(Of ConsultaEnCurso)
     Private PlaceholderFiltrosOriginal As String = ""
 
     Private ReadOnly Property ConsultaSeleccionada As DefinicionConsulta
@@ -2207,8 +2223,12 @@ Public Class Form1
             cmbConsulta.Items.Add(def)
         Next
 
+        ' El tope de simultáneas ya se ve en el rótulo "En curso (n/3)", así que aquí no se repite:
+        ' el texto tiene que caber en una línea o se corta.
+        lblNotaReplica.Text = "Se recomienda lanzar las consultas contra Réplica."
+
         If cmbConsulta.Items.Count > 0 Then cmbConsulta.SelectedIndex = 0
-        EstiloBotonFlat(BotonConsultar, Color.FromArgb(25, 118, 210), Color.FromArgb(70, 150, 230))
+        RefrescarEnCurso()
 
     End Sub
 
@@ -2256,14 +2276,9 @@ Public Class Form1
         If def.PermiteDividir Then ayuda.Add($"Sin marcar la casilla, todo va a un único Excel.")
         lblRequiere.Text = String.Join(vbCrLf, ayuda)
 
-    End Sub
+        ActualizarEstadoBoton()
 
-    ''' <summary>Sobre qué se parte el Excel cuando la consulta admite dividirse.</summary>
-    Private Function UnidadDivision(def As DefinicionConsulta) As String
-        If def.Requiere.HasFlag(EntradasConsulta.Cifs) Then Return "CIF"
-        If def.Requiere.HasFlag(EntradasConsulta.Cups) Then Return "CUPS"
-        Return "entrada"
-    End Function
+    End Sub
 
     Private Function PideLista(def As DefinicionConsulta) As Boolean
         Return def.Requiere.HasFlag(EntradasConsulta.Cups) OrElse
@@ -2276,6 +2291,13 @@ Public Class Form1
         If def.Requiere.HasFlag(EntradasConsulta.Cifs) Then Return "los CIF"
         If def.Requiere.HasFlag(EntradasConsulta.Facturas) Then Return "las facturas"
         Return "los datos"
+    End Function
+
+    ''' <summary>Sobre qué se parte el Excel cuando la consulta admite dividirse.</summary>
+    Private Function UnidadDivision(def As DefinicionConsulta) As String
+        If def.Requiere.HasFlag(EntradasConsulta.Cifs) Then Return "CIF"
+        If def.Requiere.HasFlag(EntradasConsulta.Cups) Then Return "CUPS"
+        Return "entrada"
     End Function
 
     ''' <summary>Trocea el cuadro de Filtros según lo que espere la consulta.</summary>
@@ -2296,6 +2318,15 @@ Public Class Form1
     ''' <summary>Devuelve el motivo por el que no se puede lanzar, o cadena vacía si todo está bien.</summary>
     Private Function ValidarConsulta(def As DefinicionConsulta, entradas As List(Of String)) As String
 
+        If EnCurso.Count >= MaxConsultasSimultaneas Then
+            Return $"Ya hay {MaxConsultasSimultaneas} consultas en curso. Espera a que termine alguna."
+        End If
+
+        ' Dos veces la misma consulta escribirían el mismo Excel y se pisarían.
+        If EnCurso.Any(Function(c) c.Def Is def) Then
+            Return $"""{def.Nombre}"" ya se está ejecutando."
+        End If
+
         If PideLista(def) AndAlso entradas.Count = 0 Then
             Return $"La consulta ""{def.Nombre}"" necesita {EtiquetaLista(def)}. Escríbelos en el cuadro de Filtros."
         End If
@@ -2313,17 +2344,7 @@ Public Class Form1
     End Function
 
     Private Async Sub BotonConsultar_Click(sender As Object, e As EventArgs) Handles BotonConsultar.Click
-
-        ' Mientras hay una consulta en marcha, el mismo botón sirve para abortarla.
-        If CancelacionConsulta IsNot Nothing Then
-            CancelacionConsulta.Cancel()
-            TextConsultando.Text = "Cancelando..."
-            BotonConsultar.Enabled = False
-            Exit Sub
-        End If
-
         Await LanzarConsultaAsync()
-
     End Sub
 
     Private Async Function LanzarConsultaAsync() As Task
@@ -2343,7 +2364,14 @@ Public Class Form1
 
         If Not Directory.Exists(rutaCarpetaGlobal) Then Directory.CreateDirectory(rutaCarpetaGlobal)
 
-        ' Todo lo que la consulta necesita se captura aquí, en el hilo de UI.
+        Dim job As New ConsultaEnCurso With {
+            .Def = def,
+            .Cancelacion = New CancellationTokenSource(),
+            .Estado = "Iniciando..."
+        }
+
+        ' Todo lo que la consulta necesita se captura aquí, en el hilo de UI, para que la
+        ' tarea de fondo no toque controles y no le afecte lo que el usuario cambie después.
         Dim ctx As New ContextoConsulta With {
             .Conexion = If(def.UsaConexionTM, connectionStringTM, connectionString),
             .CarpetaDestino = rutaCarpetaGlobal,
@@ -2352,14 +2380,12 @@ Public Class Form1
             .Entradas = entradas,
             .Texto = txtParametro.Text.Trim(),
             .Dividir = def.PermiteDividir AndAlso DividirChck.Checked,
-            .Progreso = New Progress(Of ProgresoConsulta)(AddressOf MostrarProgresoConsulta)
+            .Cancelacion = job.Cancelacion.Token,
+            .Progreso = New Progress(Of ProgresoConsulta)(Sub(p) ActualizarFila(job, p))
         }
 
-        CancelacionConsulta = New CancellationTokenSource()
-        ctx.Cancelacion = CancelacionConsulta.Token
-
-        ModoConsultaEnCurso(True)
-        lblResumenConsulta.Text = ""
+        EnCurso.Add(job)
+        RefrescarEnCurso()
 
         Try
             Dim resultado = Await Task.Run(Function() def.Ejecutar(ctx))
@@ -2368,20 +2394,22 @@ Public Class Form1
             ' Consultas de dos pasos: el segundo necesita datos que el usuario saca del Excel
             ' del primero, así que se le piden aquí, ya de vuelta en el hilo de UI.
             If def.Continuacion IsNot Nothing AndAlso resultado IsNot Nothing AndAlso Not resultado.SinDatos Then
+                job.Estado = "Esperando los IDs..."
+                RefrescarEnCurso()
                 Await LanzarSegundaFaseAsync(def, ctx, resultado)
             End If
 
         Catch ex As OperationCanceledException
-            lblResumenConsulta.Text = $"{def.Nombre}: cancelada. Puede que se hayan generado ficheros parciales."
+            lblResumenConsulta.Text = $"{def.Nombre}: cancelada."
 
         Catch ex As Exception
             lblResumenConsulta.Text = $"{def.Nombre}: error."
             complementos.MostrarMensajePersonalizado($"Error en la consulta ""{def.Nombre}"": {ex.Message}")
 
         Finally
-            CancelacionConsulta.Dispose()
-            CancelacionConsulta = Nothing
-            ModoConsultaEnCurso(False)
+            job.Cancelacion.Dispose()
+            EnCurso.Remove(job)
+            RefrescarEnCurso()
         End Try
 
     End Function
@@ -2440,29 +2468,140 @@ Public Class Form1
 
     End Function
 
-    ''' <summary>Progress(Of T) se crea en el hilo de UI, así que esto ya llega marshalado.</summary>
-    Private Sub MostrarProgresoConsulta(p As ProgresoConsulta)
-        TextConsultando.Text = p.Mensaje
-        If Not String.IsNullOrEmpty(p.Contador) Then LblContadorCups.Text = p.Contador
+#Region "panel En curso"
+
+    ''' <summary>
+    ''' Progress(Of T) se crea en el hilo de UI, así que esto ya llega marshalado. Cada consulta
+    ''' escribe en SU fila: con varias a la vez, un único rótulo compartido mostraría cualquier cosa.
+    ''' </summary>
+    Private Sub ActualizarFila(job As ConsultaEnCurso, p As ProgresoConsulta)
+
+        job.Estado = p.Mensaje
+        If Not String.IsNullOrEmpty(p.Contador) Then job.Estado &= $"  ({p.Contador})"
+
+        If job.Texto IsNot Nothing Then SetTextSafe(job.Texto, TextoFila(job))
+
     End Sub
 
-    Private Sub ModoConsultaEnCurso(enCurso As Boolean)
+    Private Function TextoFila(job As ConsultaEnCurso) As String
+        Dim estado = job.Estado
+        If job.Cancelacion IsNot Nothing AndAlso job.Cancelacion.IsCancellationRequested Then estado = "Cancelando..."
+        Return $"{job.Def.Nombre} · {estado}"
+    End Function
 
-        cmbConsulta.Enabled = Not enCurso
-        DividirChck.Enabled = Not enCurso
-        txtParametro.Enabled = Not enCurso
-        BotonConsultar.Enabled = True
-        BotonConsultar.Text = If(enCurso, "Cancelar", "Consultar")
+    ''' <summary>Reconstruye las filas del panel y ajusta el indicador global y el botón.</summary>
+    Private Sub RefrescarEnCurso()
 
-        If enCurso Then
-            EstiloBotonFlat(BotonConsultar, Color.FromArgb(192, 57, 43), Color.FromArgb(220, 90, 80))
-        Else
-            EstiloBotonFlat(BotonConsultar, Color.FromArgb(25, 118, 210), Color.FromArgb(70, 150, 230))
+        ' Aquí se crean controles, así que tiene que ejecutarse en el hilo de UI. Normalmente
+        ' ya lo está (la continuación del Await vuelve a él), pero si no, revienta con
+        ' ArgumentException al añadirlos al panel; más vale asegurarlo.
+        If pnlEnCurso.InvokeRequired Then
+            pnlEnCurso.Invoke(New Action(AddressOf RefrescarEnCurso))
+            Exit Sub
         End If
 
-        MostrarLoading(enCurso)
+        pnlEnCurso.SuspendLayout()
+        pnlEnCurso.Controls.Clear()
+
+        Dim y As Integer = 0
+        For Each job In EnCurso
+
+            Dim fila As New Panel With {
+                .Location = New Point(0, y),
+                .Size = New Size(pnlEnCurso.ClientSize.Width, 14),
+                .BackColor = Color.Transparent
+            }
+
+            Dim lbl As New Label With {
+                .Text = TextoFila(job),
+                .AutoSize = False,
+                .Location = New Point(2, 0),
+                .Size = New Size(fila.Width - 30, 14),
+                .Font = New Font("Segoe UI", 8.25F, FontStyle.Regular),
+                .ForeColor = Color.FromArgb(25, 65, 120),
+                .AutoEllipsis = True
+            }
+
+            Dim btn As New Button With {
+                .Text = "X",
+                .Location = New Point(fila.Width - 26, 0),
+                .Size = New Size(24, 14),
+                .FlatStyle = FlatStyle.Flat,
+                .Font = New Font("Segoe UI", 7F, FontStyle.Bold),
+                .BackColor = Color.FromArgb(192, 57, 43),
+                .ForeColor = Color.White,
+                .Cursor = Cursors.Hand,
+                .TabStop = False
+            }
+            btn.FlatAppearance.BorderSize = 0
+            ToolTop1.SetToolTip(btn, "Cancelar esta consulta")
+
+            Dim capturado = job
+            AddHandler btn.Click, Sub()
+                                      capturado.Cancelacion.Cancel()
+                                      capturado.Estado = "Cancelando..."
+                                      capturado.Texto.Text = TextoFila(capturado)
+                                      btn.Enabled = False
+                                  End Sub
+
+            job.Texto = lbl
+            job.Boton = btn
+            fila.Controls.Add(lbl)
+            fila.Controls.Add(btn)
+            pnlEnCurso.Controls.Add(fila)
+
+            y += 15
+        Next
+
+        If EnCurso.Count = 0 Then
+            Dim vacio As New Label With {
+                .Text = "Ninguna consulta en curso.",
+                .AutoSize = True,
+                .Location = New Point(2, 1),
+                .Font = New Font("Segoe UI", 8.25F, FontStyle.Italic),
+                .ForeColor = Color.FromArgb(140, 160, 190)
+            }
+            pnlEnCurso.Controls.Add(vacio)
+        End If
+
+        pnlEnCurso.ResumeLayout()
+
+        lblEnCursoTitulo.Text = $"En curso ({EnCurso.Count}/{MaxConsultasSimultaneas})"
+        MostrarLoading(EnCurso.Count > 0)
+        If EnCurso.Count > 0 Then
+            TextConsultando.Text = $"{EnCurso.Count} consulta(s) en curso"
+            LblContadorCups.Text = ""
+        End If
+
+        ActualizarEstadoBoton()
 
     End Sub
+
+    ''' <summary>El botón explica por qué no se puede lanzar, en vez de fallar al pulsarlo.</summary>
+    Private Sub ActualizarEstadoBoton()
+
+        Dim def = ConsultaSeleccionada
+
+        If EnCurso.Count >= MaxConsultasSimultaneas Then
+            BotonConsultar.Text = $"Máximo {MaxConsultasSimultaneas} en curso"
+            BotonConsultar.Enabled = False
+        ElseIf def IsNot Nothing AndAlso EnCurso.Any(Function(c) c.Def Is def) Then
+            BotonConsultar.Text = "Esta consulta ya está en curso"
+            BotonConsultar.Enabled = False
+        Else
+            BotonConsultar.Text = "Consultar"
+            BotonConsultar.Enabled = True
+        End If
+
+        If BotonConsultar.Enabled Then
+            EstiloBotonFlat(BotonConsultar, Color.FromArgb(25, 118, 210), Color.FromArgb(70, 150, 230))
+        Else
+            EstiloBotonFlat(BotonConsultar, Color.FromArgb(150, 165, 190), Color.FromArgb(170, 185, 205))
+        End If
+
+    End Sub
+
+#End Region
 
     ''' <summary>Informa de lo que se ha generado de verdad, incluido el caso de "no hay datos".</summary>
     Private Sub MostrarResultadoConsulta(def As DefinicionConsulta, resultado As ResultadoConsulta)
@@ -2475,7 +2614,6 @@ Public Class Form1
         End If
 
         Dim resumen = $"{def.Nombre}: {resultado.Filas:N0} filas en {resultado.Ficheros.Count} fichero(s)."
-        ' La carpeta y el detalle van en el diálogo; aquí solo caben dos líneas.
         lblResumenConsulta.Text = resumen
 
         Dim detalle = resumen & vbCrLf & vbCrLf &

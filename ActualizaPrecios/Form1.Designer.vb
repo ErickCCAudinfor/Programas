@@ -55,10 +55,13 @@ Partial Class Form1
         Label9 = New Label()
         lblConsultaTitulo = New Label()
         cmbConsulta = New ComboBox()
+        lblNotaReplica = New Label()
         lblRequiere = New Label()
         lblParametro = New Label()
         txtParametro = New TextBox()
         lblResumenConsulta = New Label()
+        lblEnCursoTitulo = New Label()
+        pnlEnCurso = New Panel()
         Label4 = New Label()
         CheckBox4 = New CheckBox()
         Button7 = New Button()
@@ -317,9 +320,9 @@ Partial Class Form1
         BotonConsultar.FlatAppearance.BorderColor = Color.FromArgb(CByte(70), CByte(150), CByte(230))
         BotonConsultar.FlatStyle = FlatStyle.Flat
         BotonConsultar.ForeColor = Color.White
-        BotonConsultar.Location = New Point(3, 263)
+        BotonConsultar.Location = New Point(3, 266)
         BotonConsultar.Name = "BotonConsultar"
-        BotonConsultar.Size = New Size(311, 30)
+        BotonConsultar.Size = New Size(311, 28)
         BotonConsultar.TabIndex = 29
         BotonConsultar.Text = "Consultar"
         BotonConsultar.UseVisualStyleBackColor = False
@@ -329,7 +332,7 @@ Partial Class Form1
         DateTimePicker2.CustomFormat = "dd/MM/yyyy"
         DateTimePicker2.Font = New Font("Arial Narrow", 9F, FontStyle.Regular, GraphicsUnit.Point)
         DateTimePicker2.Format = DateTimePickerFormat.Custom
-        DateTimePicker2.Location = New Point(177, 235)
+        DateTimePicker2.Location = New Point(177, 242)
         DateTimePicker2.Name = "DateTimePicker2"
         DateTimePicker2.Size = New Size(137, 21)
         DateTimePicker2.TabIndex = 23
@@ -340,7 +343,7 @@ Partial Class Form1
         DateTimePicker3.CustomFormat = "dd/MM/yyyy"
         DateTimePicker3.Font = New Font("Arial Narrow", 9F, FontStyle.Regular, GraphicsUnit.Point)
         DateTimePicker3.Format = DateTimePickerFormat.Custom
-        DateTimePicker3.Location = New Point(8, 235)
+        DateTimePicker3.Location = New Point(8, 242)
         DateTimePicker3.Name = "DateTimePicker3"
         DateTimePicker3.Size = New Size(144, 21)
         DateTimePicker3.TabIndex = 32
@@ -350,7 +353,7 @@ Partial Class Form1
         Label8.AutoSize = True
         Label8.BackColor = Color.Transparent
         Label8.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
-        Label8.Location = New Point(8, 217)
+        Label8.Location = New Point(8, 224)
         Label8.Name = "Label8"
         Label8.Size = New Size(77, 15)
         Label8.TabIndex = 33
@@ -361,7 +364,7 @@ Partial Class Form1
         Label9.AutoSize = True
         Label9.BackColor = Color.Transparent
         Label9.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
-        Label9.Location = New Point(176, 216)
+        Label9.Location = New Point(176, 223)
         Label9.Name = "Label9"
         Label9.Size = New Size(73, 15)
         Label9.TabIndex = 34
@@ -395,18 +398,52 @@ Partial Class Form1
         lblRequiere.BackColor = Color.Transparent
         lblRequiere.Font = New Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point)
         lblRequiere.ForeColor = Color.FromArgb(CByte(90), CByte(115), CByte(155))
-        lblRequiere.Location = New Point(8, 56)
+        lblRequiere.Location = New Point(8, 88)
         lblRequiere.Name = "lblRequiere"
         ' Alto para 4 líneas: la ayuda más larga es descripción + entradas + lista + dividir.
         lblRequiere.Size = New Size(300, 62)
         lblRequiere.TabIndex = 57
+        '
+        ' lblNotaReplica
+        '
+        lblNotaReplica.BackColor = Color.FromArgb(CByte(255), CByte(247), CByte(224))
+        lblNotaReplica.BorderStyle = BorderStyle.FixedSingle
+        lblNotaReplica.Font = New Font("Segoe UI Semibold", 8.25F, FontStyle.Bold, GraphicsUnit.Point)
+        lblNotaReplica.ForeColor = Color.FromArgb(CByte(140), CByte(90), CByte(10))
+        lblNotaReplica.Location = New Point(8, 54)
+        lblNotaReplica.Name = "lblNotaReplica"
+        lblNotaReplica.Padding = New Padding(4, 2, 2, 2)
+        lblNotaReplica.Size = New Size(300, 30)
+        lblNotaReplica.TabIndex = 61
+        lblNotaReplica.Text = "Se recomienda lanzar las consultas contra Réplica (abajo)."
+        lblNotaReplica.TextAlign = ContentAlignment.MiddleLeft
+        '
+        ' lblEnCursoTitulo
+        '
+        lblEnCursoTitulo.AutoSize = True
+        lblEnCursoTitulo.BackColor = Color.Transparent
+        lblEnCursoTitulo.Font = New Font("Segoe UI Semibold", 8.25F, FontStyle.Bold, GraphicsUnit.Point)
+        lblEnCursoTitulo.ForeColor = Color.FromArgb(CByte(25), CByte(65), CByte(120))
+        lblEnCursoTitulo.Location = New Point(8, 314)
+        lblEnCursoTitulo.Name = "lblEnCursoTitulo"
+        lblEnCursoTitulo.Size = New Size(100, 13)
+        lblEnCursoTitulo.TabIndex = 62
+        lblEnCursoTitulo.Text = "En curso"
+        '
+        ' pnlEnCurso
+        '
+        pnlEnCurso.BackColor = Color.FromArgb(CByte(248), CByte(251), CByte(255))
+        pnlEnCurso.Location = New Point(8, 329)
+        pnlEnCurso.Name = "pnlEnCurso"
+        pnlEnCurso.Size = New Size(300, 44)
+        pnlEnCurso.TabIndex = 63
         '
         ' lblParametro
         '
         lblParametro.AutoSize = True
         lblParametro.BackColor = Color.Transparent
         lblParametro.Font = New Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point)
-        lblParametro.Location = New Point(8, 122)
+        lblParametro.Location = New Point(8, 154)
         lblParametro.Name = "lblParametro"
         lblParametro.Size = New Size(100, 15)
         lblParametro.TabIndex = 59
@@ -416,7 +453,7 @@ Partial Class Form1
         ' txtParametro
         '
         txtParametro.Font = New Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
-        txtParametro.Location = New Point(8, 139)
+        txtParametro.Location = New Point(8, 171)
         txtParametro.Name = "txtParametro"
         txtParametro.Size = New Size(300, 23)
         txtParametro.TabIndex = 60
@@ -427,9 +464,9 @@ Partial Class Form1
         lblResumenConsulta.BackColor = Color.Transparent
         lblResumenConsulta.Font = New Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point)
         lblResumenConsulta.ForeColor = Color.FromArgb(CByte(110), CByte(135), CByte(175))
-        lblResumenConsulta.Location = New Point(8, 189)
+        lblResumenConsulta.Location = New Point(8, 297)
         lblResumenConsulta.Name = "lblResumenConsulta"
-        lblResumenConsulta.Size = New Size(300, 26)
+        lblResumenConsulta.Size = New Size(300, 14)
         lblResumenConsulta.TabIndex = 58
         '
         ' Label4
@@ -918,7 +955,7 @@ Partial Class Form1
         DividirChck.BackColor = Color.Transparent
         DividirChck.Font = New Font("Segoe UI Semibold", 8.25F, FontStyle.Bold, GraphicsUnit.Point)
         DividirChck.ForeColor = Color.FromArgb(CByte(25), CByte(65), CByte(120))
-        DividirChck.Location = New Point(8, 168)
+        DividirChck.Location = New Point(8, 200)
         DividirChck.Name = "DividirChck"
         DividirChck.Size = New Size(160, 17)
         DividirChck.TabIndex = 47
@@ -977,19 +1014,23 @@ Partial Class Form1
         Panel3.Location = New Point(340, 15)
         Panel3.Name = "Panel3"
         Panel3.Padding = New Padding(1)
-        Panel3.Size = New Size(319, 300)
+        Panel3.Size = New Size(319, 375)
         Panel3.TabIndex = 52
         ' 
         ' Panel4
         ' 
         Panel4.BackColor = Color.White
+        Panel4.Controls.Add(btnNovedades)
         Panel4.Controls.Add(lblConsultaTitulo)
         Panel4.Controls.Add(cmbConsulta)
+        Panel4.Controls.Add(lblNotaReplica)
         Panel4.Controls.Add(lblRequiere)
         Panel4.Controls.Add(lblParametro)
         Panel4.Controls.Add(txtParametro)
         Panel4.Controls.Add(DividirChck)
         Panel4.Controls.Add(lblResumenConsulta)
+        Panel4.Controls.Add(lblEnCursoTitulo)
+        Panel4.Controls.Add(pnlEnCurso)
         Panel4.Controls.Add(BotonConsultar)
         Panel4.Controls.Add(Label9)
         Panel4.Controls.Add(Label8)
@@ -998,7 +1039,7 @@ Partial Class Form1
         Panel4.Dock = DockStyle.Fill
         Panel4.Location = New Point(1, 1)
         Panel4.Name = "Panel4"
-        Panel4.Size = New Size(317, 298)
+        Panel4.Size = New Size(317, 373)
         Panel4.TabIndex = 0
         '
         ' btnNovedades
@@ -1006,9 +1047,9 @@ Partial Class Form1
         btnNovedades.Cursor = Cursors.Hand
         btnNovedades.FlatStyle = FlatStyle.Flat
         btnNovedades.Font = New Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point)
-        btnNovedades.Location = New Point(455, 328)
+        btnNovedades.Location = New Point(168, 3)
         btnNovedades.Name = "btnNovedades"
-        btnNovedades.Size = New Size(185, 36)
+        btnNovedades.Size = New Size(140, 22)
         btnNovedades.TabIndex = 55
         btnNovedades.Text = "Novedades"
         btnNovedades.UseVisualStyleBackColor = False
@@ -1023,7 +1064,6 @@ Partial Class Form1
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.FromArgb(CByte(245), CByte(248), CByte(252))
         ClientSize = New Size(659, 657)
-        Controls.Add(btnNovedades)
         Controls.Add(Panel3)
         Controls.Add(pblBorde)
         Controls.Add(PanelLateral)
@@ -1089,9 +1129,12 @@ Partial Class Form1
     Friend WithEvents lblConsultaTitulo As Label
     Friend WithEvents cmbConsulta As ComboBox
     Friend WithEvents lblRequiere As Label
+    Friend WithEvents lblNotaReplica As Label
     Friend WithEvents lblParametro As Label
     Friend WithEvents txtParametro As TextBox
     Friend WithEvents lblResumenConsulta As Label
+    Friend WithEvents lblEnCursoTitulo As Label
+    Friend WithEvents pnlEnCurso As Panel
     Friend WithEvents PictureBox2 As PictureBox
     Friend WithEvents Label4 As Label
     Friend WithEvents CheckBox4 As CheckBox

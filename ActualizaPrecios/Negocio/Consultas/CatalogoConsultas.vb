@@ -99,6 +99,29 @@ Public Module CatalogoConsultas
                                                          Function(cif) ConsultasSQL.GetConsultaNorauto(ctx.Desde, ctx.Hasta, cif))
         },
         New DefinicionConsulta With {
+            .Nombre = "Trébol Luz",
+            .Grupo = GrupoGenerales,
+            .Requiere = EntradasConsulta.Fechas,
+            .Descripcion = "Facturas de luz por rango de fechas (todas, sin filtrar por CIF).",
+            .Ejecutar = Function(ctx) EjecutarSimple(ctx, "Trebol_Luz", "TrebolLuz",
+                                                     Function() ConsultasSQL.GetTrebolLuzPorFechas(ctx.Desde, ctx.Hasta))
+        },
+        New DefinicionConsulta With {
+            .Nombre = "Trébol Gas",
+            .Grupo = GrupoGenerales,
+            .Requiere = EntradasConsulta.Fechas,
+            .Descripcion = "Facturas de gas por rango de fechas (todas, sin filtrar por CIF).",
+            .Ejecutar = Function(ctx) EjecutarSimple(ctx, "Trebol_Gas", "TrebolGas",
+                                                     Function() ConsultasSQL.GetTrebolGasPorFechas(ctx.Desde, ctx.Hasta))
+        },
+        New DefinicionConsulta With {
+            .Nombre = "JC Castilla-La Mancha",
+            .Grupo = GrupoGenerales,
+            .Requiere = EntradasConsulta.Fechas,
+            .Ejecutar = Function(ctx) EjecutarSimple(ctx, "JC_CastillaLaMancha", "CastillaLaMancha",
+                                                     Function() ConsultasSQL.GetJCCastillaLaMancha(ctx.Desde, ctx.Hasta))
+        },
+        New DefinicionConsulta With {
             .Nombre = "Santa Lucía Trébol Gas",
             .Grupo = GrupoGenerales,
             .Requiere = EntradasConsulta.Fechas,
