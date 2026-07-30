@@ -2527,7 +2527,7 @@ Public Class Form1
                 .Location = New Point(fila.Width - 26, 0),
                 .Size = New Size(24, 14),
                 .FlatStyle = FlatStyle.Flat,
-                .Font = New Font("Segoe UI", 7F, FontStyle.Bold),
+                .Font = New Font("Segoe UI", 7.0F, FontStyle.Bold),
                 .BackColor = Color.FromArgb(192, 57, 43),
                 .ForeColor = Color.White,
                 .Cursor = Cursors.Hand,
