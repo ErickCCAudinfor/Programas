@@ -1,0 +1,194 @@
+﻿<!--
+    Tokens del sistema de diseño de SigeGestor.
+
+    REGLA DE ORO, cambiada el 25/08/2026 a petición de Erick: la acción primaria es el AZUL
+    DE MARCA, el de ActualizaPrecios, no la tinta. Antes era tinta, con el color reservado
+    por completo al entorno; se cambia para que la aplicación se reconozca como la misma
+    herramienta que la anterior.
+
+    Lo que NO cambia, y es lo que mantiene el sistema en pie:
+      · La tinta sigue siendo el color del TEXTO. Solo se ha repintado lo que es acción:
+        botones primarios, casillas marcadas, la marca del logotipo y la selección.
+      · Los colores de ENTORNO siguen intactos y siguen ganando: una operación de escritura
+        contra Producción pinta su botón de ámbar, por encima del azul. Ámbar, verde y gris
+        no se confunden con el azul, así que la señal de «esto es Producción» se conserva.
+      · El azul de marca y el de acento son AHORA EL MISMO. Tener dos azules distintos —uno
+        de botón y otro de foco— habría hecho invisible el anillo de foco sobre el botón.
+        Por eso el foco del botón primario pasa a ser tinta: se ve sobre azul y sobre ámbar.
+
+    Los valores del azul salen de ActualizaPrecios: #23559B era el relleno de sus botones
+    planos y #1976D2 el del botón destacado. El de marca se queda entre los dos.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <!-- ============================================================
+         Superficie
+         ============================================================ -->
+    <Color x:Key="Bg">#FBFBFC</Color>
+    <Color x:Key="Panel">#FFFFFF</Color>
+    <Color x:Key="Elev">#FFFFFF</Color>
+    <Color x:Key="Sunk">#F7F8FA</Color>
+
+    <SolidColorBrush x:Key="BgBrush" Color="{StaticResource Bg}" />
+    <SolidColorBrush x:Key="PanelBrush" Color="{StaticResource Panel}" />
+    <SolidColorBrush x:Key="ElevBrush" Color="{StaticResource Elev}" />
+    <SolidColorBrush x:Key="SunkBrush" Color="{StaticResource Sunk}" />
+
+    <!-- ============================================================
+         Marca — el azul de SIGE. Es el color de ACCIÓN y de selección.
+
+         Marca        relleno de botón primario, casilla marcada, logotipo
+         MarcaFuerte  el mismo un paso más oscuro, para degradados y cabeceras
+         MarcaSuave   fondo de fila seleccionada y de avisos informativos
+         MarcaLinea   borde de esas mismas superficies suaves
+         ============================================================ -->
+    <Color x:Key="Marca">#2563C7</Color>
+    <Color x:Key="MarcaFuerte">#1D4E9E</Color>
+    <Color x:Key="MarcaSuave">#EEF3FC</Color>
+    <Color x:Key="MarcaLinea">#C3D6F3</Color>
+    <Color x:Key="OnMarca">#FFFFFF</Color>
+
+    <SolidColorBrush x:Key="MarcaBrush" Color="{StaticResource Marca}" />
+    <SolidColorBrush x:Key="MarcaFuerteBrush" Color="{StaticResource MarcaFuerte}" />
+    <SolidColorBrush x:Key="MarcaSuaveBrush" Color="{StaticResource MarcaSuave}" />
+    <SolidColorBrush x:Key="MarcaLineaBrush" Color="{StaticResource MarcaLinea}" />
+    <SolidColorBrush x:Key="OnMarcaBrush" Color="{StaticResource OnMarca}" />
+
+    <!-- Degradado de la marca: la banda del login y la del logotipo. -->
+    <LinearGradientBrush x:Key="MarcaDegradado" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource MarcaFuerte}" Offset="0" />
+        <GradientStop Color="{StaticResource Marca}" Offset="1" />
+    </LinearGradientBrush>
+
+    <!-- ============================================================
+         Tinta — el color del TEXTO
+         ============================================================ -->
+    <Color x:Key="Ink">#0B0C0E</Color>
+    <Color x:Key="Ink2">#4A4F58</Color>
+    <Color x:Key="Ink3">#767C87</Color>
+    <Color x:Key="Ink4">#9CA2AD</Color>
+    <Color x:Key="OnInk">#FFFFFF</Color>
+
+    <SolidColorBrush x:Key="InkBrush" Color="{StaticResource Ink}" />
+    <SolidColorBrush x:Key="Ink2Brush" Color="{StaticResource Ink2}" />
+    <SolidColorBrush x:Key="Ink3Brush" Color="{StaticResource Ink3}" />
+    <SolidColorBrush x:Key="Ink4Brush" Color="{StaticResource Ink4}" />
+    <SolidColorBrush x:Key="OnInkBrush" Color="{StaticResource OnInk}" />
+
+    <!-- ============================================================
+         Hairlines — las tarjetas se separan por línea, no por sombra
+         ============================================================ -->
+    <Color x:Key="Hair">#E7E8EC</Color>
+    <Color x:Key="Hair2">#F1F2F5</Color>
+    <SolidColorBrush x:Key="HairBrush" Color="{StaticResource Hair}" />
+    <SolidColorBrush x:Key="Hair2Brush" Color="{StaticResource Hair2}" />
+
+    <!-- ============================================================
+         Acento: foco, selección y enlaces.
+
+         Es el MISMO azul que la marca, a propósito. Antes era otro (#1F6FEB) porque la
+         acción era tinta y no había con qué chocar; con el botón en azul, dos azules
+         parecidos solo consiguen que el anillo de foco no se vea. Se mantienen las claves
+         Accent* porque las usa media interfaz y renombrarlas no aporta nada.
+         ============================================================ -->
+    <Color x:Key="Accent">#2563C7</Color>
+    <Color x:Key="AccentSoft">#EEF3FC</Color>
+    <Color x:Key="AccentLine">#C3D6F3</Color>
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource Accent}" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="{StaticResource AccentSoft}" />
+    <SolidColorBrush x:Key="AccentLineBrush" Color="{StaticResource AccentLine}" />
+
+    <!-- ============================================================
+         Entorno — la única familia de color que compite con la tinta
+         ============================================================ -->
+    <Color x:Key="Pro">#B45309</Color>
+    <Color x:Key="ProMark">#F59E0B</Color>
+    <Color x:Key="ProSoft">#FEF6E9</Color>
+    <Color x:Key="ProLine">#F3D9A8</Color>
+    <SolidColorBrush x:Key="ProBrush" Color="{StaticResource Pro}" />
+    <SolidColorBrush x:Key="ProMarkBrush" Color="{StaticResource ProMark}" />
+    <SolidColorBrush x:Key="ProSoftBrush" Color="{StaticResource ProSoft}" />
+    <SolidColorBrush x:Key="ProLineBrush" Color="{StaticResource ProLine}" />
+
+    <Color x:Key="Rep">#047857</Color>
+    <Color x:Key="RepMark">#10B981</Color>
+    <Color x:Key="RepSoft">#ECFAF3</Color>
+    <Color x:Key="RepLine">#A9E3C7</Color>
+    <SolidColorBrush x:Key="RepBrush" Color="{StaticResource Rep}" />
+    <SolidColorBrush x:Key="RepMarkBrush" Color="{StaticResource RepMark}" />
+    <SolidColorBrush x:Key="RepSoftBrush" Color="{StaticResource RepSoft}" />
+    <SolidColorBrush x:Key="RepLineBrush" Color="{StaticResource RepLine}" />
+
+    <Color x:Key="Uat">#52525B</Color>
+    <Color x:Key="UatMark">#A1A1AA</Color>
+    <Color x:Key="UatSoft">#F4F4F5</Color>
+    <Color x:Key="UatLine">#DEDEE2</Color>
+    <SolidColorBrush x:Key="UatBrush" Color="{StaticResource Uat}" />
+    <SolidColorBrush x:Key="UatMarkBrush" Color="{StaticResource UatMark}" />
+    <SolidColorBrush x:Key="UatSoftBrush" Color="{StaticResource UatSoft}" />
+    <SolidColorBrush x:Key="UatLineBrush" Color="{StaticResource UatLine}" />
+
+    <!-- ============================================================
+         Estado
+         ============================================================ -->
+    <Color x:Key="Ok">#047857</Color>
+    <Color x:Key="OkSoft">#ECFAF3</Color>
+    <Color x:Key="OkLine">#A9E3C7</Color>
+    <Color x:Key="Warn">#B45309</Color>
+    <Color x:Key="WarnSoft">#FEF6E9</Color>
+    <Color x:Key="Bad">#B42318</Color>
+    <Color x:Key="BadSoft">#FDF1F0</Color>
+    <Color x:Key="BadLine">#F5C9C4</Color>
+    <SolidColorBrush x:Key="OkBrush" Color="{StaticResource Ok}" />
+    <SolidColorBrush x:Key="OkSoftBrush" Color="{StaticResource OkSoft}" />
+    <SolidColorBrush x:Key="OkLineBrush" Color="{StaticResource OkLine}" />
+    <SolidColorBrush x:Key="WarnBrush" Color="{StaticResource Warn}" />
+    <SolidColorBrush x:Key="WarnSoftBrush" Color="{StaticResource WarnSoft}" />
+    <SolidColorBrush x:Key="BadBrush" Color="{StaticResource Bad}" />
+    <SolidColorBrush x:Key="BadSoftBrush" Color="{StaticResource BadSoft}" />
+    <SolidColorBrush x:Key="BadLineBrush" Color="{StaticResource BadLine}" />
+
+    <!-- ============================================================
+         Tipografía
+
+         Inter y Geist no están instaladas en Windows, así que se usa Segoe UI Variable,
+         que es la cara de sistema de Windows 11 y una grotesca moderna muy cercana.
+         Para incrustar Inter habría que añadir el .ttf al proyecto como Resource y
+         referenciarlo con la sintaxis "/Assets/Fonts/#Inter".
+
+         Nota honesta: WPF no tiene interletraje (letter-spacing). El −0,028em de los
+         títulos de la maqueta no se puede reproducir sin dibujar el texto con Glyphs.
+         ============================================================ -->
+    <FontFamily x:Key="FontDisplay">Segoe UI Variable Display, Segoe UI Semibold, Segoe UI</FontFamily>
+    <FontFamily x:Key="FontUi">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="FontMono">Cascadia Mono, Cascadia Code, Consolas</FontFamily>
+
+    <sys:Double x:Key="FsH1">24</sys:Double>
+    <sys:Double x:Key="FsH2">19</sys:Double>
+    <sys:Double x:Key="FsCard">14</sys:Double>
+    <sys:Double x:Key="FsBody">13.5</sys:Double>
+    <sys:Double x:Key="FsLabel">12.5</sys:Double>
+    <sys:Double x:Key="FsHelp">11.5</sys:Double>
+    <sys:Double x:Key="FsMicro">10</sys:Double>
+
+    <!-- ============================================================
+         Métrica
+         ============================================================ -->
+    <sys:Double x:Key="HCtl">34</sys:Double>
+    <sys:Double x:Key="HCtlSm">28</sys:Double>
+
+    <CornerRadius x:Key="RChip">6</CornerRadius>
+    <CornerRadius x:Key="RCtl">8</CornerRadius>
+    <CornerRadius x:Key="RCard">12</CornerRadius>
+    <CornerRadius x:Key="RWin">14</CornerRadius>
+
+    <!-- ============================================================
+         Movimiento — 120 ms hover, 180 ms entradas
+         ============================================================ -->
+    <Duration x:Key="TFast">0:0:0.12</Duration>
+    <Duration x:Key="TBase">0:0:0.18</Duration>
+    <KeyTime x:Key="KtZero">0:0:0</KeyTime>
+
+</ResourceDictionary>

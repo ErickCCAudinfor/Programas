@@ -1,0 +1,33 @@
+// Plantilla de la lista de bases de datos de clientes.
+//
+// COPIA este fichero como Empresas.json en la misma carpeta, o copia directamente el
+// Json\EmpresasBD.json de ActualizaPrecios: el formato y el cifrado son los mismos.
+// Empresas.json está en .gitignore a propósito: lleva credenciales.
+//
+// ESTO NO SON LOS ENTORNOS. Producción, Réplica y UAT están en Entornos.json y son contra
+// dónde se lanzan las operaciones. Esta lista son las bases de clientes, y solo se usa para
+// el mantenimiento de modelos de impresión, que hay que subir a cada una por separado.
+//
+// Usuario y Password van CIFRADOS con el mismo AES. La pantalla de Ajustes → Empresas los
+// cifra sola al guardar, así que lo normal es no editar este fichero a mano.
+//
+// VPN: solo informativo. Sirve para que, cuando una empresa no conecte, el mensaje recuerde
+// que hay que levantar el túnel antes de buscar el problema en otro sitio.
+[
+  {
+    "Nombre": "Sige PROD",
+    "Servidor": "172.31.100.12",
+    "BaseDatos": "SigeTotal",
+    "Usuario": "<pega aquí el usuario cifrado>",
+    "Password": "<pega aquí la contraseña cifrada>",
+    "VPN": false
+  },
+  {
+    "Nombre": "Adelfas",
+    "Servidor": "SRVSQL1.audinfor.cloud",
+    "BaseDatos": "SigeAdelfas",
+    "Usuario": "<pega aquí el usuario cifrado>",
+    "Password": "<pega aquí la contraseña cifrada>",
+    "VPN": false
+  }
+]

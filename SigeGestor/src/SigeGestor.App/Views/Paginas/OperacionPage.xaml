@@ -1,0 +1,418 @@
+﻿<UserControl x:Class="SigeGestor.App.Views.Paginas.OperacionPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{StaticResource FontUi}"
+             TextOptions.TextFormattingMode="Ideal">
+
+    <!-- Dos estados en el mismo sitio: formulario y ejecución. La operación se sustituye por
+         su ejecución, como en la maqueta, en lugar de abrir un diálogo que tape. -->
+    <Grid>
+    <ContentControl x:Name="AreaEjecucion" Visibility="Collapsed" />
+
+    <ScrollViewer x:Name="Formulario"
+                  VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  Padding="26,18,26,28">
+        <!-- Columna limitada: los campos no se estiran raros en una ventana ancha -->
+        <StackPanel MaxWidth="620" HorizontalAlignment="Left">
+
+            <Button Style="{StaticResource BtnVolver}"
+                    Content="{Binding Seccion}"
+                    HorizontalAlignment="Left"
+                    Margin="-7,0,0,0"
+                    Click="Volver_Click" />
+
+            <!-- Cabecera -->
+            <TextBlock Text="{Binding Titulo}" Style="{StaticResource TxH1}" Margin="0,12,0,0" />
+            <TextBlock Text="{Binding Descripcion}"
+                       Style="{StaticResource TxBodyMuted}"
+                       TextWrapping="Wrap"
+                       HorizontalAlignment="Left"
+                       Margin="0,6,0,0" />
+
+            <!-- Entorno -->
+            <TextBlock Text="EJECUTAR CONTRA" Style="{StaticResource TxSection}" Margin="0,22,0,7" />
+            <ListBox Style="{StaticResource SelectorEntorno}"
+                     ItemContainerStyle="{StaticResource OpcionEntorno}"
+                     ItemsSource="{Binding Entornos}"
+                     SelectedItem="{Binding EntornoSeleccionado, Mode=TwoWay}"
+                     HorizontalAlignment="Left" />
+
+            <!-- Escribir en Producción: se avisa antes, no después -->
+            <Border Visibility="{Binding VisibilidadAvisoProduccion}"
+                    Margin="0,11,0,0" Padding="12,10"
+                    CornerRadius="{StaticResource RCtl}"
+                    Background="{StaticResource WarnSoftBrush}"
+                    BorderBrush="{StaticResource ProLineBrush}"
+                    BorderThickness="1">
+                <StackPanel Orientation="Horizontal">
+                    <Path Data="{StaticResource IcoAviso}"
+                          Stroke="{StaticResource WarnBrush}"
+                          StrokeThickness="1.5"
+                          StrokeLineJoin="Round"
+                          Stretch="Uniform" Width="16" Height="16"
+                          VerticalAlignment="Top" Margin="0,1,10,0" />
+                    <StackPanel>
+                        <TextBlock Text="Esto escribe en Producción"
+                                   FontSize="13" FontWeight="SemiBold" />
+                        <TextBlock Style="{StaticResource TxHelp}"
+                                   HorizontalAlignment="Left" MaxWidth="500" Margin="0,2,0,0"
+                                   Text="El cambio no se deshace solo. Con «Revisar» ves el resultado antes de tocar nada." />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Consultar contra Producción: posible, pero desaconsejado -->
+            <Border Visibility="{Binding VisibilidadAvisoConsultaProduccion}"
+                    Margin="0,11,0,0" Padding="12,10"
+                    CornerRadius="{StaticResource RCtl}"
+                    Background="{StaticResource WarnSoftBrush}"
+                    BorderBrush="{StaticResource ProLineBrush}"
+                    BorderThickness="1">
+                <StackPanel Orientation="Horizontal">
+                    <Path Data="{StaticResource IcoAviso}"
+                          Stroke="{StaticResource WarnBrush}"
+                          StrokeThickness="1.5"
+                          StrokeLineJoin="Round"
+                          Stretch="Uniform" Width="16" Height="16"
+                          VerticalAlignment="Top" Margin="0,1,10,0" />
+                    <StackPanel>
+                        <TextBlock Text="Vas a consultar contra Producción"
+                                   FontSize="13" FontWeight="SemiBold" />
+                        <TextBlock Style="{StaticResource TxHelp}"
+                                   HorizontalAlignment="Left" MaxWidth="500" Margin="0,2,0,0"
+                                   Text="Las consultas largas pueden provocar bloqueos a los usuarios de SIGE. Replica devuelve los mismos datos." />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ============================================================
+                 LISTA PEGADA
+                 ============================================================ -->
+            <Border Visibility="{Binding VisibilidadLista}"
+                    Margin="0,18,0,0"
+                    CornerRadius="{StaticResource RCard}"
+                    Background="{StaticResource PanelBrush}"
+                    BorderBrush="{StaticResource HairBrush}"
+                    BorderThickness="1">
+                <StackPanel>
+                    <Grid Margin="15,14,15,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding EtiquetaLista}"
+                                   Style="{StaticResource TxCard}" VerticalAlignment="Center" />
+                        <Button Grid.Column="1" Style="{StaticResource BtnGhost}"
+                                Content="Limpiar" FontSize="12"
+                                Click="Limpiar_Click" />
+                    </Grid>
+
+                    <!-- Selector de tipo, solo si la operación admite varios -->
+                    <ListBox Visibility="{Binding VisibilidadSelectorTipo}"
+                             Style="{StaticResource SelectorTipo}"
+                             ItemContainerStyle="{StaticResource OpcionTipo}"
+                             ItemsSource="{Binding Tipos}"
+                             SelectedItem="{Binding TipoSeleccionado, Mode=TwoWay}"
+                             HorizontalAlignment="Left"
+                             Margin="15,11,15,0" />
+
+                    <TextBox Margin="15,10,15,0"
+                             Height="112"
+                             AcceptsReturn="True"
+                             TextWrapping="NoWrap"
+                             VerticalScrollBarVisibility="Auto"
+                             HorizontalScrollBarVisibility="Auto"
+                             VerticalContentAlignment="Top"
+                             FontFamily="{StaticResource FontMono}"
+                             FontSize="12.5"
+                             Padding="10,8"
+                             Text="{Binding TextoLista, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <!-- Contador vivo -->
+                    <TextBlock Text="{Binding TextoRecuento}"
+                               Foreground="{Binding ColorRecuento}"
+                               FontFamily="{StaticResource FontMono}"
+                               FontSize="12"
+                               FontWeight="Bold"
+                               Margin="15,9,15,0" />
+
+                    <TextBlock Visibility="{Binding VisibilidadDescartes}"
+                               Text="{Binding TextoDescartes}"
+                               Style="{StaticResource TxHelp}"
+                               HorizontalAlignment="Left"
+                               MaxWidth="560"
+                               Margin="15,5,15,0" />
+
+                    <CheckBox Visibility="{Binding VisibilidadDividir}"
+                              Style="{StaticResource CheckBase}"
+                              Content="{Binding EtiquetaDividir}"
+                              IsChecked="{Binding Dividir, Mode=TwoWay}"
+                              Margin="15,12,15,0" />
+
+                    <Border Height="15" />
+                </StackPanel>
+            </Border>
+
+            <!-- ============================================================
+                 PARÁMETROS
+                 ============================================================ -->
+            <Border Margin="0,14,0,0"
+                    CornerRadius="{StaticResource RCard}"
+                    Background="{StaticResource PanelBrush}"
+                    BorderBrush="{StaticResource HairBrush}"
+                    BorderThickness="1"
+                    Padding="15">
+                <StackPanel>
+                    <TextBlock Text="Parámetros" Style="{StaticResource TxCard}" Margin="0,0,0,13" />
+
+                    <!-- Campos declarados en el catálogo: textos y selectores de la base -->
+                    <ItemsControl Visibility="{Binding VisibilidadCampos}"
+                                  ItemsSource="{Binding Campos}"
+                                  Margin="0,0,0,13">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,0,0,13">
+                                    <TextBlock Text="{Binding Etiqueta}" Style="{StaticResource TxLabel}"
+                                               Visibility="{Binding VisibilidadEtiquetaEncima}"
+                                               Margin="0,0,0,6" />
+
+                                    <TextBox Visibility="{Binding VisibilidadTexto}"
+                                             Style="{StaticResource InputBase}"
+                                             MaxLength="{Binding Definicion.LongitudMaxima}"
+                                             Text="{Binding Texto, UpdateSourceTrigger=PropertyChanged}" />
+
+                                    <ComboBox Visibility="{Binding VisibilidadSeleccion}"
+                                              Height="34"
+                                              FontSize="13.5"
+                                              ItemsSource="{Binding Opciones}"
+                                              DisplayMemberPath="Etiqueta"
+                                              SelectedItem="{Binding Opcion, Mode=TwoWay}" />
+
+                                    <!-- Numérico: estrecho, porque un ancho de caja de texto
+                                         para cuatro cifras invita a escribir otra cosa. -->
+                                    <TextBox Visibility="{Binding VisibilidadNumero}"
+                                             Style="{StaticResource InputBase}"
+                                             Width="130" HorizontalAlignment="Left"
+                                             TextAlignment="Right"
+                                             MaxLength="9"
+                                             Text="{Binding Texto, UpdateSourceTrigger=PropertyChanged}" />
+
+                                    <!-- Importe: vacío significa NULL, no cero -->
+                                    <TextBox Visibility="{Binding VisibilidadImporte}"
+                                             Style="{StaticResource InputBase}"
+                                             Width="160" HorizontalAlignment="Left"
+                                             TextAlignment="Right"
+                                             MaxLength="18"
+                                             Text="{Binding Texto, UpdateSourceTrigger=PropertyChanged}" />
+
+                                    <CheckBox Visibility="{Binding VisibilidadBooleano}"
+                                              Style="{StaticResource CheckBase}"
+                                              Content="{Binding Etiqueta}"
+                                              IsChecked="{Binding Marcado, Mode=TwoWay}" />
+
+                                    <DatePicker Visibility="{Binding VisibilidadFecha}"
+                                                Width="160" HorizontalAlignment="Left"
+                                                FontSize="13.5"
+                                                SelectedDate="{Binding Fecha, Mode=TwoWay}" />
+
+                                    <!-- Fichero de entrada -->
+                                    <Grid Visibility="{Binding VisibilidadFichero}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Grid.Column="0"
+                                                 Style="{StaticResource InputBase}"
+                                                 IsReadOnly="True"
+                                                 Text="{Binding Texto}" />
+                                        <Button Grid.Column="1" Margin="9,0,0,0"
+                                                Style="{StaticResource BtnGhost}"
+                                                Content="Elegir…"
+                                                Click="ElegirFicheroCampo_Click"
+                                                Tag="{Binding}" />
+                                    </Grid>
+
+                                    <TextBlock Text="{Binding Ayuda}"
+                                               Style="{StaticResource TxHelp}"
+                                               HorizontalAlignment="Left"
+                                               Visibility="{Binding VisibilidadAyuda}"
+                                               Margin="0,4,0,0" />
+
+                                    <TextBlock Text="{Binding ErrorOpciones}"
+                                               Style="{StaticResource TxError}"
+                                               HorizontalAlignment="Left"
+                                               Visibility="{Binding VisibilidadErrorOpciones}"
+                                               MaxWidth="520"
+                                               Margin="0,4,0,0" />
+
+                                    <TextBlock Text="{Binding Problema}"
+                                               Style="{StaticResource TxError}"
+                                               HorizontalAlignment="Left"
+                                               Visibility="{Binding VisibilidadProblema}"
+                                               MaxWidth="520"
+                                               Margin="0,4,0,0" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Grupo de tarifa -->
+                    <StackPanel Visibility="{Binding VisibilidadGrupoTarifa}" Margin="0,0,0,13">
+                        <TextBlock Text="Grupo de tarifa destino" Style="{StaticResource TxLabel}" Margin="0,0,0,6" />
+                        <TextBox Style="{StaticResource InputBase}"
+                                 Tag="Escribe para buscar…"
+                                 Text="{Binding GrupoTarifa, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+
+                    <!-- Qué contratos se tocan de los pegados. Es la regla de
+                         UpdateContratoTarifa, no un adorno. -->
+                    <StackPanel Visibility="{Binding VisibilidadFiltroActual}" Margin="0,0,0,13">
+                        <TextBlock Text="Qué contratos se actualizan"
+                                   Style="{StaticResource TxLabel}" Margin="0,0,0,3" />
+                        <TextBlock Style="{StaticResource TxHelp}"
+                                   HorizontalAlignment="Left" MaxWidth="540" Margin="0,0,0,9"
+                                   Text="De los que has pegado, solo se tocan los que cumplan esta condición. Los demás se dejan como están." />
+
+                        <RadioButton Style="{StaticResource RadioBase}"
+                                     GroupName="FiltroTarifa"
+                                     IsChecked="{Binding SoloPersonalizadas, Mode=TwoWay}"
+                                     Margin="0,0,0,9">
+                            <StackPanel>
+                                <TextBlock Text="Solo los que tengan tarifa personalizada" FontSize="13.5" />
+                                <TextBlock Style="{StaticResource TxHelp}" HorizontalAlignment="Left"
+                                           Text="Su grupo actual contiene «personalizada»." />
+                            </StackPanel>
+                        </RadioButton>
+
+                        <RadioButton Style="{StaticResource RadioBase}"
+                                     GroupName="FiltroTarifa"
+                                     IsChecked="{Binding FiltroPorGrupoActual, Mode=TwoWay}">
+                            <StackPanel>
+                                <TextBlock Text="Solo los que tengan este grupo actual" FontSize="13.5" />
+                                <TextBlock Style="{StaticResource TxHelp}" HorizontalAlignment="Left"
+                                           Text="Coincidencia exacta con el grupo que el contrato tiene ahora." />
+                            </StackPanel>
+                        </RadioButton>
+
+                        <TextBox Style="{StaticResource InputBase}"
+                                 Tag="Grupo de tarifa actual"
+                                 Margin="26,8,0,0"
+                                 IsEnabled="{Binding FiltroPorGrupoActual}"
+                                 Text="{Binding GrupoTarifaActual, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+
+                    <!-- Texto libre -->
+                    <StackPanel Visibility="{Binding VisibilidadTexto}" Margin="0,0,0,13">
+                        <TextBlock Text="{Binding EtiquetaTexto}" Style="{StaticResource TxLabel}" Margin="0,0,0,6" />
+                        <TextBox Style="{StaticResource InputBase}"
+                                 Text="{Binding Texto, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+
+                    <!-- Fechas -->
+                    <Grid Visibility="{Binding VisibilidadFechas}" Margin="0,0,0,13">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="14" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Desde" Style="{StaticResource TxLabel}" Margin="0,0,0,6" />
+                            <DatePicker Style="{StaticResource FechaBase}" SelectedDate="{Binding Desde, Mode=TwoWay}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Hasta" Style="{StaticResource TxLabel}" Margin="0,0,0,6" />
+                            <DatePicker Style="{StaticResource FechaBase}" SelectedDate="{Binding Hasta, Mode=TwoWay}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Excel -->
+                    <StackPanel Visibility="{Binding VisibilidadExcel}" Margin="0,0,0,13">
+                        <TextBlock Text="Fichero de Excel" Style="{StaticResource TxLabel}" Margin="0,0,0,6" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" Style="{StaticResource InputBase}"
+                                     Tag="Ningún fichero elegido"
+                                     IsReadOnly="True"
+                                     Text="{Binding RutaExcel}" />
+                            <Button Grid.Column="1" Style="{StaticResource BtnSecondary}"
+                                    Content="Elegir…" Margin="8,0,0,0"
+                                    Click="ElegirExcel_Click" />
+                        </Grid>
+
+                        <!-- Cuántas filas trae, antes de tocar nada -->
+                        <TextBlock Text="{Binding TextoFilasExcel}"
+                                   Visibility="{Binding VisibilidadFilasExcel}"
+                                   Foreground="{StaticResource OkBrush}"
+                                   FontFamily="{StaticResource FontMono}"
+                                   FontSize="12" FontWeight="Bold"
+                                   Margin="0,8,0,0" />
+
+                        <TextBlock Text="{Binding ErrorExcel}"
+                                   Visibility="{Binding VisibilidadErrorExcel}"
+                                   Style="{StaticResource TxError}"
+                                   HorizontalAlignment="Left"
+                                   TextWrapping="Wrap" MaxWidth="520"
+                                   Margin="0,8,0,0" />
+                    </StackPanel>
+
+                    <!-- Carpeta -->
+                    <StackPanel Visibility="{Binding VisibilidadCarpeta}">
+                        <TextBlock Text="Carpeta de destino" Style="{StaticResource TxLabel}" Margin="0,0,0,6" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" Style="{StaticResource InputBase}"
+                                     Tag="Ninguna carpeta elegida"
+                                     IsReadOnly="True"
+                                     Text="{Binding CarpetaDestino}" />
+                            <Button Grid.Column="1" Style="{StaticResource BtnSecondary}"
+                                    Content="Elegir…" Margin="8,0,0,0"
+                                    Click="ElegirCarpeta_Click" />
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ============================================================
+                 ACCIÓN
+                 ============================================================ -->
+            <TextBlock Visibility="{Binding VisibilidadValidacion}"
+                       Text="{Binding MensajeValidacion}"
+                       Style="{StaticResource TxError}"
+                       HorizontalAlignment="Left"
+                       Margin="0,14,0,0" />
+
+            <Border Visibility="{Binding VisibilidadPendiente}"
+                    Margin="0,14,0,0" Padding="12,10"
+                    CornerRadius="{StaticResource RCtl}"
+                    Background="{StaticResource SunkBrush}"
+                    BorderBrush="{StaticResource HairBrush}"
+                    BorderThickness="1">
+                <TextBlock Style="{StaticResource TxHelp}"
+                           HorizontalAlignment="Left" MaxWidth="560"
+                           Text="Esta operación está en el catálogo pero no tiene nada que ejecutar. No debería pasar: si la ves, es que se añadió al catálogo sin conectarle su ejecutable." />
+            </Border>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+                <Button Style="{StaticResource BtnSecondary}"
+                        Visibility="{Binding VisibilidadRevisar}"
+                        Content="Revisar sin aplicar"
+                        IsEnabled="{Binding PuedeEjecutar}"
+                        Margin="0,0,9,0" />
+                <Button Style="{StaticResource BtnPrimary}"
+                        Content="{Binding EtiquetaAccion}"
+                        Background="{Binding ColorAccion}"
+                        IsEnabled="{Binding PuedeEjecutar}"
+                        Click="Ejecutar_Click" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+    </Grid>
+</UserControl>

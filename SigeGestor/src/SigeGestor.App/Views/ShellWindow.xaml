@@ -1,0 +1,204 @@
+﻿<Window x:Class="SigeGestor.App.Views.ShellWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Gestor de Datos SIGE"
+        Width="1160" Height="720"
+        MinWidth="880" MinHeight="560"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BgBrush}"
+        FontFamily="{StaticResource FontUi}"
+        TextOptions.TextFormattingMode="Ideal">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="236" />
+            <ColumnDefinition Width="*" MinWidth="0" />
+        </Grid.ColumnDefinitions>
+
+        <!-- ============================================================
+             BARRA LATERAL
+             ============================================================ -->
+        <Border Grid.Column="0"
+                Background="{StaticResource PanelBrush}"
+                BorderBrush="{StaticResource HairBrush}"
+                BorderThickness="0,0,1,0">
+            <Grid Margin="9,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- Marca -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="7,5,7,12">
+                    <Border Width="25" Height="25" CornerRadius="7"
+                            Background="{StaticResource MarcaDegradado}">
+                        <Path Data="{StaticResource IcoMarca}"
+                              Stroke="{StaticResource OnInkBrush}"
+                              StrokeThickness="2"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              Stretch="Uniform"
+                              Width="13" Height="13"
+                              HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Margin="9,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Datos SIGE" FontSize="13.5" FontWeight="SemiBold" />
+                        <TextBlock Text="v3.0" Style="{StaticResource TxSection}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Buscar -->
+                <Button Grid.Row="1"
+                        Style="{StaticResource NavBuscar}"
+                        Margin="0,0,0,4"
+                        IsTabStop="False"
+                        ToolTip="Buscar una operación (en construcción)" />
+
+                <!-- Navegación -->
+                <ListBox Grid.Row="2"
+                         Style="{StaticResource NavLista}"
+                         ItemContainerStyle="{StaticResource NavItem}"
+                         ItemsSource="{Binding VistaNavegacion.View}"
+                         SelectedItem="{Binding SeccionActual, Mode=TwoWay}">
+                    <ListBox.GroupStyle>
+                        <GroupStyle ContainerStyle="{StaticResource NavGrupo}" />
+                    </ListBox.GroupStyle>
+                </ListBox>
+
+                <!-- Usuario -->
+                <Border Grid.Row="3" BorderBrush="{StaticResource Hair2Brush}" BorderThickness="0,1,0,0" Margin="0,8,0,0">
+                    <Button Style="{StaticResource NavUsuario}" Margin="0,6,0,0" IsTabStop="False">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource Avatar}">
+                                <TextBlock Text="{Binding Iniciales}" Style="{StaticResource AvatarTexto}" />
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="9,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding NombreUsuario}"
+                                           FontSize="12.5" FontWeight="SemiBold"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{Binding RolUsuario}"
+                                           FontSize="11"
+                                           Foreground="{StaticResource Ink4Brush}" />
+                            </StackPanel>
+                            <Path Grid.Column="2"
+                                  Data="{StaticResource IcoCheuronAbajo}"
+                                  Stroke="{StaticResource Ink4Brush}"
+                                  StrokeThickness="1.5"
+                                  StrokeStartLineCap="Round"
+                                  StrokeEndLineCap="Round"
+                                  Stretch="Uniform"
+                                  Width="11" Height="11"
+                                  VerticalAlignment="Center" />
+                        </Grid>
+                    </Button>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ============================================================
+             ZONA PRINCIPAL
+             ============================================================ -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!--
+                Barra superior. La hairline inferior de 2px lleva el color del entorno
+                activo: es la firma del sistema de diseño y lo que evita operar a ciegas.
+            -->
+            <Border Grid.Row="0"
+                    Height="51"
+                    Background="{StaticResource PanelBrush}"
+                    BorderThickness="0,0,0,2"
+                    BorderBrush="{Binding ColorEntorno}">
+                <Grid Margin="20,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Migas de pan -->
+                    <TextBlock Grid.Column="0"
+                               Text="{Binding TituloSeccion}"
+                               FontSize="13" FontWeight="SemiBold"
+                               VerticalAlignment="Center" />
+
+                    <!-- Chip de entorno -->
+                    <Border Grid.Column="1"
+                            Height="30" Padding="10,0"
+                            CornerRadius="{StaticResource RCtl}"
+                            Background="{Binding FondoEntorno}"
+                            BorderBrush="{Binding BordeEntorno}"
+                            BorderThickness="1"
+                            VerticalAlignment="Center"
+                            Margin="0,0,10,0"
+                            ToolTip="{Binding DetalleEntorno}">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Ellipse Width="7" Height="7" Fill="{Binding ColorEntorno}" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding NombreEntorno}"
+                                       FontSize="12.5" FontWeight="SemiBold"
+                                       Foreground="{Binding TextoEntorno}"
+                                       Margin="8,0,0,0" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding ServidorEntorno}"
+                                       Style="{StaticResource TxMono}"
+                                       Margin="8,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Avisos -->
+                    <Button Grid.Column="2"
+                            Style="{StaticResource BtnIcon}"
+                            Width="30" Height="30"
+                            Margin="0,0,6,0"
+                            IsTabStop="False"
+                            ToolTip="Novedades">
+                        <Grid>
+                            <Path Data="{StaticResource IcoNovedades}"
+                                  Stroke="{StaticResource Ink3Brush}"
+                                  StrokeThickness="1.5"
+                                  StrokeStartLineCap="Round"
+                                  StrokeEndLineCap="Round"
+                                  StrokeLineJoin="Round"
+                                  Stretch="Uniform"
+                                  Width="15" Height="15" />
+                            <Ellipse Width="6" Height="6"
+                                     Fill="{StaticResource BadBrush}"
+                                     Stroke="{StaticResource PanelBrush}"
+                                     StrokeThickness="1.5"
+                                     HorizontalAlignment="Right" VerticalAlignment="Top"
+                                     Margin="0,1,1,0" />
+                        </Grid>
+                    </Button>
+
+                    <!-- Avatar -->
+                    <Border Grid.Column="3" Style="{StaticResource Avatar}" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Iniciales}" Style="{StaticResource AvatarTexto}" />
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- ============================================================
+                 CONTENIDO DE LA SECCIÓN
+                 ============================================================ -->
+            <Grid Grid.Row="1">
+
+                <!-- Aquí había un marcador de «esta sección llega en una fase
+                     posterior». Ya no puede pasar: todas las secciones tienen página. -->
+
+                <!-- Página de la sección activa. La rellena el code-behind. -->
+                <ContentControl x:Name="AreaContenido" />
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,0 +1,27 @@
+# Compilación
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+.vs/
+
+# Publicación
+publish/
+*.pubxml.user
+
+# Configuración con credenciales — NUNCA al repositorio.
+# Las plantillas que sí se versionan son Config/*.ejemplo.json
+Config/Entornos.json
+**/Config/Entornos.json
+Config/Empresas.json
+**/Config/Empresas.json
+
+# Copia que deja el guardado de empresas al reemplazar el fichero
+Config/Empresas.json.bak
+**/Config/Empresas.json.bak
+
+# Estado por usuario
+Config/Usuarios.json
+**/Config/Usuarios.json

@@ -1,0 +1,79 @@
+﻿<!--
+    Estilos de texto. Seis tamaños y ni uno más: en cuanto hay un séptimo, la jerarquía
+    deja de leerse. Todo lo que es dato (identificadores, recuentos, servidores,
+    duraciones) va en monoespaciada.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style x:Key="TxBase" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource FontUi}" />
+        <Setter Property="FontSize" Value="{StaticResource FsBody}" />
+        <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <!-- Título de página / ventana -->
+    <Style x:Key="TxH1" TargetType="TextBlock" BasedOn="{StaticResource TxBase}">
+        <Setter Property="FontFamily" Value="{StaticResource FontDisplay}" />
+        <Setter Property="FontSize" Value="{StaticResource FsH1}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style x:Key="TxH2" TargetType="TextBlock" BasedOn="{StaticResource TxBase}">
+        <Setter Property="FontFamily" Value="{StaticResource FontDisplay}" />
+        <Setter Property="FontSize" Value="{StaticResource FsH2}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!-- Título de tarjeta -->
+    <Style x:Key="TxCard" TargetType="TextBlock" BasedOn="{StaticResource TxBase}">
+        <Setter Property="FontSize" Value="{StaticResource FsCard}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!-- Cuerpo -->
+    <Style x:Key="TxBody" TargetType="TextBlock" BasedOn="{StaticResource TxBase}" />
+
+    <Style x:Key="TxBodyMuted" TargetType="TextBlock" BasedOn="{StaticResource TxBase}">
+        <Setter Property="Foreground" Value="{StaticResource Ink2Brush}" />
+    </Style>
+
+    <!-- Etiqueta de campo -->
+    <Style x:Key="TxLabel" TargetType="TextBlock" BasedOn="{StaticResource TxBase}">
+        <Setter Property="FontSize" Value="{StaticResource FsLabel}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource Ink2Brush}" />
+    </Style>
+
+    <!-- Ayuda contextual -->
+    <Style x:Key="TxHelp" TargetType="TextBlock" BasedOn="{StaticResource TxBase}">
+        <Setter Property="FontSize" Value="{StaticResource FsHelp}" />
+        <Setter Property="Foreground" Value="{StaticResource Ink4Brush}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <!-- Rótulo de sección: mono, versalitas espaciadas -->
+    <Style x:Key="TxSection" TargetType="TextBlock" BasedOn="{StaticResource TxBase}">
+        <Setter Property="FontFamily" Value="{StaticResource FontMono}" />
+        <Setter Property="FontSize" Value="{StaticResource FsMicro}" />
+        <Setter Property="Foreground" Value="{StaticResource Ink4Brush}" />
+    </Style>
+
+    <!-- Datos: cifras tabulares para que las columnas cuadren -->
+    <Style x:Key="TxMono" TargetType="TextBlock" BasedOn="{StaticResource TxBase}">
+        <Setter Property="FontFamily" Value="{StaticResource FontMono}" />
+        <Setter Property="FontSize" Value="{StaticResource FsHelp}" />
+        <Setter Property="Foreground" Value="{StaticResource Ink3Brush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+    </Style>
+
+    <!-- Mensaje de error de validación -->
+    <Style x:Key="TxError" TargetType="TextBlock" BasedOn="{StaticResource TxBase}">
+        <Setter Property="FontSize" Value="{StaticResource FsHelp}" />
+        <Setter Property="Foreground" Value="{StaticResource BadBrush}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+</ResourceDictionary>

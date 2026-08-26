@@ -1,0 +1,44 @@
+// Plantilla de configuración de entornos.
+//
+// COPIA este fichero como Entornos.json en la misma carpeta y rellena los datos.
+// Entornos.json está en .gitignore a propósito: lleva credenciales.
+//
+// Clave: 0 = Producción, 1 = Replica, 2 = UAT. El orden del selector sale de aquí.
+//
+// Usuario y Password van CIFRADOS con el mismo AES que EmpresasBD.json de
+// ActualizaPrecios, así que puedes copiar los valores de allí tal cual.
+//
+// SoloLectura: cuando es true, ese entorno no se ofrece en las operaciones que escriben.
+// Es lo que deja Replica fuera de Precios, Contratos y Productos.
+[
+  {
+    "Clave": 0,
+    "Nombre": "Producción",
+    "Servidor": "172.31.100.12",
+    "BaseDatos": "SigeTotal",
+    "Usuario": "<pega aquí el usuario cifrado>",
+    "Password": "<pega aquí la contraseña cifrada>",
+    "SoloLectura": false,
+    "RequiereVpn": false
+  },
+  {
+    "Clave": 1,
+    "Nombre": "Replica",
+    "Servidor": "172.31.100.14",
+    "BaseDatos": "SigeTotal",
+    "Usuario": "<pega aquí el usuario cifrado>",
+    "Password": "<pega aquí la contraseña cifrada>",
+    "SoloLectura": true,
+    "RequiereVpn": false
+  },
+  {
+    "Clave": 2,
+    "Nombre": "UAT",
+    "Servidor": "10.10.123.12",
+    "BaseDatos": "SigeTotalUAT",
+    "Usuario": "<pega aquí el usuario cifrado>",
+    "Password": "<pega aquí la contraseña cifrada>",
+    "SoloLectura": false,
+    "RequiereVpn": true
+  }
+]

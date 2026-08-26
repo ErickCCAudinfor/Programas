@@ -1,0 +1,106 @@
+<UserControl x:Class="SigeGestor.App.Views.Paginas.NovedadesPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{StaticResource FontUi}"
+             TextOptions.TextFormattingMode="Ideal">
+
+    <UserControl.Resources>
+
+        <!-- Una versión: cabecera, y la lista de cambios con su viñeta -->
+        <DataTemplate x:Key="PlantillaNovedad">
+            <Border Margin="0,0,0,14"
+                    Padding="17,15"
+                    CornerRadius="{StaticResource RCard}"
+                    Background="{StaticResource PanelBrush}"
+                    BorderBrush="{StaticResource HairBrush}"
+                    BorderThickness="1">
+                <StackPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Version}" Style="{StaticResource TxCard}" />
+
+                        <Border Visibility="{Binding VisibilidadNueva}"
+                                Margin="9,0,0,0" Padding="6,1"
+                                VerticalAlignment="Center"
+                                CornerRadius="{StaticResource RChip}"
+                                Background="{StaticResource MarcaSuaveBrush}"
+                                BorderBrush="{StaticResource MarcaLineaBrush}"
+                                BorderThickness="1">
+                            <TextBlock Text="NUEVO" FontSize="9.5" FontWeight="Bold"
+                                       Foreground="{StaticResource MarcaBrush}" />
+                        </Border>
+                    </StackPanel>
+
+                    <TextBlock Text="{Binding Titulo}"
+                               FontSize="13.5" FontWeight="SemiBold"
+                               HorizontalAlignment="Left" TextWrapping="Wrap"
+                               Margin="0,7,0,0" />
+
+                    <TextBlock Style="{StaticResource TxHelp}"
+                               HorizontalAlignment="Left" Margin="0,3,0,0">
+                        <Run Text="{Binding Fecha, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding Recuento, Mode=OneWay}" />
+                    </TextBlock>
+
+                    <ItemsControl ItemsSource="{Binding Cambios}" Margin="0,12,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,0,0,7">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Viñeta dibujada, no un carácter: así queda alineada
+                                         con la primera línea y no baila con el tamaño. -->
+                                    <Ellipse Grid.Column="0"
+                                             Width="4" Height="4"
+                                             Fill="{StaticResource Ink4Brush}"
+                                             VerticalAlignment="Top" Margin="2,7,11,0" />
+
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding}"
+                                               FontSize="13"
+                                               Foreground="{StaticResource Ink2Brush}"
+                                               TextWrapping="Wrap"
+                                               HorizontalAlignment="Left" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  Padding="26,18,26,28">
+        <StackPanel MaxWidth="780" HorizontalAlignment="Left">
+
+            <TextBlock Text="Novedades" Style="{StaticResource TxH1}" />
+
+            <TextBlock Style="{StaticResource TxBodyMuted}"
+                       TextWrapping="Wrap" HorizontalAlignment="Left"
+                       Margin="0,6,0,0">
+                <Run Text="{Binding TextoNuevas, Mode=OneWay}" /><Run Text=" " /><Run Text="{Binding VersionInstalada, Mode=OneWay}" />
+            </TextBlock>
+
+            <!-- La versión más reciente, destacada -->
+            <ContentControl Content="{Binding Actual}"
+                            ContentTemplate="{StaticResource PlantillaNovedad}"
+                            Margin="0,20,0,0" />
+
+            <!-- El resto del historial -->
+            <StackPanel Visibility="{Binding VisibilidadAnteriores}">
+                <TextBlock Text="VERSIONES ANTERIORES"
+                           Style="{StaticResource TxSection}"
+                           Margin="0,14,0,11" />
+
+                <ItemsControl ItemsSource="{Binding Anteriores}"
+                              ItemTemplate="{StaticResource PlantillaNovedad}" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

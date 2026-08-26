@@ -1,0 +1,5 @@
+[
+  { "Raiz": "FacturasDual", "Nodo": "Factura" },
+  { "Raiz": "Contratos", "Nodo": "Contrato" },
+  { "Raiz": "Clientes", "Nodo": "Cliente" }
+]

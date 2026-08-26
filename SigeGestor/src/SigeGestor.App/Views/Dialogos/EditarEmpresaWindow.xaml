@@ -1,0 +1,109 @@
+<Window x:Class="SigeGestor.App.Views.Dialogos.EditarEmpresaWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Empresa"
+        Width="520" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Background="{StaticResource BgBrush}"
+        FontFamily="{StaticResource FontUi}"
+        TextOptions.TextFormattingMode="Ideal">
+
+    <Border Padding="24">
+        <StackPanel>
+
+            <TextBlock x:Name="Titulo" Text="Nueva empresa" Style="{StaticResource TxH2}" />
+            <TextBlock Style="{StaticResource TxHelp}"
+                       HorizontalAlignment="Left" TextWrapping="Wrap" MaxWidth="450"
+                       Margin="0,6,0,0"
+                       Text="Una base de datos de cliente. El usuario y la contraseña se guardan cifrados en el fichero, igual que en ActualizaPrecios." />
+
+            <TextBlock Text="Nombre" Style="{StaticResource TxLabel}" Margin="0,20,0,6" />
+            <TextBox x:Name="CajaNombre" Style="{StaticResource InputBase}"
+                     Tag="Sige PROD, Adelfas…"
+                     MaxLength="80"
+                     TextChanged="Revisar" />
+
+            <Grid Margin="0,13,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="14" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Servidor" Style="{StaticResource TxLabel}" Margin="0,0,0,6" />
+                    <TextBox x:Name="CajaServidor" Style="{StaticResource InputBase}"
+                             Tag="172.31.100.12"
+                             MaxLength="120"
+                             TextChanged="Revisar" />
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Base de datos" Style="{StaticResource TxLabel}" Margin="0,0,0,6" />
+                    <TextBox x:Name="CajaBase" Style="{StaticResource InputBase}"
+                             Tag="SigeTotal"
+                             MaxLength="120"
+                             TextChanged="Revisar" />
+                </StackPanel>
+            </Grid>
+
+            <Grid Margin="0,13,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="14" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Usuario" Style="{StaticResource TxLabel}" Margin="0,0,0,6" />
+                    <TextBox x:Name="CajaUsuario" Style="{StaticResource InputBase}"
+                             MaxLength="80"
+                             TextChanged="Revisar" />
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Contraseña" Style="{StaticResource TxLabel}" Margin="0,0,0,6" />
+                    <PasswordBox x:Name="CajaClave" Style="{StaticResource PasswordBase}"
+                                 MaxLength="80"
+                                 PasswordChanged="RevisarClave" />
+                </StackPanel>
+            </Grid>
+
+            <!-- Al editar, la contraseña se deja en blanco para conservar la que ya hay: no se
+                 descifra para mostrarla. -->
+            <TextBlock x:Name="AvisoClave"
+                       Style="{StaticResource TxHelp}"
+                       HorizontalAlignment="Left" TextWrapping="Wrap" MaxWidth="450"
+                       Visibility="Collapsed"
+                       Margin="0,6,0,0"
+                       Text="Déjala en blanco para conservar la contraseña actual." />
+
+            <CheckBox x:Name="CajaVpn" Style="{StaticResource CheckBase}"
+                      Content="Requiere VPN para llegar al servidor"
+                      Margin="0,16,0,0" />
+
+            <!-- Prueba de conexión antes de guardar -->
+            <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
+                <Button x:Name="BotonProbar" Style="{StaticResource BtnSecondary}"
+                        Content="Probar conexión"
+                        Click="Probar_Click" />
+                <TextBlock x:Name="ResultadoPrueba"
+                           VerticalAlignment="Center" Margin="12,0,0,0"
+                           FontSize="12.5" TextWrapping="Wrap" MaxWidth="300" />
+            </StackPanel>
+
+            <TextBlock x:Name="TextoProblema"
+                       Style="{StaticResource TxError}"
+                       HorizontalAlignment="Left" TextWrapping="Wrap" MaxWidth="450"
+                       Visibility="Collapsed"
+                       Margin="0,14,0,0" />
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0">
+                <Button Style="{StaticResource BtnGhost}" Content="Cancelar"
+                        MinWidth="96" Click="Cancelar_Click" IsCancel="True" />
+                <Button x:Name="BotonGuardar" Style="{StaticResource BtnPrimary}"
+                        Content="Guardar" MinWidth="110" Margin="9,0,0,0"
+                        Click="Guardar_Click" IsDefault="True" />
+            </StackPanel>
+
+        </StackPanel>
+    </Border>
+</Window>

@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>SigeGestor.App</RootNamespace>
+    <AssemblyName>SigeGestor</AssemblyName>
+    <ApplicationTitle>Gestor de Datos SIGE</ApplicationTitle>
+    <Version>3.0.0</Version>
+    <!-- Español en fechas, números y mensajes del sistema -->
+    <NeutralLanguage>es-ES</NeutralLanguage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SigeGestor.Core\SigeGestor.Core.vbproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+
+  <!--
+    La configuración de entornos se copia junto al ejecutable.
+    Entornos.json está en .gitignore porque lleva credenciales; la plantilla que sí se
+    versiona es Entornos.ejemplo.json.
+
+    OJO AL PUBLICAR: en el servidor no hay que pisar el Entornos.json que ya esté allí,
+    igual que pasa con el Usuarios.json de ActualizaPrecios.
+  -->
+  <ItemGroup>
+    <None Include="Config\*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!--
+    Las plantillas .sql SÍ van en el proyecto y se copian al compilar.
+    En ActualizaPrecios vivían solo en la carpeta de salida y había que subirlas a mano al
+    servidor; si faltaba una, la consulta reventaba al pulsar Consultar. Aquí van con el
+    binario y no hay nada que recordar.
+  -->
+  <ItemGroup>
+    <None Include="Consultas\*.sql" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7B275345-F105-4C60-8E61-8C94ED871417}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SigeGestor.App", "src\SigeGestor.App\SigeGestor.App.csproj", "{CB39A9AF-52FD-46DC-AD97-B578A6E560CB}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "SigeGestor.Core", "src\SigeGestor.Core\SigeGestor.Core.vbproj", "{F3B1B4F3-E0B2-4420-B2CC-854BAA59BB85}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CB39A9AF-52FD-46DC-AD97-B578A6E560CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB39A9AF-52FD-46DC-AD97-B578A6E560CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB39A9AF-52FD-46DC-AD97-B578A6E560CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB39A9AF-52FD-46DC-AD97-B578A6E560CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3B1B4F3-E0B2-4420-B2CC-854BAA59BB85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3B1B4F3-E0B2-4420-B2CC-854BAA59BB85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3B1B4F3-E0B2-4420-B2CC-854BAA59BB85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3B1B4F3-E0B2-4420-B2CC-854BAA59BB85}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CB39A9AF-52FD-46DC-AD97-B578A6E560CB} = {7B275345-F105-4C60-8E61-8C94ED871417}
+		{F3B1B4F3-E0B2-4420-B2CC-854BAA59BB85} = {7B275345-F105-4C60-8E61-8C94ED871417}
+	EndGlobalSection
+EndGlobal
