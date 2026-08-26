@@ -23,15 +23,40 @@
   </ItemGroup>
 
   <!--
-    La configuración de entornos se copia junto al ejecutable.
-    Entornos.json está en .gitignore porque lleva credenciales; la plantilla que sí se
-    versiona es Entornos.ejemplo.json.
+    CONFIGURACIÓN JUNTO AL EJECUTABLE, en dos grupos y no en uno, y esto importa.
 
-    OJO AL PUBLICAR: en el servidor no hay que pisar el Entornos.json que ya esté allí,
-    igual que pasa con el Usuarios.json de ActualizaPrecios.
+    Las plantillas y TipoXml.json no llevan nada sensible: van siempre, también al publicar.
   -->
   <ItemGroup>
-    <None Include="Config\*.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Config\*.ejemplo.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Config\TipoXml.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!--
+    Los tres ficheros REALES —Entornos.json, Empresas.json y Usuarios.json— se copian solo en
+    Debug, para poder arrancar con F5, y NUNCA al publicar.
+
+    POR QUÉ: llevan credenciales y estado del equipo. Publicando desde una máquina de
+    desarrollo, el Entornos.json local acabaría en la carpeta de publicación y, al copiarla al
+    .13, pisaría el del servidor con el de quien publicó. Lo mismo con Usuarios.json, que
+    borraría a quién le tocaba ver las novedades para las ocho personas.
+
+    Con CopyToPublishDirectory="Never" la carpeta de publicación sale limpia y el servidor
+    conserva su configuración. Ver DESPLIEGUE.md.
+  -->
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <None Include="Config\Entornos.json"
+          Condition="Exists('Config\Entornos.json')"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="Never" />
+    <None Include="Config\Empresas.json"
+          Condition="Exists('Config\Empresas.json')"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="Never" />
+    <None Include="Config\Usuarios.json"
+          Condition="Exists('Config\Usuarios.json')"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="Never" />
   </ItemGroup>
 
   <!--
