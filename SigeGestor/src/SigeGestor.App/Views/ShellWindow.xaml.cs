@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using System.Windows.Input;
+using System.Windows.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using SigeGestor.App.ViewModels;
@@ -31,6 +34,7 @@ public partial class ShellWindow : Window
     private readonly RegistroEjecuciones _registro;
     private readonly IRepositorioEjecuciones _ejecuciones;
     private readonly int _diasRetencionLog;
+    private readonly BuscadorViewModel _buscador = new();
 
     public ShellWindow(Usuario usuario,
                        RepositorioEntornos entornos,
@@ -66,7 +70,17 @@ public partial class ShellWindow : Window
         DataContext = _vm;
 
         MostrarSeccion(_vm.SeccionActual);
+
+        // Ctrl+K a nivel de ventana. Con PreviewKeyDown y no KeyDown para que funcione aunque
+        // el foco esté dentro de un cuadro de texto de una operación, que es lo normal.
+        PreviewKeyDown += ShellPreviewKeyDown;
     }
+
+    /// <summary>
+    /// La campana lleva a Novedades. Antes era un botón sin Click: se pulsaba y no pasaba nada.
+    /// Al llegar allí se marcan como leídas y el punto se apaga solo.
+    /// </summary>
+    private void Campana_Click(object sender, RoutedEventArgs e) => _vm.Ir(Seccion.Novedades);
 
     private void VmPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -202,5 +216,106 @@ public partial class ShellWindow : Window
         _vm.PropertyChanged -= VmPropertyChanged;
         SesionActual.Cerrar();
         base.OnClosed(e);
+    }
+
+    // ============================================================
+    // BUSCADOR
+    // ============================================================
+
+    private void ShellPreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.K && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+        {
+            AbrirBuscador();
+            e.Handled = true;
+        }
+    }
+
+    private void Buscar_Click(object sender, RoutedEventArgs e) => AbrirBuscador();
+
+    private void AbrirBuscador()
+    {
+        _buscador.Abierto = true;
+        CapaBuscador.DataContext = _buscador;
+        CapaBuscador.Visibility = Visibility.Visible;
+
+        // El foco hay que darlo cuando la capa ya es visible; si se hace antes, WPF lo
+        // descarta porque el control todavía no está en el árbol visual.
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            CajaBuscar.Focus();
+            CajaBuscar.SelectAll();
+        }), DispatcherPriority.Input);
+    }
+
+    private void CerrarBuscador()
+    {
+        _buscador.Abierto = false;
+        CapaBuscador.Visibility = Visibility.Collapsed;
+    }
+
+    private void CerrarBuscador_Click(object sender, MouseButtonEventArgs e) => CerrarBuscador();
+
+    /// <summary>
+    /// Las flechas y el Intro se atienden en la caja de texto, no en la lista: así se puede
+    /// seguir escribiendo y moverse sin sacar las manos del teclado ni cambiar el foco.
+    /// </summary>
+    private void CajaBuscar_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        switch (e.Key)
+        {
+            case Key.Escape:
+                CerrarBuscador();
+                e.Handled = true;
+                break;
+
+            case Key.Down:
+                _buscador.Mover(1);
+                DesplazarAlSeleccionado();
+                e.Handled = true;
+                break;
+
+            case Key.Up:
+                _buscador.Mover(-1);
+                DesplazarAlSeleccionado();
+                e.Handled = true;
+                break;
+
+            case Key.Enter:
+                AbrirSeleccionado();
+                e.Handled = true;
+                break;
+        }
+    }
+
+    private void DesplazarAlSeleccionado()
+    {
+        if (_buscador.Seleccionado is not null) ListaBuscar.ScrollIntoView(_buscador.Seleccionado);
+    }
+
+    private void ListaBuscar_Click(object sender, MouseButtonEventArgs e) => AbrirSeleccionado();
+
+    /// <summary>
+    /// Abre la operación elegida: primero lleva a su sección —así la barra lateral queda
+    /// marcada y el botón «volver» tiene a dónde ir— y luego abre el formulario encima.
+    /// </summary>
+    private void AbrirSeleccionado()
+    {
+        var elegido = _buscador.Seleccionado;
+        if (elegido is null) return;
+
+        CerrarBuscador();
+
+        var definicion = elegido.Definicion;
+
+        var item = _vm.Navegacion.FirstOrDefault(i => i.SeccionCatalogo == definicion.Seccion);
+        if (item is null) return;
+
+        _vm.SeccionActual = item;   // esto crea o recupera la página de la sección
+
+        if (_paginas.TryGetValue(item.Seccion, out var paginaSeccion))
+        {
+            AbrirOperacion(definicion, paginaSeccion);
+        }
     }
 }

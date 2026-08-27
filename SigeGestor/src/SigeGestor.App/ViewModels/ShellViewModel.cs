@@ -59,6 +59,31 @@ public sealed partial class ShellViewModel : ObservableObject
         if (novedades is null) return;
 
         novedades.Avisos = NovedadesViewModel.SinLeer(Usuario);
+
+        OnPropertyChanged(nameof(Avisos));
+        OnPropertyChanged(nameof(VisibilidadAvisos));
+        OnPropertyChanged(nameof(AyudaAvisos));
+    }
+
+    /// <summary>Novedades sin leer. Lo comparten la campana y la barra lateral.</summary>
+    public int Avisos =>
+        Navegacion.FirstOrDefault(i => i.Seccion == Seccion.Novedades)?.Avisos ?? 0;
+
+    public Visibility VisibilidadAvisos =>
+        Avisos > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+    public string AyudaAvisos => Avisos switch
+    {
+        0 => "Novedades · estás al día",
+        1 => "Novedades · 1 versión sin leer",
+        _ => $"Novedades · {Avisos} versiones sin leer"
+    };
+
+    /// <summary>Lleva a una sección desde fuera de la barra lateral, como hace la campana.</summary>
+    public void Ir(Seccion seccion)
+    {
+        var destino = Navegacion.FirstOrDefault(i => i.Seccion == seccion);
+        if (destino is not null) SeccionActual = destino;
     }
 
 

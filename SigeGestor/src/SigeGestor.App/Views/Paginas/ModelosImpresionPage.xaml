@@ -217,45 +217,46 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
-                        <Grid Grid.Row="0" Margin="15,14,15,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Row="0" Margin="15,14,15,0">
+                            <!--
+                                El titulo y la barra de acciones van en FILAS DISTINTAS, no en
+                                dos columnas. Antes compartian fila: la columna Auto de los
+                                cinco controles se quedaba con casi todo el ancho y el titulo
+                                se recortaba a «Mo...» en cuanto la ventana no era muy ancha.
 
-                            <StackPanel Grid.Column="0">
-                                <!-- Un solo Text, no dos Run: Run.Text está registrado con
-                                     BindsTwoWayByDefault, así que enlazar ahí una propiedad de
-                                     solo lectura lanza InvalidOperationException al mostrarla. -->
-                                <TextBlock Text="{Binding TituloModelos}"
-                                           Style="{StaticResource TxCard}" />
-                                <TextBlock Text="{Binding Recuento}"
-                                           Foreground="{StaticResource Ink3Brush}"
-                                           FontFamily="{StaticResource FontMono}" FontSize="11.5"
-                                           Margin="0,3,0,0" />
-                            </StackPanel>
+                                Y la barra es un WrapPanel: si sigue sin caber, baja de linea
+                                en lugar de cortarse.
+                            -->
+                            <TextBlock Text="{Binding TituloModelos}"
+                                       Style="{StaticResource TxCard}"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{Binding Recuento}"
+                                       Foreground="{StaticResource Ink3Brush}"
+                                       FontFamily="{StaticResource FontMono}" FontSize="11.5"
+                                       Margin="0,3,0,0" />
 
-                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <WrapPanel Margin="0,11,0,0">
                                 <TextBox Style="{StaticResource InputBase}"
-                                         Width="200" Height="32"
+                                         Width="190" Height="32"
+                                         Margin="0,0,9,6"
                                          Tag="Filtrar…"
                                          Text="{Binding Filtro, UpdateSourceTrigger=PropertyChanged}" />
                                 <Button Style="{StaticResource BtnSecondary}" Content="Nuevo"
-                                        Margin="9,0,0,0" Click="NuevoModelo_Click" />
+                                        Margin="0,0,6,6" Click="NuevoModelo_Click" />
                                 <Button Style="{StaticResource BtnGhost}" Content="Editar"
-                                        Margin="6,0,0,0"
+                                        Margin="0,0,6,6"
                                         IsEnabled="{Binding HayModelo}"
                                         Click="EditarModelo_Click" />
                                 <Button Style="{StaticResource BtnGhost}" Content="Borrar"
-                                        Margin="6,0,0,0"
+                                        Margin="0,0,6,6"
                                         IsEnabled="{Binding HayModelo}"
                                         Click="BorrarModelo_Click" />
                                 <Button Style="{StaticResource BtnGhost}" Content="Guardar .rpt"
-                                        Margin="6,0,0,0"
+                                        Margin="0,0,0,6"
                                         IsEnabled="{Binding HayModelo}"
                                         Click="DescargarModelo_Click" />
-                            </StackPanel>
-                        </Grid>
+                            </WrapPanel>
+                        </StackPanel>
 
                         <DataGrid Grid.Row="1"
                                   x:Name="ListaModelos"
@@ -265,12 +266,31 @@
                                   SelectedItem="{Binding ModeloSeleccionado, Mode=TwoWay}"
                                   MouseDoubleClick="ListaModelos_MouseDoubleClick">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="ID" Binding="{Binding Id, Mode=OneWay}" Width="70" />
-                                <DataGridTextColumn Header="DESCRIPCIÓN" Binding="{Binding Descripcion, Mode=OneWay}" Width="2*" />
-                                <DataGridTextColumn Header="ENTORNO" Binding="{Binding Entorno, Mode=OneWay}" Width="110" />
-                                <DataGridTextColumn Header="TIPO" Binding="{Binding Tipo, Mode=OneWay}" Width="1.3*" />
-                                <DataGridTextColumn Header="CLASE" Binding="{Binding ClassName, Mode=OneWay}" Width="1.4*" />
-                                <DataGridTextColumn Header="FICHERO" Binding="{Binding RptFileName, Mode=OneWay}" Width="1.4*" />
+                                <!--
+                                    MinWidth en las columnas de texto, y esto es lo que arregla
+                                    el recorte: sin mínimo, las columnas estrella se comprimían
+                                    hasta dejar «Aviso Impago C» y «RptEnvio(». Con mínimo, la
+                                    rejilla se pasa del ancho visible y aparece la barra
+                                    horizontal, que ya estaba en el estilo: se desplaza para
+                                    leer en lugar de perder el texto.
+
+                                    Y con ToolTip en las tres columnas largas, para poder leer
+                                    el valor completo sin desplazarse.
+                                -->
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id, Mode=OneWay}" Width="60" />
+                                <DataGridTextColumn Header="DESCRIPCIÓN" Binding="{Binding Descripcion, Mode=OneWay}"
+                                                    Width="2*" MinWidth="200"
+                                                    ElementStyle="{StaticResource CeldaConAyuda}" />
+                                <DataGridTextColumn Header="ENTORNO" Binding="{Binding Entorno, Mode=OneWay}" Width="95" />
+                                <DataGridTextColumn Header="TIPO" Binding="{Binding Tipo, Mode=OneWay}"
+                                                    Width="1.2*" MinWidth="150"
+                                                    ElementStyle="{StaticResource CeldaConAyuda}" />
+                                <DataGridTextColumn Header="CLASE" Binding="{Binding ClassName, Mode=OneWay}"
+                                                    Width="1.4*" MinWidth="170"
+                                                    ElementStyle="{StaticResource CeldaConAyuda}" />
+                                <DataGridTextColumn Header="FICHERO" Binding="{Binding RptFileName, Mode=OneWay}"
+                                                    Width="1.4*" MinWidth="170"
+                                                    ElementStyle="{StaticResource CeldaConAyuda}" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>

@@ -208,7 +208,18 @@
                        Margin="0,16,0,0" />
 
             <!-- Operaciones -->
+            <!--
+                IsSynchronizedWithCurrentItem="False" NO SE PUEDE QUITAR.
+
+                Por omisión es null, que en WPF significa «true si el ItemsSource es una
+                CollectionView». Aquí lo es, y una vista recién creada tiene el primer elemento
+                como actual, así que el ListBox lo seleccionaba solo al aparecer, disparaba
+                SelectionChanged y abría la primera operación de la sección. Entrar en Contratos
+                te metía directo en «Volver a renovar» y había que darle a volver para ver la
+                lista.
+            -->
             <ListBox x:Name="Lista"
+                     IsSynchronizedWithCurrentItem="False"
                      Background="Transparent"
                      BorderThickness="0"
                      Padding="0"

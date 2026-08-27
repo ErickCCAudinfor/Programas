@@ -27,7 +27,6 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <!-- Marca -->
@@ -54,7 +53,8 @@
                         Style="{StaticResource NavBuscar}"
                         Margin="0,0,0,4"
                         IsTabStop="False"
-                        ToolTip="Buscar una operación (en construcción)" />
+                        ToolTip="Buscar una operación · Ctrl+K"
+                        Click="Buscar_Click" />
 
                 <!-- Navegación -->
                 <ListBox Grid.Row="2"
@@ -67,38 +67,11 @@
                     </ListBox.GroupStyle>
                 </ListBox>
 
-                <!-- Usuario -->
-                <Border Grid.Row="3" BorderBrush="{StaticResource Hair2Brush}" BorderThickness="0,1,0,0" Margin="0,8,0,0">
-                    <Button Style="{StaticResource NavUsuario}" Margin="0,6,0,0" IsTabStop="False">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Style="{StaticResource Avatar}">
-                                <TextBlock Text="{Binding Iniciales}" Style="{StaticResource AvatarTexto}" />
-                            </Border>
-                            <StackPanel Grid.Column="1" Margin="9,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding NombreUsuario}"
-                                           FontSize="12.5" FontWeight="SemiBold"
-                                           TextTrimming="CharacterEllipsis" />
-                                <TextBlock Text="{Binding RolUsuario}"
-                                           FontSize="11"
-                                           Foreground="{StaticResource Ink4Brush}" />
-                            </StackPanel>
-                            <Path Grid.Column="2"
-                                  Data="{StaticResource IcoCheuronAbajo}"
-                                  Stroke="{StaticResource Ink4Brush}"
-                                  StrokeThickness="1.5"
-                                  StrokeStartLineCap="Round"
-                                  StrokeEndLineCap="Round"
-                                  Stretch="Uniform"
-                                  Width="11" Height="11"
-                                  VerticalAlignment="Center" />
-                        </Grid>
-                    </Button>
-                </Border>
+                <!--
+                    Aquí había un pie con el nombre del usuario, su rol y un chevron. Se ha
+                    quitado a petición de Erick: el chevron prometía un menú que no existía, y
+                    el usuario ya se ve en el avatar de la barra superior.
+                -->
             </Grid>
         </Border>
 
@@ -156,13 +129,14 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Avisos -->
+                    <!-- Avisos. Lleva a Novedades; antes no hacía nada. -->
                     <Button Grid.Column="2"
                             Style="{StaticResource BtnIcon}"
                             Width="30" Height="30"
                             Margin="0,0,6,0"
                             IsTabStop="False"
-                            ToolTip="Novedades">
+                            ToolTip="{Binding AyudaAvisos}"
+                            Click="Campana_Click">
                         <Grid>
                             <Path Data="{StaticResource IcoNovedades}"
                                   Stroke="{StaticResource Ink3Brush}"
@@ -172,7 +146,10 @@
                                   StrokeLineJoin="Round"
                                   Stretch="Uniform"
                                   Width="15" Height="15" />
+                            <!-- El punto estaba puesto a mano y salía siempre. Ahora
+                                 depende de si queda alguna novedad sin leer. -->
                             <Ellipse Width="6" Height="6"
+                                     Visibility="{Binding VisibilidadAvisos}"
                                      Fill="{StaticResource BadBrush}"
                                      Stroke="{StaticResource PanelBrush}"
                                      StrokeThickness="1.5"
@@ -199,6 +176,186 @@
                 <!-- Página de la sección activa. La rellena el code-behind. -->
                 <ContentControl x:Name="AreaContenido" />
             </Grid>
+        </Grid>
+
+        <!-- ============================================================
+             BUSCADOR
+
+             Va aquí, como último hijo del Grid raíz y ocupando las dos columnas, para que se
+             dibuje por encima de la barra lateral y de la barra superior. Es una superposición
+             y no un Popup: los Popup son ventanas aparte y el foco del teclado se comporta de
+             forma distinta según cómo se abran, y aquí todo el trato es con el teclado.
+             ============================================================ -->
+        <Grid x:Name="CapaBuscador"
+              Grid.ColumnSpan="2"
+              Visibility="Collapsed"
+              Background="#33000000">
+
+            <!-- Clic fuera de la tarjeta: cerrar -->
+            <Rectangle Fill="Transparent" MouseLeftButtonDown="CerrarBuscador_Click" />
+
+            <Border Width="620"
+                    MaxHeight="440"
+                    VerticalAlignment="Top"
+                    Margin="0,90,0,0"
+                    CornerRadius="{StaticResource RCard}"
+                    Background="{StaticResource PanelBrush}"
+                    BorderBrush="{StaticResource HairBrush}"
+                    BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="30" ShadowDepth="8" Direction="270"
+                                      Color="#0B0C0E" Opacity="0.18" />
+                </Border.Effect>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Caja de texto -->
+                    <Grid Grid.Row="0" Margin="15,14,15,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Path Grid.Column="0"
+                              Data="{StaticResource IcoBuscar}"
+                              Stroke="{StaticResource Ink3Brush}"
+                              StrokeThickness="1.5"
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                              Stretch="Uniform" Width="15" Height="15"
+                              VerticalAlignment="Center" Margin="0,0,10,0" />
+                        <TextBox x:Name="CajaBuscar"
+                                 Grid.Column="1"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 FontSize="16"
+                                 VerticalContentAlignment="Center"
+                                 Text="{Binding Texto, UpdateSourceTrigger=PropertyChanged}"
+                                 PreviewKeyDown="CajaBuscar_PreviewKeyDown" />
+                    </Grid>
+
+                    <Border Grid.Row="0" VerticalAlignment="Bottom" Height="1"
+                            Background="{StaticResource Hair2Brush}" />
+
+                    <!-- Resultados -->
+                    <ListBox Grid.Row="1"
+                             x:Name="ListaBuscar"
+                             IsSynchronizedWithCurrentItem="False"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             Padding="7"
+                             HorizontalContentAlignment="Stretch"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             Visibility="{Binding VisibilidadResultados}"
+                             ItemsSource="{Binding Resultados}"
+                             SelectedItem="{Binding Seleccionado, Mode=TwoWay}"
+                             MouseLeftButtonUp="ListaBuscar_Click">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Padding" Value="9,8" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border x:Name="Fondo"
+                                                    Background="Transparent"
+                                                    CornerRadius="{StaticResource RCtl}"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter />
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Fondo" Property="Background"
+                                                            Value="{StaticResource SunkBrush}" />
+                                                </Trigger>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="Fondo" Property="Background"
+                                                            Value="{StaticResource MarcaSuaveBrush}" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Grid.Column="0" Width="26" Height="26" CornerRadius="7"
+                                            Background="{StaticResource SunkBrush}"
+                                            BorderBrush="{StaticResource HairBrush}"
+                                            BorderThickness="1"
+                                            VerticalAlignment="Center">
+                                        <Path Data="{Binding Icono}"
+                                              Stroke="{StaticResource Ink2Brush}"
+                                              StrokeThickness="1.5"
+                                              StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                              StrokeLineJoin="Round"
+                                              Stretch="Uniform" Width="13" Height="13" />
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1" Margin="11,0,10,0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Nombre}"
+                                                   FontSize="13.5" FontWeight="SemiBold"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding Motivo}"
+                                                   FontSize="11.5"
+                                                   Foreground="{StaticResource Ink4Brush}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+
+                                    <Border Grid.Column="2"
+                                            Visibility="{Binding VisibilidadEscribe}"
+                                            Padding="6,1" VerticalAlignment="Center"
+                                            CornerRadius="{StaticResource RChip}"
+                                            Background="{StaticResource WarnSoftBrush}"
+                                            BorderBrush="{StaticResource ProLineBrush}"
+                                            BorderThickness="1">
+                                        <TextBlock Text="Escribe" FontSize="10" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource WarnBrush}" />
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <!-- Sin escribir nada -->
+                    <TextBlock Grid.Row="1"
+                               Visibility="{Binding VisibilidadAyuda}"
+                               Style="{StaticResource TxHelp}"
+                               TextWrapping="Wrap" TextAlignment="Center"
+                               Margin="30,26"
+                               Text="Escribe el nombre de una operación, o el de su sección. No hacen falta tildes." />
+
+                    <!-- Sin resultados -->
+                    <TextBlock Grid.Row="1"
+                               Visibility="{Binding VisibilidadSinResultados}"
+                               Text="{Binding TextoSinResultados}"
+                               Style="{StaticResource TxHelp}"
+                               TextWrapping="Wrap" TextAlignment="Center"
+                               Margin="30,26" />
+
+                    <!-- Pie con las teclas -->
+                    <Border Grid.Row="2"
+                            Background="{StaticResource SunkBrush}"
+                            BorderBrush="{StaticResource Hair2Brush}"
+                            BorderThickness="0,1,0,0"
+                            CornerRadius="0,0,11,11"
+                            Padding="15,7">
+                        <TextBlock Style="{StaticResource TxHelp}" HorizontalAlignment="Left">
+                            <Run Text="&#8593;&#8595;" FontWeight="Bold" /><Run Text=" moverse    " /><Run Text="Intro" FontWeight="Bold" /><Run Text=" abrir    " /><Run Text="Esc" FontWeight="Bold" /><Run Text=" cerrar" />
+                        </TextBlock>
+                    </Border>
+                </Grid>
+            </Border>
         </Grid>
     </Grid>
 </Window>

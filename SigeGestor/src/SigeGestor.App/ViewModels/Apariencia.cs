@@ -81,13 +81,18 @@ public static class Apariencia
         _ => "IcoAjustes"
     };
 
+    /// <summary>
+    /// Acepta tanto el título que se ve en la barra lateral («Facturas y PDF») como el nombre
+    /// del valor del enum («Facturas»). Llegan las dos formas: el log guarda el título y el
+    /// buscador tiene a mano el enum, y con solo una de ellas la otra caía al icono por defecto.
+    /// </summary>
     public static string ClaveIconoDeGrupo(string? grupo) => grupo switch
     {
         "Precios" => "IcoPrecios",
         "Contratos" => "IcoContratos",
         "Productos" => "IcoProductos",
         "Consultas" => "IcoConsultas",
-        "Facturas y PDF" => "IcoFacturas",
+        "Facturas y PDF" or "Facturas" => "IcoFacturas",
         "Ajustes" => "IcoAjustes",
         _ => "IcoEjecuciones"
     };
