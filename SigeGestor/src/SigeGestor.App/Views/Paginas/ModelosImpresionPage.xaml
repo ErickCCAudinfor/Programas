@@ -4,7 +4,35 @@
              FontFamily="{StaticResource FontUi}"
              TextOptions.TextFormattingMode="Ideal">
 
-    <Grid Margin="26,18,26,22">
+    <!--
+        TODA la pagina va dentro de un ScrollViewer, y el Grid mide el alto del viewport con un
+        minimo de 850. Ese 850 esta medido, no puesto a ojo: cabecera 145 + rejilla 369 +
+        separacion 18 + bloque masivo 306, que es lo que ocupa con el ancho minimo. Es decir: mientras la ventana de de si, el Grid vale exactamente lo
+        visible y las filas * reparten, asi que la rejilla crece y no hay barra; cuando no da,
+        se queda en 780 y aparece la barra en lugar de comprimirse unos controles sobre otros.
+        Eso es lo que pasaba antes: con la ventana baja la rejilla se quedaba en 30 px, sin
+        cabecera ni una sola fila visible.
+
+        Height, y NO MinHeight: dentro de un ScrollViewer se mide con alto infinito, y con
+        infinito una fila * se comporta como Auto. El DataGrid pedia entonces sus 54 filas de
+        una vez, la pagina se hacia larguisima y el bloque de abajo quedaba fuera de pantalla.
+        Con Height el alto es un numero concreto, las filas lo reparten y el DataGrid usa su
+        propia barra, que es lo que ya hacia.
+
+        En horizontal es identico: Width mide el viewport con un minimo de 820, que es donde la
+        columna de la derecha baja de 500 y los tres campos del masivo dejan de ser usables.
+        Sin el Width, la medida infinita hacia que el DataGrid pidiera la suma de los MinWidth
+        de sus seis columnas —845— y la barra horizontal salia en la PAGINA, arrastrando la
+        cabecera y el panel de la izquierda. La barra tiene que ser la del DataGrid, que ya
+        estaba puesta para eso.
+    -->
+    <ScrollViewer x:Name="Lienzo"
+                  VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Auto"
+                  Padding="26,18,26,22">
+    <Grid MinWidth="820" MinHeight="850"
+          Width="{Binding ViewportWidth, ElementName=Lienzo}"
+          Height="{Binding ViewportHeight, ElementName=Lienzo}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -201,7 +229,8 @@
                  ============================================================ -->
             <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
+                    <!-- MinHeight: por debajo de esto la rejilla no ensena ni cabecera ni una fila. -->
+                    <RowDefinition Height="*" MinHeight="360" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
@@ -375,32 +404,39 @@
                             </StackPanel>
                         </Grid>
 
-                        <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
+                        <!--
+                            WrapPanel y no StackPanel: los cuatro botones suman unos 540 px y
+                            la columna baja de eso en cuanto la ventana no esta maximizada.
+                            En horizontal, «Cancelar» se salia del panel y no se podia pulsar.
+                        -->
+                        <WrapPanel Margin="0,12,0,0">
                             <Button Style="{StaticResource BtnPrimary}" Content="Subir a las marcadas"
+                                    Margin="0,6,9,0"
                                     IsEnabled="{Binding PuedeSubir}"
                                     Click="Subir_Click" />
                             <Button Style="{StaticResource BtnSecondary}" Content="Actualizar en las marcadas"
-                                    Margin="9,0,0,0"
+                                    Margin="0,6,9,0"
                                     IsEnabled="{Binding PuedeActualizar}"
                                     Click="Actualizar_Click" />
                             <Button Style="{StaticResource BtnGhost}" Content="Comprobar"
-                                    Margin="9,0,0,0"
+                                    Margin="0,6,9,0"
                                     IsEnabled="{Binding PuedeComprobar}"
                                     Click="Comprobar_Click" />
                             <Button Style="{StaticResource BtnGhost}" Content="Cancelar"
-                                    Margin="9,0,0,0"
+                                    Margin="0,6,9,0"
                                     IsEnabled="{Binding Trabajando}"
                                     Click="Cancelar_Click" />
 
                             <TextBlock Text="{Binding Progreso}"
                                        Visibility="{Binding VisibilidadProgreso}"
-                                       VerticalAlignment="Center" Margin="16,0,0,0"
+                                       VerticalAlignment="Center" Margin="7,6,0,0"
                                        Foreground="{StaticResource Ink3Brush}"
                                        FontFamily="{StaticResource FontMono}" FontSize="12" />
-                        </StackPanel>
+                        </WrapPanel>
                     </StackPanel>
                 </Border>
             </Grid>
         </Grid>
     </Grid>
+    </ScrollViewer>
 </UserControl>

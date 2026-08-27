@@ -200,7 +200,8 @@ public partial class ShellWindow : Window
             "Todo lo que toca precios de tarifa. Estas operaciones escriben en la base de datos, " +
             "así que se ejecutan contra Producción y Replica no se ofrece como destino.",
         SeccionOperacion.Contratos =>
-            "Cambios en bloque sobre contratos: renovaciones, agentes, administradores y códigos.",
+            "Cambios en bloque sobre contratos: renovaciones, agentes, administradores, " +
+            "códigos y las validaciones.",
         SeccionOperacion.Productos =>
             "Asignación de productos a contratos, con su importe y su forma de aplicación.",
         SeccionOperacion.Consultas =>

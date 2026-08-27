@@ -428,6 +428,20 @@
                 .EtiquetaAccion = "Actualizar contactos",
                 .Ejecutable = New Implementadas.ActualizarContactos()
             })
+            lista.Add(New DefinicionOperacion With {
+                .Nombre = "Validaciones",
+                .Seccion = SeccionOperacion.Contratos,
+                .Descripcion = "Los tres scripts de validación de contratos, cada uno en su hoja del mismo " &
+                               "Excel. No pide nada y no cambia nada.",
+                .Requiere = EntradasOperacion.Ninguna,
+                .EsEscritura = False,
+                .EtiquetaAccion = "Ejecutar validaciones",
+                .Ejecutable = New Implementadas.ConsultaMultiHoja(
+                    Sql, "Validaciones",
+                    {New Implementadas.HojaConsulta With {.Nombre = "Validacion1", .Plantilla = "Validaciones_1"},
+                     New Implementadas.HojaConsulta With {.Nombre = "Validacion2", .Plantilla = "Validaciones_2"},
+                     New Implementadas.HojaConsulta With {.Nombre = "Validacion3", .Plantilla = "Validaciones_3"}})
+            })
 
             ' ============================================================
             ' PRODUCTOS — escritura
@@ -624,7 +638,9 @@
             '
             ' Y «Validación de plantillas Excel» tampoco existía: se dedujo del nombre de la clase
             ' ValidacionExcel, que en realidad es un cajón con conversores a CSV y penalizaciones.
-            ' El botón «Validaciones» del original es lo que hay abajo: tres consultas a Excel.
+            ' El botón «Validaciones» del original sí existe, pero valida CONTRATOS, así que vive en la
+            ' sección de Contratos y no aquí. Ajustes se queda solo con las dos rejillas de
+            ' mantenimiento, que son las únicas que no operan sobre datos de negocio.
             ' ============================================================
             lista.Add(New DefinicionOperacion With {
                 .Nombre = "Empresas y bases de datos",
@@ -641,20 +657,6 @@
                                "un .rpt a varias empresas de golpe y comprobar cuáles lo tienen.",
                 .EsEscritura = True,
                 .PaginaPropia = PaginasPropias.ModelosImpresion
-            })
-            lista.Add(New DefinicionOperacion With {
-                .Nombre = "Validaciones",
-                .Seccion = SeccionOperacion.Ajustes,
-                .Descripcion = "Los tres scripts de validación de contratos, cada uno en su hoja del mismo " &
-                               "Excel. No pide nada y no cambia nada.",
-                .Requiere = EntradasOperacion.Ninguna,
-                .EsEscritura = False,
-                .EtiquetaAccion = "Ejecutar validaciones",
-                .Ejecutable = New Implementadas.ConsultaMultiHoja(
-                    Sql, "Validaciones",
-                    {New Implementadas.HojaConsulta With {.Nombre = "Validacion1", .Plantilla = "Validaciones_1"},
-                     New Implementadas.HojaConsulta With {.Nombre = "Validacion2", .Plantilla = "Validaciones_2"},
-                     New Implementadas.HojaConsulta With {.Nombre = "Validacion3", .Plantilla = "Validaciones_3"}})
             })
 
             Return lista
