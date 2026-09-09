@@ -1,4 +1,4 @@
-Imports System.Data
+﻿Imports System.Data
 Imports Microsoft.Data.SqlClient
 Imports SigeGestor.Core.Consultas
 
@@ -82,15 +82,18 @@ Namespace Operaciones.Implementadas
                     Return ResultadoEntrada.SinDatos("La consulta no ha devuelto filas")
                 End If
 
-                avisar($"Escribiendo {tabla.Rows.Count:N0} filas en Excel…")
+                avisar($"Escribiendo {Redaccion.Cuenta(tabla.Rows.Count, "fila")} en Excel…")
 
                 Dim escrito = EscritorExcel.Escribir(tabla, ctx.CarpetaDestino, _nombreFichero, _nombreHoja)
 
                 Dim resumen = If(escrito.Ficheros.Count = 1,
-                                 $"{escrito.Filas:N0} filas en {IO.Path.GetFileName(escrito.Ficheros(0))}",
-                                 $"{escrito.Filas:N0} filas en {escrito.Ficheros.Count} ficheros")
+                                 $"{Redaccion.Cuenta(escrito.Filas, "fila")} en " &
+                                 IO.Path.GetFileName(escrito.Ficheros(0)),
+                                 $"{Redaccion.Cuenta(escrito.Filas, "fila")} en " &
+                                 Redaccion.Cuenta(escrito.Ficheros.Count, "fichero"))
 
-                Return ResultadoEntrada.ConDatos(escrito.Filas, resumen)
+                Return ResultadoEntrada.ConDatos(escrito.Filas, resumen) _
+                    .Genera(escrito.Ficheros.ToArray())
             End Using
 
         End Function

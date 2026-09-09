@@ -1,4 +1,4 @@
-Option Strict Off   ' Usa los DTO portados.
+﻿Option Strict Off   ' Usa los DTO portados.
 
 Imports SigeGestor.Core.Configuracion
 Imports SigeGestor.Core.Contratos
@@ -63,7 +63,7 @@ Namespace Operaciones.Implementadas
                              RutasSalida.Asegurar("Penalizaciones"),
                              ctx.CarpetaDestino)
 
-            avisar($"Calculando penalizaciones de {codigos.Count:N0} contratos…")
+            avisar($"Calculando penalizaciones de {Redaccion.Cuenta(codigos.Count, "contrato")}…")
 
             Dim funciones As New FuncionesGenericas(ctx.CadenaConexion)
             Dim validaciones As New ValidacionExcel(ctx.CadenaConexion, carpeta, codigos, funciones)
@@ -76,17 +76,24 @@ Namespace Operaciones.Implementadas
                 ' Los contratos existen pero ninguno es E1 ni E2, así que no hay hoja donde
                 ' meterlos. No es un fallo: es que esos contratos no aplican.
                 Return ResultadoEntrada.SinDatos(
-                    $"los {codigos.Count:N0} contratos existen, pero ninguno es de luz (E1) ni de gas (E2)")
+                    If(codigos.Count = 1,
+                       "el contrato existe, pero no es de luz (E1) ni de gas (E2)",
+                       $"los {codigos.Count:N0} contratos existen, pero ninguno es de luz (E1) ni de gas (E2)"))
             End If
 
             Dim ficheros = validaciones.Generados.Select(Function(f) IO.Path.GetFileName(f)).ToList()
 
-            Dim mensaje = $"{String.Join(" y ", ficheros)} en {carpeta}"
-            If sinResolver > 0 Then mensaje &= $" · {sinResolver} entradas sin resolver"
+            ' El nombre de los ficheros sí va en el mensaje —son uno o dos, luz y gas, y dicen
+            ' de qué va— pero la carpeta no: esa va en Salidas y la pinta la pantalla.
+            Dim mensaje = Redaccion.Unir(
+                String.Join(" y ", ficheros),
+                If(sinResolver = 0, "",
+                   Redaccion.Cuenta(sinResolver, "entrada sin resolver", "entradas sin resolver")))
 
             ' Los métodos portados no devuelven el número de filas escritas, así que aquí no se
             ' inventa: el recuento está en el propio Excel.
-            Return ResultadoEntrada.ConDatos(codigos.Count, mensaje)
+            Return ResultadoEntrada.ConDatos(codigos.Count, mensaje) _
+                .Genera(validaciones.Generados.ToArray())
 
         End Function
 

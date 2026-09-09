@@ -25,6 +25,12 @@ public sealed partial class CampoVm : ObservableObject
     {
         Definicion = definicion;
         _texto = definicion.ValorInicial;
+
+        // Las casillas también respetan su valor inicial. Antes solo lo hacía el texto, así que
+        // una casilla declarada con ValorInicial = "1" salía desmarcada y no había forma de
+        // dejar activada por defecto una opción que sí lo estaba antes —los históricos de las
+        // curvas—, salvo invirtiendo la etiqueta, que se lee mucho peor.
+        _marcado = definicion.Tipo == TipoCampo.Booleano && definicion.ValorInicial == "1";
     }
 
     public CampoOperacion Definicion { get; }
@@ -240,6 +246,95 @@ public sealed partial class CampoVm : ObservableObject
         }
     }
 
+    // ============================================================
+    // FILTRAR POR EL SUMINISTRO DE LA LISTA
+    // ============================================================
+
+    /// <summary>
+    /// Todas las opciones tal como vinieron de la base, sin filtrar. Se guardan aparte porque
+    /// el filtro por suministro cambia con la lista pegada: si se hubiera recortado Opciones al
+    /// cargar, al vaciar el cuadro habría que volver a preguntar a la base para recuperarlas.
+    /// </summary>
+    private IReadOnlyList<OpcionLista> _todas = Array.Empty<OpcionLista>();
+
+    private TipoSuministro _suministro = TipoSuministro.SinResolver;
+
+    /// <summary>
+    /// Deja en el desplegable solo las opciones del suministro indicado.
+    ///
+    /// El Entorno de cada opción llega ya traducido a «luz» o «gas» desde la consulta de
+    /// productos, así que aquí se compara con eso y no con G1/G2.
+    ///
+    /// Con SinResolver se muestran todas: es lo que pasa mientras se escribe, con una lista
+    /// vacía, con contratos que no existen o si la base no responde. Con Mezclado no se muestra
+    /// ninguna, porque no hay ninguna que valga para toda la lista.
+    /// </summary>
+    public void AplicarSuministro(TipoSuministro suministro)
+    {
+        if (!Definicion.FiltraPorSuministro) return;
+        if (Definicion.Tipo != TipoCampo.Seleccion) return;
+        if (_suministro == suministro) return;
+
+        _suministro = suministro;
+        Reconstruir();
+    }
+
+    /// <summary>
+    /// Rellena Opciones desde _todas aplicando el filtro que haya.
+    ///
+    /// Lo llaman los dos caminos —cambiar de suministro y recargar de la base al cambiar de
+    /// entorno— y por eso está en un solo sitio: la primera versión filtraba solo al cambiar de
+    /// suministro, así que una recarga dejaba el desplegable con los productos de los dos
+    /// entornos otra vez, y encima sin que se notara.
+    /// </summary>
+    private void Reconstruir()
+    {
+        // Lo elegido se conserva si sobrevive al filtro: cambiar de tipo de lista sin querer no
+        // debería obligar a volver a buscar el producto.
+        var elegido = Opcion;
+
+        Opciones.Clear();
+
+        // La opción de vaciar no lleva entorno y no se filtra nunca: significa «ninguno», y eso
+        // vale igual para luz que para gas.
+        if (Definicion.AdmiteVacio)
+        {
+            Opciones.Add(new OpcionLista { Id = 0, Nombre = Definicion.EtiquetaVacio });
+        }
+
+        foreach (var o in _todas.Where(o => Encaja(o, _suministro)))
+        {
+            Opciones.Add(o);
+        }
+
+        Opcion = elegido is not null && Opciones.Contains(elegido)
+            ? elegido
+            : (Definicion.AdmiteVacio && Opciones.Count > 0 ? Opciones[0] : null);
+
+        OnPropertyChanged(nameof(SinOpcionesPorSuministro));
+        Cambiado?.Invoke(this, EventArgs.Empty);
+    }
+
+    private static bool Encaja(OpcionLista o, TipoSuministro suministro) => suministro switch
+    {
+        TipoSuministro.Luz => string.Equals(o.Entorno, "luz", StringComparison.OrdinalIgnoreCase),
+        TipoSuministro.Gas => string.Equals(o.Entorno, "gas", StringComparison.OrdinalIgnoreCase),
+        TipoSuministro.Mezclado => false,
+        _ => true
+    };
+
+    /// <summary>
+    /// Se ha filtrado y no ha quedado ninguna. Lo explica quien pinta el formulario.
+    ///
+    /// Con un error de carga por delante esto es False: ahí el desplegable está vacío por otro
+    /// motivo y quien manda es ErrorOpciones.
+    /// </summary>
+    public bool SinOpcionesPorSuministro =>
+        Definicion.FiltraPorSuministro
+        && ErrorOpciones.Length == 0
+        && _todas.Count > 0
+        && Opciones.Count == 0;
+
     /// <summary>
     /// Recarga las opciones para el entorno indicado. Los de texto no hacen nada.
     /// </summary>
@@ -270,22 +365,21 @@ public sealed partial class CampoVm : ObservableObject
 
         try
         {
-            // La opción de vaciar va primera y con Id 0, que Valor traduce a cadena vacía.
-            if (Definicion.AdmiteVacio)
-            {
-                Opciones.Add(new OpcionLista { Id = 0, Nombre = Definicion.EtiquetaVacio });
-            }
+            _todas = await _listas.CargarAsync(cadenaConexion, Definicion.Origen, filtro: filtro);
 
-            foreach (var opcion in await _listas.CargarAsync(
-                         cadenaConexion, Definicion.Origen, filtro: filtro))
-            {
-                Opciones.Add(opcion);
-            }
-
-            if (Definicion.AdmiteVacio && Opciones.Count > 0) Opcion = Opciones[0];
+            // Reconstruir pone la opción de vaciar, aplica el filtro por suministro si lo hay y
+            // deja seleccionado lo que toque. Antes se hacía aquí a mano y el filtro se perdía
+            // en cada recarga.
+            Reconstruir();
         }
         catch (Exception ex)
         {
+            // Se sueltan también las de la carga anterior. Si no, quedaban en _todas y
+            // SinOpcionesPorSuministro daba verdadero —hay opciones guardadas y ninguna en
+            // pantalla—, así que el formulario decía «no hay productos para este suministro»
+            // cuando lo que había pasado es que la base no respondió. Dos motivos distintos con
+            // el mismo aspecto es peor que no decir nada.
+            _todas = Array.Empty<OpcionLista>();
             ErrorOpciones = $"No se han podido cargar las opciones: {ex.Message}";
         }
         finally

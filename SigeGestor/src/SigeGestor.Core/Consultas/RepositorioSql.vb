@@ -150,14 +150,34 @@ Namespace Consultas
         ''' eso caza la función REPLACE() de T-SQL, que varias plantillas usan, y toda consulta
         ''' con un REPLACE dentro se abortaría diciendo que falta un marcador.
         '''
+        ''' NO SE MIRA DENTRO DE LOS COMENTARIOS. Un comentario que explique qué marcador lleva
+        ''' la plantilla —«la tabla va en tablaReplace»— contaba como marcador sin resolver y la
+        ''' operación abortaba antes de consultar nada, siempre, aunque el SQL estuviese
+        ''' perfecto. Y el sitio natural para documentar eso es justo el comentario del .sql.
+        '''
         ''' Ojo: no detecta marcadores que no acaben en «Replace», como el ListaFacturasParam
         ''' de Activa y Reactiva. Ahí el respaldo es el error de SQL Server.
         ''' </summary>
         Public Function MarcadoresPendientes() As IReadOnlyList(Of String)
-            Return Regex.Matches(_texto, "\b\w+Replace\b", RegexOptions.IgnoreCase) _
+            Return Regex.Matches(SinComentarios(_texto), "\b\w+Replace\b", RegexOptions.IgnoreCase) _
                         .Select(Function(m) m.Value) _
                         .Distinct(StringComparer.OrdinalIgnoreCase) _
                         .ToList()
+        End Function
+
+        ''' <summary>
+        ''' Quita los comentarios de línea, de «--» hasta el fin de la línea.
+        '''
+        ''' Se corta por línea y no solo las líneas que EMPIEZAN por «--», para que valga
+        ''' también el comentario puesto detrás de código.
+        '''
+        ''' Es un corte a lo bruto: un «--» dentro de una cadena literal se llevaría por delante
+        ''' el resto de la línea. No importa para lo que se usa —solo buscar marcadores— y lo
+        ''' peor que puede pasar es dejar de avisar de uno, cosa que SQL Server dirá de todas
+        ''' formas. Para nada más vale esta función.
+        ''' </summary>
+        Private Shared Function SinComentarios(texto As String) As String
+            Return Regex.Replace(texto, "--[^\r\n]*", "")
         End Function
 
         Public Overrides Function ToString() As String

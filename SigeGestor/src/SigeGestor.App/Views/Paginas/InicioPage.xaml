@@ -265,8 +265,11 @@
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
                         <Button Style="{StaticResource BtnSecondary}"
                                 Content="Ver ejecuciones"
-                                Margin="0,0,9,0" />
-                        <Button Style="{StaticResource BtnPrimary}">
+                                Margin="0,0,9,0"
+                                Click="VerEjecuciones_Click" />
+                        <Button Style="{StaticResource BtnPrimary}"
+                                ToolTip="Busca la operación por su nombre · Ctrl+K"
+                                Click="NuevaEjecucion_Click">
                             <StackPanel Orientation="Horizontal">
                                 <Path Data="{StaticResource IcoEjecutar}"
                                       Fill="{StaticResource OnInkBrush}"

@@ -1,4 +1,7 @@
 ﻿using System.Windows.Media;
+using System.Windows;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using SigeGestor.Core.Modelos;
 
 namespace SigeGestor.App.ViewModels;
@@ -9,8 +12,88 @@ namespace SigeGestor.App.ViewModels;
 /// El estado se codifica en forma y en color, no solo en texto: con ocho personas tocando
 /// Producción, lo que hace falta es que un fallo se vea sin leer la fila.
 /// </summary>
-public sealed class EjecucionVm
+public sealed partial class EjecucionVm : ObservableObject
 {
+    /// <summary>
+    /// La ejecución viva, cuando esta fila es una que está corriendo AHORA en este equipo.
+    /// Nothing en las del histórico, que ya no cambian.
+    /// </summary>
+    private readonly EjecucionViewModel? _vivo;
+
+    /// <summary>
+    /// Fila de una ejecución que está corriendo ahora mismo.
+    ///
+    /// HACE FALTA porque el histórico se escribe AL TERMINAR: mientras una operación corre no
+    /// hay nada en el log, y por eso el filtro «En marcha» de la rejilla no encontraba nunca
+    /// nada. Era una opción muerta.
+    ///
+    /// La fila se suscribe al progreso, así que el contador avanza en la rejilla sin rehacerla.
+    /// </summary>
+    public EjecucionVm(TareaEnCurso tarea, Action<EjecucionVm>? pedirCancelar = null)
+    {
+        _vivo = tarea.Ejecucion;
+        _pedirCancelar = pedirCancelar;
+
+        Titulo = tarea.Operacion;
+        Subtitulo = tarea.Grupo;
+        Usuario = "";
+        Iniciales = "";
+        Grupo = tarea.Grupo;
+        Entorno = tarea.Entorno;
+        Estado = EstadoEjecucion.EnCurso;
+        Errores = 0;
+        Registros = 0;
+        Duracion = "—";
+        Cuando = Apariencia.TiempoRelativo(tarea.Momento);
+
+        _vivo.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(EjecucionViewModel.Terminada))
+            {
+                // Al terminar deja de poder cancelarse, y el botón tiene que desaparecer
+                // aunque la rejilla todavía no se haya rehecho.
+                OnPropertyChanged(nameof(VisibilidadCancelar));
+                return;
+            }
+
+            if (e.PropertyName is not (nameof(EjecucionViewModel.Contador)
+                                       or nameof(EjecucionViewModel.Procesados))) return;
+
+            OnPropertyChanged(nameof(Resultado));
+        };
+    }
+
+    // ============================================================
+    // CANCELAR DESDE LA REJILLA
+    // ============================================================
+    //
+    // El panel de la ejecución ya tenía su botón de Cancelar, pero solo se llegaba a él estando
+    // dentro. Con una consulta larga —una de fechas de un mes entero— te vas a otra pantalla, la
+    // ves corriendo en la rejilla y no podías pararla: había que volver a su formulario.
+    //
+    // Va por comando y no por Click porque la plantilla de la fila vive en un diccionario de
+    // tema (Actividad.xaml), y un diccionario no tiene código detrás donde poner el manejador.
+
+    private readonly Action<EjecucionVm>? _pedirCancelar;
+
+    /// <summary>Solo las que corren de verdad en este equipo se pueden cancelar.</summary>
+    public Visibility VisibilidadCancelar =>
+        _vivo is not null && !_vivo.Terminada && _pedirCancelar is not null
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+
+    public string AyudaCancelar => $"Cancelar «{Titulo}». Lo ya procesado se queda como está.";
+
+    /// <summary>
+    /// Pide cancelar. NO cancela aquí: lo pasa a quien pinta la rejilla para que pregunte
+    /// antes. Una consulta de cuarenta minutos no se tira por un clic de más.
+    /// </summary>
+    [RelayCommand]
+    private void Cancelar() => _pedirCancelar?.Invoke(this);
+
+    /// <summary>Cancela de verdad. Lo llama la página cuando el usuario ha confirmado.</summary>
+    public void CancelarAhora() => _vivo?.Cancelar();
+
     public EjecucionVm(Ejecucion e)
     {
         Titulo = e.Operacion;
@@ -50,7 +133,7 @@ public sealed class EjecucionVm
 
     // ---------- Resultado ----------
 
-    public string Resultado => Estado switch
+    public string Resultado => _vivo is not null ? _vivo.Contador : Estado switch
     {
         EstadoEjecucion.EnCurso => "en marcha",
         EstadoEjecucion.Cancelada => "—",

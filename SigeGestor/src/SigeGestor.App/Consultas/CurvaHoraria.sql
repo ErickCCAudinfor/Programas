@@ -1,30 +1,8 @@
 --Erick _Gestor Sige_ CurvaHoraria
-SELECT * FROM [SigeTotalTM].[dbo].CurvaHoraria
+--
+-- UN SOLO BLOQUE. El nombre de la tabla lo pone SigeGestor en «tablaReplace», y repite este
+-- bloque unido con UNION ALL una vez por cada historico que encuentre en la base. Antes los
+-- historicos venian escritos aqui a mano y se quedaron atras: faltaban _H_082025 y _H_082026.
+-- El ORDER BY tambien lo pone el codigo, porque con los bloques unidos solo puede ir una vez.
+SELECT * FROM [SigeTotalTM].[dbo].tablaReplace
 WHERE left(cups,20) IN (joinCupsReplace) AND FechaMedida BETWEEN 'DesdeFechaReplace' AND 'hastaFechaReplace'
-
-UNION ALL
-
-SELECT * FROM [SigeTotalTM].[dbo].CurvaHoraria_H_082024
-WHERE left(cups,20) IN (joinCupsReplace) AND FechaMedida BETWEEN 'DesdeFechaReplace' AND 'hastaFechaReplace'
-
-UNION ALL
-
-SELECT * FROM [SigeTotalTM].[dbo].CurvaHoraria_H_092024
-WHERE left(cups,20) IN (joinCupsReplace) AND FechaMedida BETWEEN 'DesdeFechaReplace' AND 'hastaFechaReplace'
-
-UNION ALL
-
-SELECT * FROM [SigeTotalTM].[dbo].CurvaHoraria_H_032024
-WHERE left(cups,20) IN (joinCupsReplace) AND FechaMedida BETWEEN 'DesdeFechaReplace' AND 'hastaFechaReplace'
-
-UNION ALL
-
-SELECT * FROM [SigeTotalTM].[dbo].CurvaHoraria_H_022025
-WHERE left(cups,20) IN (joinCupsReplace) AND FechaMedida BETWEEN 'DesdeFechaReplace' AND 'hastaFechaReplace'
-
-UNION ALL
-
-SELECT * FROM [SigeTotalTM].[dbo].CurvaHoraria_H
-WHERE left(cups,20) IN (joinCupsReplace) AND FechaMedida BETWEEN 'DesdeFechaReplace' AND 'hastaFechaReplace'
-
-ORDER BY FechaMedida;

@@ -145,6 +145,21 @@
         ''' </summary>
         Public Property DependeDe As String = ""
 
+        ''' <summary>
+        ''' Cuando es True, el desplegable solo muestra las opciones del suministro que tenga la
+        ''' lista pegada: si los contratos son de luz, solo las de luz.
+        '''
+        ''' Es para los maestros que SIGE tiene duplicados por entorno —los productos viven en
+        ''' G1 los de luz y en G2 los de gas— y que no se pueden cruzar. Sin esto salían los de
+        ''' los dos entornos y era fácil elegir uno que no valía para ningún contrato de la
+        ''' lista, y no enterarse hasta ver el resultado.
+        '''
+        ''' No sustituye a la comprobación por contrato que hace la operación antes de escribir:
+        ''' esto ayuda a elegir bien, aquello impide escribir mal. Si la base no responde o los
+        ''' contratos no existen, el suministro queda sin resolver y se muestran todas.
+        ''' </summary>
+        Public Property FiltraPorSuministro As Boolean
+
     End Class
 
     ''' <summary>Una opción declarada en el catálogo, con el valor que viaja y lo que se lee.</summary>

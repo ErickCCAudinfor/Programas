@@ -10,6 +10,13 @@
     <AssemblyName>SigeGestor</AssemblyName>
     <ApplicationTitle>Gestor de Datos SIGE</ApplicationTitle>
     <Version>3.0.0</Version>
+    <!--
+      EL ICONO. Con esto solo se cubre todo lo que se ve: el .exe en el explorador, la barra
+      de tareas, el Alt+Tab y la barra de título de las ventanas. Las ventanas de WPF que no
+      fijan Icon usan el del ejecutable, y eso es lo que interesa: así Windows elige la lámina
+      del tamaño correcto del .ico en vez de reducir una imagen grande, que se ve sucia.
+    -->
+    <ApplicationIcon>Assets\SigeGestor.ico</ApplicationIcon>
     <!-- Español en fechas, números y mensajes del sistema -->
     <NeutralLanguage>es-ES</NeutralLanguage>
   </PropertyGroup>

@@ -3,11 +3,13 @@ using System.IO;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using SigeGestor.Core.Configuracion;
+using SigeGestor.Core.Contratos;
 using SigeGestor.Core.Modelos;
 using SigeGestor.Core.Operaciones;
 
@@ -21,6 +23,45 @@ public sealed class TipoListaVm
 {
     public required TipoLista Tipo { get; init; }
     public string Etiqueta => AnalizadorEntradas.Etiqueta(Tipo);
+}
+
+/// <summary>
+/// Una columna del Excel de muestra: la tira vertical que se pinta con su letra, su título y
+/// su valor de ejemplo, uno debajo de otro, como en la hoja de cálculo.
+/// </summary>
+public sealed class ColumnaExcelVm
+{
+    public ColumnaExcelVm(int indice, ColumnaExcel columna)
+    {
+        // A, B, C… Más de 26 columnas no las tiene ninguna operación —la mayor son 12— así que
+        // no se hace la doble letra (AA, AB); si algún día hiciera falta, salta a la vista.
+        Letra = ((char)('A' + indice)).ToString();
+        Titulo = columna.Titulo;
+        Ejemplo = columna.Ejemplo;
+        Nota = columna.Nota;
+        Obligatoria = columna.Obligatoria;
+    }
+
+    public string Letra { get; }
+    public string Titulo { get; }
+    public string Ejemplo { get; }
+    public string Nota { get; }
+    public bool Obligatoria { get; }
+
+    /// <summary>
+    /// La nota de esta columna, con su letra delante: «B · Emails: varios separados por punto
+    /// y coma».
+    ///
+    /// SOLO se genera si la columna tiene algo que aclarar. Lo de «puede ir vacía» NO va aquí:
+    /// en la importación de productos hay ocho columnas opcionales y salían ocho líneas
+    /// idénticas que tapaban las notas que sí decían algo. Las opcionales se listan juntas en
+    /// una sola línea, en NotasEsquema.
+    /// </summary>
+    public string Aclaracion =>
+        Nota.Length == 0 ? string.Empty : $"{Letra} · {Titulo}: {Nota}";
+
+    public Visibility VisibilidadAclaracion =>
+        Aclaracion.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
 }
 
 /// <summary>Un entorno como opción del selector. Puede venir deshabilitado y con su motivo.</summary>
@@ -49,6 +90,7 @@ public sealed class EntornoOpcionVm
 public sealed partial class OperacionViewModel : ObservableObject
 {
     private readonly RepositorioEntornos _entornos;
+    private readonly RepositorioContratos _contratos = new();
 
     public OperacionViewModel(DefinicionOperacion definicion, RepositorioEntornos entornos)
     {
@@ -176,6 +218,97 @@ public sealed partial class OperacionViewModel : ObservableObject
     public Visibility VisibilidadCampos =>
         Campos.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
 
+    // ============================================================
+    // LOS CAMPOS, A UNA O DOS COLUMNAS
+    // ============================================================
+    //
+    // Masivo contrato tiene 31 campos —22 desplegables, 7 textos y 2 fechas— y en una sola
+    // columna la tarjeta se iba muy por debajo del borde de la ventana: para llegar al último
+    // había que desplazarse un buen rato, y no se podía ver de un golpe qué se está cambiando.
+    // A dos columnas son 16 filas en vez de 31.
+    //
+    // EL UMBRAL ESTÁ MEDIDO, y el primer número que puse estaba mal. De las 46 operaciones solo
+    // 11 tienen campos, y el reparto es 31 (Masivo contrato), 9 (Añadir productos), 3, 3 y siete
+    // con uno solo. Puse 8, que metía a las dos grandes, y midiendo salió esto:
+    //
+    //                            1 columna                2 columnas
+    //   Masivo contrato (31)     tarjeta 2.353 · pág 2.735   tarjeta 1.285 · pág 1.930   mejor
+    //   Añadir productos (9)     tarjeta   644 · pág 1.009   tarjeta   551 · pág 1.178   PEOR
+    //
+    // Con nueve campos la tarjeta apenas baja —644 a 551, porque las ayudas debajo de cada campo
+    // no se parten— y al ensancharla a 700 deja de caber al lado de la lista, así que el
+    // WrapPanel la baja y eso cuesta 263 px. El remedio salía más caro que la enfermedad.
+    //
+    // Así que 20: solo Masivo contrato, que es la única donde la tarjeta es tan alta que partirla
+    // compensa perder la colocación en paralelo.
+
+    private const int CamposParaDosColumnas = 20;
+
+    public bool DosColumnas => Campos.Count >= CamposParaDosColumnas;
+
+    /// <summary>
+    /// Ancho de la tarjeta de parámetros. Más ancha con dos columnas, porque partir los 490 en
+    /// dos deja columnas de 225 y ahí los desplegables largos —los CNAE, los modelos de
+    /// impresión— se cortan por la mitad y hay que adivinar el valor.
+    /// </summary>
+    public double AnchoParametros => DosColumnas ? 700 : 490;
+
+    /// <summary>
+    /// Ancho de la segunda columna: la mitad, o CERO cuando no hay segunda columna. Se enlaza
+    /// directamente al ColumnDefinition, que acepta GridLength, en vez de montar dos bloques
+    /// de XAML distintos.
+    /// </summary>
+    public GridLength AnchoColumnaDerecha =>
+        DosColumnas ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+
+    /// <summary>
+    /// Los campos de la columna izquierda. Con una sola columna, todos.
+    ///
+    /// SE PARTE POR MITADES y no alternando uno a cada lado: los de Masivo contrato van
+    /// agrupados por bloque —las dos fechas juntas, los cuatro datos del representante
+    /// juntos— y repartirlos alternando rompería esos grupos. Partiendo por la mitad, cada
+    /// columna se sigue leyendo de arriba abajo con sus bloques intactos.
+    ///
+    /// La izquierda se queda el de más cuando son impares, que es lo que hace que la columna
+    /// más larga sea la primera y no la segunda.
+    /// </summary>
+    public IReadOnlyList<CampoVm> CamposIzquierda =>
+        _izquierda ??= DosColumnas ? Campos.Take(Mitad).ToList() : Campos.ToList();
+
+    public IReadOnlyList<CampoVm> CamposDerecha =>
+        _derecha ??= DosColumnas ? Campos.Skip(Mitad).ToList() : Array.Empty<CampoVm>();
+
+    // Se calculan UNA vez. Sin cachear devolvían una lista nueva en cada acceso: WPF se enlaza
+    // a la primera y se queda con ella, así que funcionaba, pero cualquiera que las comparase
+    // —o que las leyera dos veces— obtenía objetos distintos por el mismo dato. Campos se
+    // rellena en el constructor y no cambia, así que no hay nada que invalidar.
+    private IReadOnlyList<CampoVm>? _izquierda;
+    private IReadOnlyList<CampoVm>? _derecha;
+
+    private int Mitad => (Campos.Count + 1) / 2;
+
+    /// <summary>
+    /// Si la tarjeta de «Parámetros» tiene algo dentro.
+    ///
+    /// Hace falta desde que la lista y los parámetros se colocan uno al lado del otro: en las
+    /// operaciones que solo piden la lista, la tarjeta salía con el título y nada debajo, y
+    /// puesta al lado se veía como un hueco. Antes, apilada, se notaba menos, pero tampoco
+    /// tenía sentido.
+    ///
+    /// Es el OR de las secciones que la tarjeta pinta. Dividir no cuenta: esa casilla vive en
+    /// la tarjeta de la lista.
+    /// </summary>
+    public Visibility VisibilidadParametros =>
+        VisibilidadCampos == Visibility.Visible
+        || VisibilidadGrupoTarifa == Visibility.Visible
+        || VisibilidadFiltroActual == Visibility.Visible
+        || VisibilidadTexto == Visibility.Visible
+        || VisibilidadFechas == Visibility.Visible
+        || VisibilidadExcel == Visibility.Visible
+        || VisibilidadCarpeta == Visibility.Visible
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+
     /// <summary>
     /// Carga las opciones de los campos de selección contra el entorno elegido. Se llama al
     /// abrir y cada vez que se cambia de entorno: los Id de agente de UAT no son los de
@@ -243,6 +376,10 @@ public sealed partial class OperacionViewModel : ObservableObject
         OnPropertyChanged(nameof(ColorAccion));
         OnPropertyChanged(nameof(VisibilidadAvisoProduccion));
         OnPropertyChanged(nameof(VisibilidadAvisoConsultaProduccion));
+
+        // Y se vuelve a mirar de qué son los contratos: los códigos de UAT no son los de
+        // Producción, así que el suministro de la lista puede ser distinto en cada entorno.
+        DetectarSuministro();
     }
 
     public bool EsProduccion => EntornoSeleccionado?.Entorno.Clave == ClaveEntorno.Produccion;
@@ -418,6 +555,123 @@ public sealed partial class OperacionViewModel : ObservableObject
         OnPropertyChanged(nameof(TextoDescartes));
         OnPropertyChanged(nameof(Entradas));
         RevisarValidez();
+
+        DetectarSuministro();
+    }
+
+    // ============================================================
+    // LUZ O GAS: DE QUÉ SON LOS CONTRATOS PEGADOS
+    // ============================================================
+    //
+    // Los maestros de SIGE están duplicados por entorno —los productos de luz en G1, los de gas
+    // en G2— y no se pueden cruzar. Sin saber de qué es la lista, el desplegable traía los de
+    // los dos y era fácil elegir uno que no valía para ningún contrato, sin enterarse hasta ver
+    // el resultado.
+    //
+    // ActualizaPrecios miraba el entorno del PRIMER contrato y cargaba solo ese: con una lista
+    // mezclada metía un producto de luz en contratos de gas sin decir nada. Aquí se mira la
+    // lista entera y, si está mezclada, se dice y no se deja seguir.
+
+    private CancellationTokenSource? _ctsSuministro;
+
+    private TipoSuministro _suministro = TipoSuministro.SinResolver;
+
+    /// <summary>Qué se está haciendo con el suministro, para decirlo debajo de la lista.</summary>
+    [ObservableProperty] private string _mensajeSuministro = string.Empty;
+
+    public Visibility VisibilidadMensajeSuministro =>
+        string.IsNullOrEmpty(MensajeSuministro) ? Visibility.Collapsed : Visibility.Visible;
+
+    partial void OnMensajeSuministroChanged(string value) =>
+        OnPropertyChanged(nameof(VisibilidadMensajeSuministro));
+
+    /// <summary>Rojo cuando la lista está mezclada, que es lo que impide seguir.</summary>
+    public Brush ColorSuministro =>
+        Apariencia.Pincel(_suministro == TipoSuministro.Mezclado ? "BadBrush" : "Ink3Brush");
+
+    /// <summary>
+    /// Lanza la detección con retardo.
+    ///
+    /// EL RETARDO IMPORTA: esto va a la base, y sin él se consultaría en cada tecla mientras se
+    /// escribe o se pega. Se espera a que la lista deje de cambiar y se cancela lo anterior, así
+    /// que pegar 5.000 contratos son una consulta y no cinco mil.
+    ///
+    /// No se espera el resultado (fire and forget) a propósito: escribir en el cuadro no puede
+    /// quedarse bloqueado esperando a SQL. Lo que llega, llega, y si no llega no se filtra.
+    /// </summary>
+    private void DetectarSuministro()
+    {
+        if (!Campos.Any(c => c.Definicion.FiltraPorSuministro)) return;
+
+        _ctsSuministro?.Cancel();
+        _ctsSuministro?.Dispose();
+        _ctsSuministro = new CancellationTokenSource();
+
+        _ = DetectarSuministroAsync(_ctsSuministro.Token);
+    }
+
+    private async Task DetectarSuministroAsync(CancellationToken ct)
+    {
+        try
+        {
+            await Task.Delay(450, ct).ConfigureAwait(true);
+
+            var entradas = Entradas;
+
+            if (entradas.Count == 0 || EntornoSeleccionado is null)
+            {
+                Fijar(TipoSuministro.SinResolver, string.Empty);
+                return;
+            }
+
+            MensajeSuministro = "Comprobando si son de luz o de gas…";
+            OnPropertyChanged(nameof(ColorSuministro));
+
+            var cadena = _entornos.CadenaConexion(
+                EntornoSeleccionado.Entorno, baseDatos: Definicion.BaseDatosAlternativa);
+
+            var suministro = await _contratos
+                .SuministroDeAsync(cadena, entradas, TipoLista, ct)
+                .ConfigureAwait(true);
+
+            ct.ThrowIfCancellationRequested();
+
+            Fijar(suministro, suministro switch
+            {
+                TipoSuministro.Luz => "Los contratos son de luz: solo salen los productos de luz.",
+                TipoSuministro.Gas => "Los contratos son de gas: solo salen los productos de gas.",
+                TipoSuministro.Mezclado =>
+                    "La lista tiene contratos de luz y de gas. Un producto es de uno de los dos, " +
+                    "así que no se puede asignar a los dos a la vez: separa la lista y hazlo en " +
+                    "dos veces.",
+                _ => string.Empty
+            });
+        }
+        catch (OperationCanceledException)
+        {
+            // La lista ha vuelto a cambiar: manda la detección nueva.
+        }
+        catch (Exception)
+        {
+            // Que no se pueda averiguar no bloquea nada: se muestran todos los productos y la
+            // comprobación por contrato sigue impidiendo escribir donde no toca. No se pinta
+            // error: el usuario no ha pedido esto, es una ayuda.
+            Fijar(TipoSuministro.SinResolver, string.Empty);
+        }
+    }
+
+    private void Fijar(TipoSuministro suministro, string mensaje)
+    {
+        _suministro = suministro;
+        MensajeSuministro = mensaje;
+        OnPropertyChanged(nameof(ColorSuministro));
+
+        foreach (var campo in Campos)
+        {
+            campo.AplicarSuministro(suministro);
+        }
+
+        RevisarValidez();
     }
 
     public void Limpiar() => TextoLista = string.Empty;
@@ -506,6 +760,91 @@ public sealed partial class OperacionViewModel : ObservableObject
         RevisarValidez();
     }
 
+    // ============================================================
+    // CÓMO HAY QUE MONTAR EL EXCEL
+    // ============================================================
+    //
+    // Estas operaciones leen POR POSICIÓN: la columna 1 es el contrato pase lo que pase, y el
+    // título de la cabecera no se lee. Eso no estaba dicho en ninguna parte, así que quien
+    // preparaba el fichero tenía que adivinar el orden —o preguntar— y un Excel con las
+    // columnas cambiadas de sitio no da error: mete los datos donde no van.
+    //
+    // Se pinta como una hoja de cálculo, con la letra de cada columna y el número de fila, para
+    // que se vea de un golpe qué va en cada sitio y que los datos empiezan en la fila 2.
+
+    private EsquemaExcel? Esquema =>
+        Definicion.Ejecutable is IEsquemaExcel con ? con.Esquema : null;
+
+    public Visibility VisibilidadEsquema =>
+        Esquema is null ? Visibility.Collapsed : Visibility.Visible;
+
+    public IReadOnlyList<ColumnaExcelVm> ColumnasEsquema =>
+        Esquema is null
+            ? Array.Empty<ColumnaExcelVm>()
+            : Esquema.Columnas.Select((c, i) => new ColumnaExcelVm(i, c)).ToList();
+
+    /// <summary>Número de la fila de la cabecera, para la columna de números.</summary>
+    public string FilaCabecera => Esquema is null ? "" : Esquema.FilasDeCabecera.ToString();
+
+    /// <summary>Número de la primera fila con datos.</summary>
+    public string FilaDatos => Esquema is null ? "" : Esquema.PrimeraFilaConDatos.ToString();
+
+    /// <summary>
+    /// El resumen de arriba: cuántas columnas, en qué hoja y desde qué fila se lee.
+    /// </summary>
+    public string ResumenEsquema
+    {
+        get
+        {
+            if (Esquema is null) return string.Empty;
+
+            var partes = new List<string>
+            {
+                Redaccion.Cuenta(Esquema.Columnas.Count, "columna"),
+                Esquema.Hoja.Length > 0
+                    ? $"en una hoja llamada «{Esquema.Hoja}»"
+                    : "en la primera hoja, se llame como se llame",
+                $"datos desde la fila {Esquema.PrimeraFilaConDatos}"
+            };
+
+            return string.Join(" · ", partes);
+        }
+    }
+
+    /// <summary>Las notas de las columnas que tienen algo que aclarar, y el aviso general.</summary>
+    public IReadOnlyList<string> NotasEsquema
+    {
+        get
+        {
+            if (Esquema is null) return Array.Empty<string>();
+
+            var columnas = ColumnasEsquema;
+
+            var notas = columnas
+                .Where(c => c.Aclaracion.Length > 0)
+                .Select(c => c.Aclaracion)
+                .ToList();
+
+            // Las opcionales, en una sola línea. Una por línea eran ocho renglones iguales en
+            // la importación de productos.
+            var opcionales = columnas.Where(c => !c.Obligatoria).Select(c => c.Letra).ToList();
+            if (opcionales.Count > 0)
+            {
+                notas.Add(opcionales.Count == 1
+                    ? $"La columna {opcionales[0]} puede ir vacía."
+                    : $"Pueden ir vacías: {string.Join(", ", opcionales)}.");
+            }
+
+            // Lo que más se equivoca: sobra una columna al final y se da por hecho que da error.
+            notas.Add("Lo que haya en columnas de más se ignora, y la fila " +
+                      $"{Esquema.FilasDeCabecera} no se lee: es la cabecera.");
+
+            if (Esquema.Aviso.Length > 0) notas.Add(Esquema.Aviso);
+
+            return notas;
+        }
+    }
+
     public Visibility VisibilidadCarpeta =>
         Definicion.Pide(EntradasOperacion.Carpeta) ? Visibility.Visible : Visibility.Collapsed;
 
@@ -589,6 +928,11 @@ public sealed partial class OperacionViewModel : ObservableObject
 
         if (Definicion.PideLista && Reconocidos == 0)
             return $"Pega al menos un {AnalizadorEntradas.Unidad(TipoLista, 1)}.";
+
+        // Va ANTES de mirar los campos: con la lista mezclada el desplegable de producto se
+        // queda vacío, y decir «falta producto» mandaría a buscar algo que no puede existir.
+        if (_suministro == TipoSuministro.Mezclado)
+            return "La lista mezcla contratos de luz y de gas. Sepárala y hazlo en dos veces.";
 
         if (Definicion.Pide(EntradasOperacion.GrupoTarifa) && string.IsNullOrWhiteSpace(GrupoTarifa))
             return "Falta el grupo de tarifa destino.";

@@ -37,7 +37,7 @@ Namespace Operaciones.Implementadas
                 Return Task.FromResult(ResultadoEntrada.Fallo("no hay facturas en la lista"))
             End If
 
-            avisar($"Buscando las lecturas de {facturas.Count:N0} facturas…")
+            avisar($"Buscando las lecturas de {Redaccion.Cuenta(facturas.Count, "factura")}…")
 
             Dim plantilla As New PlantillaSql(_sql.Obtener("BuscarFacturaATR"))
             plantilla.Poner("facturasatrBDReplace",
@@ -59,7 +59,9 @@ Namespace Operaciones.Implementadas
 
             If ids Is Nothing OrElse ids.Count = 0 Then
                 Return Task.FromResult(ResultadoEntrada.SinDatos(
-                    $"ninguna de las {facturas.Count:N0} facturas tiene lecturas que marcar"))
+                    If(facturas.Count = 1,
+                   "la factura no tiene lecturas que marcar",
+                   $"ninguna de las {facturas.Count:N0} facturas tiene lecturas que marcar")))
             End If
 
             ctx.AbortarSiCancelado()
@@ -73,7 +75,8 @@ Namespace Operaciones.Implementadas
             End If
 
             Return Task.FromResult(ResultadoEntrada.ConDatos(
-                filas, $"{filas:N0} lecturas marcadas de {facturas.Count:N0} facturas"))
+                filas, $"{Redaccion.Cuenta(filas, "lectura marcada", "lecturas marcadas")} de " &
+                       $"{Redaccion.Cuenta(facturas.Count, "factura")}"))
 
         End Function
 

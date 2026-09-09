@@ -1,4 +1,4 @@
-Imports System.Diagnostics
+﻿Imports System.Diagnostics
 
 Namespace Operaciones
 
@@ -58,14 +58,16 @@ Namespace Operaciones
             r.Duracion = reloj.Elapsed
             estados(0) = r.Estado
 
-            vivo.Add(New LineaProgreso With {
+            Dim linea As New LineaProgreso With {
                 .Momento = DateTime.Now,
-                .Entrada = ctx.Definicion.Nombre,
+                .Entrada = If(ctx.Definicion?.Nombre, ""),
                 .Estado = r.Estado,
                 .Registros = r.Registros,
                 .Mensaje = r.Mensaje,
                 .Duracion = r.Duracion
-            })
+            }
+
+            vivo.Add(linea)
 
             informar(New ProgresoOperacion With {
                 .Procesados = 1,
@@ -79,6 +81,15 @@ Namespace Operaciones
                 .Ultimas = vivo.ToList()
             })
 
+            ' Fallidas se deja VACÍA a propósito, aunque haya fallado: es lo que alimenta
+            ' «Reintentar solo las que dieron error», y aquí no hay entradas que reintentar.
+            ' Rellenarla haría que el botón pegase el nombre de la operación en el cuadro de la
+            ' lista, que no es una entrada de nada. Esto se relanza volviendo al formulario.
+            '
+            ' Incidencias sí, igual que en OperacionPorEntrada: lo que no salió con datos se
+            ' recoge para que la pantalla pueda mostrar el motivo ENTERO y se pueda copiar.
+            ' Faltaba, y por eso en las operaciones de un solo paso el bloque «Lo que no salió
+            ' bien» no aparecía nunca y el motivo solo se veía recortado en el registro.
             Return New ResultadoOperacion With {
                 .Total = 1,
                 .ConDatos = If(r.Estado = EstadoEntrada.ConDatos, 1, 0),
@@ -87,7 +98,11 @@ Namespace Operaciones
                 .Registros = r.Registros,
                 .Duracion = reloj.Elapsed,
                 .Cancelada = cancelada,
-                .Mensaje = r.Mensaje
+                .Mensaje = r.Mensaje,
+                .Salidas = r.Salidas,
+                .Incidencias = If(r.Estado <> EstadoEntrada.ConDatos,
+                                  New LineaProgreso() {linea},
+                                  Array.Empty(Of LineaProgreso)())
             }
 
         End Function

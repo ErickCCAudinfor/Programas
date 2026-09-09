@@ -37,7 +37,10 @@
             lista.Add(New DefinicionOperacion With {
                 .Nombre = "Actualizar precios de tarifa",
                 .Seccion = SeccionOperacion.Precios,
-                .Descripcion = "Sustituye los precios de los contratos indicados por los del grupo de tarifa destino. La fecha la aporta cada contrato: su fecha de aplicación de precios, si no la del contrato, y si no hoy.",
+                .Descripcion = "Sustituye los precios de los contratos indicados por los del grupo de tarifa " &
+                               "destino. Es TODO O NADA: si algún contrato de la lista no cumple el filtro, " &
+                               "no se toca ninguno. La fecha la aporta cada contrato: su fecha de aplicación " &
+                               "de precios, si no la del contrato, y si no hoy.",
                 .Requiere = EntradasOperacion.Contratos Or EntradasOperacion.Cups Or EntradasOperacion.Cifs Or
                             EntradasOperacion.GrupoTarifa Or EntradasOperacion.FiltroTarifaActual,
                 .EsEscritura = True,
@@ -55,9 +58,12 @@
             })
             ' Pedía fechas y no las usa: la fecha de cada contrato viene en la columna 1 del
             ' Excel, y la línea del original que leía el DateTimePicker está comentada.
+            '
+            ' EN AJUSTES y no en Precios: en el original vivía en «Otras opciones», que es donde
+            ' están las herramientas que no se usan a diario. Movida a petición de Erick.
             lista.Add(New DefinicionOperacion With {
                 .Nombre = "Aplicar precios desde Excel",
-                .Seccion = SeccionOperacion.Precios,
+                .Seccion = SeccionOperacion.Ajustes,
                 .Descripcion = "Aplica los precios de un Excel con cuatro columnas en la hoja «Hoja1»: " &
                                "FechaContrato, IdContratoTarifa, IdTarifaGrupo y CodigoContrato.",
                 .Requiere = EntradasOperacion.Excel,
@@ -459,10 +465,12 @@
                     New CampoOperacion With {
                         .Clave = Implementadas.AnadirProductos.ClaveProducto,
                         .Etiqueta = "Producto",
-                        .Ayuda = "Salen los de luz y los de gas. Cada contrato se comprueba: si el producto " &
-                                 "no es de su entorno, ese contrato se deja igual y se dice por qué.",
+                        .Ayuda = "Salen solo los del suministro de los contratos pegados. Aun así, cada " &
+                                 "contrato se comprueba antes de escribir: si no cuadra, ese contrato se " &
+                                 "deja igual y se dice por qué.",
                         .Tipo = TipoCampo.Seleccion,
-                        .Origen = OrigenLista.Productos
+                        .Origen = OrigenLista.Productos,
+                        .FiltraPorSuministro = True
                     },
                     New CampoOperacion With {
                         .Clave = Implementadas.AnadirProductos.ClaveImporte,
@@ -595,9 +603,11 @@
                 .EtiquetaAccion = "Marcar perfilar",
                 .Ejecutable = New Implementadas.MarcarPerfilar()
             })
+            ' EN AJUSTES y no en Facturas: mismo motivo que «Aplicar precios desde Excel»,
+            ' venía de «Otras opciones».
             lista.Add(New DefinicionOperacion With {
                 .Nombre = "Trocear XML",
-                .Seccion = SeccionOperacion.Facturas,
+                .Seccion = SeccionOperacion.Ajustes,
                 .Descripcion = "Parte un XML grande en ficheros más pequeños, cortando por nodo completo.",
                 .Requiere = EntradasOperacion.Carpeta,
                 .EtiquetaAccion = "Trocear",
@@ -626,6 +636,57 @@
                         .Maximo = 2000000
                     }
                 }
+            })
+
+            ' ============================================================
+            ' AJUSTES — herramientas de «Otras opciones» del original
+            ' ============================================================
+            ' FACTURAS — de «Otras opciones» del original
+            ' ============================================================
+            lista.Add(New DefinicionOperacion With {
+                .Nombre = "Desglosar click de luz",
+                .Seccion = SeccionOperacion.Facturas,
+                .Descripcion = "Saca a Excel el desglose del click de cada factura: porcentaje, periodo, " &
+                               "consumo y precio, leídos de la descripción de la línea de concepto 30006. " &
+                               "No cambia nada.",
+                .Requiere = EntradasOperacion.Facturas Or EntradasOperacion.Carpeta,
+                .EsEscritura = False,
+                .EtiquetaAccion = "Desglosar",
+                .Ejecutable = New Implementadas.DesglosarClickLuz()
+            })
+            lista.Add(New DefinicionOperacion With {
+                .Nombre = "Extraer CSV de facturas",
+                .Seccion = SeccionOperacion.Facturas,
+                .Descripcion = "Saca a CSV los datos de facturación de las facturas cuyos Id vienen en un " &
+                               "Excel: cliente, CUPS, potencias por periodo, tarifa e importes. No cambia nada.",
+                .Requiere = EntradasOperacion.Excel Or EntradasOperacion.Carpeta,
+                .EsEscritura = False,
+                .EtiquetaAccion = "Extraer CSV",
+                .Ejecutable = New Implementadas.ExtraerCsvVarios(Sql)
+            })
+
+            ' ============================================================
+            lista.Add(New DefinicionOperacion With {
+                .Nombre = "Extraer documentos generales",
+                .Seccion = SeccionOperacion.Ajustes,
+                .Descripcion = "Baja a disco los documentos cuyos Id vienen en un Excel. Los documentos " &
+                               "los sirve la API de documentos, no la base, así que no dependen del " &
+                               "entorno elegido.",
+                .Requiere = EntradasOperacion.Excel Or EntradasOperacion.Carpeta,
+                .EsEscritura = False,
+                .EtiquetaAccion = "Extraer documentos",
+                .Ejecutable = New Implementadas.ExtraerDocumentosGenerales()
+            })
+            lista.Add(New DefinicionOperacion With {
+                .Nombre = "Añadir calendario de tarifa masivo",
+                .Seccion = SeccionOperacion.Ajustes,
+                .Descripcion = "Cierra el calendario de tarifa que tienen los contratos de un Excel y abre " &
+                               "el nuevo desde la fecha indicada, aplicando después los precios. Ocho " &
+                               "columnas. No se deshace solo.",
+                .Requiere = EntradasOperacion.Excel,
+                .EsEscritura = True,
+                .EtiquetaAccion = "Añadir calendario",
+                .Ejecutable = New Implementadas.AnadirCalendarioTarifa()
             })
 
             ' ============================================================
@@ -734,8 +795,23 @@
         ''' <summary>
         ''' Curva del subgrupo Pool. Todas piden CUPS, fechas y carpeta, y todas van contra la
         ''' base SigeTotalTM del servidor del entorno elegido, no contra SigeTotal.
+        '''
+        ''' LOS HISTÓRICOS. Cuando una tabla de curva se llena, alguien la parte y crea
+        ''' CurvaHoraria_H_082025 con lo viejo, así que hay CUPS que no están en la tabla
+        ''' principal y solo aparecen buscando en los históricos. La lista de históricos venía
+        ''' escrita a mano en cada .sql y se había quedado atrás —a CurvaHoraria le faltaban dos
+        ''' y a CurvaFacturable uno—, con lo que esas consultas devolvían de menos sin avisar.
+        ''' Ahora se preguntan a la base al consultar; ver TablasHistoricas.
+        '''
+        ''' La casilla viene MARCADA porque eso es lo que hacían los .sql: buscar en todo.
+        ''' Desmarcarla mira solo la principal, que es bastante más rápido cuando ya se sabe que
+        ''' los datos son recientes.
         ''' </summary>
-        Private Function Pool(nombre As String, plantilla As String, prefijo As String) As DefinicionOperacion
+        Private Function Pool(nombre As String,
+                              plantilla As String,
+                              prefijo As String,
+                              tabla As String) As DefinicionOperacion
+
             Return New DefinicionOperacion With {
                 .Nombre = nombre,
                 .Seccion = SeccionOperacion.Consultas,
@@ -746,10 +822,24 @@
                 .EsEscritura = False,
                 .EtiquetaAccion = "Consultar",
                 .BaseDatosAlternativa = "SigeTotalTM",
+                .Campos = New List(Of CampoOperacion) From {
+                    New CampoOperacion With {
+                        .Clave = Implementadas.ConsultaPorLista.ClaveHistoricos,
+                        .Etiqueta = "Buscar también en los históricos",
+                        .Ayuda = $"Cuando {tabla} se llena, se parte y lo viejo pasa a {tabla}_H_MMAAAA. " &
+                                 "Con esto marcado se buscan todos, así que aparecen los CUPS que ya no " &
+                                 "están en la tabla principal. Desmarcado va más rápido, pero solo mira " &
+                                 "la principal.",
+                        .Tipo = TipoCampo.Booleano,
+                        .ValorInicial = "1"
+                    }
+                },
                 .Ejecutable = New Implementadas.ConsultaPorLista(
                     Sql, plantilla, prefijo, "joinCupsReplace",
                     Implementadas.ConsultaPorFechas.FormatoCompacto,
-                    transformar:=AddressOf Implementadas.ConsultaPorLista.ComoListaIn)
+                    transformar:=AddressOf Implementadas.ConsultaPorLista.ComoListaIn,
+                    tablaBase:=tabla,
+                    ordenarPor:="FechaMedida")
             }
         End Function
 
@@ -813,9 +903,10 @@
                             Sql, "ConsultaLecturaActivaReactivayVarios", "EnergiaActivaReactiva",
                             "ActivaReactiva", Implementadas.ConsultaPorFechas.FormatoBarras, pideFechas:=False,
                             extra:=Sub(pl, c) pl.Poner("ListaFacturasParam", "'" & String.Join("','", c.Entradas) & "'"))),
-                Pool("Curva Horaria", "CurvaHoraria", "CH"),
-                Pool("Curva Cuarto Horaria", "CurvaCuartoHoraria", "QH"),
-                Pool("Curva Facturable", "CurvaFacturable", "CF")
+                Pool("Curva Horaria", "CurvaHoraria", "CH", "CurvaHoraria"),
+                Pool("Curva Cuarto Horaria", "CurvaCuartoHoraria", "QH", "CurvaCuartoHoraria"),
+                Pool("Curva Facturable", "CurvaFacturable", "CF", "CurvaFacturable"),
+                Pool("Curva Validada", "CurvaValidada", "CV", "CurvaValidada")
             }
         End Function
 

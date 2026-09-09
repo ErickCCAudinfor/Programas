@@ -1,4 +1,4 @@
-Imports System.Data
+﻿Imports System.Data
 Imports Microsoft.Data.SqlClient
 Imports SigeGestor.Core.Consultas
 
@@ -78,10 +78,13 @@ Namespace Operaciones.Implementadas
                     Return ResultadoEntrada.SinDatos("Ninguna de las hojas ha devuelto filas")
                 End If
 
-                avisar($"Escribiendo {total:N0} filas en {_hojas.Count} hojas…")
+                avisar($"Escribiendo {Redaccion.Cuenta(total, "fila")} en " &
+                       $"{Redaccion.Cuenta(_hojas.Count, "hoja")}…")
 
                 Dim ruta = EscritorExcel.EscribirVariasHojas(tablas, ctx.CarpetaDestino, _nombreFichero)
-                Return ResultadoEntrada.ConDatos(total, $"{total:N0} filas en {IO.Path.GetFileName(ruta)}")
+                Return ResultadoEntrada.ConDatos(
+                    total, $"{Redaccion.Cuenta(total, "fila")} en {IO.Path.GetFileName(ruta)}") _
+                    .Genera(ruta)
 
             Finally
                 For Each par In tablas

@@ -36,6 +36,16 @@ public partial class ShellWindow : Window
     private readonly int _diasRetencionLog;
     private readonly BuscadorViewModel _buscador = new();
 
+    /// <summary>
+    /// Lo que hay corriendo, para poder decirlo en la cabecera y volver a verlo.
+    ///
+    /// Y para MANTENER VIVA la pagina: cambiar de pantalla es «AreaContenido.Content = otra», y
+    /// los formularios de operacion no se guardan en cache a proposito. Sin esta lista, al
+    /// salir de una ejecucion no quedaba nada que la referenciase: la tarea seguia corriendo
+    /// pero no habia forma de volver a ella.
+    /// </summary>
+    private readonly EjecucionesEnCurso _enCurso = new();
+
     public ShellWindow(Usuario usuario,
                        RepositorioEntornos entornos,
                        IRepositorioEjecuciones ejecuciones,
@@ -68,6 +78,17 @@ public partial class ShellWindow : Window
         _vm = new ShellViewModel(usuario, entorno);
         _vm.PropertyChanged += VmPropertyChanged;
         DataContext = _vm;
+
+        // La paleta de busqueda tiene su PROPIO ViewModel, y se le asigna aqui y no al abrirla.
+        // Asignandolo en AbrirBuscador, hasta la primera vez que se pulsaba Ctrl+K la capa
+        // heredaba el DataContext de la ventana —el ShellViewModel— y todos sus enlaces
+        // fallaban al cargar: «'Seleccionado' property not found on 'ShellViewModel'»,
+        // VisibilidadAyuda, VisibilidadSinResultados... Estar Collapsed no evita que WPF
+        // evalue los enlaces, solo que mida y pinte.
+        CapaBuscador.DataContext = _buscador;
+
+        IndicadorEnCurso.DataContext = _enCurso;
+        _enCurso.VolverPedido += (_, tarea) => VolverA(tarea);
 
         MostrarSeccion(_vm.SeccionActual);
 
@@ -108,13 +129,19 @@ public partial class ShellWindow : Window
     {
         if (item.Seccion == Seccion.Inicio)
         {
-            return new InicioPage(
+            var inicio = new InicioPage(
                 new InicioViewModel(_ejecuciones, _usuario) { DiasRetencion = _diasRetencionLog });
+
+            // Los dos botones de la cabecera de Inicio estaban puestos y no hacían nada.
+            inicio.VerEjecucionesPedido += (_, _) => _vm.Ir(Seccion.Ejecuciones);
+            inicio.NuevaEjecucionPedida += (_, _) => AbrirBuscador();
+
+            return inicio;
         }
 
         if (item.Seccion == Seccion.Ejecuciones)
         {
-            return new EjecucionesPage(new EjecucionesViewModel(_ejecuciones, _usuario));
+            return new EjecucionesPage(new EjecucionesViewModel(_ejecuciones, _usuario, _enCurso));
         }
 
         if (item.Seccion == Seccion.Novedades)
@@ -163,8 +190,34 @@ public partial class ShellWindow : Window
 
         var pagina = new OperacionPage(
             new OperacionViewModel(definicion, _entornos), _registro, _usuario);
-        pagina.VolverPedido += (_, _) => AreaContenido.Content = paginaSeccion;
+
+        pagina.VolverPedido += (_, _) =>
+        {
+            // Se sale del formulario del todo: si quedaba algo suyo en el indicador, fuera.
+            _enCurso.QuitarDe(pagina);
+            AreaContenido.Content = paginaSeccion;
+        };
+
+        pagina.EjecucionLanzada += (_, tarea) => _enCurso.Anadir(tarea);
+        pagina.EjecucionVista += (emisor, _) => _enCurso.QuitarDe(emisor!);
+
         AreaContenido.Content = pagina;
+    }
+
+    /// <summary>
+    /// Vuelve a la pagina de una ejecucion. Si sigue corriendo se queda en el indicador —hay
+    /// que poder salir otra vez y volver—; si ya termino, se quita: ya se ha visto.
+    /// </summary>
+    private void VolverA(TareaEnCurso tarea)
+    {
+        AreaContenido.Content = tarea.Pagina;
+        if (tarea.Terminada) _enCurso.Quitar(tarea);
+    }
+
+    private void EnCurso_Click(object sender, RoutedEventArgs e)
+    {
+        var tarea = _enCurso.Tareas.LastOrDefault();
+        if (tarea is not null) VolverA(tarea);
     }
 
     /// <summary>
@@ -237,7 +290,6 @@ public partial class ShellWindow : Window
     private void AbrirBuscador()
     {
         _buscador.Abierto = true;
-        CapaBuscador.DataContext = _buscador;
         CapaBuscador.Visibility = Visibility.Visible;
 
         // El foco hay que darlo cuando la capa ya es visible; si se hace antes, WPF lo

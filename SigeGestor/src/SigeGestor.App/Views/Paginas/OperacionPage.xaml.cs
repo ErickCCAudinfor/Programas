@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows;
@@ -38,6 +38,20 @@ public partial class OperacionPage : UserControl
     /// <summary>Vuelta a la página de la sección.</summary>
     public event EventHandler? VolverPedido;
 
+    /// <summary>
+    /// Se ha lanzado una ejecución. Lo escucha el armazón para poder decir en la cabecera que
+    /// hay algo en marcha desde cualquier pantalla, y para guardar esta página y poder volver.
+    ///
+    /// Se avisa por evento y no pasando el registro al constructor para no acoplar la página a
+    /// él: es el mismo camino que ya usan VolverPedido y ReintentarPedido.
+    /// </summary>
+    public event EventHandler<TareaEnCurso>? EjecucionLanzada;
+
+    /// <summary>
+    /// Se ha vuelto al formulario, así que esa ejecución ya se ha visto y sale del indicador.
+    /// </summary>
+    public event EventHandler? EjecucionVista;
+
     private void Volver_Click(object sender, RoutedEventArgs e) => VolverPedido?.Invoke(this, EventArgs.Empty);
 
     private void Limpiar_Click(object sender, RoutedEventArgs e) => _vm.Limpiar();
@@ -63,6 +77,18 @@ public partial class OperacionPage : UserControl
         AreaEjecucion.Visibility = Visibility.Visible;
         Formulario.Visibility = Visibility.Collapsed;
 
+        // Se avisa ANTES de arrancar, no después: el await de abajo no vuelve hasta que la
+        // ejecución acaba, así que avisando después el indicador solo aparecería cuando ya no
+        // hiciera falta, que es justo lo contrario de lo que se necesita.
+        EjecucionLanzada?.Invoke(this, new TareaEnCurso
+        {
+            Operacion = _vm.Titulo,
+            Grupo = _vm.Definicion.Seccion.ToString(),
+            Entorno = contexto.Entorno.Clave,
+            Ejecucion = ejecucion,
+            Pagina = this
+        });
+
         await ejecucion.EjecutarAsync(contexto);
     }
 
@@ -70,6 +96,9 @@ public partial class OperacionPage : UserControl
     {
         _panel?.Desconectar();
         _panel = null;
+
+        // Volver al formulario es haber visto el resultado: fuera del indicador.
+        EjecucionVista?.Invoke(this, EventArgs.Empty);
 
         AreaEjecucion.Content = null;
         AreaEjecucion.Visibility = Visibility.Collapsed;

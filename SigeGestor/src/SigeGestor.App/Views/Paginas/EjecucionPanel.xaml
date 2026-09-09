@@ -8,13 +8,31 @@
     <UserControl.Resources>
         <!-- Fila del registro en vivo -->
         <DataTemplate x:Key="PlantillaLinea">
-            <Border Background="{Binding Fondo}" Padding="10,4" Margin="0,0,0,1" CornerRadius="3">
+            <!--
+                El motivo llevaba 96 px fijos y salía cortado: «sin PDF en la...». Ahora la
+                columna es proporcional y se lleva más sitio que la entrada, porque cuando algo
+                va mal el motivo es lo que hay que leer. Y toda la fila muestra entrada y
+                motivo completos al pasar por encima, que es la salida para los largos.
+            -->
+            <Border Background="{Binding Fondo}" Padding="10,4" Margin="0,0,0,1" CornerRadius="3"
+                    ToolTipService.ShowDuration="30000">
+                <Border.ToolTip>
+                    <ToolTip MaxWidth="520">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Entrada, Mode=OneWay}"
+                                       FontFamily="{StaticResource FontMono}"
+                                       FontSize="12" FontWeight="Bold" />
+                            <TextBlock Text="{Binding Detalle, Mode=OneWay}"
+                                       FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0" />
+                        </StackPanel>
+                    </ToolTip>
+                </Border.ToolTip>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="16" />
                         <ColumnDefinition Width="62" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="96" />
+                        <ColumnDefinition Width="1.1*" MinWidth="120" />
+                        <ColumnDefinition Width="2*" MinWidth="150" />
                         <ColumnDefinition Width="48" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="{Binding Simbolo}"
@@ -30,7 +48,7 @@
                     <TextBlock Grid.Column="3" Text="{Binding Detalle}"
                                Foreground="{Binding Color}"
                                FontFamily="{StaticResource FontMono}" FontSize="11"
-                               TextAlignment="Right" VerticalAlignment="Center"
+                               Margin="10,0,8,0" VerticalAlignment="Center"
                                TextTrimming="CharacterEllipsis" />
                     <TextBlock Grid.Column="4" Text="{Binding Duracion}"
                                Style="{StaticResource TxMono}" FontSize="11"
@@ -109,9 +127,16 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
+                        <!--
+                            Aquí SÍ se recorta con puntos suspensivos, a diferencia del resumen:
+                            esta línea cambia en cada entrada y si se ajustase el texto la
+                            barra de progreso saltaría arriba y abajo mientras corre. El texto
+                            entero queda en el ToolTip.
+                        -->
                         <TextBlock Grid.Column="0" Text="{Binding EntradaActual}"
                                    Style="{StaticResource TxMono}" FontSize="12"
-                                   VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis" />
+                                   VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding EntradaActual}" />
                         <TextBlock Grid.Column="1" Text="{Binding Contador}"
                                    FontSize="21" FontWeight="SemiBold"
                                    Typography.NumeralAlignment="Tabular"
@@ -165,13 +190,26 @@
                  REGISTRO EN VIVO
                  ============================================================ -->
             <TextBlock Text="REGISTRO" Style="{StaticResource TxSection}" Margin="0,20,0,8" />
+            <!--
+                MaxHeight y ScrollViewer propio: antes el ItemsControl crecía sin tope dentro
+                del StackPanel de la página, así que con 70 facturas la pantalla entera se
+                estiraba y el resumen del final quedaba a un scroll de distancia. Ahora crece
+                dentro de su caja.
+
+                Las líneas llegan con la más reciente arriba, así que no hace falta desplazar
+                nada solo: lo último siempre se ve.
+            -->
             <Border CornerRadius="{StaticResource RCard}"
                     Background="{StaticResource PanelBrush}"
                     BorderBrush="{StaticResource HairBrush}"
                     BorderThickness="1"
                     Padding="8">
-                <ItemsControl ItemsSource="{Binding Registro}"
-                              ItemTemplate="{StaticResource PlantillaLinea}" />
+                <ScrollViewer MaxHeight="330"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding Registro}"
+                                  ItemTemplate="{StaticResource PlantillaLinea}" />
+                </ScrollViewer>
             </Border>
 
             <!-- ============================================================
@@ -187,8 +225,12 @@
                     <TextBlock Text="{Binding ResumenTitulo}"
                                Foreground="{Binding ColorResumen}"
                                FontSize="17" FontWeight="SemiBold" />
+                    <!-- Se ajusta el texto: sin esto la línea se cortaba en seco contra el
+                         borde de la tarjeta, sin puntos suspensivos ni nada, y el final del
+                         mensaje simplemente no existía. -->
                     <TextBlock Text="{Binding ResumenDetalle}"
-                               Style="{StaticResource TxMono}" FontSize="11.5" Margin="0,4,0,0" />
+                               Style="{StaticResource TxMono}" FontSize="11.5" Margin="0,4,0,0"
+                               TextWrapping="Wrap" />
 
                     <UniformGrid Columns="4" Margin="0,14,0,0">
                         <StackPanel Margin="0,0,10,0">
@@ -216,6 +258,76 @@
                         </StackPanel>
                     </UniformGrid>
 
+                    <!--
+                        DÓNDE HA QUEDADO LO GENERADO.
+
+                        La ruta iba antes dentro del mensaje de resultado, y el mensaje se pinta
+                        en tres sitios de una línea —cabecera, registro y resumen— donde se
+                        cortaba en los tres. Aquí sale entera, se puede seleccionar con el ratón
+                        y hay un botón que abre la carpeta.
+                    -->
+                    <StackPanel Visibility="{Binding VisibilidadSalidas}" Margin="0,14,0,0">
+
+                        <TextBlock Text="SE HA GUARDADO EN" Style="{StaticResource TxSection}" />
+
+                        <ItemsControl ItemsSource="{Binding Salidas}" Margin="0,6,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0,0,0,6" Padding="11,9"
+                                            CornerRadius="{StaticResource RChip}"
+                                            Background="{StaticResource SunkBrush}"
+                                            BorderBrush="{StaticResource HairBrush}"
+                                            BorderThickness="1">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center"
+                                                        Margin="0,0,10,0">
+                                                <!--
+                                                    TextBox y no TextBlock: así se puede
+                                                    seleccionar la ruta con el ratón y copiarla
+                                                    a mano.
+
+                                                    Mode=OneWay OBLIGATORIO: Text de TextBox se
+                                                    enlaza en dos sentidos por defecto y Carpeta
+                                                    es de solo lectura; sin esto WPF lanza
+                                                    InvalidOperationException al abrir. Y no
+                                                    basta con IsReadOnly, que no cambia el modo.
+                                                -->
+                                                <TextBox Text="{Binding Carpeta, Mode=OneWay}"
+                                                         IsReadOnly="True"
+                                                         IsReadOnlyCaretVisible="False"
+                                                         BorderThickness="0"
+                                                         Background="Transparent"
+                                                         Padding="0"
+                                                         TextWrapping="Wrap"
+                                                         FontFamily="{StaticResource FontMono}"
+                                                         FontSize="11.5"
+                                                         Foreground="{StaticResource InkBrush}" />
+                                                <TextBlock Text="{Binding Ficheros}"
+                                                           Visibility="{Binding VisibilidadFicheros}"
+                                                           Style="{StaticResource TxHelp}"
+                                                           TextWrapping="Wrap"
+                                                           Margin="0,3,0,0" />
+                                            </StackPanel>
+
+                                            <Button Grid.Column="1"
+                                                    Style="{StaticResource BtnSecondary}"
+                                                    Content="Abrir carpeta"
+                                                    VerticalAlignment="Center"
+                                                    Tag="{Binding}"
+                                                    Click="AbrirCarpeta_Click" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                    </StackPanel>
+
                     <!-- Terminó sin tocar nada: se dice por qué y que no hay nada que deshacer -->
                     <Border Visibility="{Binding VisibilidadSinCambios}"
                             Margin="0,14,0,0" Padding="12,10"
@@ -239,29 +351,84 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Fallidas: lo que permite relanzar solo eso -->
-                    <Border Visibility="{Binding VisibilidadFallidas}"
+                    <!--
+                        LO QUE NO SALIÓ BIEN.
+
+                        Sustituye al bloque que solo miraba los errores: allí un «sin PDF en la
+                        base» no aparecía nunca, porque cuenta como «sin datos» y no como fallo,
+                        y era justo lo que había que ver. Aquí entran las dos cosas.
+
+                        El motivo se muestra COMPLETO, que es lo que en el registro no cabía.
+                    -->
+                    <Border Visibility="{Binding VisibilidadIncidencias}"
                             Margin="0,14,0,0" Padding="12,10"
                             CornerRadius="{StaticResource RCtl}"
                             Background="{StaticResource BadSoftBrush}"
                             BorderBrush="{StaticResource BadLineBrush}"
                             BorderThickness="1">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                <TextBlock Text="Estas entradas fallaron" FontSize="13" FontWeight="SemiBold" />
-                                <TextBlock Text="{Binding TextoFallidas}"
-                                           Style="{StaticResource TxMono}" FontSize="11"
-                                           TextWrapping="Wrap" Margin="0,3,0,0" />
-                            </StackPanel>
-                            <Button Grid.Column="1" Style="{StaticResource BtnSecondary}"
-                                    Content="Reintentar solo esas"
-                                    VerticalAlignment="Center"
+                        <StackPanel>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0"
+                                           Text="{Binding TituloIncidencias}"
+                                           FontSize="13" FontWeight="SemiBold"
+                                           VerticalAlignment="Center" />
+
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button Style="{StaticResource BtnSecondary}"
+                                            Content="Copiar las entradas"
+                                            ToolTip="Una por línea, para pegarlas de vuelta en el cuadro de la operación"
+                                            Click="CopiarEntradas_Click" />
+                                    <Button Style="{StaticResource BtnGhost}"
+                                            Content="Copiar con el motivo"
+                                            Margin="6,0,0,0"
+                                            ToolTip="Entrada, estado y motivo separados por tabulador: al pegarlo en Excel cae en columnas"
+                                            Click="CopiarConMotivo_Click" />
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Las primeras, con su motivo entero -->
+                            <Border Margin="0,10,0,0" Padding="10,8"
+                                    CornerRadius="{StaticResource RChip}"
+                                    Background="{StaticResource PanelBrush}"
+                                    BorderBrush="{StaticResource BadLineBrush}"
+                                    BorderThickness="1">
+                                <ScrollViewer MaxHeight="190"
+                                              VerticalScrollBarVisibility="Auto"
+                                              HorizontalScrollBarVisibility="Auto">
+                                    <TextBlock Text="{Binding DetalleIncidencias}"
+                                               Style="{StaticResource TxMono}"
+                                               FontSize="11.5"
+                                               Foreground="{StaticResource InkBrush}" />
+                                </ScrollViewer>
+                            </Border>
+
+                            <TextBlock Text="{Binding RestoIncidencias}"
+                                       Visibility="{Binding VisibilidadRestoIncidencias}"
+                                       Style="{StaticResource TxHelp}"
+                                       HorizontalAlignment="Left"
+                                       Margin="0,7,0,0" />
+
+                            <TextBlock Text="{Binding AvisoCopiado}"
+                                       Visibility="{Binding VisibilidadAvisoCopiado}"
+                                       Foreground="{StaticResource OkBrush}"
+                                       FontSize="12" FontWeight="SemiBold"
+                                       Margin="0,7,0,0" />
+
+                            <!-- Reintentar solo tiene sentido con los errores: un «sin PDF en
+                                 la base» no cambia por volver a pedirlo. -->
+                            <Button Visibility="{Binding VisibilidadFallidas}"
+                                    Style="{StaticResource BtnSecondary}"
+                                    Content="Reintentar solo las que dieron error"
+                                    HorizontalAlignment="Left"
+                                    Margin="0,11,0,0"
                                     Click="Reintentar_Click" />
-                        </Grid>
+                        </StackPanel>
                     </Border>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">

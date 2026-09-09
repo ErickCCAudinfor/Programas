@@ -1,4 +1,4 @@
-Imports System.IO
+﻿Imports System.IO
 Imports System.Text
 Imports System.Xml
 Imports SigeGestor.Core.Configuracion
@@ -61,7 +61,8 @@ Namespace Operaciones.Implementadas
 
             Dim resultado = Trocear(entrada, baseSalida, kb, nodo, raiz, ctx,
                                     Sub(hechos, leidos)
-                                        avisar($"{hechos:N0} ficheros · {leidos:N0} <{nodo}> copiados")
+                                        avisar($"{Redaccion.Cuenta(hechos, "fichero")} · " &
+                                               $"{leidos:N0} <{nodo}> copiados")
                                     End Sub)
 
             If resultado.Nodos = 0 Then
@@ -69,9 +70,13 @@ Namespace Operaciones.Implementadas
                     $"no se ha encontrado ningún <{nodo}> en el XML: ¿es el tipo correcto?"))
             End If
 
+            ' La carpeta va en Salidas y no en el texto: son cientos de trozos, el nombre de
+            ' cada uno no dice nada y lo que hace falta es poder abrir donde han caído.
             Return Task.FromResult(ResultadoEntrada.ConDatos(
                 resultado.Nodos,
-                $"{resultado.Ficheros:N0} ficheros con {resultado.Nodos:N0} <{nodo}> en {carpeta}"))
+                $"{Redaccion.Cuenta(resultado.Ficheros, "fichero")} con " &
+                $"{resultado.Nodos:N0} <{nodo}>") _
+                .Genera(carpeta))
 
         End Function
 

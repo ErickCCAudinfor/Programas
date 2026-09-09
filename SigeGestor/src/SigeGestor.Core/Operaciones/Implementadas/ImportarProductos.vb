@@ -22,6 +22,13 @@ Namespace Operaciones.Implementadas
     Public Class ImportarProductos
         Inherits OperacionPorEntrada
         Implements IEntradasDesdeExcel
+        Implements IEsquemaExcel
+
+        Public ReadOnly Property Esquema As EsquemaExcel Implements IEsquemaExcel.Esquema
+            Get
+                Return EsquemaFijo
+            End Get
+        End Property
 
         Public Const ClaveRedondear As String = "redondear"
 
@@ -29,20 +36,49 @@ Namespace Operaciones.Implementadas
         ''' Las columnas de la plantilla, en orden. Es la única definición: la genera
         ''' <see cref="GenerarPlantillaProductos"/> y la lee esta clase.
         ''' </summary>
-        Public Shared ReadOnly Columnas As String() = {
-            "CodContrato",
-            "TextoProducto",
-            "FechaInicio",
-            "FechaFinal",
-            "Plazo",
-            "PlazoCargado",
-            "ImporteTotalPlazo",
-            "Importe",
-            "AntesIE(true/false)",
-            "AplicarSobreConsumo(true/false)",
-            "PrecioDia(true/false)",
-            "AplicarPrecioConsumo(true/false)"
-        }
+        ''' <summary>
+        ''' Las doce columnas, en el orden EXACTO en que las lee ProcesarAsync: valores(0) es el
+        ''' contrato, valores(1) el texto del producto, y así hasta valores(11). Se lee por
+        ''' posición, no por el nombre de la cabecera.
+        '''
+        ''' Es la única fuente: de aquí salen los títulos de la plantilla que genera
+        ''' GenerarPlantillaProductos y el ejemplo que se pinta en el formulario. Estando en un
+        ''' solo sitio no pueden acabar diciendo cosas distintas.
+        '''
+        ''' Los títulos llevan el «(true/false)» dentro a propósito: en la plantilla no hay
+        ''' dónde poner una nota, y la cabecera es lo único que se lee al rellenarla.
+        ''' </summary>
+        Public Shared ReadOnly EsquemaFijo As New EsquemaExcel(
+            {
+                New ColumnaExcel("CodContrato", "5048104",
+                                 "Solo el número"),
+                New ColumnaExcel("TextoProducto", "ALQUILER EQUIPO",
+                                 "Texto exacto del producto. Se busca en el entorno del contrato: G1 si es luz, G2 si es gas"),
+                New ColumnaExcel("FechaInicio", "01/01/2026", obligatoria:=False),
+                New ColumnaExcel("FechaFinal", "31/12/2026", obligatoria:=False),
+                New ColumnaExcel("Plazo", "12", "Número entero", False),
+                New ColumnaExcel("PlazoCargado", "0", "Número entero", False),
+                New ColumnaExcel("ImporteTotalPlazo", "120,50",
+                                 "Con la coma como separador decimal", False),
+                New ColumnaExcel("Importe", "10,50",
+                                 "Con la coma como separador decimal", False),
+                New ColumnaExcel("AntesIE(true/false)", "false", obligatoria:=False),
+                New ColumnaExcel("AplicarSobreConsumo(true/false)", "false", obligatoria:=False),
+                New ColumnaExcel("PrecioDia(true/false)", "false", obligatoria:=False),
+                New ColumnaExcel("AplicarPrecioConsumo(true/false)", "true", obligatoria:=False)
+            },
+            aviso:="Las cuatro últimas, vacías, se toman como false. Una fila entera vacía en " &
+                   "medio del fichero se salta sin dar error.")
+
+        ''' <summary>
+        ''' Los títulos, que es lo que necesita la plantilla. Es una propiedad y no un campo con
+        ''' inicializador para no depender del orden de inicialización de los campos compartidos.
+        ''' </summary>
+        Public Shared ReadOnly Property Columnas As String()
+            Get
+                Return EsquemaFijo.Columnas.Select(Function(c) c.Titulo).ToArray()
+            End Get
+        End Property
 
         ''' <summary>
         ''' Filas leídas del Excel, por su etiqueta de entrada. Se llena en PrepararAsync porque

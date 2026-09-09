@@ -55,7 +55,8 @@ Namespace Operaciones.Implementadas
 
             Return Task.FromResult(ResultadoEntrada.ConDatos(
                 ImportarProductos.Columnas.Length,
-                $"{Path.GetFileName(ruta)} en {carpeta} · las dos primeras columnas son obligatorias"))
+                $"{Path.GetFileName(ruta)} · las dos primeras columnas son obligatorias") _
+                .Genera(ruta))
 
         End Function
 

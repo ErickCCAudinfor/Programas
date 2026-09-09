@@ -53,12 +53,15 @@ Namespace Operaciones.Implementadas
 
             Dim carpeta = Configuracion.RutasSalida.Asegurar("PreciosPersonalizados")
 
-            Dim mensaje = $"Escrito {String.Join(" y ", hechos)} en {carpeta}"
-            If fallos.Count > 0 Then mensaje &= $" · falló {String.Join(" · ", fallos)}"
+            ' La carpeta va en Salidas, no en el texto: ahí se cortaba en las tres pantallas
+            ' donde se pinta el mensaje. Ver Redaccion.
+            Dim mensaje = Redaccion.Unir(
+                $"Escrito {String.Join(" y ", hechos)}",
+                If(fallos.Count = 0, "", $"falló {String.Join(" · ", fallos)}"))
 
             ' Los métodos portados no devuelven cuántas filas han salido, así que aquí no se
             ' inventa un número: el recuento va en el propio Excel.
-            Return Task.FromResult(ResultadoEntrada.ConDatos(0, mensaje))
+            Return Task.FromResult(ResultadoEntrada.ConDatos(0, mensaje).Genera(carpeta))
 
         End Function
 

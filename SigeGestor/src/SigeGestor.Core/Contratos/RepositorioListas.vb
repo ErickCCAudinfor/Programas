@@ -1,4 +1,4 @@
-Imports System.Threading
+﻿Imports System.Threading
 Imports Microsoft.Data.SqlClient
 Imports SigeGestor.Core.Operaciones
 
@@ -91,12 +91,26 @@ Namespace Contratos
 
                 Case OrigenLista.SituacionesScoring
                     ' El contrato guarda el NOMBRE, no el Id: ver SituacionScoring='…' en el
-                    ' GetParameters del original. Por eso el nombre va también como Valor.
-                    consulta = "SELECT IdSituacionScoring, Nombre, Nombre FROM SituacionScoring " &
+                    ' GetParameters del original. Eso lo resuelve «valorEsElNombre» más abajo,
+                    ' que copia la columna 1 en Valor.
+                    '
+                    ' LA TERCERA COLUMNA VA VACÍA, y antes repetía «Nombre». Aquello estaba mal
+                    ' de dos formas:
+                    '
+                    ' 1) «SELECT ..., Nombre, Nombre ... ORDER BY Nombre» es AMBIGUO para SQL
+                    '    Server —no sabe a cuál de las dos columnas de salida te refieres— y la
+                    '    consulta fallaba entera: «El nombre de columna 'Nombre' es ambiguo».
+                    '    El desplegable de scoring no ha cargado nunca.
+                    '
+                    ' 2) La columna 3 alimenta Entorno, y Etiqueta es «Nombre (Entorno)». Aun
+                    '    cargando, cada opción se habría leído «Impagado (Impagado)».
+                    consulta = "SELECT IdSituacionScoring, Nombre, '' FROM SituacionScoring " &
                                "ORDER BY Nombre"
 
                 Case OrigenLista.TiposAutoconsumo
-                    consulta = "SELECT IdTipoAutoconsumo, TextoAutoconsumo, Entorno " &
+                    ' Tercera columna vacía y no Entorno: el WHERE ya fija Entorno = 'U', así que
+                    ' Etiqueta añadía un «(U)» a TODAS las opciones que no distingue nada.
+                    consulta = "SELECT IdTipoAutoconsumo, TextoAutoconsumo, '' " &
                                "FROM TiposAutoconsumo WHERE Entorno = 'U' ORDER BY TextoAutoconsumo"
 
                 Case OrigenLista.ModelosFactura, OrigenLista.ModelosFacturaVarios, OrigenLista.ModelosContrato
@@ -145,10 +159,18 @@ Namespace Contratos
 
                             Dim nombre = If(lector.IsDBNull(1), "", Convert.ToString(lector.GetValue(1))).Trim()
 
+                            ' Se mira FieldCount antes de leer la columna 2: todas las consultas
+                            ' de arriba traen tres columnas, pero si alguien añade un origen con
+                            ' dos, esto reventaba con «Index was outside the bounds of the array»
+                            ' y en pantalla salía como «No se han podido cargar las opciones»,
+                            ' que no dice dónde mirar. Sin la tercera, la opción se queda sin
+                            ' entorno y el desplegable sigue funcionando.
+
                             opciones.Add(New OpcionLista With {
                                 .Id = If(lector.IsDBNull(0), 0L, Convert.ToInt64(lector.GetValue(0))),
                                 .Nombre = nombre,
-                                .Entorno = If(lector.IsDBNull(2), "", Convert.ToString(lector.GetValue(2))).Trim(),
+                                .Entorno = If(lector.FieldCount > 2 AndAlso Not lector.IsDBNull(2),
+                                              Convert.ToString(lector.GetValue(2)).Trim(), ""),
                                 .Valor = If(valorEsElNombre, nombre, "")
                             })
 

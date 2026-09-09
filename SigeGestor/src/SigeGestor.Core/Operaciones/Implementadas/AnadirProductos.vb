@@ -1,4 +1,4 @@
-Option Strict Off   ' Usa los DTO portados.
+﻿Option Strict Off   ' Usa los DTO portados.
 
 Imports SigeGestor.Core.Contratos
 
@@ -224,7 +224,8 @@ Namespace Operaciones.Implementadas
             End If
 
             Return ResultadoEntrada.ConDatos(
-                insertados, If(insertados = 1, "producto asignado", $"{insertados} contratos"))
+                insertados, Redaccion.Cuenta(insertados, "producto asignado",
+                                                          "productos asignados"))
 
         End Function
 

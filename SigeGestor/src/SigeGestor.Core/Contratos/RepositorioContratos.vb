@@ -5,6 +5,27 @@ Imports SigeGestor.Core.Operaciones
 
 Namespace Contratos
 
+    ''' <summary>
+    ''' Qué suministro tiene la lista que se ha pegado.
+    '''
+    ''' Hace falta porque los maestros de SIGE están duplicados por entorno: un producto de luz
+    ''' vive en G1 y uno de gas en G2, y no se pueden cruzar. Sabiéndolo antes de elegir, el
+    ''' desplegable puede traer solo los que valen.
+    ''' </summary>
+    Public Enum TipoSuministro
+
+        ''' <summary>No se ha podido averiguar: lista vacía, contratos que no existen o fallo
+        ''' de conexión. No se filtra nada y la comprobación por contrato hace su trabajo.</summary>
+        SinResolver
+
+        Luz
+        Gas
+
+        ''' <summary>Hay contratos de los dos. No se puede asignar un solo producto.</summary>
+        Mezclado
+
+    End Enum
+
     ''' <summary>Lo mínimo de un contrato para decidir si se puede tocar.</summary>
     Public Class ContratoBreve
         Public Property CodigoContrato As Long
@@ -112,6 +133,147 @@ Namespace Contratos
             End Using
 
             Return encontrados
+
+        End Function
+
+        ''' <summary>Entradas por consulta. SQL Server no admite más de 2.100 parámetros.</summary>
+        Private Const PorLote As Integer = 500
+
+        ''' <summary>
+        ''' Si la lista pegada es de luz, de gas, de las dos cosas o no se sabe.
+        '''
+        ''' UNA CONSULTA POR LOTE Y NO UNA POR ENTRADA: ResolverAsync resuelve de una en una, y
+        ''' para 200 contratos serían 200 viajes cada vez que se toca el cuadro de texto. Aquí
+        ''' se pregunta por 500 a la vez con un DISTINCT, así que vuelven dos filas como mucho.
+        '''
+        ''' Y se corta en cuanto aparecen los dos entornos: si la lista está mezclada, con el
+        ''' primer lote ya está dicho y no hace falta recorrer los 5.000 restantes.
+        '''
+        ''' Devuelve SinResolver si algo falla. Es a propósito: esto sirve para ayudar a elegir,
+        ''' no para autorizar nada. Quien decide de verdad es la comprobación que hace cada
+        ''' operación contrato a contrato antes de escribir.
+        ''' </summary>
+        Public Async Function SuministroDeAsync(cadenaConexion As String,
+                                                entradas As IReadOnlyList(Of String),
+                                                tipo As TipoLista,
+                                                Optional ct As CancellationToken = Nothing) _
+            As Task(Of TipoSuministro)
+
+            If entradas Is Nothing OrElse entradas.Count = 0 Then Return TipoSuministro.SinResolver
+            If String.IsNullOrWhiteSpace(cadenaConexion) Then Return TipoSuministro.SinResolver
+
+            ' Se normaliza y se quitan repetidos antes de preguntar: una lista pegada suele
+            ' traer el mismo CIF muchas veces.
+            Dim claves = Normalizar(entradas, tipo)
+            If claves.Count = 0 Then Return TipoSuministro.SinResolver
+
+            Dim vistos As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+
+            Using conexion As New SqlConnection(cadenaConexion)
+                Await conexion.OpenAsync(ct).ConfigureAwait(False)
+
+                For inicio = 0 To claves.Count - 1 Step PorLote
+
+                    ct.ThrowIfCancellationRequested()
+
+                    Dim lote = claves.Skip(inicio).Take(PorLote).ToList()
+
+                    Using comando As New SqlCommand(ConsultaSuministro(tipo, lote.Count), conexion)
+                        ' Corto a propósito: esto corre mientras se escribe, y si tarda más de
+                        ' unos segundos no interesa esperarlo.
+                        comando.CommandTimeout = 20
+
+                        For i = 0 To lote.Count - 1
+                            If tipo = TipoLista.Contratos Then
+                                comando.Parameters.Add($"@v{i}", SqlDbType.BigInt).Value = CLng(lote(i))
+                            Else
+                                comando.Parameters.Add($"@v{i}", SqlDbType.VarChar, 40).Value = lote(i)
+                            End If
+                        Next
+
+                        Using lector = Await comando.ExecuteReaderAsync(ct).ConfigureAwait(False)
+                            While Await lector.ReadAsync(ct).ConfigureAwait(False)
+                                If lector.IsDBNull(0) Then Continue While
+                                Dim e = Convert.ToString(lector.GetValue(0)).Trim()
+                                If e = "E1" OrElse e = "E2" Then vistos.Add(e)
+                            End While
+                        End Using
+                    End Using
+
+                    ' Ya están los dos: no hay nada más que averiguar.
+                    If vistos.Count >= 2 Then Exit For
+
+                Next
+            End Using
+
+            If vistos.Count >= 2 Then Return TipoSuministro.Mezclado
+            If vistos.Contains("E1") Then Return TipoSuministro.Luz
+            If vistos.Contains("E2") Then Return TipoSuministro.Gas
+            Return TipoSuministro.SinResolver
+
+        End Function
+
+        ''' <summary>
+        ''' La consulta del suministro para un lote de <paramref name="cuantos"/> entradas.
+        '''
+        ''' Está en su propia función y no incrustada en el bucle para poder leerla y probarla
+        ''' sin base de datos: los huecos @v0..@vN-1 los tiene que poner exactamente igual que
+        ''' los parámetros que se añaden después, y un desajuste ahí no se ve hasta que SQL
+        ''' Server se queja en tiempo de ejecución.
+        ''' </summary>
+        Friend Shared Function ConsultaSuministro(tipo As TipoLista, cuantos As Integer) As String
+
+            Dim marcas = String.Join(",", Enumerable.Range(0, cuantos).Select(Function(i) $"@v{i}"))
+
+            Select Case tipo
+                Case TipoLista.Cups
+                    ' LEFT(...,20) IN (...) es lo mismo que el LIKE 'prefijo%' de ResolverAsync
+                    ' —el prefijo son justo 20 caracteres— y así entran todas de golpe en vez de
+                    ' un OR por cada una.
+                    Return "SELECT DISTINCT c.Entorno FROM Contrato c " &
+                           "INNER JOIN CUPS u ON c.IdCups = u.IdCups " &
+                           $"WHERE LEFT(u.CodigoCups, {LongitudCups}) IN ({marcas})"
+
+                Case TipoLista.Cifs
+                    Return "SELECT DISTINCT c.Entorno FROM Contrato c " &
+                           "INNER JOIN Cliente cl ON c.IdCliente = cl.IdCliente " &
+                           $"WHERE cl.Identidad IN ({marcas})"
+
+                Case Else
+                    Return $"SELECT DISTINCT Entorno FROM Contrato WHERE CodigoContrato IN ({marcas})"
+            End Select
+
+        End Function
+
+        ''' <summary>
+        ''' Deja las entradas como las espera la consulta: los códigos de contrato solo si son
+        ''' números, los CUPS recortados a 20 y los CIF tal cual. Sin repetidos.
+        ''' </summary>
+        Friend Shared Function Normalizar(entradas As IReadOnlyList(Of String),
+                                           tipo As TipoLista) As List(Of String)
+
+            Dim claves As New List(Of String)
+            Dim vistas As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+
+            For Each cruda In entradas
+                If String.IsNullOrWhiteSpace(cruda) Then Continue For
+
+                Dim valor = cruda.Trim()
+
+                Select Case tipo
+                    Case TipoLista.Contratos
+                        Dim codigo As Long
+                        If Not Long.TryParse(valor, codigo) Then Continue For
+                        valor = codigo.ToString()
+
+                    Case TipoLista.Cups
+                        If valor.Length > LongitudCups Then valor = valor.Substring(0, LongitudCups)
+                End Select
+
+                If vistas.Add(valor) Then claves.Add(valor)
+            Next
+
+            Return claves
 
         End Function
 

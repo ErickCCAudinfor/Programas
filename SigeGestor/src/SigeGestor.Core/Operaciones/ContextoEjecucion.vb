@@ -1,4 +1,5 @@
 ﻿Imports System.Threading
+Imports Microsoft.Data.SqlClient
 Imports SigeGestor.Core.Modelos
 
 Namespace Operaciones
@@ -19,6 +20,31 @@ Namespace Operaciones
         Public Property Registros As Long
         Public Property Mensaje As String = ""
         Public Property Duracion As TimeSpan
+
+        ''' <summary>
+        ''' Ficheros o carpetas que ha generado esta entrada, con la ruta completa.
+        '''
+        ''' VA APARTE DEL MENSAJE A PROPÓSITO. El mensaje se pinta en tres sitios de una línea
+        ''' —cabecera, registro y resumen— y una ruta ahí dentro se corta en los tres. Estando
+        ''' aquí, la pantalla la muestra entera y con un botón para abrir la carpeta, y el
+        ''' mensaje se queda con el recuento, que es lo que se lee de un vistazo.
+        '''
+        ''' Se admiten las dos cosas, ficheros y carpetas: hay operaciones que escriben un
+        ''' fichero con nombre —el Excel de incidencias— y otras que llenan una carpeta con
+        ''' cientos —los PDF, los trozos de XML—, donde el nombre de cada uno no dice nada.
+        ''' Quien lo pinta distingue una de otra mirando el disco.
+        ''' </summary>
+        Public Property Salidas As IReadOnlyList(Of String) = Array.Empty(Of String)()
+
+        ''' <summary>
+        ''' Apunta lo que se ha generado y se devuelve a sí mismo, para poder escribir
+        ''' «Return ResultadoEntrada.ConDatos(n, mensaje).Genera(ruta)» de una sola vez.
+        ''' Las entradas vacías se descartan.
+        ''' </summary>
+        Public Function Genera(ParamArray rutas As String()) As ResultadoEntrada
+            Salidas = rutas.Where(Function(r) Not String.IsNullOrWhiteSpace(r)).ToArray()
+            Return Me
+        End Function
 
         Public Shared Function ConDatos(registros As Long, Optional mensaje As String = "") As ResultadoEntrada
             Return New ResultadoEntrada With {
@@ -101,6 +127,44 @@ Namespace Operaciones
         ''' <summary>Entradas que fallaron. Es lo que permite reintentar solo eso.</summary>
         Public Property Fallidas As IReadOnlyList(Of String) = Array.Empty(Of String)()
 
+        ''' <summary>
+        ''' Toda entrada que NO salió con datos: las que fallaron y las que no tenían nada.
+        ''' Con su mensaje, para poder copiarlas y saber por qué.
+        '''
+        ''' SE RECOGE APARTE DEL REGISTRO EN VIVO A PROPÓSITO: aquel está limitado a las
+        ''' últimas 40 líneas —si no, una ejecución de 5.000 entradas llenaría la pantalla de
+        ''' filas que nadie va a leer—, así que en una tanda de 70 facturas las primeras 30 ya
+        ''' no están. Esta lista no se recorta: es la que se copia al portapapeles.
+        ''' </summary>
+        Public Property Incidencias As IReadOnlyList(Of LineaProgreso) = Array.Empty(Of LineaProgreso)()
+
+        ''' <summary>
+        ''' Todo lo que se ha generado, juntando lo de cada entrada y sin repetidos. Es lo que
+        ''' permite a la pantalla decir dónde han quedado los ficheros en vez de meter la ruta
+        ''' en un mensaje que se corta. Ver <see cref="ResultadoEntrada.Salidas"/>.
+        ''' </summary>
+        Public Property Salidas As IReadOnlyList(Of String) = Array.Empty(Of String)()
+
+        ''' <summary>
+        ''' Añade a lo ya recogido, sin repetir.
+        '''
+        ''' HAY QUE USAR ESTO Y NO ASIGNAR SALIDAS desde un CerrarAsync: el ejecutor rellena
+        ''' Salidas con lo de cada entrada ANTES de llamar a CerrarAsync, así que una asignación
+        ''' ahí borraría los ficheros del bucle y solo quedarían los del cierre.
+        ''' </summary>
+        Public Sub AnadirSalidas(ParamArray rutas As String())
+
+            Dim juntas As New List(Of String)(Salidas)
+            Dim vistas As New HashSet(Of String)(Salidas, StringComparer.OrdinalIgnoreCase)
+
+            For Each r In rutas
+                If Not String.IsNullOrWhiteSpace(r) AndAlso vistas.Add(r) Then juntas.Add(r)
+            Next
+
+            Salidas = juntas
+
+        End Sub
+
         Public Property Mensaje As String = ""
 
         Public ReadOnly Property Estado As EstadoEjecucion
@@ -181,6 +245,42 @@ Namespace Operaciones
         Public Sub AbortarSiCancelado()
             Cancelacion.ThrowIfCancellationRequested()
         End Sub
+
+        ''' <summary>
+        ''' Abre y cierra la conexión. Devuelve cadena vacía si va, y el motivo si no.
+        '''
+        ''' POR QUÉ HACE FALTA: FuncionesGenericas se traga los errores de conexión. GetContrato,
+        ''' por ejemplo, tiene el «If errores.HasError» con un comentario vacío dentro y un
+        ''' Catch que solo escribe en la consola, así que devuelve un Contrato en blanco. Con la
+        ''' base caída o el entorno equivocado, la operación no falla: informa de «No existe en
+        ''' BD» de los 200 contratos, y quien lo lee acaba pensando que el Excel está mal.
+        '''
+        ''' Arreglarlo dentro de FuncionesGenericas obligaría a tocar los cientos de métodos que
+        ''' comparten las 45 operaciones. Comprobarlo una vez antes de empezar cuesta una
+        ''' conexión y convierte un resultado engañoso en un mensaje claro.
+        ''' </summary>
+        Public Async Function ProbarConexionAsync() As Task(Of String)
+
+            If String.IsNullOrWhiteSpace(CadenaConexion) Then Return "no hay entorno seleccionado"
+
+            Try
+                Using conexion As New SqlConnection(CadenaConexion)
+                    Await conexion.OpenAsync(Cancelacion).ConfigureAwait(False)
+                End Using
+                Return ""
+
+            Catch ex As OperationCanceledException
+                Throw
+
+            Catch ex As Exception
+                ' El error de red de SqlClient son cinco líneas y solo la primera dice algo.
+                Dim motivo = ex.Message
+                Dim corte = motivo.IndexOf(vbLf)
+                If corte > 0 Then motivo = motivo.Substring(0, corte).Trim()
+                Return motivo
+            End Try
+
+        End Function
 
     End Class
 

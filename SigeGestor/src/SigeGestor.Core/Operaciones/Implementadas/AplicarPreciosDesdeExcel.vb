@@ -23,8 +23,28 @@ Namespace Operaciones.Implementadas
     Public Class AplicarPreciosDesdeExcel
         Inherits OperacionPorEntrada
         Implements IEntradasDesdeExcel
+        Implements IEsquemaExcel
 
         Public Const NombreHoja As String = "Hoja1"
+
+        ''' <summary>
+        ''' Las cuatro columnas en el orden que lee Leer(): fecha, IdContratoTarifa,
+        ''' IdTarifaGrupo y CodigoContrato. Y el nombre de la hoja, que aquí SÍ importa.
+        ''' </summary>
+        Public ReadOnly Property Esquema As EsquemaExcel Implements IEsquemaExcel.Esquema
+            Get
+                Return New EsquemaExcel(
+                    {
+                        New ColumnaExcel("FechaContrato", "01/01/2026",
+                                         "La fecha desde la que aplican los precios"),
+                        New ColumnaExcel("IdContratoTarifa", "184052"),
+                        New ColumnaExcel("IdTarifaGrupo", "12"),
+                        New ColumnaExcel("CodigoContrato", "5048104")
+                    },
+                    hoja:=NombreHoja,
+                    aviso:="La fecha sale del Excel, no del formulario.")
+            End Get
+        End Property
 
         ''' <summary>Una fila del Excel, ya leída.</summary>
         Private Class Fila

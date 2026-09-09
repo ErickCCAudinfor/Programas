@@ -359,7 +359,8 @@ Namespace Operaciones.Implementadas
             End If
 
             Return ResultadoEntrada.ConDatos(
-                afectadas, If(codigos.Count = 1, "actualizado", $"{afectadas} contratos actualizados"))
+                afectadas, Redaccion.Cuenta(afectadas, "contrato actualizado",
+                                                         "contratos actualizados"))
 
         End Function
 
@@ -381,10 +382,12 @@ Namespace Operaciones.Implementadas
                 End Try
             End If
 
-            resultado.Mensaje = $"Cambios aplicados: {_asignaciones}"
-            If partes.Count > 0 Then
-                resultado.Mensaje &= $" · {String.Join(" y ", partes)} en {_carpeta}"
-            End If
+            ' Los nombres de los dos Excel sí van en el texto —antes y después, que es lo que
+            ' hay que distinguir—; la carpeta va en Salidas y la pinta la pantalla.
+            resultado.Mensaje = Redaccion.Unir($"Cambios aplicados: {_asignaciones}",
+                                               String.Join(" y ", partes))
+
+            resultado.AnadirSalidas(_rutaAntes, _rutaDespues)
 
         End Function
 

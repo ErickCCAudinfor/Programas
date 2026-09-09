@@ -42,8 +42,24 @@ Public Class CeldaCompat
         End Get
     End Property
 
+    ''' <summary>
+    ''' El valor de la celda CON LA SEMÁNTICA DE EPPlus: Nothing si la celda está vacía.
+    '''
+    ''' Y esto no es un detalle. ClosedXML devuelve un XLCellValue, que es una ESTRUCTURA: al
+    ''' salir por una propiedad declarada As Object se empaqueta, y una estructura empaquetada
+    ''' nunca es Nothing. El código portado está lleno de comprobaciones del estilo
+    ''' «If Cells(fila, 2).Value IsNot Nothing», que devolviendo el XLCellValue tal cual daban
+    ''' verdadero SIEMPRE, incluso en una celda vacía.
+    '''
+    ''' Casi siempre daba igual, porque XLCellValue.ToString() de una celda vacía es "" y el
+    ''' código acaba mirando String.IsNullOrEmpty. Pero no siempre: en ActualizarEmailFromExcel
+    ''' una fila con email y sin código de contrato hacía CLng("") y eso lanza
+    ''' InvalidCastException, que allí no está capturada y tumbaba la operación entera. Con
+    ''' EPPlus el valor era Nothing, CLng(Nothing) da 0, y la fila salía como «No existe en BD».
+    ''' </summary>
     Public Property Value As Object
         Get
+            If _celda.IsEmpty() Then Return Nothing
             Return _celda.Value
         End Get
         Set(v As Object)
@@ -87,7 +103,22 @@ Public Class DimensionCompat
 
 End Class
 
-Public Class HojaCompat
+''' <summary>
+''' La hoja. Se llama ExcelWorksheet, con el nombre de EPPlus y no HojaCompat, PARA QUE EL
+''' CÓDIGO PORTADO PUEDA DECLARARLA: ActualizarEmailFromExcel hace
+''' «Dim worksheet As ExcelWorksheet = package.Workbook.Worksheets(0)», tal cual venía.
+'''
+''' AQUÍ HUBO UN FALLO, y conviene dejarlo escrito para no repetirlo: estaba como HojaCompat y
+''' ExcelWorksheet era una clase aparte que HEREDABA de ella. Esa línea quedaba entonces
+''' asignando la base a la derivada —un downcast— y lanzaba en tiempo de ejecución
+''' «Unable to cast object of type HojaCompat to type ExcelWorksheet» SIEMPRE, en la primera
+''' línea de la operación. Compilaba en silencio solo por el Option Strict Off de arriba.
+'''
+''' Así que en este adaptador los tipos llevan el nombre de EPPlus y no hay herencia de por
+''' medio: si falta un miembro, el compilador lo dice; si falta un tipo, también. Lo que no
+''' puede volver a pasar es que compile y falle al ejecutarse.
+''' </summary>
+Public Class ExcelWorksheet
 
     Friend ReadOnly Hoja As IXLWorksheet
 
@@ -131,18 +162,6 @@ Public Class HojaCompat
 
 End Class
 
-''' <summary>
-''' Alias del tipo de EPPlus. El código portado declara «As ExcelWorksheet» en algún sitio.
-''' </summary>
-Public Class ExcelWorksheet
-    Inherits HojaCompat
-
-    Friend Sub New(hoja As ClosedXML.Excel.IXLWorksheet)
-        MyBase.New(hoja)
-    End Sub
-
-End Class
-
 Public Class HojasCompat
 
     Private ReadOnly _libro As XLWorkbook
@@ -155,7 +174,7 @@ Public Class HojasCompat
     ''' Excel no admite más de 31 caracteres ni los caracteres : \ / ? * [ ] en el nombre de
     ''' hoja. EPPlus lo dejaba pasar y fallaba al guardar; aquí se sanea.
     ''' </summary>
-    Public Function Add(nombre As String) As HojaCompat
+    Public Function Add(nombre As String) As ExcelWorksheet
 
         Dim limpio = If(String.IsNullOrWhiteSpace(nombre), "Hoja1", nombre)
         For Each c In ":\/?*[]"
@@ -163,7 +182,7 @@ Public Class HojasCompat
         Next
         If limpio.Length > 31 Then limpio = limpio.Substring(0, 31)
 
-        Return New HojaCompat(_libro.Worksheets.Add(limpio))
+        Return New ExcelWorksheet(_libro.Worksheets.Add(limpio))
 
     End Function
 
@@ -171,16 +190,16 @@ Public Class HojasCompat
     ''' Worksheets(0) — en EPPlus el índice es base 0; en ClosedXML, base 1. Se traduce aquí,
     ''' que es justo la clase de detalle que hace falta para no tocar el código portado.
     ''' </summary>
-    Default Public ReadOnly Property Item(indice As Integer) As HojaCompat
+    Default Public ReadOnly Property Item(indice As Integer) As ExcelWorksheet
         Get
-            Return New HojaCompat(_libro.Worksheet(indice + 1))
+            Return New ExcelWorksheet(_libro.Worksheet(indice + 1))
         End Get
     End Property
 
     ''' <summary>Worksheets("Hoja1") — por nombre el índice es el mismo en las dos.</summary>
-    Default Public ReadOnly Property Item(nombre As String) As HojaCompat
+    Default Public ReadOnly Property Item(nombre As String) As ExcelWorksheet
         Get
-            Return New HojaCompat(_libro.Worksheet(nombre))
+            Return New ExcelWorksheet(_libro.Worksheet(nombre))
         End Get
     End Property
 

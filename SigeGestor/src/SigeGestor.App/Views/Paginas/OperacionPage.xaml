@@ -4,6 +4,97 @@
              FontFamily="{StaticResource FontUi}"
              TextOptions.TextFormattingMode="Ideal">
 
+    <!--
+        La plantilla de un campo, en los recursos de la página para que la puedan usar las DOS
+        columnas de parámetros. Son ochenta líneas: duplicarlas acabaría con las dos columnas
+        pintando cosas distintas.
+    -->
+    <UserControl.Resources>
+        <DataTemplate x:Key="PlantillaCampo">
+            <StackPanel Margin="0,0,0,13">
+                <TextBlock Text="{Binding Etiqueta}" Style="{StaticResource TxLabel}"
+                           Visibility="{Binding VisibilidadEtiquetaEncima}"
+                           Margin="0,0,0,6" />
+
+                <TextBox Visibility="{Binding VisibilidadTexto}"
+                         Style="{StaticResource InputBase}"
+                         MaxLength="{Binding Definicion.LongitudMaxima}"
+                         Text="{Binding Texto, UpdateSourceTrigger=PropertyChanged}" />
+
+                <ComboBox Visibility="{Binding VisibilidadSeleccion}"
+                          Height="34"
+                          FontSize="13.5"
+                          ItemsSource="{Binding Opciones}"
+                          DisplayMemberPath="Etiqueta"
+                          SelectedItem="{Binding Opcion, Mode=TwoWay}" />
+
+                <!-- Numérico: estrecho, porque un ancho de caja de texto
+                     para cuatro cifras invita a escribir otra cosa. -->
+                <TextBox Visibility="{Binding VisibilidadNumero}"
+                         Style="{StaticResource InputBase}"
+                         Width="130" HorizontalAlignment="Left"
+                         TextAlignment="Right"
+                         MaxLength="9"
+                         Text="{Binding Texto, UpdateSourceTrigger=PropertyChanged}" />
+
+                <!-- Importe: vacío significa NULL, no cero -->
+                <TextBox Visibility="{Binding VisibilidadImporte}"
+                         Style="{StaticResource InputBase}"
+                         Width="160" HorizontalAlignment="Left"
+                         TextAlignment="Right"
+                         MaxLength="18"
+                         Text="{Binding Texto, UpdateSourceTrigger=PropertyChanged}" />
+
+                <CheckBox Visibility="{Binding VisibilidadBooleano}"
+                          Style="{StaticResource CheckBase}"
+                          Content="{Binding Etiqueta}"
+                          IsChecked="{Binding Marcado, Mode=TwoWay}" />
+
+                <DatePicker Visibility="{Binding VisibilidadFecha}"
+                            Width="160" HorizontalAlignment="Left"
+                            FontSize="13.5"
+                            SelectedDate="{Binding Fecha, Mode=TwoWay}" />
+
+                <!-- Fichero de entrada -->
+                <Grid Visibility="{Binding VisibilidadFichero}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0"
+                             Style="{StaticResource InputBase}"
+                             IsReadOnly="True"
+                             Text="{Binding Texto}" />
+                    <Button Grid.Column="1" Margin="9,0,0,0"
+                            Style="{StaticResource BtnGhost}"
+                            Content="Elegir…"
+                            Click="ElegirFicheroCampo_Click"
+                            Tag="{Binding}" />
+                </Grid>
+
+                <TextBlock Text="{Binding Ayuda}"
+                           Style="{StaticResource TxHelp}"
+                           HorizontalAlignment="Left"
+                           Visibility="{Binding VisibilidadAyuda}"
+                           Margin="0,4,0,0" />
+
+                <TextBlock Text="{Binding ErrorOpciones}"
+                           Style="{StaticResource TxError}"
+                           HorizontalAlignment="Left"
+                           Visibility="{Binding VisibilidadErrorOpciones}"
+                           MaxWidth="520"
+                           Margin="0,4,0,0" />
+
+                <TextBlock Text="{Binding Problema}"
+                           Style="{StaticResource TxError}"
+                           HorizontalAlignment="Left"
+                           Visibility="{Binding VisibilidadProblema}"
+                           MaxWidth="520"
+                           Margin="0,4,0,0" />
+            </StackPanel>
+        </DataTemplate>
+    </UserControl.Resources>
+
     <!-- Dos estados en el mismo sitio: formulario y ejecución. La operación se sustituye por
          su ejecución, como en la maqueta, en lugar de abrir un diálogo que tape. -->
     <Grid>
@@ -13,8 +104,21 @@
                   VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled"
                   Padding="26,18,26,28">
-        <!-- Columna limitada: los campos no se estiran raros en una ventana ancha -->
-        <StackPanel MaxWidth="620" HorizontalAlignment="Left">
+        <!--
+            Ancho limitado: los campos no se estiran raros en una ventana ancha.
+
+            804 y no 620 porque ahora la lista y los parámetros van en paralelo: 300 + 14 de
+            hueco + 490.
+
+            EL NÚMERO ESTÁ MEDIDO, NO CALCULADO. Con la ventana por defecto (1160) el hueco
+            útil del formulario son 841 px, no los ~872 que salen de restar la barra lateral y
+            el relleno: la barra de desplazamiento se lleva 31. Y la ventana real tiene marco,
+            así que aún son unos pocos menos. Con 804 sobran unos 20 px en vez de faltar 13.
+
+            No conviene apurarlo: si se pasa aunque sea un píxel, el WrapPanel baja la segunda
+            tarjeta y se pierde justo lo que se quería arreglar, sin que nada avise.
+        -->
+        <StackPanel MaxWidth="804" HorizontalAlignment="Left">
 
             <Button Style="{StaticResource BtnVolver}"
                     Content="{Binding Seccion}"
@@ -24,10 +128,13 @@
 
             <!-- Cabecera -->
             <TextBlock Text="{Binding Titulo}" Style="{StaticResource TxH1}" Margin="0,12,0,0" />
+            <!-- MaxWidth aunque la página ahora sea de 804: a todo lo ancho salen renglones de
+                 unos 110 caracteres y eso ya no se lee de un tirón. La descripción se queda en
+                 la medida de antes; las tarjetas de abajo son las que aprovechan el ancho. -->
             <TextBlock Text="{Binding Descripcion}"
                        Style="{StaticResource TxBodyMuted}"
                        TextWrapping="Wrap"
-                       HorizontalAlignment="Left"
+                       HorizontalAlignment="Left" MaxWidth="620"
                        Margin="0,6,0,0" />
 
             <!-- Entorno -->
@@ -86,11 +193,32 @@
                 </StackPanel>
             </Border>
 
+            <!--
+                LISTA Y PARÁMETROS, UNO AL LADO DEL OTRO.
+
+                Antes iban apilados: la lista ocupaba los 620 px de ancho y unos 230 de alto, y
+                empujaba el formulario por debajo del borde de la ventana. En «Añadir productos
+                a contratos» había que desplazarse para ver el primer campo, cuando lo normal es
+                pegar cuatro contratos y pasar al producto.
+
+                ES UN WrapPanel Y NO UNA REJILLA DE DOS COLUMNAS, y esto es lo importante: la
+                ventana baja hasta 880 px de ancho y con la barra lateral de 236 quedan unos 578
+                útiles, donde dos columnas no caben. El WrapPanel baja la segunda tarjeta él
+                solo cuando no hay sitio, sin recortar nada y sin código. Una rejilla la habría
+                aplastado o recortado, porque el ScrollViewer no se desplaza a lo ancho.
+
+                Los anchos van fijos a propósito, en la línea de lo que ya hacía la página
+                («los campos no se estiran raros en una ventana ancha»).
+            -->
+            <WrapPanel Orientation="Horizontal" Margin="0,18,0,0">
+
             <!-- ============================================================
                  LISTA PEGADA
                  ============================================================ -->
             <Border Visibility="{Binding VisibilidadLista}"
-                    Margin="0,18,0,0"
+                    Width="300"
+                    VerticalAlignment="Top"
+                    Margin="0,0,14,14"
                     CornerRadius="{StaticResource RCard}"
                     Background="{StaticResource PanelBrush}"
                     BorderBrush="{StaticResource HairBrush}"
@@ -144,6 +272,17 @@
                                MaxWidth="560"
                                Margin="15,5,15,0" />
 
+                    <!-- Luz o gas. Va aquí, debajo del recuento y no junto al desplegable de
+                         producto, porque habla de LA LISTA: es lo que se acaba de pegar lo que
+                         decide qué productos pueden salir. -->
+                    <TextBlock Visibility="{Binding VisibilidadMensajeSuministro}"
+                               Text="{Binding MensajeSuministro}"
+                               Foreground="{Binding ColorSuministro}"
+                               FontSize="12"
+                               TextWrapping="Wrap"
+                               HorizontalAlignment="Left"
+                               Margin="15,7,15,0" />
+
                     <CheckBox Visibility="{Binding VisibilidadDividir}"
                               Style="{StaticResource CheckBase}"
                               Content="{Binding EtiquetaDividir}"
@@ -157,7 +296,10 @@
             <!-- ============================================================
                  PARÁMETROS
                  ============================================================ -->
-            <Border Margin="0,14,0,0"
+            <Border Visibility="{Binding VisibilidadParametros}"
+                    Width="{Binding AnchoParametros}"
+                    VerticalAlignment="Top"
+                    Margin="0,0,0,14"
                     CornerRadius="{StaticResource RCard}"
                     Background="{StaticResource PanelBrush}"
                     BorderBrush="{StaticResource HairBrush}"
@@ -167,95 +309,41 @@
                     <TextBlock Text="Parámetros" Style="{StaticResource TxCard}" Margin="0,0,0,13" />
 
                     <!-- Campos declarados en el catálogo: textos y selectores de la base -->
-                    <ItemsControl Visibility="{Binding VisibilidadCampos}"
-                                  ItemsSource="{Binding Campos}"
-                                  Margin="0,0,0,13">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Margin="0,0,0,13">
-                                    <TextBlock Text="{Binding Etiqueta}" Style="{StaticResource TxLabel}"
-                                               Visibility="{Binding VisibilidadEtiquetaEncima}"
-                                               Margin="0,0,0,6" />
+                    <!--
+                        LOS CAMPOS, A UNA O DOS COLUMNAS.
 
-                                    <TextBox Visibility="{Binding VisibilidadTexto}"
-                                             Style="{StaticResource InputBase}"
-                                             MaxLength="{Binding Definicion.LongitudMaxima}"
-                                             Text="{Binding Texto, UpdateSourceTrigger=PropertyChanged}" />
+                        Masivo contrato tiene 31 —22 desplegables, 7 textos y 2 fechas— y en una
+                        sola columna la tarjeta se iba muy por debajo del borde de la ventana: para
+                        llegar al último campo había que desplazarse mucho rato. A dos columnas son
+                        16 filas en vez de 31.
 
-                                    <ComboBox Visibility="{Binding VisibilidadSeleccion}"
-                                              Height="34"
-                                              FontSize="13.5"
-                                              ItemsSource="{Binding Opciones}"
-                                              DisplayMemberPath="Etiqueta"
-                                              SelectedItem="{Binding Opcion, Mode=TwoWay}" />
+                        Se parte POR MITADES y no alternando izquierda-derecha: los campos de
+                        Masivo van agrupados por bloque —fechas juntas, datos del representante
+                        juntos— y repartirlos uno a cada lado rompería esos grupos. Partiendo por
+                        la mitad, cada columna se sigue leyendo de arriba abajo.
 
-                                    <!-- Numérico: estrecho, porque un ancho de caja de texto
-                                         para cuatro cifras invita a escribir otra cosa. -->
-                                    <TextBox Visibility="{Binding VisibilidadNumero}"
-                                             Style="{StaticResource InputBase}"
-                                             Width="130" HorizontalAlignment="Left"
-                                             TextAlignment="Right"
-                                             MaxLength="9"
-                                             Text="{Binding Texto, UpdateSourceTrigger=PropertyChanged}" />
+                        Las dos columnas usan la MISMA plantilla, PlantillaCampo, declarada una vez
+                        en los recursos de la página: son noventa líneas de plantilla y duplicarlas
+                        acabaría con las dos ramas diciendo cosas distintas.
 
-                                    <!-- Importe: vacío significa NULL, no cero -->
-                                    <TextBox Visibility="{Binding VisibilidadImporte}"
-                                             Style="{StaticResource InputBase}"
-                                             Width="160" HorizontalAlignment="Left"
-                                             TextAlignment="Right"
-                                             MaxLength="18"
-                                             Text="{Binding Texto, UpdateSourceTrigger=PropertyChanged}" />
+                        Con menos de 8 campos la columna derecha queda vacía y su ancho es 0, así
+                        que las operaciones de un campo se ven igual que antes.
+                    -->
+                    <Grid Visibility="{Binding VisibilidadCampos}" Margin="0,0,0,13">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="{Binding AnchoColumnaDerecha}" />
+                        </Grid.ColumnDefinitions>
 
-                                    <CheckBox Visibility="{Binding VisibilidadBooleano}"
-                                              Style="{StaticResource CheckBase}"
-                                              Content="{Binding Etiqueta}"
-                                              IsChecked="{Binding Marcado, Mode=TwoWay}" />
+                        <ItemsControl Grid.Column="0"
+                                      ItemsSource="{Binding CamposIzquierda}"
+                                      ItemTemplate="{StaticResource PlantillaCampo}" />
 
-                                    <DatePicker Visibility="{Binding VisibilidadFecha}"
-                                                Width="160" HorizontalAlignment="Left"
-                                                FontSize="13.5"
-                                                SelectedDate="{Binding Fecha, Mode=TwoWay}" />
-
-                                    <!-- Fichero de entrada -->
-                                    <Grid Visibility="{Binding VisibilidadFichero}">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBox Grid.Column="0"
-                                                 Style="{StaticResource InputBase}"
-                                                 IsReadOnly="True"
-                                                 Text="{Binding Texto}" />
-                                        <Button Grid.Column="1" Margin="9,0,0,0"
-                                                Style="{StaticResource BtnGhost}"
-                                                Content="Elegir…"
-                                                Click="ElegirFicheroCampo_Click"
-                                                Tag="{Binding}" />
-                                    </Grid>
-
-                                    <TextBlock Text="{Binding Ayuda}"
-                                               Style="{StaticResource TxHelp}"
-                                               HorizontalAlignment="Left"
-                                               Visibility="{Binding VisibilidadAyuda}"
-                                               Margin="0,4,0,0" />
-
-                                    <TextBlock Text="{Binding ErrorOpciones}"
-                                               Style="{StaticResource TxError}"
-                                               HorizontalAlignment="Left"
-                                               Visibility="{Binding VisibilidadErrorOpciones}"
-                                               MaxWidth="520"
-                                               Margin="0,4,0,0" />
-
-                                    <TextBlock Text="{Binding Problema}"
-                                               Style="{StaticResource TxError}"
-                                               HorizontalAlignment="Left"
-                                               Visibility="{Binding VisibilidadProblema}"
-                                               MaxWidth="520"
-                                               Margin="0,4,0,0" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                        <ItemsControl Grid.Column="1"
+                                      ItemsSource="{Binding CamposDerecha}"
+                                      ItemTemplate="{StaticResource PlantillaCampo}"
+                                      Margin="16,0,0,0" />
+                    </Grid>
 
                     <!-- Grupo de tarifa -->
                     <StackPanel Visibility="{Binding VisibilidadGrupoTarifa}" Margin="0,0,0,13">
@@ -328,6 +416,140 @@
 
                     <!-- Excel -->
                     <StackPanel Visibility="{Binding VisibilidadExcel}" Margin="0,0,0,13">
+
+                        <!--
+                            CÓMO HAY QUE MONTARLO, antes de pedir el fichero.
+
+                            Estas operaciones leen POR POSICIÓN y no por el nombre de la
+                            cabecera, así que un Excel con las columnas cambiadas de sitio no da
+                            error: mete los datos donde no van. Y en ninguna parte se decía qué
+                            iba en cada columna.
+
+                            Se dibuja como la propia hoja —letras arriba, números a la
+                            izquierda— porque es la forma en que se va a comparar: con el Excel
+                            abierto al lado.
+                        -->
+                        <Border Visibility="{Binding VisibilidadEsquema}"
+                                Margin="0,0,0,13" Padding="13,11"
+                                CornerRadius="{StaticResource RCtl}"
+                                Background="{StaticResource SunkBrush}"
+                                BorderBrush="{StaticResource HairBrush}"
+                                BorderThickness="1">
+                            <StackPanel>
+
+                                <TextBlock Text="CÓMO TIENE QUE ESTAR MONTADO EL EXCEL"
+                                           Style="{StaticResource TxSection}" />
+                                <TextBlock Text="{Binding ResumenEsquema}"
+                                           Style="{StaticResource TxHelp}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,3,0,0" />
+
+                                <!-- La hoja de muestra. Se desplaza a lo ancho: la importación
+                                     de productos tiene doce columnas y no caben. -->
+                                <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                              VerticalScrollBarVisibility="Disabled"
+                                              Margin="0,10,0,0">
+                                    <StackPanel Orientation="Horizontal">
+
+                                        <!-- Los números de fila, como en Excel -->
+                                        <StackPanel>
+                                            <Border Height="22" Width="26" />
+                                            <Border Height="26" Width="26"
+                                                    Background="{StaticResource PanelBrush}"
+                                                    BorderBrush="{StaticResource HairBrush}"
+                                                    BorderThickness="1,1,0,1">
+                                                <TextBlock Text="{Binding FilaCabecera}"
+                                                           Style="{StaticResource TxHelp}"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center" />
+                                            </Border>
+                                            <Border Height="26" Width="26"
+                                                    Background="{StaticResource PanelBrush}"
+                                                    BorderBrush="{StaticResource HairBrush}"
+                                                    BorderThickness="1,0,0,1">
+                                                <TextBlock Text="{Binding FilaDatos}"
+                                                           Style="{StaticResource TxHelp}"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center" />
+                                            </Border>
+                                        </StackPanel>
+
+                                        <!-- Una tira por columna: letra, cabecera y ejemplo -->
+                                        <ItemsControl ItemsSource="{Binding ColumnasEsquema}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <!-- MinWidth y no Width: una columna con un
+                                                         ejemplo largo se ensancha en vez de
+                                                         cortarlo, que es lo que hay que ver. -->
+                                                    <StackPanel MinWidth="104">
+                                                        <Border Height="22">
+                                                            <TextBlock Text="{Binding Letra}"
+                                                                       Style="{StaticResource TxHelp}"
+                                                                       FontWeight="SemiBold"
+                                                                       HorizontalAlignment="Center"
+                                                                       VerticalAlignment="Center" />
+                                                        </Border>
+                                                        <Border Height="26" Padding="7,0"
+                                                                Background="{StaticResource PanelBrush}"
+                                                                BorderBrush="{StaticResource HairBrush}"
+                                                                BorderThickness="1,1,0,1">
+                                                            <TextBlock Text="{Binding Titulo}"
+                                                                       FontSize="11.5"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="{StaticResource Ink2Brush}"
+                                                                       VerticalAlignment="Center" />
+                                                        </Border>
+                                                        <Border Height="26" Padding="7,0"
+                                                                Background="{StaticResource PanelBrush}"
+                                                                BorderBrush="{StaticResource HairBrush}"
+                                                                BorderThickness="1,0,0,1">
+                                                            <TextBlock Text="{Binding Ejemplo}"
+                                                                       FontFamily="{StaticResource FontMono}"
+                                                                       FontSize="11.5"
+                                                                       Foreground="{StaticResource MarcaBrush}"
+                                                                       VerticalAlignment="Center" />
+                                                        </Border>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <!-- Cierra el borde derecho de la última columna -->
+                                        <Border Width="1" Height="52" VerticalAlignment="Bottom"
+                                                Background="{StaticResource HairBrush}" />
+
+                                    </StackPanel>
+                                </ScrollViewer>
+
+                                <TextBlock Text="La fila 2 es solo un ejemplo: pon debajo tantas filas como necesites."
+                                           Style="{StaticResource TxHelp}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,9,0,0" />
+
+                                <!-- Las reglas que no se ven en el ejemplo -->
+                                <ItemsControl ItemsSource="{Binding NotasEsquema}" Margin="0,7,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
+                                                <TextBlock Text="·" Style="{StaticResource TxHelp}"
+                                                           Margin="0,0,6,0" VerticalAlignment="Top" />
+                                                <TextBlock Text="{Binding}"
+                                                           Style="{StaticResource TxHelp}"
+                                                           TextWrapping="Wrap"
+                                                           MaxWidth="500" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                            </StackPanel>
+                        </Border>
+
                         <TextBlock Text="Fichero de Excel" Style="{StaticResource TxLabel}" Margin="0,0,0,6" />
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -378,6 +600,8 @@
                     </StackPanel>
                 </StackPanel>
             </Border>
+
+            </WrapPanel>
 
             <!-- ============================================================
                  ACCIÓN

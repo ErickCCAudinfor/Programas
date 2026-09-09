@@ -109,19 +109,46 @@
                                VerticalAlignment="Center"
                                Margin="0,0,14,0" />
 
-                    <!-- Estado -->
-                    <Border Grid.Column="4"
-                            Height="21" Padding="8,0"
-                            CornerRadius="{StaticResource RChip}"
-                            Background="{Binding EstadoFondo}"
-                            BorderBrush="{Binding EstadoBorde}"
-                            BorderThickness="1"
-                            HorizontalAlignment="Left" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding EstadoTexto}"
-                                   FontSize="11.5" FontWeight="SemiBold"
-                                   Foreground="{Binding EstadoColorTexto}"
-                                   VerticalAlignment="Center" />
-                    </Border>
+                    <!-- Estado, y el botón de cancelar si está corriendo -->
+                    <StackPanel Grid.Column="4" Orientation="Horizontal"
+                                HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <Border Height="21" Padding="8,0"
+                                CornerRadius="{StaticResource RChip}"
+                                Background="{Binding EstadoFondo}"
+                                BorderBrush="{Binding EstadoBorde}"
+                                BorderThickness="1"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="{Binding EstadoTexto}"
+                                       FontSize="11.5" FontWeight="SemiBold"
+                                       Foreground="{Binding EstadoColorTexto}"
+                                       VerticalAlignment="Center" />
+                        </Border>
+
+                        <!--
+                            CANCELAR. Solo sale en las filas que están corriendo en este equipo;
+                            en las del histórico no hay nada que cancelar y VisibilidadCancelar
+                            las deja fuera.
+
+                            Va por comando y no por Click: esta plantilla vive en un diccionario
+                            de tema y un diccionario no tiene código detrás. El comando solo
+                            PIDE cancelar; quien pregunta antes es EjecucionesPage.
+                        -->
+                        <Button Visibility="{Binding VisibilidadCancelar}"
+                                Command="{Binding CancelarCommand}"
+                                Style="{StaticResource BtnIcon}"
+                                Width="22" Height="22"
+                                Margin="7,0,0,0"
+                                IsTabStop="False"
+                                ToolTip="{Binding AyudaCancelar}">
+                            <Path Data="M 1,1 L 9,9 M 9,1 L 1,9"
+                                  Stroke="{StaticResource BadBrush}"
+                                  StrokeThickness="1.5"
+                                  StrokeStartLineCap="Round"
+                                  StrokeEndLineCap="Round"
+                                  Stretch="Uniform"
+                                  Width="9" Height="9" />
+                        </Button>
+                    </StackPanel>
 
                     <!-- Duración -->
                     <TextBlock Grid.Column="5"

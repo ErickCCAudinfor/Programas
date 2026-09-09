@@ -70,6 +70,14 @@ Namespace Operaciones
             Dim vivo As New List(Of LineaProgreso)
             Dim fallidas As New List(Of String)
 
+            ' Sin recortar, al contrario que «vivo»: de aquí sale lo que se copia al final.
+            Dim incidencias As New List(Of LineaProgreso)
+
+            ' Lo generado, sin repetir: 200 PDF de la misma carpeta son una sola línea en la
+            ' pantalla. Se conserva el orden de aparición, que es el de la lista.
+            Dim salidas As New List(Of String)
+            Dim vistas As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+
             Dim conDatos = 0, sinDatos = 0, errores = 0
             Dim registros As Long = 0
             Dim cancelada = False
@@ -114,15 +122,26 @@ Namespace Operaciones
                             fallidas.Add(entrada)
                     End Select
 
-                    vivo.Add(New LineaProgreso With {
+                    Dim linea As New LineaProgreso With {
                         .Momento = DateTime.Now,
                         .Entrada = entrada,
                         .Estado = r.Estado,
                         .Registros = r.Registros,
                         .Mensaje = r.Mensaje,
                         .Duracion = r.Duracion
-                    })
+                    }
+
+                    ' Las operaciones que llenan una carpeta informan de la CARPETA y no de cada
+                    ' fichero, así que aquí 200 facturas dejan una entrada, no doscientas.
+                    For Each s In r.Salidas
+                        If vistas.Add(s) Then salidas.Add(s)
+                    Next
+
+                    vivo.Add(linea)
                     If vivo.Count > LineasEnVivo Then vivo.RemoveAt(0)
+
+                    ' Todo lo que no salió con datos se guarda entero, para poder copiarlo.
+                    If r.Estado <> EstadoEntrada.ConDatos Then incidencias.Add(linea)
 
                     informar(Foto(i + 1, total, "", registros, errores, sinDatos, reloj, estados, vivo))
                 Next
@@ -140,6 +159,8 @@ Namespace Operaciones
             resultado.Duracion = reloj.Elapsed
             resultado.Cancelada = cancelada
             resultado.Fallidas = fallidas
+            resultado.Incidencias = incidencias
+            resultado.Salidas = salidas
 
             Await CerrarAsync(ctx, resultado).ConfigureAwait(False)
 

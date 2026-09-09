@@ -1,4 +1,4 @@
-Option Strict Off   ' Usa los DTO portados.
+﻿Option Strict Off   ' Usa los DTO portados.
 
 Imports System.IO
 Imports SigeGestor.Core.Configuracion
@@ -72,8 +72,11 @@ Namespace Operaciones.Implementadas
             File.WriteAllBytes(ruta, bytes)
             Escritos.Add(ruta)
 
+            ' Se informa de la CARPETA, no del PDF: son cientos y el ejecutor deduplica, asi
+            ' que 200 facturas de la misma carpeta dejan una sola linea en la pantalla.
             Dim donde = If(String.IsNullOrWhiteSpace(sub_), "", $" en {Path.GetFileName(carpeta)}")
-            Return Task.FromResult(ResultadoEntrada.ConDatos(1, $"{Kb(bytes.Length)}{donde}"))
+            Return Task.FromResult(ResultadoEntrada.ConDatos(1, $"{Kb(bytes.Length)}{donde}") _
+                                   .Genera(carpeta))
 
         End Function
 
@@ -150,10 +153,15 @@ Namespace Operaciones.Implementadas
 
             Try
                 UnirPdf.Unir(Escritos, unificado)
-                resultado.Mensaje = $"{Escritos.Count:N0} PDF en {CarpetaBase}, unidos en Facturas_Unificadas.pdf"
+                resultado.Mensaje = Redaccion.Unir(
+                    Redaccion.Cuenta(Escritos.Count, "PDF"),
+                    "unidos en Facturas_Unificadas.pdf")
+                resultado.AnadirSalidas(unificado)
             Catch ex As Exception
                 ' Los PDF sueltos ya están escritos: que falle la unión no invalida el trabajo.
-                resultado.Mensaje = $"{Escritos.Count:N0} PDF en {CarpetaBase} · no se han podido unir: {ex.Message}"
+                resultado.Mensaje = Redaccion.Unir(
+                    Redaccion.Cuenta(Escritos.Count, "PDF"),
+                    $"no se han podido unir: {ex.Message}")
             End Try
 
             Return Task.CompletedTask
@@ -186,7 +194,7 @@ Namespace Operaciones.Implementadas
 
             resultado.Mensaje = If(Escritos.Count = 0,
                                    "No se ha descargado ningún PDF",
-                                   $"{Escritos.Count:N0} PDF por cliente en {CarpetaBase}")
+                                   Redaccion.Cuenta(Escritos.Count, "PDF") & " por cliente")
             Return Task.CompletedTask
 
         End Function
@@ -220,7 +228,7 @@ Namespace Operaciones.Implementadas
 
             resultado.Mensaje = If(Escritos.Count = 0,
                                    "No se ha descargado ningún PDF",
-                                   $"{Escritos.Count:N0} PDF por nº de pedido en {CarpetaBase}")
+                                   Redaccion.Cuenta(Escritos.Count, "PDF") & " por nº de pedido")
             Return Task.CompletedTask
 
         End Function

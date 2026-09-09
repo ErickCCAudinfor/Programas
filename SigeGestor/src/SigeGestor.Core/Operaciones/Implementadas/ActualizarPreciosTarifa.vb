@@ -1,5 +1,9 @@
 Option Strict Off   ' Se apoya en los DTO portados, que se escribieron sin Option Strict.
 
+Imports System.Data
+Imports System.IO
+Imports SigeGestor.Core.Configuracion
+Imports SigeGestor.Core.Consultas
 Imports SigeGestor.Core.Contratos
 
 Namespace Operaciones.Implementadas
@@ -20,20 +24,62 @@ Namespace Operaciones.Implementadas
     '''   6. Calcular los precios viejos y sustituir.
     ''' Si algo falla después del paso 2, se DESHACE con UpdateContratoTarifaSiError. Esa
     ''' vuelta atrás es la razón por la que esto no puede ser un UPDATE suelto.
+    '''
+    ''' ==================================================================================
+    ''' TODO O NADA, igual que el original. Lo primero que se hace es resolver el
+    ''' ContratoTarifa de TODOS los contratos de la lista; si a alguno le falta, NO SE TOCA
+    ''' NINGUNO y se dice cuáles faltan.
+    '''
+    ''' Es la puerta que en el original está en ActualizarRegistros:
+    '''     If contratosTarifa.Count &lt;&gt; ListaCodigo.Count Then
+    '''         MostrarMensajePersonalizado("Las listas no coinciden") : Return
+    '''
+    ''' En una operación que reescribe precios en Producción no da igual: si de 200
+    ''' contratos uno no cumple el filtro, conviene enterarse SIN haber actualizado los 199
+    ''' otros. Se conserva a propósito. La única mejora es que aquí se dice QUÉ contratos
+    ''' faltan, que el mensaje del original no lo decía.
+    ''' ==================================================================================
+    '''
+    ''' DIFERENCIA CONSCIENTE con el original: aquí se aceptan CUPS y CIF además de códigos
+    ''' de contrato. En ActualizaPrecios solo funcionaba con el check «Contrato» marcado —con
+    ''' CUPS o Cliente, ObtenerContratos devolvía lista vacía y la operación no hacía nada—.
+    ''' Se amplía porque el resto de operaciones ya resuelve las tres formas, pero OJO: un
+    ''' CUPS o un CIF pueden traer más de un contrato, y todos entran en la puerta de arriba.
+    '''
+    ''' Y NO se filtra por contrato activo, también igual que el original: su
+    ''' BuscarbyCodigocontrato es un SELECT sin condición de situación. En otras operaciones
+    ''' sí se filtra; aquí filtrar sería inventarse una restricción que no existía.
     ''' </summary>
     Public Class ActualizarPreciosTarifa
         Inherits OperacionPorEntrada
 
         Private ReadOnly _contratos As New RepositorioContratos()
 
-        ' Códigos de contrato por entrada pegada. Se resuelve todo antes de empezar porque la
-        ' copia de seguridad previa necesita la lista completa.
+        ' Códigos de contrato por entrada pegada.
         Private _porEntrada As Dictionary(Of String, List(Of Long))
+
+        ' ContratoTarifa ya resuelto por código. Se resuelven todos en PrepararAsync, igual
+        ' que ObtenerContratosTarifaValidos del original, y desde aquí se reutilizan: así no
+        ' se consulta dos veces la misma fila.
+        Private _tarifaPorContrato As Dictionary(Of Long, ContratoTarifa)
+
+        ''' <summary>Contrato y motivo de cada uno que no se ha podido actualizar.</summary>
+        Private ReadOnly _incidencias As New List(Of KeyValuePair(Of Long, String))
+
+        Private _carpetaIncidencias As String = ""
+
+        ' ==================================================================
+        ' PREPARACIÓN: resolver todo y cerrar la puerta antes de tocar nada
+        ' ==================================================================
 
         Protected Overrides Async Function PrepararAsync(ctx As ContextoEjecucion) As Task
 
             _porEntrada = New Dictionary(Of String, List(Of Long))(StringComparer.OrdinalIgnoreCase)
+            _tarifaPorContrato = New Dictionary(Of Long, ContratoTarifa)
+            _incidencias.Clear()
+
             Dim todos As New List(Of Long)
+            Dim sinResolver As New List(Of String)
 
             For Each entrada In ctx.Entradas
                 ctx.AbortarSiCancelado()
@@ -41,24 +87,90 @@ Namespace Operaciones.Implementadas
                 Dim encontrados = Await _contratos.ResolverAsync(
                     ctx.CadenaConexion, entrada, ctx.TipoLista, ctx.Cancelacion).ConfigureAwait(False)
 
+                ' SIN filtro de activo: el original tampoco lo aplica en esta operación.
                 Dim codigos = encontrados _
-                    .Where(Function(c) c.Activo AndAlso c.CodigoContrato > 0) _
+                    .Where(Function(c) c.CodigoContrato > 0) _
                     .Select(Function(c) c.CodigoContrato) _
                     .Distinct() _
                     .ToList()
 
                 _porEntrada(entrada) = codigos
+                If codigos.Count = 0 Then sinResolver.Add(entrada)
                 todos.AddRange(codigos)
             Next
 
-            ' Copia de seguridad del estado anterior, una sola vez y antes de tocar nada.
-            ' Va a Escritorio\ConsultasBO\Precios del usuario que ejecuta.
-            If todos.Count > 0 Then
-                Dim funciones As New FuncionesGenericas(ctx.CadenaConexion)
-                funciones.EscribirContratoTarifaAntesCambios(todos.Distinct().ToList())
+            todos = todos.Distinct().ToList()
+
+            If todos.Count = 0 Then
+                Throw New InvalidOperationException(
+                    "Ninguna de las entradas corresponde a un contrato que exista. No se ha tocado nada.")
             End If
 
+            ' --- La puerta de todo o nada ---
+            Dim srv As New ContratoTarifaSrv(ctx.CadenaConexion)
+            Dim sinTarifa As New List(Of Long)
+
+            For Each codigo In todos
+                ctx.AbortarSiCancelado()
+
+                Dim ct = srv.GetContratoTarifaPersonalizadaByCodigoContrato(
+                    codigo, ctx.GrupoTarifaActual, ctx.SoloPersonalizadas)
+
+                If ct Is Nothing OrElse ct.IdContratoTarifa <= 0 Then
+                    sinTarifa.Add(codigo)
+                Else
+                    _tarifaPorContrato(codigo) = ct
+                End If
+            Next
+
+            If sinTarifa.Count > 0 Then
+                Throw New InvalidOperationException(MensajePuerta(sinTarifa, todos.Count, ctx))
+            End If
+
+            If sinResolver.Count > 0 Then
+                Throw New InvalidOperationException(
+                    $"{sinResolver.Count} de las entradas no corresponden a ningún contrato " &
+                    $"({Muestra(sinResolver)}). No se ha tocado nada: quítalas de la lista o corrígelas.")
+            End If
+
+            ' Copia de seguridad del estado anterior, una sola vez y antes de tocar nada.
+            ' Va a Escritorio\ConsultasBO\Precios del usuario que ejecuta.
+            Dim funciones As New FuncionesGenericas(ctx.CadenaConexion)
+            funciones.EscribirContratoTarifaAntesCambios(todos)
+
         End Function
+
+        ''' <summary>
+        ''' El mensaje de la puerta. Dice cuántos y cuáles, y recuerda con qué filtro se ha
+        ''' buscado: casi siempre el problema es el filtro, no el contrato.
+        ''' </summary>
+        Private Shared Function MensajePuerta(sinTarifa As List(Of Long),
+                                              total As Integer,
+                                              ctx As ContextoEjecucion) As String
+
+            Dim filtro = If(ctx.SoloPersonalizadas,
+                            "solo tarifas personalizadas",
+                            $"grupo de tarifa actual = «{ctx.GrupoTarifaActual}»")
+
+            Return $"NO SE HA ACTUALIZADO NADA. {sinTarifa.Count} de {total} contratos no tienen " &
+                   $"ContratoTarifa que cumpla el filtro ({filtro}): {Muestra(sinTarifa.Select(Function(c) c.ToString()))}. " &
+                   "Se aplica todo o nada, así que revisa el filtro o quita esos contratos de la lista."
+
+        End Function
+
+        ''' <summary>Hasta diez, y el resto contado. Un mensaje con 200 códigos no se lee.</summary>
+        Private Shared Function Muestra(valores As IEnumerable(Of String)) As String
+
+            Dim lista = valores.ToList()
+            If lista.Count <= 10 Then Return String.Join(", ", lista)
+
+            Return String.Join(", ", lista.Take(10)) & $" y {lista.Count - 10} más"
+
+        End Function
+
+        ' ==================================================================
+        ' EJECUCIÓN
+        ' ==================================================================
 
         Protected Overrides Function ProcesarAsync(entrada As String,
                                                    ctx As ContextoEjecucion) As Task(Of ResultadoEntrada)
@@ -68,8 +180,9 @@ Namespace Operaciones.Implementadas
                 Return Task.FromResult(ResultadoEntrada.Fallo("no se pudo resolver la entrada"))
             End If
 
+            ' No puede estar vacío: PrepararAsync habría abortado. Se comprueba por si acaso.
             If codigos.Count = 0 Then
-                Return Task.FromResult(ResultadoEntrada.SinDatos("no existe o no está activo"))
+                Return Task.FromResult(ResultadoEntrada.SinDatos("no existe"))
             End If
 
             Dim funciones As New FuncionesGenericas(ctx.CadenaConexion)
@@ -86,6 +199,7 @@ Namespace Operaciones.Implementadas
                     actualizados += 1
                 Else
                     motivos.Add($"{codigo}: {motivo}")
+                    _incidencias.Add(New KeyValuePair(Of Long, String)(codigo, motivo))
                 End If
             Next
 
@@ -94,7 +208,9 @@ Namespace Operaciones.Implementadas
             End If
 
             If motivos.Count > 0 Then
-                ' Parcial: se avisa, pero cuenta como hecho lo que se hizo.
+                ' Parcial: se avisa, pero cuenta como hecho lo que se hizo. Aquí ya no aplica
+                ' el todo o nada: el cambio del grupo ya está deshecho contrato a contrato con
+                ' UpdateContratoTarifaSiError, que es lo que hace el original.
                 Return Task.FromResult(ResultadoEntrada.ConDatos(
                     actualizados, $"{actualizados} actualizados, {motivos.Count} no: {String.Join(" · ", motivos)}"))
             End If
@@ -113,12 +229,9 @@ Namespace Operaciones.Implementadas
                                             funciones As FuncionesGenericas,
                                             srv As ContratoTarifaSrv) As String
 
-            ' 1. ContratoTarifa según el filtro: o los personalizados, o los que tienen
-            '    exactamente el grupo actual indicado.
-            Dim ct = srv.GetContratoTarifaPersonalizadaByCodigoContrato(
-                codigo, ctx.GrupoTarifaActual, ctx.SoloPersonalizadas)
-
-            If ct Is Nothing OrElse ct.IdContratoTarifa <= 0 Then
+            ' 1. ContratoTarifa: ya resuelto en PrepararAsync, no se vuelve a consultar.
+            Dim ct As ContratoTarifa = Nothing
+            If Not _tarifaPorContrato.TryGetValue(codigo, ct) Then
                 Return "sin ContratoTarifa que cumpla el filtro"
             End If
 
@@ -164,6 +277,74 @@ Namespace Operaciones.Implementadas
             Return ""
 
         End Function
+
+        ' ==================================================================
+        ' CIERRE: el Excel de incidencias
+        ' ==================================================================
+
+        ''' <summary>
+        ''' Vuelca las incidencias a un Excel, como hacía ExportarErrores del original
+        ''' («PreciosErrores»). Va a ConsultasBO\Precios en vez de al escritorio raso, y con
+        ''' dos columnas —contrato y motivo— en vez de una cadena por fila: así se puede
+        ''' filtrar y ordenar, que es para lo que se abre este fichero.
+        '''
+        ''' El mensaje del resultado también lleva los motivos, pero con muchos fallos se
+        ''' vuelve ilegible; para eso está el fichero.
+        ''' </summary>
+        Protected Overrides Function CerrarAsync(ctx As ContextoEjecucion,
+                                                 resultado As ResultadoOperacion) As Task
+
+            _carpetaIncidencias = RutasSalida.Asegurar("Precios")
+
+            If _incidencias.Count = 0 Then
+                If resultado.ConDatos > 0 Then
+                    ' La copia del estado anterior la escribe EscribirContratoTarifaAntesCambios
+                    ' en esta misma carpeta. La ruta va en Salidas, no en el texto.
+                    resultado.Mensaje = "Se ha guardado copia del estado anterior"
+                    resultado.AnadirSalidas(_carpetaIncidencias)
+                End If
+                Return Task.CompletedTask
+            End If
+
+            Try
+                Dim tabla As New DataTable("Incidencias")
+                tabla.Columns.Add("CodigoContrato", GetType(Long))
+                tabla.Columns.Add("Motivo", GetType(String))
+
+                For Each i In _incidencias
+                    tabla.Rows.Add(i.Key, i.Value)
+                Next
+
+                Dim escrito = EscritorExcel.Escribir(
+                    tabla, _carpetaIncidencias, "PreciosIncidencias", "Incidencias")
+
+                Dim nombre = If(escrito.Ficheros.Count > 0,
+                                Path.GetFileName(escrito.Ficheros(0)),
+                                "(no se pudo escribir)")
+
+                resultado.Mensaje = Redaccion.Unir(
+                    Redaccion.Cuenta(_incidencias.Count, "contrato sin actualizar",
+                                                         "contratos sin actualizar"),
+                    $"detalle en {nombre}")
+
+                resultado.AnadirSalidas(_carpetaIncidencias)
+
+            Catch ex As Exception
+                ' Que falle el Excel no invalida lo ya actualizado, y los motivos siguen
+                ' estando en el registro de la ejecución.
+                resultado.Mensaje = Redaccion.Unir(
+                    Redaccion.Cuenta(_incidencias.Count, "contrato sin actualizar",
+                                                         "contratos sin actualizar"),
+                    $"no se ha podido escribir el Excel de incidencias: {ex.Message}")
+            End Try
+
+            Return Task.CompletedTask
+
+        End Function
+
+        ' ==================================================================
+        ' PRECIOS
+        ' ==================================================================
 
         ''' <summary>
         ''' Precios nuevos. Cuatro ramas: indexado o fijo, y dentro del indexado G1 (luz) o

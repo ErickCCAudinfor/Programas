@@ -99,6 +99,7 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
                     <!-- Migas de pan -->
@@ -107,8 +108,43 @@
                                FontSize="13" FontWeight="SemiBold"
                                VerticalAlignment="Center" />
 
+                    <!--
+                        LO QUE HAY EN MARCHA.
+
+                        Va en la cabecera porque la cabecera está en todas las pantallas, y el
+                        problema era justamente ese: lanzabas una consulta de 200 CUPS, te ibas
+                        a otra operación y desde ahí no sabías si seguía, si había acabado o si
+                        había fallado. La ejecución no se paraba —eso ya funcionaba— pero era
+                        invisible y no había forma de volver a ella.
+
+                        Su DataContext es EjecucionesEnCurso, puesto en el constructor de la
+                        ventana; el resto de la cabecera va contra el ShellViewModel.
+                    -->
+                    <Button x:Name="IndicadorEnCurso"
+                            Grid.Column="1"
+                            Style="{StaticResource BtnGhost}"
+                            Visibility="{Binding Visibilidad}"
+                            Height="30" Padding="10,0"
+                            Margin="0,0,10,0"
+                            VerticalAlignment="Center"
+                            IsTabStop="False"
+                            ToolTip="{Binding Ayuda}"
+                            Click="EnCurso_Click">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Ellipse Width="7" Height="7"
+                                     Fill="{Binding Color}"
+                                     VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding Titulo}"
+                                       FontSize="12.5" FontWeight="SemiBold"
+                                       Margin="8,0,0,0" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding Detalle}"
+                                       Style="{StaticResource TxMono}"
+                                       Margin="8,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
                     <!-- Chip de entorno -->
-                    <Border Grid.Column="1"
+                    <Border Grid.Column="2"
                             Height="30" Padding="10,0"
                             CornerRadius="{StaticResource RCtl}"
                             Background="{Binding FondoEntorno}"
@@ -130,7 +166,7 @@
                     </Border>
 
                     <!-- Avisos. Lleva a Novedades; antes no hacía nada. -->
-                    <Button Grid.Column="2"
+                    <Button Grid.Column="3"
                             Style="{StaticResource BtnIcon}"
                             Width="30" Height="30"
                             Margin="0,0,6,0"
@@ -159,7 +195,7 @@
                     </Button>
 
                     <!-- Avatar -->
-                    <Border Grid.Column="3" Style="{StaticResource Avatar}" VerticalAlignment="Center">
+                    <Border Grid.Column="4" Style="{StaticResource Avatar}" VerticalAlignment="Center">
                         <TextBlock Text="{Binding Iniciales}" Style="{StaticResource AvatarTexto}" />
                     </Border>
                 </Grid>
