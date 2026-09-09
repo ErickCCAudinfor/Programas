@@ -59,6 +59,7 @@ public sealed class OperacionItemVm
             if (Definicion.Pide(EntradasOperacion.Cups)) partes.Add("CUPS");
             if (Definicion.Pide(EntradasOperacion.Cifs)) partes.Add("CIF");
             if (Definicion.Pide(EntradasOperacion.Facturas)) partes.Add("Facturas");
+            if (Definicion.Pide(EntradasOperacion.IdsSigeJob)) partes.Add("Trabajos");
             if (Definicion.Pide(EntradasOperacion.GrupoTarifa)) partes.Add("Grupo de tarifa");
             if (Definicion.Pide(EntradasOperacion.FiltroTarifaActual)) partes.Add("Grupo actual");
             if (Definicion.Pide(EntradasOperacion.Fechas)) partes.Add("Fechas");

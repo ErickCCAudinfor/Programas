@@ -41,6 +41,13 @@ Namespace Operaciones
         ''' este grupo actual. Ver UpdateContratoTarifa en ContratoTarifaSrv.
         ''' </summary>
         FiltroTarifaActual = 512
+
+        ''' <summary>
+        ''' Lista de IdSigeJob. Tipo propio y no reaprovechar «Facturas»: el cuadro se etiqueta
+        ''' con el tipo de lista, y poner «Facturas» donde van Id de trabajo se lee mal y ademas
+        ''' validaria con la regla de las facturas, que admite texto.
+        ''' </summary>
+        IdsSigeJob = 1024
     End Enum
 
     ''' <summary>
@@ -138,11 +145,19 @@ Namespace Operaciones
             Return (Requiere And entrada) = entrada
         End Function
 
-        ''' <summary>Pide una lista pegada (contratos, CUPS, CIF o facturas).</summary>
+        ''' <summary>
+        ''' Pide una lista pegada (contratos, CUPS, CIF, facturas o Id de trabajo).
+        '''
+        ''' HAY QUE AÑADIR AQUÍ TODO TIPO DE LISTA NUEVO. De esta propiedad cuelgan dos cosas
+        ''' en la pantalla: que se pinte el cuadro de pegado y que la validación exija al menos
+        ''' una entrada. Si se olvida, la operación sale sin cuadro donde escribir y además deja
+        ''' pulsar el botón con la lista vacía, así que se ejecuta sobre nada y parece que va.
+        ''' </summary>
         Public ReadOnly Property PideLista As Boolean
             Get
                 Dim listas = EntradasOperacion.Contratos Or EntradasOperacion.Cups Or
-                             EntradasOperacion.Cifs Or EntradasOperacion.Facturas
+                             EntradasOperacion.Cifs Or EntradasOperacion.Facturas Or
+                             EntradasOperacion.IdsSigeJob
                 Return (Requiere And listas) <> 0
             End Get
         End Property

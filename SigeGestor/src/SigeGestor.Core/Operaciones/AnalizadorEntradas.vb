@@ -1,4 +1,4 @@
-Imports System.Text.RegularExpressions
+﻿Imports System.Text.RegularExpressions
 
 Namespace Operaciones
 
@@ -8,6 +8,9 @@ Namespace Operaciones
         Cups
         Cifs
         Facturas
+
+        ''' <summary>Id de trabajo de SigeJob. Numericos, como los contratos.</summary>
+        SigeJobs
     End Enum
 
     ''' <summary>
@@ -114,6 +117,10 @@ Namespace Operaciones
                 Case TipoLista.Cifs
                     Return PatronCif.IsMatch(pieza)
 
+                Case TipoLista.SigeJobs
+                    ' El IdSigeJob es numerico igual que el codigo de contrato.
+                    Return PatronSoloDigitos.IsMatch(pieza)
+
                 Case Else
                     ' Facturas: el identificador no siempre es numérico, así que basta con
                     ' que no traiga espacios ni sea absurdamente largo.
@@ -127,6 +134,7 @@ Namespace Operaciones
                 Case TipoLista.Contratos : Return "Contratos"
                 Case TipoLista.Cups : Return "CUPS"
                 Case TipoLista.Cifs : Return "CIF"
+                Case TipoLista.SigeJobs : Return "Trabajos"
                 Case Else : Return "Facturas"
             End Select
         End Function
@@ -137,6 +145,7 @@ Namespace Operaciones
                 Case TipoLista.Contratos : Return If(cuantos = 1, "contrato", "contratos")
                 Case TipoLista.Cups : Return "CUPS"
                 Case TipoLista.Cifs : Return "CIF"
+                Case TipoLista.SigeJobs : Return If(cuantos = 1, "trabajo", "trabajos")
                 Case Else : Return If(cuantos = 1, "factura", "facturas")
             End Select
         End Function
@@ -147,6 +156,7 @@ Namespace Operaciones
                 Case TipoLista.Contratos : Return "solo números"
                 Case TipoLista.Cups : Return "ES + 16 dígitos + 2 letras"
                 Case TipoLista.Cifs : Return "9 caracteres, como B12345678"
+                Case TipoLista.SigeJobs : Return "solo números"
                 Case Else : Return "sin espacios"
             End Select
         End Function
@@ -158,6 +168,7 @@ Namespace Operaciones
             If definicion.Pide(EntradasOperacion.Cups) Then tipos.Add(TipoLista.Cups)
             If definicion.Pide(EntradasOperacion.Cifs) Then tipos.Add(TipoLista.Cifs)
             If definicion.Pide(EntradasOperacion.Facturas) Then tipos.Add(TipoLista.Facturas)
+            If definicion.Pide(EntradasOperacion.IdsSigeJob) Then tipos.Add(TipoLista.SigeJobs)
             Return tipos
         End Function
 

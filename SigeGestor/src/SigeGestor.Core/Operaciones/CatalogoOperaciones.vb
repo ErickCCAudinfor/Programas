@@ -688,6 +688,24 @@
                 .EtiquetaAccion = "Añadir calendario",
                 .Ejecutable = New Implementadas.AnadirCalendarioTarifa()
             })
+            ' Una consulta en Ajustes y no en Consultas, a peticion de Erick: es para mirar por
+            ' que ha fallado un trabajo, no para entregar datos a nadie.
+            '
+            ' UNA SOLA consulta con un IN para todos los trabajos, y el reparto por trabajo se
+            ' hace en codigo. Ver el comentario de ExtraerErroresSigeJob: el CROSS APPLY sobre
+            ' el XML es la parte cara y se paga una vez, sin perder el detalle de cual no tiene
+            ' errores.
+            lista.Add(New DefinicionOperacion With {
+                .Nombre = "Extraer errores de SigeJob",
+                .Seccion = SeccionOperacion.Ajustes,
+                .Descripcion = "Saca a Excel los mensajes de error de los trabajos indicados, leidos del " &
+                               "XML de resultado de cada paso. Pega uno o varios IdSigeJob. No cambia nada.",
+                .Requiere = EntradasOperacion.IdsSigeJob Or EntradasOperacion.Carpeta,
+                .PermiteDividir = True,
+                .EsEscritura = False,
+                .EtiquetaAccion = "Extraer errores",
+                .Ejecutable = New Implementadas.ExtraerErroresSigeJob(Sql)
+            })
 
             ' ============================================================
             ' AJUSTES
