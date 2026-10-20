@@ -6,8 +6,8 @@
 
     Ejemplos
       .\publicar.ps1
-      .\publicar.ps1 -Destino \\172.31.100.13\Total\SigeGestor
-      .\publicar.ps1 -Destino \\172.31.100.13\Total\SigeGestor -Confirmar
+      .\publicar.ps1 -Destino \\172.31.100.13\c$\AppGestorSige
+      .\publicar.ps1 -Destino \\172.31.100.13\c$\AppGestorSige -Confirmar
 
     POR QUÉ AUTOCONTENIDO: se empaqueta el runtime de .NET dentro, así que las máquinas del
     equipo no necesitan tener instalado el .NET 8 Desktop Runtime. Es lo mismo que se hace hoy
@@ -97,7 +97,7 @@ Write-Host "   $mb MB · $sql plantillas .sql · Config con solo las plantillas"
 if ([string]::IsNullOrWhiteSpace($Destino)) {
     Write-Host ""
     Write-Host "No se ha indicado -Destino, así que no se ha tocado ningún servidor." -ForegroundColor Yellow
-    Write-Host "Para copiar:  .\publicar.ps1 -Destino \\172.31.100.13\Total\SigeGestor"
+    Write-Host "Para copiar:  .\publicar.ps1 -Destino \\172.31.100.13\c`$\AppGestorSige"
     exit 0
 }
 

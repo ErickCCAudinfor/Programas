@@ -5,11 +5,17 @@ No se instala nada en cada máquina: se copia una carpeta y se abre por red, igu
 ActualizaPrecios.
 
 ```powershell
-.\publicar.ps1 -Destino \\172.31.100.13\Total\SigeGestor
+.\publicar.ps1 -Destino \\172.31.100.13\c$\AppGestorSige
 ```
 
 Sin `-Destino` solo publica en local, en `publish\win-x64`, para poder revisarlo antes de tocar
 el servidor.
+
+**Por qué `c$` y no un recurso compartido.** Los recursos compartidos del .13 son `Total`,
+`Audinfor` y `ExportacionSQL`, y ninguno expone la carpeta de la aplicación: ActualizaPrecios
+vive en `C:\AppConsultasSIGE` y el equipo ya lo abre por `c$`. SigeGestor se despliega igual, en
+`C:\AppGestorSige`, para no cambiar la forma de entrar que la gente ya tiene. Quien abra la
+aplicación necesita el mismo acceso al servidor que necesita hoy para ActualizaPrecios.
 
 ---
 
@@ -56,12 +62,17 @@ Si algún día se confirma que las ocho máquinas tienen el runtime 8 instalado,
 
 En el servidor no habrá configuración, así que después de copiar hay que crearla:
 
-1. `Config\Entornos.json` — a partir de `Entornos.ejemplo.json`. El usuario y la contraseña van
-   **cifrados**: sirven tal cual los del `EmpresasBD.json` de ActualizaPrecios, porque es el
-   mismo AES.
-2. `Config\Empresas.json` — se puede copiar directamente el `Json\EmpresasBD.json` de
-   ActualizaPrecios. Mismo formato y mismo cifrado.
+1. `Config\Entornos.json` — lo más rápido es **copiar el que ya funciona en local**, el de
+   `src\SigeGestor.App\bin\Debug\net8.0-windows\Config\`. Si hubiera que rehacerlo se parte de
+   `Entornos.ejemplo.json`; el usuario y la contraseña van **cifrados** y sirven tal cual los
+   del `EmpresasBD.json` de ActualizaPrecios, porque es el mismo AES.
+2. `Config\Empresas.json` — igual, el de local; o directamente el `Json\EmpresasBD.json` de
+   ActualizaPrecios, que en el .13 está en `C:\AppConsultasSIGE\Json\EmpresasBD.json`. Mismo
+   formato y mismo cifrado.
 3. `Config\Usuarios.json` y `Logs\` no hay que crearlos: se crean solos al usarse.
+
+Los dos JSON se copian **después** de publicar. El guion no los toca nunca —ni los lleva ni los
+borra—, así que el orden no puede estropear nada.
 
 El guion detecta si es la primera vez y lo recuerda.
 
