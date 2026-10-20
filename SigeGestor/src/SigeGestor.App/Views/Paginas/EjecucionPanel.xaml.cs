@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using SigeGestor.App.Servicios;
 using SigeGestor.App.ViewModels;
 
 namespace SigeGestor.App.Views.Paginas;
@@ -65,53 +64,14 @@ public partial class EjecucionPanel : UserControl
     // ============================================================
 
     /// <summary>
-    /// Abre el explorador en la carpeta. Con un solo fichero se abre con él ya seleccionado,
-    /// que ahorra buscarlo entre los de las ejecuciones anteriores —todas van a la misma
-    /// carpeta y llevan la hora en el nombre—.
-    ///
-    /// La ruta se pasa entre comillas: ConsultasBO cuelga del escritorio y ahí hay espacios en
-    /// cuanto el perfil los tiene.
+    /// Abre el explorador donde haya quedado lo generado. El cómo está en Servicios\Explorador,
+    /// compartido con la columna «Fichero» de la tabla de actividad.
     /// </summary>
     private void AbrirCarpeta_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not FrameworkElement { Tag: SalidaVm salida }) return;
 
-        try
-        {
-            if (salida.Seleccionar.Length > 0 && File.Exists(salida.Seleccionar))
-            {
-                Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{salida.Seleccionar}\"")
-                {
-                    UseShellExecute = true
-                });
-                return;
-            }
-
-            if (!Directory.Exists(salida.Carpeta))
-            {
-                MessageBox.Show(
-                    Window.GetWindow(this),
-                    "La carpeta ya no está:" + Environment.NewLine + Environment.NewLine +
-                    salida.Carpeta,
-                    "Abrir carpeta",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-                return;
-            }
-
-            Process.Start(new ProcessStartInfo(salida.Carpeta) { UseShellExecute = true });
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show(
-                Window.GetWindow(this),
-                "No se ha podido abrir la carpeta." + Environment.NewLine + Environment.NewLine +
-                salida.Carpeta + Environment.NewLine + Environment.NewLine +
-                $"Detalle: {ex.Message}",
-                "Abrir carpeta",
-                MessageBoxButton.OK,
-                MessageBoxImage.Warning);
-        }
+        Explorador.Abrir(salida.Carpeta, salida.Seleccionar, Window.GetWindow(this));
     }
 
     // ============================================================

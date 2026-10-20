@@ -57,6 +57,16 @@
 
         Public Property Momento As DateTime
 
+        ''' <summary>
+        ''' Ficheros o carpetas que dejo esta ejecucion, con la ruta completa. Es lo mismo que
+        ''' <see cref="Operaciones.ResultadoOperacion.Salidas"/>, guardado en el log para que la
+        ''' actividad pueda ofrecer el fichero sin volver a lanzar nada.
+        '''
+        ''' Las ejecuciones anteriores al 20/10/2026 no lo traen y se leen con la lista vacia:
+        ''' en la rejilla, esas filas se quedan sin enlace y ya esta.
+        ''' </summary>
+        Public Property Salidas As IReadOnlyList(Of String) = Array.Empty(Of String)()
+
     End Class
 
     ''' <summary>

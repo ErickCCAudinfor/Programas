@@ -27,6 +27,8 @@ public sealed class SalidaVm
     public SalidaVm(string carpeta, IReadOnlyList<string> ficheros)
     {
         Carpeta = carpeta;
+        Cuantos = ficheros.Count;
+        Primero = ficheros.Count > 0 ? ficheros[0] : string.Empty;
 
         // Con cuatro nombres ya se sabe qué hay; más allá, lo que importa es la carpeta.
         Ficheros = ficheros.Count switch
@@ -50,8 +52,71 @@ public sealed class SalidaVm
     /// <summary>Fichero a dejar seleccionado al abrir, si hay uno solo.</summary>
     public string Seleccionar { get; }
 
+    /// <summary>Cuántos ficheros con nombre hay. 0 cuando solo se informó de la carpeta.</summary>
+    public int Cuantos { get; }
+
+    /// <summary>El primero, para poder nombrar la salida en una columna estrecha.</summary>
+    public string Primero { get; }
+
     public Visibility VisibilidadFicheros =>
         string.IsNullOrEmpty(Ficheros) ? Visibility.Collapsed : Visibility.Visible;
+
+    /// <summary>
+    /// Agrupa por carpeta las rutas que ha devuelto una operación.
+    ///
+    /// Se agrupa porque una operación de 200 facturas informa de una carpeta y no de 200
+    /// ficheros, pero otras informan de ficheros con nombre —el Excel de incidencias, la
+    /// plantilla— y de esos interesa ver cuál es. Cada ruta se mira en el disco para saber si
+    /// es carpeta o fichero, que es lo único que lo distingue sin ambigüedad.
+    ///
+    /// Lo usan el panel de la ejecución y la columna «Fichero» de la tabla de actividad, que
+    /// parte de estas mismas rutas leídas del log.
+    /// </summary>
+    public static IReadOnlyList<SalidaVm> Agrupar(IReadOnlyList<string>? rutas)
+    {
+        if (rutas is null || rutas.Count == 0) return Array.Empty<SalidaVm>();
+
+        var porCarpeta = new List<(string Carpeta, List<string> Ficheros)>();
+
+        foreach (var ruta in rutas)
+        {
+            if (string.IsNullOrWhiteSpace(ruta)) continue;
+
+            string carpeta;
+            string? fichero = null;
+
+            if (Directory.Exists(ruta))
+            {
+                carpeta = ruta;
+            }
+            else
+            {
+                // Puede no existir todavía —o ya no— y aun así la carpeta sirve para abrirla.
+                // GetDirectoryName devuelve "" y no null cuando la ruta es un nombre suelto,
+                // así que se comprueba el vacío y no solo el null.
+                var padre = Path.GetDirectoryName(ruta);
+                carpeta = string.IsNullOrEmpty(padre) ? ruta : padre;
+                fichero = Path.GetFileName(ruta);
+            }
+
+            var grupo = porCarpeta.FirstOrDefault(
+                g => string.Equals(g.Carpeta, carpeta, StringComparison.OrdinalIgnoreCase));
+
+            if (grupo.Carpeta is null)
+            {
+                grupo = (carpeta, new List<string>());
+                porCarpeta.Add(grupo);
+            }
+
+            if (!string.IsNullOrEmpty(fichero)
+                && !grupo.Ficheros.Contains(fichero, StringComparer.OrdinalIgnoreCase))
+            {
+                grupo.Ficheros.Add(fichero);
+            }
+        }
+
+        return porCarpeta.Select(g => new SalidaVm(g.Carpeta, g.Ficheros)).ToList();
+    }
 }
 
 /// <summary>Una línea del registro en vivo, ya formateada.</summary>
@@ -400,7 +465,10 @@ public sealed partial class EjecucionViewModel : ObservableObject
             Estado = r.Estado,
             Registros = r.Registros,
             Errores = r.Errores,
-            Duracion = r.Duracion
+            Duracion = r.Duracion,
+            // Al log tambien: es lo que permite ofrecer el fichero desde la actividad, sin
+            // tener que volver a entrar en la operacion.
+            Salidas = r.Salidas
         };
 
         await _registro.RegistrarAsync(ejecucion).ConfigureAwait(true);
@@ -465,48 +533,24 @@ public sealed partial class EjecucionViewModel : ObservableObject
     /// </summary>
     private void RellenarSalidas(ResultadoOperacion r)
     {
-        if (r.Salidas.Count == 0)
+        // El agrupado está en SalidaVm.Agrupar: lo comparte con la columna «Fichero» de la
+        // tabla de actividad, que parte de las mismas rutas guardadas en el log.
+        Salidas = SalidaVm.Agrupar(r.Salidas);
+        Avisar();
+
+        // Las DOS, y por ese orden.
+        //
+        // Se avisaba solo de VisibilidadSalidas, y el efecto era justo el que se veía: el
+        // bloque aparecia —titulo «SE HA GUARDADO EN» incluido— pero vacio. Salidas no es
+        // [ObservableProperty] ni una coleccion observable, es una propiedad normal que se
+        // REEMPLAZA, asi que sin su aviso el ItemsControl se queda con el Array.Empty del
+        // principio y no vuelve a preguntar. Pasaba con cualquier operacion que generase
+        // fichero.
+        void Avisar()
         {
-            Salidas = Array.Empty<SalidaVm>();
+            OnPropertyChanged(nameof(Salidas));
             OnPropertyChanged(nameof(VisibilidadSalidas));
-            return;
         }
-
-        var porCarpeta = new List<(string Carpeta, List<string> Ficheros)>();
-
-        foreach (var ruta in r.Salidas)
-        {
-            string carpeta;
-            string? fichero = null;
-
-            if (Directory.Exists(ruta))
-            {
-                carpeta = ruta;
-            }
-            else
-            {
-                // Puede no existir todavía —o ya no— y aun así la carpeta sirve para abrirla.
-                carpeta = Path.GetDirectoryName(ruta) ?? ruta;
-                fichero = Path.GetFileName(ruta);
-            }
-
-            var grupo = porCarpeta.FirstOrDefault(
-                g => string.Equals(g.Carpeta, carpeta, StringComparison.OrdinalIgnoreCase));
-
-            if (grupo.Carpeta is null)
-            {
-                grupo = (carpeta, new List<string>());
-                porCarpeta.Add(grupo);
-            }
-
-            if (fichero is not null && !grupo.Ficheros.Contains(fichero, StringComparer.OrdinalIgnoreCase))
-            {
-                grupo.Ficheros.Add(fichero);
-            }
-        }
-
-        Salidas = porCarpeta.Select(g => new SalidaVm(g.Carpeta, g.Ficheros)).ToList();
-        OnPropertyChanged(nameof(VisibilidadSalidas));
     }
 
     /// <summary>Lo copia la vista al portapapeles; aquí solo se confirma.</summary>

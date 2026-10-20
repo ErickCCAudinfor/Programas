@@ -1,5 +1,8 @@
-﻿using System.Windows.Media;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Media;
 using System.Windows;
+using SigeGestor.App.Servicios;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SigeGestor.Core.Modelos;
@@ -45,6 +48,7 @@ public sealed partial class EjecucionVm : ObservableObject
         Registros = 0;
         Duracion = "—";
         Cuando = Apariencia.TiempoRelativo(tarea.Momento);
+        _salidas = System.Array.Empty<SalidaVm>();
 
         _vivo.PropertyChanged += (_, e) =>
         {
@@ -107,6 +111,7 @@ public sealed partial class EjecucionVm : ObservableObject
         Registros = e.Registros;
         Duracion = e.Estado == EstadoEjecucion.EnCurso ? "—" : Apariencia.Duracion(e.Duracion);
         Cuando = Apariencia.TiempoRelativo(e.Momento);
+        _salidas = SalidaVm.Agrupar(e.Salidas);
     }
 
     public string Titulo { get; }
@@ -122,6 +127,70 @@ public sealed partial class EjecucionVm : ObservableObject
     public string Cuando { get; }
 
     public Geometry Icono => Apariencia.Icono(Apariencia.ClaveIconoDeGrupo(Grupo));
+
+    // ============================================================
+    // LO QUE DEJÓ, Y CÓMO LLEGAR
+    // ============================================================
+    //
+    // Las rutas viajan en el log desde el 20/10/2026. Antes había que volver a entrar en la
+    // operación para saber dónde había quedado el fichero, y si ya habías navegado a otra
+    // pantalla, a buscarlo a mano entre los de las ejecuciones anteriores: todos van a la
+    // misma carpeta y solo se distinguen por la hora del nombre.
+    //
+    // Las ejecuciones de antes de esa fecha no lo traen y su celda sale vacía.
+
+    private readonly IReadOnlyList<SalidaVm> _salidas;
+
+    /// <summary>
+    /// Lo que se enseña en la columna: el nombre del fichero cuando hay uno, el recuento
+    /// cuando son varios, y el nombre de la carpeta cuando la operación llenó una —los PDF,
+    /// los trozos de XML— porque ahí ningún nombre suelto dice nada.
+    /// </summary>
+    public string Fichero
+    {
+        get
+        {
+            if (_salidas.Count == 0) return "";
+
+            if (_salidas.Count > 1)
+            {
+                var total = _salidas.Sum(s => s.Cuantos);
+                return total > 0 ? $"{total:N0} ficheros" : $"{_salidas.Count:N0} carpetas";
+            }
+
+            var salida = _salidas[0];
+
+            return salida.Cuantos switch
+            {
+                0 => System.IO.Path.GetFileName(salida.Carpeta.TrimEnd('\\')) + "\\",
+                1 => salida.Primero,
+                _ => $"{salida.Cuantos:N0} ficheros"
+            };
+        }
+    }
+
+    public Visibility VisibilidadFichero =>
+        Fichero.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
+
+    /// <summary>La ruta entera, que en la columna no cabe.</summary>
+    public string AyudaFichero =>
+        _salidas.Count == 0 ? "" : $"Abrir la carpeta:{System.Environment.NewLine}{_salidas[0].Carpeta}";
+
+    /// <summary>
+    /// Abre el explorador donde quedó. Va por comando y no por Click porque la plantilla de la
+    /// fila vive en un diccionario de tema (Actividad.xaml), que no tiene código detrás —el
+    /// mismo motivo que el botón de cancelar de aquí al lado—.
+    ///
+    /// Con varias carpetas se abre la primera; el desglose entero está en el panel de la
+    /// ejecución.
+    /// </summary>
+    [RelayCommand]
+    private void AbrirSalida()
+    {
+        if (_salidas.Count == 0) return;
+
+        Explorador.Abrir(_salidas[0].Carpeta, _salidas[0].Seleccionar);
+    }
 
     // ---------- Entorno ----------
 

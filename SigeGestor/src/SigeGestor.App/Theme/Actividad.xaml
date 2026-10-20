@@ -12,6 +12,46 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+    <!--
+        EL ENLACE AL FICHERO de la columna «Fichero».
+
+        Vive aquí y no en Controls.xaml porque solo lo usa esta tabla. Es un Button plano: sin
+        fondo ni borde, en azul de marca y subrayado al pasar por encima, que es como se lee
+        «esto se puede pulsar» sin meter un botón de verdad en una fila de 48 px.
+
+        El texto se recorta con puntos suspensivos y la ruta entera va en el ToolTip: los
+        nombres llevan sello de fecha y hora y no caben en la columna.
+    -->
+    <Style x:Key="BtnEnlaceFichero" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <TextBlock x:Name="Texto"
+                               Text="{TemplateBinding Content}"
+                               FontFamily="{StaticResource FontMono}"
+                               FontSize="11.5"
+                               Foreground="{StaticResource MarcaBrush}"
+                               TextTrimming="CharacterEllipsis"
+                               VerticalAlignment="Center" />
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Texto" Property="TextDecorations" Value="Underline" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Texto" Property="TextDecorations" Value="Underline" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <DataTemplate x:Key="PlantillaActividad">
             <Border BorderThickness="0,0,0,1" BorderBrush="{StaticResource Hair2Brush}">
                 <Border.Style>
@@ -27,9 +67,10 @@
                 <Grid Height="48" Margin="13,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" MinWidth="150" />
-                        <ColumnDefinition Width="146" />
-                        <ColumnDefinition Width="112" />
+                        <ColumnDefinition Width="126" />
                         <ColumnDefinition Width="92" />
+                        <ColumnDefinition Width="92" />
+                        <ColumnDefinition Width="145" />
                         <ColumnDefinition Width="112" />
                         <ColumnDefinition Width="70" />
                         <ColumnDefinition Width="96" />
@@ -109,8 +150,26 @@
                                VerticalAlignment="Center"
                                Margin="0,0,14,0" />
 
+                    <!--
+                        FICHERO. Enlace a lo que dejó la ejecución: abre el explorador en su
+                        carpeta, con el fichero ya seleccionado cuando es uno solo.
+
+                        Es un Button y no un Hyperlink: el Hyperlink vive dentro de un
+                        TextBlock y se lleva el subrayado y el color del tema de serie, que
+                        aquí no pintan nada.
+                    -->
+                    <Button Grid.Column="4"
+                            Visibility="{Binding VisibilidadFichero}"
+                            Command="{Binding AbrirSalidaCommand}"
+                            Style="{StaticResource BtnEnlaceFichero}"
+                            Content="{Binding Fichero}"
+                            ToolTip="{Binding AyudaFichero}"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            Margin="0,0,12,0" />
+
                     <!-- Estado, y el botón de cancelar si está corriendo -->
-                    <StackPanel Grid.Column="4" Orientation="Horizontal"
+                    <StackPanel Grid.Column="5" Orientation="Horizontal"
                                 HorizontalAlignment="Left" VerticalAlignment="Center">
                         <Border Height="21" Padding="8,0"
                                 CornerRadius="{StaticResource RChip}"
@@ -151,7 +210,7 @@
                     </StackPanel>
 
                     <!-- Duración -->
-                    <TextBlock Grid.Column="5"
+                    <TextBlock Grid.Column="6"
                                Text="{Binding Duracion}"
                                Style="{StaticResource TxMono}"
                                FontSize="12"
@@ -160,7 +219,7 @@
                                Margin="0,0,12,0" />
 
                     <!-- Cuándo -->
-                    <TextBlock Grid.Column="6"
+                    <TextBlock Grid.Column="7"
                                Text="{Binding Cuando}"
                                FontSize="11.5"
                                Foreground="{StaticResource Ink4Brush}"
@@ -179,9 +238,10 @@
             <Grid Height="34" Margin="13,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" MinWidth="150" />
-                    <ColumnDefinition Width="146" />
-                    <ColumnDefinition Width="112" />
+                    <ColumnDefinition Width="126" />
                     <ColumnDefinition Width="92" />
+                    <ColumnDefinition Width="92" />
+                    <ColumnDefinition Width="145" />
                     <ColumnDefinition Width="112" />
                     <ColumnDefinition Width="70" />
                     <ColumnDefinition Width="96" />
@@ -195,12 +255,14 @@
                 <TextBlock Grid.Column="3" Text="Resultado" FontSize="11.5" FontWeight="SemiBold"
                            Foreground="{StaticResource Ink3Brush}" HorizontalAlignment="Right"
                            VerticalAlignment="Center" Margin="0,0,14,0" />
-                <TextBlock Grid.Column="4" Text="Estado" FontSize="11.5" FontWeight="SemiBold"
+                <TextBlock Grid.Column="4" Text="Fichero" FontSize="11.5" FontWeight="SemiBold"
                            Foreground="{StaticResource Ink3Brush}" VerticalAlignment="Center" />
-                <TextBlock Grid.Column="5" Text="Duración" FontSize="11.5" FontWeight="SemiBold"
+                <TextBlock Grid.Column="5" Text="Estado" FontSize="11.5" FontWeight="SemiBold"
+                           Foreground="{StaticResource Ink3Brush}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="6" Text="Duración" FontSize="11.5" FontWeight="SemiBold"
                            Foreground="{StaticResource Ink3Brush}" HorizontalAlignment="Right"
                            VerticalAlignment="Center" Margin="0,0,12,0" />
-                <TextBlock Grid.Column="6" Text="Cuándo" FontSize="11.5" FontWeight="SemiBold"
+                <TextBlock Grid.Column="7" Text="Cuándo" FontSize="11.5" FontWeight="SemiBold"
                            Foreground="{StaticResource Ink3Brush}" HorizontalAlignment="Right"
                            VerticalAlignment="Center" />
             </Grid>

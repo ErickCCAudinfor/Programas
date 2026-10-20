@@ -1,4 +1,4 @@
-Imports System.Text.Json.Serialization
+﻿Imports System.Text.Json.Serialization
 
 Namespace Registro
 
@@ -54,6 +54,17 @@ Namespace Registro
 
         <JsonPropertyName("eq")>
         Public Property Equipo As String = ""
+
+        ''' <summary>
+        ''' Rutas de lo generado. Anadido el 20/10/2026.
+        '''
+        ''' Anadir una propiedad al final es compatible en los dos sentidos porque esto es JSON
+        ''' por NOMBRE: las lineas viejas no traen "out" y se deserializan con Nothing, y una
+        ''' version anterior de la aplicacion ignora el campo que no conoce. Esto no es como
+        ''' EstadoEjecucion, que se guarda por numero y ahi el orden si manda.
+        ''' </summary>
+        <JsonPropertyName("out")>
+        Public Property Salidas As String() = Array.Empty(Of String)()
 
     End Class
 

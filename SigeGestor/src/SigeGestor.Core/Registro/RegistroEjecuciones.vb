@@ -1,4 +1,4 @@
-Imports System.IO
+﻿Imports System.IO
 Imports System.Text
 Imports System.Text.Json
 Imports System.Threading
@@ -77,7 +77,8 @@ Namespace Registro
                     .Registros = ejecucion.Registros,
                     .Errores = ejecucion.Errores,
                     .Segundos = Math.Round(ejecucion.Duracion.TotalSeconds, 1),
-                    .Equipo = Environment.MachineName
+                    .Equipo = Environment.MachineName,
+                    .Salidas = If(ejecucion.Salidas, Array.Empty(Of String)()).ToArray()
                 }
 
                 Dim texto = JsonSerializer.Serialize(linea, OpcionesJson) & Environment.NewLine
@@ -172,7 +173,8 @@ Namespace Registro
                         .Registros = registro.Registros,
                         .Errores = registro.Errores,
                         .Duracion = TimeSpan.FromSeconds(registro.Segundos),
-                        .Equipo = registro.Equipo
+                        .Equipo = registro.Equipo,
+                        .Salidas = If(registro.Salidas, Array.Empty(Of String)())
                     })
                 Next
             Next
