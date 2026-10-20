@@ -117,6 +117,58 @@ if ($primeraVez) {
     Write-Host "Ya hay configuración allí: se conserva." -ForegroundColor Green
 }
 
+# ------------------------------------------------------------------
+# Quién tiene la aplicación abierta
+#
+# Robocopy no puede sobrescribir el .exe ni las DLL que alguien esté usando: la publicación
+# se queda a medias y en el servidor queda una mezcla de versiones. Así que antes de copiar
+# se mira Config\Usuarios.json, que la aplicación mantiene al día, y se dice a quién hay que
+# avisar y en qué servidor está.
+#
+# Se cuenta a quien esté marcado como conectado Y con latido reciente. Sin lo segundo saldría
+# cualquiera cuya sesión murió sin avisar, que es el defecto del Usuarios.json de
+# ActualizaPrecios.
+# ------------------------------------------------------------------
+$MinutosParaDarPorIdo = 7
+$dentro = @()
+
+$ficheroUsuarios = Join-Path $Destino "Config\Usuarios.json"
+if (Test-Path $ficheroUsuarios) {
+    try {
+        $limite = (Get-Date).AddMinutes(-$MinutosParaDarPorIdo)
+
+        # ConvertFrom-Json con -InputObject, NO por pipeline.
+        #
+        # En PowerShell 5.1 ConvertFrom-Json emite el array entero como UN SOLO objeto del
+        # pipeline. Encadenando un Where-Object detras, $_ es la lista completa y
+        # $_.UltimoLatido devuelve los de todos a la vez: falla con «No se puede convertir
+        # System.Object[] al tipo System.DateTime» y no detecta a nadie. Envolverlo en @()
+        # tampoco vale: deja un array de un elemento que contiene el array.
+        #
+        # Asignandolo con -InputObject, la variable guarda el array de verdad, y YA en el
+        # pipeline se enumera bien.
+        $todos = ConvertFrom-Json -InputObject (Get-Content $ficheroUsuarios -Raw -Encoding UTF8)
+        $dentro = @($todos | Where-Object {
+            $_.Logeado -and $_.UltimoLatido -and [datetime]$_.UltimoLatido -ge $limite })
+    } catch {
+        Write-Host "No se ha podido leer $ficheroUsuarios : $($_.Exception.Message)" -ForegroundColor Yellow
+    }
+}
+
+if ($dentro.Count -gt 0) {
+    Write-Host ""
+    Write-Host "HAY $($dentro.Count) PERSONA(S) CON LA APLICACION ABIERTA:" -ForegroundColor Red
+    foreach ($u in $dentro) {
+        $desde = [datetime]$u.UltimoLatido
+        Write-Host ("   {0,-22} {1,-12} visto hace {2:N0} min" -f `
+            $u.Nombre, $u.Servidor, ((Get-Date) - $desde).TotalMinutes) -ForegroundColor Red
+    }
+    Write-Host "Si copias ahora, robocopy no podra sobrescribir los ficheros en uso." -ForegroundColor Yellow
+    Write-Host "Pideles que salgan un momento y vuelve a lanzarlo." -ForegroundColor Yellow
+} else {
+    Write-Host "No hay nadie con la aplicacion abierta." -ForegroundColor Green
+}
+
 if (-not $Confirmar) {
     Write-Host ""
     Write-Host "Van a escribirse $mb MB en una carpeta que usa todo el equipo."

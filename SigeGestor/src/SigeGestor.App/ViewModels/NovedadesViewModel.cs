@@ -110,11 +110,12 @@ public sealed partial class NovedadesViewModel : ObservableObject
 
         _usuario.VersionNovedadesLeida = version;
 
-        _estado.Guardar(new EstadoUsuario
-        {
-            Login = _usuario.Login,
-            VersionNovedadesLeida = version
-        });
+        // Se PARTE del estado que ya hay, no de uno nuevo: la entrada guarda también quién
+        // está dentro y desde qué servidor, y construir uno desde cero al marcar las novedades
+        // como leídas dejaba a esa persona como desconectada hasta el siguiente latido.
+        var estado = _estado.Obtener(_usuario.Login);
+        estado.VersionNovedadesLeida = version;
+        _estado.Guardar(estado);
 
         Leido?.Invoke(this, EventArgs.Empty);
     }

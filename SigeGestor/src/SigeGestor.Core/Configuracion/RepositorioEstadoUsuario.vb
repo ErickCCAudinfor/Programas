@@ -3,10 +3,51 @@ Imports System.Text.Json
 
 Namespace Configuracion
 
-    ''' <summary>Lo que la aplicación recuerda de una persona entre sesiones.</summary>
+    ''' <summary>
+    ''' Lo que la aplicación recuerda de una persona entre sesiones.
+    '''
+    ''' El orden de las propiedades ES el orden en que salen en el JSON, y está puesto para que
+    ''' el fichero se lea de un vistazo con el Bloc de notas: primero quién, luego dónde está y
+    ''' si sigue dentro. Es para lo que se consulta —saber a quién hay que avisar antes de
+    ''' actualizar la aplicación en el .13—, así que tiene que entenderse sin abrir nada más.
+    ''' </summary>
     Public Class EstadoUsuario
 
         Public Property Login As String = ""
+
+        ''' <summary>Nombre legible. Al lado del login, que a veces es un número.</summary>
+        Public Property Nombre As String = ""
+
+        ''' <summary>
+        ''' Máquina desde la que entró. Se llama Servidor y no Equipo porque es como se llama
+        ''' en ActualizaPrecios y porque en la práctica son los servidores de sesión —SRVXEN03,
+        ''' SRVXEN05…—, no el portátil de nadie.
+        ''' </summary>
+        Public Property Servidor As String = ""
+
+        ''' <summary>
+        ''' Si tiene la aplicación abierta.
+        '''
+        ''' NO BASTA CON ESTE CAMPO, y por eso está UltimoLatido al lado. En ActualizaPrecios
+        ''' este booleano es lo único que hay, y se queda pegado en True para siempre cuando la
+        ''' aplicación no se cierra por las buenas: un cuelgue, cerrar la sesión de Windows o
+        ''' reiniciar el servidor. Para saber si alguien está DE VERDAD hay que mirar también
+        ''' que el latido sea reciente. Eso es lo que hace Conectados().
+        ''' </summary>
+        Public Property Logeado As Boolean
+
+        ''' <summary>Cuándo entró. Nothing si nunca ha entrado.</summary>
+        Public Property UltimoAcceso As Date?
+
+        ''' <summary>
+        ''' Última señal de vida. La aplicación la refresca cada pocos minutos mientras está
+        ''' abierta, así que una marca vieja con Logeado=True significa que esa sesión murió
+        ''' sin avisar, no que la persona siga dentro.
+        ''' </summary>
+        Public Property UltimoLatido As Date?
+
+        ''' <summary>Cuándo salió. Nothing si nunca ha salido por las buenas.</summary>
+        Public Property UltimaSalida As Date?
 
         ''' <summary>Última versión de novedades que ha visto. Vacío = no ha visto ninguna.</summary>
         Public Property VersionNovedadesLeida As String = ""
@@ -100,6 +141,101 @@ Namespace Configuracion
             End Try
 
         End Sub
+
+        ' ============================================================
+        ' QUIÉN ESTÁ DENTRO
+        '
+        ' Para poder avisar antes de actualizar la aplicación en el .13: la copia se hace con
+        ' robocopy sobre el .exe, y si alguien lo tiene abierto el fichero está bloqueado y la
+        ' publicación falla a medias. Saber quién es y en qué servidor está permite pedirle que
+        ' salga un momento en vez de ir preguntando a los ocho.
+        ' ============================================================
+
+        ''' <summary>Minutos entre latidos. El shell refresca con esta cadencia.</summary>
+        Public Const MinutosEntreLatidos As Integer = 2
+
+        ''' <summary>
+        ''' A partir de cuántos minutos sin latido se deja de contar a alguien como conectado.
+        ''' Da margen para tres latidos perdidos: por red lenta o por el fichero ocupado en ese
+        ''' instante, que se descarta sin reintentar.
+        ''' </summary>
+        Public Const MinutosParaDarPorIdo As Integer = 7
+
+        ''' <summary>Apunta que alguien acaba de entrar, desde qué máquina y cuándo.</summary>
+        Public Sub MarcarEntrada(login As String, nombre As String)
+
+            If String.IsNullOrWhiteSpace(login) Then Exit Sub
+
+            Dim estado = Obtener(login)
+            estado.Nombre = nombre
+            estado.Servidor = Environment.MachineName
+            estado.Logeado = True
+            estado.UltimoAcceso = Date.Now
+            estado.UltimoLatido = Date.Now
+
+            Guardar(estado)
+
+        End Sub
+
+        ''' <summary>Señal de vida. Si falla no pasa nada: se recupera en el siguiente.</summary>
+        Public Sub Latido(login As String)
+
+            If String.IsNullOrWhiteSpace(login) Then Exit Sub
+
+            Dim estado = Obtener(login)
+
+            ' Si otra sesión de la misma persona entró después desde otra máquina, el latido de
+            ' esta no debe devolver el servidor al anterior: manda la entrada más reciente.
+            If Not String.Equals(estado.Servidor, Environment.MachineName,
+                                 StringComparison.OrdinalIgnoreCase) Then Exit Sub
+
+            estado.Logeado = True
+            estado.UltimoLatido = Date.Now
+
+            Guardar(estado)
+
+        End Sub
+
+        ''' <summary>Apunta que alguien ha salido por las buenas.</summary>
+        Public Sub MarcarSalida(login As String)
+
+            If String.IsNullOrWhiteSpace(login) Then Exit Sub
+
+            Dim estado = Obtener(login)
+
+            ' Mismo caso que en Latido: no se cierra la sesión que otra máquina tenga abierta.
+            If estado.Logeado AndAlso
+               Not String.Equals(estado.Servidor, Environment.MachineName,
+                                 StringComparison.OrdinalIgnoreCase) Then Exit Sub
+
+            estado.Logeado = False
+            estado.UltimaSalida = Date.Now
+
+            Guardar(estado)
+
+        End Sub
+
+        ''' <summary>
+        ''' Quién está dentro ahora mismo: marcado como conectado Y con latido reciente. Lo
+        ''' segundo es lo que evita contar sesiones que murieron sin avisar.
+        ''' </summary>
+        Public Function Conectados() As IReadOnlyList(Of EstadoUsuario)
+
+            Dim limite = Date.Now.AddMinutes(-MinutosParaDarPorIdo)
+
+            Return Leer().
+                Where(Function(e) e.Logeado AndAlso
+                                  e.UltimoLatido.HasValue AndAlso
+                                  e.UltimoLatido.Value >= limite).
+                OrderBy(Function(e) e.Nombre).
+                ToList()
+
+        End Function
+
+        ''' <summary>Todos, para poder listarlos tal cual están en el fichero.</summary>
+        Public Function Todos() As IReadOnlyList(Of EstadoUsuario)
+            Return Leer()
+        End Function
 
         Private Function Leer() As IReadOnlyList(Of EstadoUsuario)
 

@@ -1,5 +1,7 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Windows;
+using System.Windows.Threading;
 using System.Windows.Markup;
 using SigeGestor.App.ViewModels;
 using SigeGestor.App.Views;
@@ -22,6 +24,21 @@ public partial class App : Application
     private ServicioAutenticacion _autenticacion = null!;
     private RegistroEjecuciones _registro = null!;
     private IRepositorioEjecuciones _ejecuciones = null!;
+
+    // ============================================================
+    // QUIÉN ESTÁ DENTRO
+    //
+    // Se apunta en Config\Usuarios.json, que al vivir el .exe en el .13 es el mismo fichero
+    // para las ocho personas. Sirve para saber a quién avisar antes de actualizar la
+    // aplicación: la copia va con robocopy sobre el .exe y, si alguien lo tiene abierto, el
+    // fichero está bloqueado y la publicación falla.
+    //
+    // El latido es lo que distingue «está dentro» de «se quedó marcado». Ver EstadoUsuario.
+    // ============================================================
+
+    private readonly RepositorioEstadoUsuario _estadoUsuario = new();
+    private DispatcherTimer? _latido;
+    private string _loginEnCurso = "";
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -84,15 +101,64 @@ public partial class App : Application
             return;
         }
 
+        var usuario = login.UsuarioAutenticado;
+
+        AbrirSesion(usuario.Login, usuario.Nombre);
+
         var principal = new ShellWindow(
-            login.UsuarioAutenticado, _entornos, _ejecuciones, _registro, DiasRetencionLog);
+            usuario, _entornos, _ejecuciones, _registro, DiasRetencionLog);
         MainWindow = principal;
 
         // Se encola en el Dispatcher en vez de llamar directamente: así la ventana que se
         // está cerrando termina de destruirse antes de abrir el login, y la llamada no se
         // apila sobre la anterior.
-        principal.Closed += (_, _) => Dispatcher.BeginInvoke(new Action(PedirAcceso));
+        principal.Closed += (_, _) =>
+        {
+            CerrarSesion();
+            Dispatcher.BeginInvoke(new Action(PedirAcceso));
+        };
 
         principal.Show();
+    }
+
+    /// <summary>
+    /// Apunta la entrada y arranca el latido. Se vuelve a pasar por aquí al cambiar de
+    /// usuario sin cerrar el .exe, así que primero se cierra lo que hubiera abierto.
+    /// </summary>
+    private void AbrirSesion(string login, string nombre)
+    {
+        CerrarSesion();
+
+        _loginEnCurso = login;
+        _estadoUsuario.MarcarEntrada(login, nombre);
+
+        _latido = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMinutes(RepositorioEstadoUsuario.MinutosEntreLatidos)
+        };
+        _latido.Tick += (_, _) => _estadoUsuario.Latido(_loginEnCurso);
+        _latido.Start();
+    }
+
+    private void CerrarSesion()
+    {
+        _latido?.Stop();
+        _latido = null;
+
+        if (_loginEnCurso.Length == 0) return;
+
+        _estadoUsuario.MarcarSalida(_loginEnCurso);
+        _loginEnCurso = "";
+    }
+
+    /// <summary>
+    /// Por si se sale por una vía que no pasa por cerrar la ventana —cancelar el login con el
+    /// shell ya cerrado, o un Shutdown—. Lo que NO se puede cubrir es matar el proceso o
+    /// apagar la máquina: para eso está el latido.
+    /// </summary>
+    protected override void OnExit(ExitEventArgs e)
+    {
+        CerrarSesion();
+        base.OnExit(e);
     }
 }
