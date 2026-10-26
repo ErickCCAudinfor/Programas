@@ -103,7 +103,7 @@ public sealed partial class EjecucionVm : ObservableObject
         Titulo = e.Operacion;
         Subtitulo = string.IsNullOrWhiteSpace(e.Detalle) ? e.Grupo : $"{e.Grupo} · {e.Detalle}";
         Usuario = e.NombreUsuario;
-        Iniciales = IngenieriaIniciales(e.NombreUsuario);
+        Iniciales = Apariencia.Iniciales(e.NombreUsuario);
         Grupo = e.Grupo;
         Entorno = e.Entorno;
         Estado = e.Estado;
@@ -254,16 +254,4 @@ public sealed partial class EjecucionVm : ObservableObject
         _ => "Ink3Brush"
     });
 
-    private static string IngenieriaIniciales(string nombre)
-    {
-        var limpio = (nombre ?? "").Trim();
-        if (limpio.Length == 0) return "?";
-
-        var partes = limpio.Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
-        if (partes.Length == 1)
-        {
-            return partes[0][..System.Math.Min(2, partes[0].Length)].ToUpperInvariant();
-        }
-        return $"{partes[0][0]}{partes[^1][0]}".ToUpperInvariant();
-    }
 }

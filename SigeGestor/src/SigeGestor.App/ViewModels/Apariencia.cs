@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Media;
 using SigeGestor.Core.Modelos;
@@ -15,6 +15,22 @@ namespace SigeGestor.App.ViewModels;
 /// </summary>
 public static class Apariencia
 {
+    /// <summary>
+    /// Las dos letras del avatar. Estaba en EjecucionVm; se sube aquí al aparecer el segundo
+    /// consumidor —las sugerencias—, antes de que hubiera dos copias que mantener.
+    /// </summary>
+    public static string Iniciales(string nombre)
+    {
+        var limpio = (nombre ?? "").Trim();
+        if (limpio.Length == 0) return "?";
+
+        var partes = limpio.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        return partes.Length == 1
+            ? partes[0][..Math.Min(2, partes[0].Length)].ToUpperInvariant()
+            : $"{partes[0][0]}{partes[^1][0]}".ToUpperInvariant();
+    }
+
     public static Brush Pincel(string clave) =>
         Application.Current?.TryFindResource(clave) as Brush ?? Brushes.Transparent;
 

@@ -25,6 +25,22 @@ Public Module NovedadesApp
 
     Public ReadOnly Historial As New List(Of Novedad) From {
         New Novedad With {
+            .Version = "3.1",
+            .Fecha = New Date(2026, 10, 26),
+            .Titulo = "Sugerencias, y dónde queda cada fichero",
+            .Cambios = New List(Of String) From {
+                "Sección nueva «Sugerencias»: si echas algo en falta o lo harías de otra forma, escríbelo ahí. Lo ve todo el equipo y puedes corregir o borrar las tuyas.",
+                "Al terminar una operación, el recuadro «Se ha guardado en» volvía a salir vacío. Ya dice la ruta, y el botón de al lado abre la carpeta con el fichero seleccionado.",
+                "Columna «Fichero» en el inicio y en Ejecuciones: el nombre de lo que generó cada ejecución, y pulsándolo se abre su carpeta. Las ejecuciones anteriores al 26 de octubre no la traen.",
+                "Las operaciones de cada sección se ven ahora en tarjetas repartidas en columnas, en vez de una lista larga. Se adaptan al ancho de la ventana.",
+                "«Validaciones» se ha movido de Ajustes a Contratos, que es lo que valida.",
+                "Consulta nueva: Concello de Allariz, por rango de fechas.",
+                "Consulta nueva: Autoconsumo prefacturas. Al abrir el Excel, pon la columna BI en formato texto o el número de serie de las facturas de compra no se pega bien.",
+                "Modelos de impresión ya no se amontona al hacer la ventana pequeña.",
+                "Estas novedades se pliegan y despliegan, para no tener que bajar por toda la lista."
+            }
+        },
+        New Novedad With {
             .Version = "3.0",
             .Fecha = New Date(2026, 8, 25),
             .Titulo = "Aplicación nueva: SigeGestor",

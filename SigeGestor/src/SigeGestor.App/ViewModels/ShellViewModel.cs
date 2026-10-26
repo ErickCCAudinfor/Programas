@@ -36,7 +36,8 @@ public sealed partial class ShellViewModel : ObservableObject
             DeCatalogo(Seccion.Facturas,  SeccionOperacion.Facturas,  "Facturas y PDF", "IcoFacturas"),
 
             DeCatalogo(Seccion.Ajustes, SeccionOperacion.Ajustes, "Ajustes", "IcoAjustes", "Sistema"),
-            new() { Seccion = Seccion.Novedades, Titulo = "Novedades", Grupo = "Sistema", ClaveIcono = "IcoNovedades" }
+            new() { Seccion = Seccion.Novedades, Titulo = "Novedades", Grupo = "Sistema", ClaveIcono = "IcoNovedades" },
+            new() { Seccion = Seccion.Sugerencias, Titulo = "Sugerencias", Grupo = "Sistema", ClaveIcono = "IcoSugerencias" }
         };
 
         RefrescarAvisos();

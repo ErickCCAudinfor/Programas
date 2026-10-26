@@ -881,6 +881,9 @@
                         ejecutable:=PorFechas("GAM", "GAM")),
                 General("CAM", EntradasOperacion.Fechas, "Facturación de CAM en el rango indicado.",
                         ejecutable:=PorFechas("ConsultaFacturasCAM", "CAM")),
+                General("Concello de Allariz", EntradasOperacion.Fechas,
+                        "Facturación del Concello de Allariz en el rango indicado.",
+                        ejecutable:=PorFechas("ConsultaFacturasAllariz", "Allariz")),
                 General("Desglosado Trébol Luz by CIF", EntradasOperacion.Cifs Or EntradasOperacion.Fechas,
                         "Facturas de luz (entorno E1) por CIF y rango de fechas.", dividir:=True,
                         ejecutable:=PorLista("ConsultaFacturasTREBOL_ELEC__ByIdentidadFechas", "TREBOL_LUZ", "identidadReplace")),
@@ -909,6 +912,12 @@
                             Sql, "ConsultaCogeneracionLidia__V7_PorEquipo_2025", "ConsultaCogeneracionPorFactura",
                             "PorFactura", Implementadas.ConsultaPorFechas.FormatoBarras, pideFechas:=False,
                             extra:=Sub(pl, c) pl.Poner("IdsFacturasReplace", String.Join(",", c.Entradas)))),
+                General("Autoconsumo prefacturas", EntradasOperacion.Ninguna,
+                        "Prefacturas de autoconsumo. Las fechas están fijadas dentro de la consulta. " &
+                        "Al abrir el Excel, pon la columna BI en formato texto: si no, el número de serie " &
+                        "de las facturas de compra no se pega bien.",
+                        ejecutable:=PorFechas("ConsultaAutoconsumoPrefacturas", "AutoconsumoPrefacturas",
+                                              "Autoconsumo", pideFechas:=False)),
                 General("Cuentas LB2B", EntradasOperacion.Texto Or EntradasOperacion.Fechas,
                         "Busca por parte del nombre del agente; no hace falta escribirlo completo.",
                         ejecutable:=New Implementadas.ConsultaPorFechas(

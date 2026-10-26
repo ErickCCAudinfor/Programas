@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -11,7 +11,7 @@ using SigeGestor.Core.Modelos;
 namespace SigeGestor.App.ViewModels;
 
 /// <summary>Una versión del historial, lista para pintar.</summary>
-public sealed class NovedadVm
+public sealed partial class NovedadVm : ObservableObject
 {
     public required Novedad Novedad { get; init; }
 
@@ -26,6 +26,13 @@ public sealed class NovedadVm
     public required bool EsNueva { get; init; }
 
     public Visibility VisibilidadNueva => EsNueva ? Visibility.Visible : Visibility.Collapsed;
+
+    /// <summary>
+    /// Si se ven sus cambios. Las versiones se pliegan para que la pantalla no sea una lista
+    /// larguísima: con tres o cuatro versiones había que bajar un buen rato para llegar a la
+    /// anterior. Viene desplegada la que trae algo sin leer, que es a lo que se entra.
+    /// </summary>
+    [ObservableProperty] private bool _expandido;
 }
 
 /// <summary>
@@ -64,7 +71,8 @@ public sealed partial class NovedadesViewModel : ObservableObject
                 ? i == 0
                 : NovedadesApp.EsPosterior(n.Version, leida);
 
-            var vm = new NovedadVm { Novedad = n, EsNueva = esNueva };
+            // Desplegada solo si trae algo sin leer; el resto, plegadas.
+            var vm = new NovedadVm { Novedad = n, EsNueva = esNueva, Expandido = esNueva };
 
             if (i == 0) Actual = vm;
             else Anteriores.Add(vm);

@@ -154,6 +154,11 @@ public partial class ShellWindow : Window
             return new NovedadesPage(novedades);
         }
 
+        if (item.Seccion == Seccion.Sugerencias)
+        {
+            return new SugerenciasPage(new SugerenciasViewModel(_usuario));
+        }
+
         if (item.SeccionCatalogo is SeccionOperacion seccion)
         {
             var pagina = new SeccionPage(new SeccionViewModel(

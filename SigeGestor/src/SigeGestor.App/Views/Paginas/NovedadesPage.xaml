@@ -1,10 +1,12 @@
-<UserControl x:Class="SigeGestor.App.Views.Paginas.NovedadesPage"
+﻿<UserControl x:Class="SigeGestor.App.Views.Paginas.NovedadesPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FontFamily="{StaticResource FontUi}"
              TextOptions.TextFormattingMode="Ideal">
 
     <UserControl.Resources>
+
+        <BooleanToVisibilityConverter x:Key="BoolAVisibilidad" />
 
         <!-- Una versión: cabecera, y la lista de cambios con su viñeta -->
         <DataTemplate x:Key="PlantillaNovedad">
@@ -16,32 +18,108 @@
                     BorderThickness="1">
                 <StackPanel>
 
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Version}" Style="{StaticResource TxCard}" />
+                    <!--
+                        LA CABECERA PLIEGA Y DESPLIEGA.
 
-                        <Border Visibility="{Binding VisibilidadNueva}"
-                                Margin="9,0,0,0" Padding="6,1"
-                                VerticalAlignment="Center"
-                                CornerRadius="{StaticResource RChip}"
-                                Background="{StaticResource MarcaSuaveBrush}"
-                                BorderBrush="{StaticResource MarcaLineaBrush}"
-                                BorderThickness="1">
-                            <TextBlock Text="NUEVO" FontSize="9.5" FontWeight="Bold"
-                                       Foreground="{StaticResource MarcaBrush}" />
-                        </Border>
-                    </StackPanel>
+                        Es un ToggleButton con la plantilla cambiada —no un Expander— por dos
+                        motivos: el Expander trae su propio triángulo y su propio marco, que
+                        no son los de aquí, y así la zona que se pulsa es la cabecera entera y
+                        no solo una flecha de 12 px.
 
-                    <TextBlock Text="{Binding Titulo}"
-                               FontSize="13.5" FontWeight="SemiBold"
-                               HorizontalAlignment="Left" TextWrapping="Wrap"
-                               Margin="0,7,0,0" />
+                        Empieza desplegada la versión que trae algo sin leer y plegadas las
+                        demás; lo decide Expandido en el ViewModel.
+                    -->
+                    <ToggleButton IsChecked="{Binding Expandido, Mode=TwoWay}"
+                                  Cursor="Hand"
+                                  HorizontalContentAlignment="Stretch"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  Padding="0"
+                                  Focusable="True">
+                        <ToggleButton.Template>
+                            <ControlTemplate TargetType="ToggleButton">
+                                <Border Background="Transparent">
+                                    <ContentPresenter />
+                                </Border>
+                            </ControlTemplate>
+                        </ToggleButton.Template>
 
-                    <TextBlock Style="{StaticResource TxHelp}"
-                               HorizontalAlignment="Left" Margin="0,3,0,0">
-                        <Run Text="{Binding Fecha, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding Recuento, Mode=OneWay}" />
-                    </TextBlock>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
 
-                    <ItemsControl ItemsSource="{Binding Cambios}" Margin="0,12,0,0">
+                            <StackPanel Grid.Column="0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Version}" Style="{StaticResource TxCard}" />
+
+                                    <Border Visibility="{Binding VisibilidadNueva}"
+                                            Margin="9,0,0,0" Padding="6,1"
+                                            VerticalAlignment="Center"
+                                            CornerRadius="{StaticResource RChip}"
+                                            Background="{StaticResource MarcaSuaveBrush}"
+                                            BorderBrush="{StaticResource MarcaLineaBrush}"
+                                            BorderThickness="1">
+                                        <TextBlock Text="NUEVO" FontSize="9.5" FontWeight="Bold"
+                                                   Foreground="{StaticResource MarcaBrush}" />
+                                    </Border>
+                                </StackPanel>
+
+                                <TextBlock Text="{Binding Titulo}"
+                                           FontSize="13.5" FontWeight="SemiBold"
+                                           HorizontalAlignment="Left" TextWrapping="Wrap"
+                                           Margin="0,7,0,0" />
+
+                                <TextBlock Style="{StaticResource TxHelp}"
+                                           HorizontalAlignment="Left" Margin="0,3,0,0">
+                                    <Run Text="{Binding Fecha, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding Recuento, Mode=OneWay}" />
+                                </TextBlock>
+                            </StackPanel>
+
+                            <Path Grid.Column="1"
+                                  Data="{StaticResource IcoCheuronAbajo}"
+                                  Stroke="{StaticResource Ink4Brush}"
+                                  StrokeThickness="1.6"
+                                  StrokeStartLineCap="Round"
+                                  StrokeEndLineCap="Round"
+                                  Stretch="Uniform"
+                                  Width="13" Height="13"
+                                  VerticalAlignment="Top"
+                                  Margin="10,4,0,0"
+                                  RenderTransformOrigin="0.5,0.5">
+                                <!--
+                                    El giro va SOLO en el Style, sin RenderTransform puesto
+                                    aquí al lado. Un valor local gana a los Setter de un
+                                    trigger, asi que con los dos el cheuron se quedaba
+                                    apuntando siempre hacia abajo, tambien en las plegadas.
+                                -->
+                                <Path.Style>
+                                    <Style TargetType="Path">
+                                        <!-- Desplegada: apunta hacia abajo. -->
+                                        <Setter Property="RenderTransform">
+                                            <Setter.Value>
+                                                <RotateTransform Angle="0" />
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <!-- Plegada: apunta a la derecha. -->
+                                            <DataTrigger Binding="{Binding Expandido}" Value="False">
+                                                <Setter Property="RenderTransform">
+                                                    <Setter.Value>
+                                                        <RotateTransform Angle="-90" />
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Path.Style>
+                            </Path>
+                        </Grid>
+                    </ToggleButton>
+
+                    <ItemsControl ItemsSource="{Binding Cambios}" Margin="0,12,0,0"
+                                  Visibility="{Binding Expandido, Converter={StaticResource BoolAVisibilidad}}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid Margin="0,0,0,7">

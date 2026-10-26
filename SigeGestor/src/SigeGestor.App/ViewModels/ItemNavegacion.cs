@@ -16,7 +16,8 @@ public enum Seccion
     Consultas,
     Facturas,
     Ajustes,
-    Novedades
+    Novedades,
+    Sugerencias
 }
 
 /// <summary>

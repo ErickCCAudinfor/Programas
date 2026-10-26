@@ -1,0 +1,224 @@
+﻿<UserControl x:Class="SigeGestor.App.Views.Paginas.SugerenciasPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{StaticResource FontUi}"
+             TextOptions.TextFormattingMode="Ideal">
+
+    <UserControl.Resources>
+
+        <BooleanToVisibilityConverter x:Key="BoolAVisibilidad" />
+
+        <!-- ============================================================
+             UNA SUGERENCIA
+
+             Los botones de editar y borrar solo salen en las propias: VisibilidadAcciones.
+             No es seguridad —la carpeta la puede abrir cualquiera— sino evitar que dos
+             personas se corrijan la una a la otra sin querer.
+             ============================================================ -->
+        <DataTemplate x:Key="PlantillaSugerencia">
+            <Border Margin="0,0,0,10" Padding="15,13"
+                    CornerRadius="{StaticResource RCard}"
+                    Background="{StaticResource PanelBrush}"
+                    BorderBrush="{StaticResource HairBrush}"
+                    BorderThickness="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Avatar -->
+                    <Border Grid.Column="0"
+                            Width="30" Height="30" CornerRadius="15"
+                            Background="{StaticResource SunkBrush}"
+                            BorderBrush="{StaticResource HairBrush}"
+                            BorderThickness="1"
+                            VerticalAlignment="Top">
+                        <TextBlock Text="{Binding Iniciales}"
+                                   FontSize="11" FontWeight="SemiBold"
+                                   Foreground="{StaticResource Ink3Brush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+
+                    <StackPanel Grid.Column="1" Margin="12,0,10,0">
+
+                        <TextBlock Text="{Binding Titulo}"
+                                   FontSize="13.5" FontWeight="SemiBold"
+                                   TextWrapping="Wrap" />
+
+                        <TextBlock Text="{Binding Detalle}"
+                                   Visibility="{Binding VisibilidadDetalle}"
+                                   Style="{StaticResource TxHelp}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,5,0,0" />
+
+                        <WrapPanel Margin="0,7,0,0">
+                            <TextBlock Text="{Binding Autor}" Style="{StaticResource TxHelp}" />
+                            <TextBlock Text="·" Foreground="{StaticResource Ink4Brush}" Margin="6,0" />
+                            <TextBlock Text="{Binding Cuando}" Style="{StaticResource TxHelp}" />
+                            <TextBlock Text="· editada"
+                                       Visibility="{Binding VisibilidadEditada}"
+                                       Style="{StaticResource TxHelp}"
+                                       Margin="6,0,0,0" />
+                        </WrapPanel>
+
+                        <!-- Respuesta de quien la revisa -->
+                        <Border Visibility="{Binding VisibilidadRespuesta}"
+                                Margin="0,9,0,0" Padding="10,8"
+                                CornerRadius="{StaticResource RCtl}"
+                                Background="{StaticResource SunkBrush}"
+                                BorderBrush="{StaticResource HairBrush}"
+                                BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="RESPUESTA" Style="{StaticResource TxSection}" />
+                                <TextBlock Text="{Binding Respuesta}"
+                                           Style="{StaticResource TxHelp}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,4,0,0" />
+                            </StackPanel>
+                        </Border>
+
+                        <StackPanel Orientation="Horizontal"
+                                    Visibility="{Binding VisibilidadAcciones}"
+                                    Margin="0,9,0,0">
+                            <Button Style="{StaticResource BtnGhost}" Content="Editar" FontSize="12"
+                                    Command="{Binding DataContext.EditarCommand,
+                                              RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="{Binding}" />
+                            <Button Style="{StaticResource BtnGhost}" Content="Borrar" FontSize="12"
+                                    Margin="6,0,0,0"
+                                    Tag="{Binding}"
+                                    Click="Borrar_Click" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Border Grid.Column="2"
+                            Height="21" Padding="8,0"
+                            CornerRadius="{StaticResource RChip}"
+                            Background="{Binding EstadoFondo}"
+                            BorderBrush="{Binding EstadoBorde}"
+                            BorderThickness="1"
+                            VerticalAlignment="Top">
+                        <TextBlock Text="{Binding EstadoTexto}"
+                                   FontSize="11" FontWeight="SemiBold"
+                                   Foreground="{Binding EstadoColorTexto}"
+                                   VerticalAlignment="Center" />
+                    </Border>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  Padding="26,24,26,28">
+        <StackPanel>
+
+            <!-- Cabecera -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Sugerencias" Style="{StaticResource TxH1}" />
+                    <TextBlock Style="{StaticResource TxBodyMuted}"
+                               HorizontalAlignment="Left" TextWrapping="Wrap" MaxWidth="700"
+                               Margin="0,6,0,0"
+                               Text="Qué echas en falta o qué cambiarías. Las lee quien mantiene la aplicación y quedan aquí para todo el equipo." />
+                    <TextBlock Text="{Binding Recuento}" Style="{StaticResource TxHelp}" Margin="0,6,0,0" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                    <Button Style="{StaticResource BtnGhost}" Content="Actualizar"
+                            Command="{Binding RecargarCommand}" />
+                    <Button Style="{StaticResource BtnPrimary}" Content="Escribir una"
+                            Margin="9,0,0,0"
+                            Command="{Binding EscribirCommand}" />
+                </StackPanel>
+            </Grid>
+
+            <TextBlock Text="{Binding Aviso}"
+                       Visibility="{Binding VisibilidadAviso}"
+                       Foreground="{StaticResource OkBrush}"
+                       FontSize="12.5" FontWeight="SemiBold"
+                       HorizontalAlignment="Left" TextWrapping="Wrap"
+                       Margin="0,13,0,0" />
+
+            <TextBlock Text="{Binding Error}"
+                       Visibility="{Binding VisibilidadError}"
+                       Style="{StaticResource TxError}"
+                       HorizontalAlignment="Left" TextWrapping="Wrap"
+                       Margin="0,13,0,0" />
+
+            <!-- ============================================================
+                 EL FORMULARIO
+
+                 Sale solo al pulsar «Escribir una» o «Editar», y es el mismo para las dos
+                 cosas: el título lo dice y el botón cambia de texto.
+                 ============================================================ -->
+            <Border Visibility="{Binding Escribiendo, Converter={StaticResource BoolAVisibilidad}}"
+                    Margin="0,16,0,0" Padding="15"
+                    CornerRadius="{StaticResource RCard}"
+                    Background="{StaticResource PanelBrush}"
+                    BorderBrush="{StaticResource AccentLineBrush}"
+                    BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="{Binding TituloFormulario}" Style="{StaticResource TxSection}" />
+
+                    <TextBlock Text="En una línea" Style="{StaticResource TxLabel}" Margin="0,11,0,6" />
+                    <TextBox Style="{StaticResource InputBase}"
+                             MaxLength="150"
+                             Text="{Binding Titulo, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBlock Text="Con más detalle (opcional)" Style="{StaticResource TxLabel}" Margin="0,11,0,6" />
+                    <TextBox Style="{StaticResource InputBase}"
+                             MaxLength="2000"
+                             Height="90"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             VerticalContentAlignment="Top"
+                             VerticalScrollBarVisibility="Auto"
+                             Text="{Binding Detalle, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <StackPanel Orientation="Horizontal" Margin="0,13,0,0">
+                        <Button Style="{StaticResource BtnPrimary}"
+                                Content="{Binding TextoBotonGuardar}"
+                                IsEnabled="{Binding PuedeGuardar}"
+                                Command="{Binding GuardarCommand}" />
+                        <Button Style="{StaticResource BtnGhost}" Content="Cancelar"
+                                Margin="9,0,0,0"
+                                Command="{Binding CancelarCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Vacío -->
+            <Border Visibility="{Binding VisibilidadVacio}"
+                    Margin="0,16,0,0" Padding="20"
+                    CornerRadius="{StaticResource RCard}"
+                    Background="{StaticResource PanelBrush}"
+                    BorderBrush="{StaticResource HairBrush}"
+                    BorderThickness="1">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="Todavía no hay ninguna"
+                               FontSize="13.5" FontWeight="SemiBold"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Style="{StaticResource TxHelp}"
+                               HorizontalAlignment="Center" TextAlignment="Center"
+                               TextWrapping="Wrap" MaxWidth="420"
+                               Margin="0,5,0,0"
+                               Text="Si hay algo que harías de otra forma, o una operación que te falta, escríbela aquí." />
+                </StackPanel>
+            </Border>
+
+            <ItemsControl ItemsSource="{Binding Sugerencias}"
+                          ItemTemplate="{StaticResource PlantillaSugerencia}"
+                          Margin="0,16,0,0" />
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
