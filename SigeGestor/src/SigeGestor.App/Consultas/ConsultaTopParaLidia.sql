@@ -1,7 +1,7 @@
---Erick _Gestor Sige_ ConsultaTop
+﻿--Erick _Gestor Sige_ ConsultaTop
 with XMLNAMESPACES('http://localhost/elegibilidad' as "XS") 
 
-,facturas as (select idfacturacompracabecera from FacturaCompraCabecera with (nolock) where NumeroFactura =@NumFacCompra
+,facturas as (select idfacturacompracabecera from FacturaCompraCabecera with (nolock) where NumeroFactura = 'numFacCompraReplace'
 )
 
 ,TipoAuto as (select idfacturacompracabecera,isnull(FacturaXML.value('(//XS:DatosFacturaATR/XS:TipoAutoconsumo)[1]', 'nvarchar(max)'),0) as TipoAu 

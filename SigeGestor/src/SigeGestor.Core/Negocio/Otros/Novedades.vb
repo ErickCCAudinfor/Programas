@@ -25,6 +25,16 @@ Public Module NovedadesApp
 
     Public ReadOnly Historial As New List(Of Novedad) From {
         New Novedad With {
+            .Version = "3.2",
+            .Fecha = New Date(2026, 10, 27),
+            .Titulo = "Dos consultas más",
+            .Cambios = New List(Of String) From {
+                "Consulta TOP: estaba en la aplicación anterior y faltaba aquí. Se pegan los números de factura de compra, uno por línea, y salen el autoconsumo y los clicks de cada una.",
+                "Consulta nueva «Bajas con lecturas sin calcular»: lecturas pendientes de facturar de contratos que ya están de baja, por rango de fecha de baja.",
+                "Las dos salieron de las sugerencias que dejó el equipo. Siguen ahí para lo que haga falta."
+            }
+        },
+        New Novedad With {
             .Version = "3.1",
             .Fecha = New Date(2026, 10, 26),
             .Titulo = "Sugerencias, y dónde queda cada fichero",

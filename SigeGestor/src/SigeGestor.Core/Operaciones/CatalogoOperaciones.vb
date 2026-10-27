@@ -884,6 +884,15 @@
                 General("Concello de Allariz", EntradasOperacion.Fechas,
                         "Facturación del Concello de Allariz en el rango indicado.",
                         ejecutable:=PorFechas("ConsultaFacturasAllariz", "Allariz")),
+                General("Consulta TOP", EntradasOperacion.Facturas,
+                        "Autoconsumo y clicks de las facturas de compra indicadas. Se pega el número " &
+                        "de factura de compra, uno por línea.",
+                        ejecutable:=PorLista("ConsultaTopParaLidia", "ConsultaTopLidia", "numFacCompraReplace")),
+                General("Bajas con lecturas sin calcular", EntradasOperacion.Fechas,
+                        "Lecturas pendientes de facturar de contratos que ya están de baja, por fecha " &
+                        "de baja.",
+                        ejecutable:=PorFechas("ConsultaBajasLecturasSinCalcular", "BajasLecturasSinCalcular",
+                                              "BajasSinCalcular")),
                 General("Desglosado Trébol Luz by CIF", EntradasOperacion.Cifs Or EntradasOperacion.Fechas,
                         "Facturas de luz (entorno E1) por CIF y rango de fechas.", dividir:=True,
                         ejecutable:=PorLista("ConsultaFacturasTREBOL_ELEC__ByIdentidadFechas", "TREBOL_LUZ", "identidadReplace")),

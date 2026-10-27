@@ -25,8 +25,9 @@ aplicación necesita el mismo acceso al servidor que necesita hoy para Actualiza
 |---|---|
 | `Config\Entornos.json` | credenciales de Producción, Réplica y UAT |
 | `Config\Empresas.json` | bases de clientes, con credenciales |
-| `Config\Usuarios.json` | qué novedades ha visto cada uno |
+| `Config\Usuarios.json` | qué novedades ha visto cada uno, y quién está dentro |
 | `Logs\` | el histórico de ejecuciones del equipo, tres días |
+| `Sugerencias\` | lo que ha propuesto el equipo, un fichero por sugerencia |
 
 Está protegido en **dos sitios a la vez**, y es a propósito:
 

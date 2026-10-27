@@ -16,8 +16,9 @@
     LO QUE NUNCA SE PISA EN EL SERVIDOR:
       Config\Entornos.json   credenciales de los tres entornos
       Config\Empresas.json   bases de clientes, con credenciales
-      Config\Usuarios.json   qué novedades ha visto cada uno
+      Config\Usuarios.json   qué novedades ha visto cada uno, y quién está dentro
       Logs\                  el histórico de ejecuciones del equipo
+      Sugerencias\           lo que ha propuesto el equipo
 
     Los tres JSON ya no salen en la publicación (ver SigeGestor.App.csproj), pero la exclusión
     se repite aquí a propósito: si algún día alguien vuelve a incluirlos en el proyecto, esto
@@ -185,7 +186,7 @@ $argumentos = @(
     $salida, $Destino,
     "/MIR",
     "/XF", "Entornos.json", "Empresas.json", "Usuarios.json", "Empresas.json.bak",
-    "/XD", (Join-Path $Destino "Logs"),
+    "/XD", (Join-Path $Destino "Logs"), (Join-Path $Destino "Sugerencias"),
     "/R:2", "/W:3", "/NP", "/NDL"
 )
 
