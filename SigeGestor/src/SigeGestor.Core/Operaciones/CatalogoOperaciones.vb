@@ -435,6 +435,39 @@
                 .Ejecutable = New Implementadas.ActualizarContactos()
             })
             lista.Add(New DefinicionOperacion With {
+                .Nombre = "Asignar nº de equipo en prefacturas",
+                .Seccion = SeccionOperacion.Contratos,
+                .Descripcion = "Las lecturas grabadas a mano se quedan sin equipo y la prefactura sale " &
+                               "sin número de contador. Busca las lecturas de una factura de compra y " &
+                               "les pone el suyo. Solo toca las que no lo tienen.",
+                .EsEscritura = True,
+                .PaginaPropia = PaginasPropias.AsignarEquipo
+            })
+            lista.Add(New DefinicionOperacion With {
+                .Nombre = "Cambiar vencimientos de contratos",
+                .Seccion = SeccionOperacion.Contratos,
+                .Descripcion = "Para los Jiras tipo SOPTOT-13245. A partir del Excel con Contrato, CUPS y " &
+                               "VENCIMIENTO CORRECTO, deja un script .sql con sus pasos VER, CAMBIAR y " &
+                               "DESHACER. NO ejecuta nada: el script se lanza a mano en SSMS.",
+                .Requiere = EntradasOperacion.Excel Or EntradasOperacion.Texto Or EntradasOperacion.Carpeta,
+                .EtiquetaTexto = "Número del Jira",
+                .EsEscritura = False,
+                .EtiquetaAccion = "Generar el script",
+                .Ejecutable = New Implementadas.CambiarVencimientos(Sql),
+                .Campos = {
+                    New CampoOperacion With {
+                        .Clave = Implementadas.CambiarVencimientos.ClaveFijar,
+                        .Etiqueta = "Fijar la fecha de vencimiento (IsFijarFechaVto)",
+                        .Ayuda = "Marcado, los contratos que se cambien quedan con IsFijarFechaVto = 1. " &
+                                 "Sin marcar se deja como esté. También se puede cambiar en el propio " &
+                                 "script antes de lanzarlo.",
+                        .Tipo = TipoCampo.Booleano,
+                        .Requerido = False,
+                        .ValorInicial = "True"
+                    }
+                }
+            })
+            lista.Add(New DefinicionOperacion With {
                 .Nombre = "Validaciones",
                 .Seccion = SeccionOperacion.Contratos,
                 .Descripcion = "Los tres scripts de validación de contratos, cada uno en su hoja del mismo " &
@@ -753,7 +786,8 @@
                                  requiere As EntradasOperacion,
                                  descripcion As String,
                                  Optional dividir As Boolean = False,
-                                 Optional ejecutable As IOperacionEjecutable = Nothing) As DefinicionOperacion
+                                 Optional ejecutable As IOperacionEjecutable = Nothing,
+                                 Optional campos As CampoOperacion() = Nothing) As DefinicionOperacion
             Return New DefinicionOperacion With {
                 .Nombre = nombre,
                 .Seccion = SeccionOperacion.Consultas,
@@ -763,8 +797,33 @@
                 .PermiteDividir = dividir,
                 .EsEscritura = False,
                 .EtiquetaAccion = "Consultar",
-                .Ejecutable = ejecutable
+                .Ejecutable = ejecutable,
+                .Campos = If(campos, Array.Empty(Of CampoOperacion)())
             }
+        End Function
+
+        ' ============================================================
+        ' JC Castilla-La Mancha
+        ' ============================================================
+
+        ''' <summary>Clave del campo con el patrón de grupos de tarifa.</summary>
+        Public Const ClavePatronTarifaGrupo As String = "patronTarifaGrupo"
+
+        ''' <summary>
+        ''' Lo que pidió el cliente en la SOPTOT-13117: todos los grupos que empiecen así, no
+        ''' solo los de «2026 LOTE», que es a lo que iba fija la consulta antes.
+        ''' </summary>
+        Public Const PatronJcPorDefecto As String = "PF AM JC CLM%"
+
+        ''' <summary>
+        ''' El patrón que va al SQL. Vacío significa el de siempre, y la comilla simple se
+        ''' duplica: el valor entra en la consulta entre comillas y un nombre de grupo con
+        ''' apóstrofo la partiría en dos.
+        ''' </summary>
+        Private Function PatronJc(valor As String) As String
+            Dim limpio = (If(valor, "")).Trim()
+            If limpio.Length = 0 Then limpio = PatronJcPorDefecto
+            Return limpio.Replace("'", "''")
         End Function
 
         Private _sqlCompartido As Consultas.RepositorioSql
@@ -907,8 +966,27 @@
                         ejecutable:=PorFechas("ConsultaFacturasTREBOL_ELEC_V5", "TREBOL_LUZ", "TrebolLuz")),
                 General("Trébol Gas", EntradasOperacion.Fechas, "Facturas de gas del entorno E2 en el rango indicado.",
                         ejecutable:=PorFechas("ConsultaFacturasTREBOL_GAS", "TREBOL_GAS", "TrebolGas")),
-                General("JC Castilla-La Mancha", EntradasOperacion.Fechas, "Facturación de la Junta de Castilla-La Mancha.",
-                        ejecutable:=PorFechas("Consulta_JC CASTILLA LA MANCHA", "JC_CastillaLaMancha", "JCCLM")),
+                General("JC Castilla-La Mancha", EntradasOperacion.Fechas,
+                        "Facturación de la Junta de Castilla-La Mancha, desglosada por periodo: potencia, " &
+                        "consumo, maxímetro, reactiva y el término de excesos de la distribuidora.",
+                        ejecutable:=New Implementadas.ConsultaPorFechas(
+                            Sql, "Consulta_JC CASTILLA LA MANCHA", "JC_CastillaLaMancha", "JCCLM",
+                            Implementadas.ConsultaPorFechas.FormatoCompacto,
+                            extra:=Sub(pl, c) pl.Poner("patronTarifaGrupoReplace",
+                                                       PatronJc(c.Campo(ClavePatronTarifaGrupo)))),
+                        campos:={
+                            New CampoOperacion With {
+                                .Clave = ClavePatronTarifaGrupo,
+                                .Etiqueta = "Grupos de tarifa (patrón LIKE)",
+                                .Ayuda = "Se incluyen las facturas cuyo grupo de tarifa case con esto. " &
+                                         "«PF AM JC CLM%» es lo que pidió el cliente en la SOPTOT-13117; " &
+                                         "antes la consulta iba fija a «PF AM JC CLM 2026 LOTE%», que es " &
+                                         "más estrecho.",
+                                .Tipo = TipoCampo.Texto,
+                                .Requerido = False,
+                                .ValorInicial = PatronJcPorDefecto
+                            }
+                        }),
                 General("Santa Lucía Trébol Gas", EntradasOperacion.Fechas,
                         "Facturas de gas (E2) del grupo de tarifa Santa Lucía.",
                         ejecutable:=PorFechas("ConsultaFacturas_SantaLucia_TREBOL_GAS_v2", "SantaLucia_TREBOL_GAS", "SantaLuciaGas")),

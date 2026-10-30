@@ -247,6 +247,13 @@ public partial class ShellWindow : Window
                     return pagina;
                 }
 
+            case PaginasPropias.AsignarEquipo:
+                {
+                    var pagina = new AsignarEquipoPage(new AsignarEquipoViewModel(_entornos));
+                    pagina.VolverPedido += (_, _) => AreaContenido.Content = paginaSeccion;
+                    return pagina;
+                }
+
             default:
                 return null;
         }

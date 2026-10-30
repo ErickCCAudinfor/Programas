@@ -43,9 +43,69 @@
 
                     <StackPanel Grid.Column="1" Margin="12,0,10,0">
 
-                        <TextBlock Text="{Binding Titulo}"
-                                   FontSize="13.5" FontWeight="SemiBold"
-                                   TextWrapping="Wrap" />
+                        <!--
+                            El titulo pliega y despliega, igual que en Novedades. Es un
+                            ToggleButton con la plantilla cambiada para que se pulse la linea
+                            entera; el Expander traeria su propio triangulo y su marco.
+                        -->
+                        <ToggleButton IsChecked="{Binding Expandido, Mode=TwoWay}"
+                                      Cursor="Hand"
+                                      HorizontalContentAlignment="Stretch"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      Padding="0"
+                                      ToolTip="Pulsa para ver o esconder el detalle">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border Background="Transparent"><ContentPresenter /></Border>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0"
+                                           Text="{Binding Titulo}"
+                                           FontSize="13.5" FontWeight="SemiBold"
+                                           TextWrapping="Wrap" />
+
+                                <Path Grid.Column="1"
+                                      Data="{StaticResource IcoCheuronAbajo}"
+                                      Stroke="{StaticResource Ink4Brush}"
+                                      StrokeThickness="1.6"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      Stretch="Uniform"
+                                      Width="12" Height="12"
+                                      VerticalAlignment="Top"
+                                      Margin="10,4,0,0"
+                                      RenderTransformOrigin="0.5,0.5">
+                                    <!--
+                                        El giro SOLO en el Style. Con un RenderTransform
+                                        puesto tambien en el Path, el valor local gana al
+                                        trigger y el cheuron se queda siempre igual: eso ya
+                                        paso en Novedades.
+                                    -->
+                                    <Path.Style>
+                                        <Style TargetType="Path">
+                                            <Setter Property="RenderTransform">
+                                                <Setter.Value><RotateTransform Angle="0" /></Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Expandido}" Value="False">
+                                                    <Setter Property="RenderTransform">
+                                                        <Setter.Value><RotateTransform Angle="-90" /></Setter.Value>
+                                                    </Setter>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Path.Style>
+                                </Path>
+                            </Grid>
+                        </ToggleButton>
 
                         <TextBlock Text="{Binding Detalle}"
                                    Visibility="{Binding VisibilidadDetalle}"
@@ -140,6 +200,50 @@
                             Command="{Binding EscribirCommand}" />
                 </StackPanel>
             </Grid>
+
+            <!-- ============================================================
+                 FILTRO
+
+                 Por estado y por texto. El texto busca en titulo, detalle, autor y
+                 respuesta: al buscar se tira de «la del maximetro» o «lo que pidio
+                 fulano», no del titulo exacto.
+                 ============================================================ -->
+            <Border Margin="0,16,0,0" Padding="12,10"
+                    CornerRadius="{StaticResource RCard}"
+                    Background="{StaticResource PanelBrush}"
+                    BorderBrush="{StaticResource HairBrush}"
+                    BorderThickness="1">
+                <WrapPanel>
+                    <TextBox Style="{StaticResource InputBase}"
+                             Width="260" Height="32"
+                             Margin="0,0,10,6"
+                             Tag="Buscar…"
+                             Text="{Binding Busqueda, UpdateSourceTrigger=PropertyChanged, Delay=200}" />
+
+                    <ComboBox Height="32" Width="150" FontSize="13"
+                              Margin="0,0,10,6"
+                              VerticalContentAlignment="Center"
+                              ItemsSource="{Binding Estados}"
+                              SelectedItem="{Binding EstadoElegido, Mode=TwoWay}" />
+
+                    <Button Style="{StaticResource BtnGhost}" Content="Quitar filtro" FontSize="12"
+                            Margin="0,0,10,6"
+                            Command="{Binding LimpiarFiltroCommand}" />
+
+                    <TextBlock Text="{Binding TextoFiltrado}"
+                               Visibility="{Binding VisibilidadFiltrado}"
+                               Style="{StaticResource TxHelp}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,14,6" />
+
+                    <Button Style="{StaticResource BtnGhost}" Content="Desplegar todas" FontSize="12"
+                            Margin="0,0,6,6"
+                            Command="{Binding DesplegarTodasCommand}" />
+                    <Button Style="{StaticResource BtnGhost}" Content="Plegar todas" FontSize="12"
+                            Margin="0,0,0,6"
+                            Command="{Binding PlegarTodasCommand}" />
+                </WrapPanel>
+            </Border>
 
             <TextBlock Text="{Binding Aviso}"
                        Visibility="{Binding VisibilidadAviso}"

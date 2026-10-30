@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -32,20 +32,35 @@ public sealed partial class SugerenciaVm : ObservableObject
     public string Cuando => Apariencia.TiempoRelativo(Sugerencia.Creada);
 
     public Visibility VisibilidadDetalle =>
-        string.IsNullOrWhiteSpace(Detalle) ? Visibility.Collapsed : Visibility.Visible;
+        !string.IsNullOrWhiteSpace(Detalle) && Expandido ? Visibility.Visible : Visibility.Collapsed;
 
     /// <summary>Se marca cuando se editó después de crearla, que si no no se nota.</summary>
     public Visibility VisibilidadEditada =>
         Sugerencia.Modificada.HasValue ? Visibility.Visible : Visibility.Collapsed;
 
-    public Visibility VisibilidadAcciones => EsMia ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility VisibilidadAcciones =>
+        EsMia && Expandido ? Visibility.Visible : Visibility.Collapsed;
+
+    /// <summary>
+    /// Si se ve el cuerpo. Igual que en Novedades: con una docena de sugerencias largas la
+    /// pantalla se hacía interminable y no se veía de un vistazo qué hay. Plegada se queda el
+    /// título, el autor y el estado, que es lo que se busca al entrar.
+    /// </summary>
+    [ObservableProperty] private bool _expandido;
+
+    partial void OnExpandidoChanged(bool value)
+    {
+        OnPropertyChanged(nameof(VisibilidadDetalle));
+        OnPropertyChanged(nameof(VisibilidadRespuesta));
+        OnPropertyChanged(nameof(VisibilidadAcciones));
+    }
 
     // ---------- Respuesta de quien la revisa ----------
 
     public string Respuesta => Sugerencia.Respuesta;
 
     public Visibility VisibilidadRespuesta =>
-        string.IsNullOrWhiteSpace(Respuesta) ? Visibility.Collapsed : Visibility.Visible;
+        !string.IsNullOrWhiteSpace(Respuesta) && Expandido ? Visibility.Visible : Visibility.Collapsed;
 
     // ---------- Estado ----------
 
@@ -102,6 +117,9 @@ public sealed partial class SugerenciasViewModel : ObservableObject
         Recargar();
     }
 
+    /// <summary>Todas las que hay, sin filtrar. La pantalla pinta Vista.</summary>
+    private readonly List<SugerenciaVm> _todas = new();
+
     public ObservableCollection<SugerenciaVm> Sugerencias { get; } = new();
 
     [ObservableProperty] private string _error = "";
@@ -119,11 +137,11 @@ public sealed partial class SugerenciasViewModel : ObservableObject
     public Visibility VisibilidadVacio =>
         Sugerencias.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
-    public string Recuento => Sugerencias.Count switch
+    public string Recuento => _todas.Count switch
     {
         0 => "ninguna todavía",
         1 => "1 sugerencia",
-        _ => $"{Sugerencias.Count} sugerencias"
+        _ => $"{_todas.Count} sugerencias"
     };
 
     // ============================================================
@@ -239,13 +257,13 @@ public sealed partial class SugerenciasViewModel : ObservableObject
     [RelayCommand]
     public void Recargar()
     {
-        Sugerencias.Clear();
+        _todas.Clear();
 
         try
         {
             foreach (var s in _repositorio.Listar())
             {
-                Sugerencias.Add(new SugerenciaVm(s, _usuario.Login));
+                _todas.Add(new SugerenciaVm(s, _usuario.Login));
             }
         }
         catch (Exception ex)
@@ -253,8 +271,82 @@ public sealed partial class SugerenciasViewModel : ObservableObject
             Error = $"No se han podido leer las sugerencias: {ex.Message}";
         }
 
+        AplicarFiltro();
+    }
+
+    // ============================================================
+    // FILTRO
+    //
+    // Por estado y por texto. El texto busca en el título, en el detalle y en el autor, que
+    // es por donde se busca de verdad: «lo que pidió fulano» o «la del maxímetro».
+    // ============================================================
+
+    public IReadOnlyList<string> Estados { get; } =
+        new[] { "Todas", "Pendiente", "En estudio", "Hecha", "Descartada" };
+
+    [ObservableProperty] private string _estadoElegido = "Todas";
+    [ObservableProperty] private string _busqueda = "";
+
+    partial void OnEstadoElegidoChanged(string value) => AplicarFiltro();
+    partial void OnBusquedaChanged(string value) => AplicarFiltro();
+
+    [RelayCommand]
+    private void LimpiarFiltro()
+    {
+        EstadoElegido = "Todas";
+        Busqueda = "";
+    }
+
+    public Visibility VisibilidadFiltrado =>
+        _todas.Count != Sugerencias.Count ? Visibility.Visible : Visibility.Collapsed;
+
+    public string TextoFiltrado => $"{Sugerencias.Count} de {_todas.Count}";
+
+    private void AplicarFiltro()
+    {
+        var texto = (Busqueda ?? "").Trim();
+
+        IEnumerable<SugerenciaVm> vista = _todas;
+
+        if (!string.IsNullOrEmpty(EstadoElegido) && EstadoElegido != "Todas")
+        {
+            vista = vista.Where(s => s.EstadoTexto == EstadoElegido);
+        }
+
+        if (texto.Length > 0)
+        {
+            vista = vista.Where(s =>
+                Contiene(s.Titulo, texto) || Contiene(s.Detalle, texto) ||
+                Contiene(s.Autor, texto) || Contiene(s.Respuesta, texto));
+        }
+
+        Sugerencias.Clear();
+        foreach (var s in vista) Sugerencias.Add(s);
+
         OnPropertyChanged(nameof(Recuento));
         OnPropertyChanged(nameof(VisibilidadVacio));
+        OnPropertyChanged(nameof(VisibilidadFiltrado));
+        OnPropertyChanged(nameof(TextoFiltrado));
+    }
+
+    /// <summary>Sin distinguir mayúsculas ni tildes: nadie las teclea al buscar.</summary>
+    private static bool Contiene(string donde, string que) =>
+        (donde ?? "").IndexOf(que, StringComparison.OrdinalIgnoreCase) >= 0;
+
+    // ============================================================
+    // PLEGAR Y DESPLEGAR TODAS
+    // ============================================================
+
+    [RelayCommand]
+    private void DesplegarTodas()
+    {
+        foreach (var s in Sugerencias) s.Expandido = true;
+    }
+
+    [RelayCommand]
+    private void PlegarTodas()
+    {
+        foreach (var s in Sugerencias) s.Expandido = false;
     }
 
     private void Avisar()

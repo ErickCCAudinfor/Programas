@@ -168,6 +168,7 @@ Namespace Operaciones
     Public Module PaginasPropias
         Public Const Empresas As String = "empresas"
         Public Const ModelosImpresion As String = "modelosimpresion"
+        Public Const AsignarEquipo As String = "asignarequipo"
     End Module
 
 End Namespace

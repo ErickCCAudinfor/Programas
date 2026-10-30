@@ -25,6 +25,18 @@ Public Module NovedadesApp
 
     Public ReadOnly Historial As New List(Of Novedad) From {
         New Novedad With {
+            .Version = "3.3",
+            .Fecha = New Date(2026, 10, 30),
+            .Titulo = "Vencimientos, nº de equipo y sugerencias que se pliegan",
+            .Cambios = New List(Of String) From {
+                "«Asignar nº de equipo en prefacturas» (Contratos): busca las lecturas de una factura de compra y les pone el equipo. Las que ya lo tienen no se tocan. Sale de una sugerencia del equipo.",
+                "«Cambiar vencimientos de contratos» (Contratos): a partir del Excel con Contrato, CUPS y VENCIMIENTO CORRECTO, deja un script .sql con sus pasos VER, CAMBIAR y DESHACER para lanzarlo en SSMS. La aplicación no ejecuta nada.",
+                "La consulta de JC Castilla-La Mancha sale ahora desglosada por periodo: potencia, consumo, maxímetro, reactiva y el término de excesos de la distribuidora. Son 183 columnas, las mismas que se entregaron en la SOPTOT-13117.",
+                "En esa consulta se puede cambiar el patrón de grupos de tarifa; viene con «PF AM JC CLM%», que es lo que pidió el cliente.",
+                "Las sugerencias se pliegan y se pueden filtrar por estado o buscando texto, igual que las novedades."
+            }
+        },
+        New Novedad With {
             .Version = "3.2",
             .Fecha = New Date(2026, 10, 27),
             .Titulo = "Dos consultas más",

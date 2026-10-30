@@ -1,0 +1,219 @@
+﻿<UserControl x:Class="SigeGestor.App.Views.Paginas.AsignarEquipoPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:SigeGestor.App.Converters"
+             FontFamily="{StaticResource FontUi}"
+             TextOptions.TextFormattingMode="Ideal">
+
+    <UserControl.Resources>
+        <!-- La celda del equipo se bloquea en las lecturas que YA tienen uno. -->
+        <conv:BoolNegadoConverter x:Key="BoolNegado" />
+    </UserControl.Resources>
+
+    <!--
+        Misma estructura que Modelos de impresión y por el mismo motivo: dentro de un
+        ScrollViewer se mide con alto infinito, así que el Grid lleva Height del viewport con
+        un mínimo. Sin eso, la rejilla pediría todas sus filas de golpe o se quedaría en nada.
+    -->
+    <ScrollViewer x:Name="Lienzo"
+                  VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Auto"
+                  Padding="26,18,26,22">
+        <Grid MinWidth="820" MinHeight="680"
+              Width="{Binding ViewportWidth, ElementName=Lienzo}"
+              Height="{Binding ViewportHeight, ElementName=Lienzo}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Cabecera y búsqueda -->
+            <StackPanel Grid.Row="0">
+                <Button Style="{StaticResource BtnVolver}"
+                        Content="Contratos"
+                        HorizontalAlignment="Left"
+                        Margin="-7,0,0,0"
+                        Click="Volver_Click" />
+
+                <TextBlock Text="Asignar nº de equipo en prefacturas"
+                           Style="{StaticResource TxH1}" Margin="0,12,0,0" />
+                <TextBlock Style="{StaticResource TxBodyMuted}"
+                           TextWrapping="Wrap" HorizontalAlignment="Left" MaxWidth="820"
+                           Margin="0,6,0,0"
+                           Text="Las lecturas grabadas a mano suelen quedarse sin equipo y la prefactura sale sin número de contador. Busca las lecturas de una factura de compra y ponles el suyo." />
+
+                <Border Margin="0,16,0,0" Padding="14,12"
+                        CornerRadius="{StaticResource RCard}"
+                        Background="{StaticResource PanelBrush}"
+                        BorderBrush="{StaticResource HairBrush}"
+                        BorderThickness="1">
+                    <StackPanel>
+                        <WrapPanel>
+                            <StackPanel Margin="0,0,12,6">
+                                <TextBlock Text="Contrato" Style="{StaticResource TxLabel}" Margin="0,0,0,6" />
+                                <TextBox Style="{StaticResource InputBase}" Width="150"
+                                         Text="{Binding Contrato, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,12,6">
+                                <TextBlock Text="Nº de factura de compra (opcional)"
+                                           Style="{StaticResource TxLabel}" Margin="0,0,0,6" />
+                                <TextBox Style="{StaticResource InputBase}" Width="220"
+                                         Text="{Binding NumeroFactura, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,12,6">
+                                <TextBlock Text="Entorno" Style="{StaticResource TxLabel}" Margin="0,0,0,6" />
+                                <ComboBox Height="34" FontSize="13.5" Width="190"
+                                          ItemsSource="{Binding Entornos}"
+                                          DisplayMemberPath="Nombre"
+                                          SelectedItem="{Binding EntornoElegido, Mode=TwoWay}" />
+                            </StackPanel>
+
+                            <StackPanel VerticalAlignment="Bottom" Margin="0,0,12,6">
+                                <CheckBox Style="{StaticResource CheckBase}"
+                                          Content="Solo las que no tienen equipo"
+                                          IsChecked="{Binding SoloSinEquipo, Mode=TwoWay}"
+                                          Margin="0,0,0,8" />
+                            </StackPanel>
+
+                            <StackPanel VerticalAlignment="Bottom" Margin="0,0,0,6">
+                                <Button Style="{StaticResource BtnPrimary}" Content="Buscar"
+                                        IsEnabled="{Binding PuedeBuscar}"
+                                        Command="{Binding BuscarCommand}" />
+                            </StackPanel>
+                        </WrapPanel>
+
+                        <TextBlock Text="{Binding Recuento}"
+                                   Foreground="{StaticResource Ink3Brush}"
+                                   FontFamily="{StaticResource FontMono}" FontSize="11.5"
+                                   Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="{Binding Aviso}"
+                           Visibility="{Binding VisibilidadAviso}"
+                           Foreground="{StaticResource OkBrush}"
+                           FontSize="12.5" FontWeight="SemiBold"
+                           HorizontalAlignment="Left" TextWrapping="Wrap" MaxWidth="820"
+                           Margin="0,13,0,0" />
+
+                <TextBlock Text="{Binding Error}"
+                           Visibility="{Binding VisibilidadError}"
+                           Style="{StaticResource TxError}"
+                           HorizontalAlignment="Left" TextWrapping="Wrap" MaxWidth="820"
+                           Margin="0,13,0,0" />
+            </StackPanel>
+
+            <!-- Las lecturas -->
+            <Border Grid.Row="1" Margin="0,16,0,0"
+                    CornerRadius="{StaticResource RCard}"
+                    Background="{StaticResource PanelBrush}"
+                    BorderBrush="{StaticResource HairBrush}"
+                    BorderThickness="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" MinHeight="200" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="15,14,15,0">
+                        <TextBlock Text="LECTURAS" Style="{StaticResource TxSection}" />
+                        <WrapPanel Margin="0,10,0,0">
+                            <TextBlock Text="Poner en todas:" Style="{StaticResource TxLabel}"
+                                       VerticalAlignment="Center" Margin="0,0,8,6" />
+                            <ComboBox Height="32" Width="260" FontSize="13"
+                                      Margin="0,0,8,6"
+                                      ItemsSource="{Binding Equipos}"
+                                      DisplayMemberPath="NumeroSerie"
+                                      SelectedItem="{Binding EquipoParaTodas, Mode=TwoWay}" />
+                            <Button Style="{StaticResource BtnSecondary}" Content="Aplicar a todas"
+                                    Margin="0,0,6,6"
+                                    Command="{Binding AplicarATodasCommand}" />
+                            <Button Style="{StaticResource BtnGhost}" Content="Quitar selección"
+                                    Margin="0,0,0,6"
+                                    Command="{Binding QuitarSeleccionCommand}" />
+                        </WrapPanel>
+                    </StackPanel>
+
+                    <Border Grid.Row="1" Visibility="{Binding VisibilidadVacio}"
+                            Margin="15" Padding="20">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="Sin lecturas" FontSize="13.5" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Style="{StaticResource TxHelp}"
+                                       HorizontalAlignment="Center" TextAlignment="Center"
+                                       TextWrapping="Wrap" MaxWidth="420" Margin="0,5,0,0"
+                                       Text="Escribe el contrato y pulsa Buscar. El nº de factura de compra es opcional: sin él salen las de todas sus facturas." />
+                        </StackPanel>
+                    </Border>
+
+                    <DataGrid Grid.Row="1"
+                              x:Name="Rejilla"
+                              Style="{StaticResource Rejilla}"
+                              Margin="4,11,4,4"
+                              ItemsSource="{Binding Lecturas}"
+                              CanUserAddRows="False">
+                        <DataGrid.Columns>
+                            <!--
+                                Mode=OneWay en todas las de solo lectura: DataGridTextColumn
+                                enlaza TwoWay por omisión y contra una propiedad sin setter
+                                revienta al mostrar la rejilla.
+                            -->
+                            <DataGridTextColumn Header="LECTURA" Binding="{Binding IdLectura, Mode=OneWay}"
+                                                Width="90" />
+                            <DataGridTextColumn Header="FACTURA" Binding="{Binding NumeroFactura, Mode=OneWay}"
+                                                Width="1.2*" MinWidth="130" />
+                            <DataGridTextColumn Header="ENT." Binding="{Binding Entorno, Mode=OneWay}"
+                                                Width="60" />
+                            <DataGridTextColumn Header="ANTERIOR" Binding="{Binding FechaLecturaAnterior, Mode=OneWay}"
+                                                Width="100" />
+                            <DataGridTextColumn Header="LECTURA" Binding="{Binding FechaLectura, Mode=OneWay}"
+                                                Width="100" />
+                            <DataGridTextColumn Header="ESTADO" Binding="{Binding Estado, Mode=OneWay}"
+                                                Width="1.3*" MinWidth="150" />
+                            <DataGridTextColumn Header="EQUIPO ACTUAL" Binding="{Binding EquipoActual, Mode=OneWay}"
+                                                Width="1.4*" MinWidth="160" />
+
+                            <!-- La única editable: qué equipo se le pone -->
+                            <DataGridTemplateColumn Header="PONER" Width="230">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ComboBox Margin="2"
+                                                  FontSize="12"
+                                                  IsEnabled="{Binding YaTenia, Converter={StaticResource BoolNegado}}"
+                                                  ItemsSource="{Binding DataContext.Equipos,
+                                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  DisplayMemberPath="NumeroSerie"
+                                                  SelectedValuePath="IdEquipoMedida"
+                                                  SelectedValue="{Binding Elegido, Mode=TwoWay,
+                                                                  UpdateSourceTrigger=PropertyChanged}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTextColumn Header="RESULTADO" Binding="{Binding Resultado, Mode=OneWay}"
+                                                Width="1.4*" MinWidth="150"
+                                                ElementStyle="{StaticResource CeldaConAyuda}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!--
+                        GUARDAR. Es lo único que escribe, y escribe en Producción: por eso va
+                        por Click y no por comando, para poder preguntar antes desde la vista.
+                    -->
+                    <WrapPanel Grid.Row="2" Margin="15,8,15,14">
+                        <Button Style="{StaticResource BtnPrimary}" Content="Guardar los cambios"
+                                Margin="0,6,9,0"
+                                IsEnabled="{Binding PuedeGuardar}"
+                                Click="Guardar_Click" />
+                        <TextBlock Text="{Binding Recuento}"
+                                   Style="{StaticResource TxHelp}"
+                                   VerticalAlignment="Center" Margin="4,6,0,0" />
+                    </WrapPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</UserControl>
