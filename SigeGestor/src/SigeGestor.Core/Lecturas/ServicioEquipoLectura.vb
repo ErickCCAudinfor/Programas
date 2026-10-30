@@ -1,4 +1,4 @@
-Imports System.Data
+﻿Imports System.Data
 Imports System.Threading
 Imports Microsoft.Data.SqlClient
 
@@ -20,11 +20,35 @@ Namespace Lecturas
         Public Property NumeroSerie As String = ""
     End Class
 
-    ''' <summary>Un equipo de medida del contrato, para poder elegirlo en vez de teclear el Id.</summary>
+    ''' <summary>
+    ''' Un equipo de medida del contrato, para poder elegirlo en vez de teclear el Id.
+    '''
+    ''' Las columnas son las que tiene la tabla de verdad. La primera versión pedía
+    ''' «Descripcion», que NO existe en EquipoMedida, y la búsqueda entera moría con
+    ''' «El nombre de columna 'Descripcion' no es válido». El esquema está en
+    ''' SigeCom.CrossUty\TablesAuto.vb, clase EquipoMedidaT.
+    ''' </summary>
     Public Class EquipoMedida
         Public Property IdEquipoMedida As Long
         Public Property NumeroSerie As String = ""
-        Public Property Descripcion As String = ""
+        Public Property Entorno As String = ""
+        Public Property Instalado As Boolean
+        Public Property FechaInstalacion As Date?
+
+        ''' <summary>
+        ''' Lo que se lee en el desplegable. El número de serie solo no basta cuando un
+        ''' contrato ha tenido varios contadores: se añade si está instalado y desde cuándo.
+        ''' </summary>
+        Public ReadOnly Property Etiqueta As String
+            Get
+                Dim partes As New List(Of String) From {If(NumeroSerie, "").Trim()}
+                If partes(0).Length = 0 Then partes(0) = $"(sin nº de serie) {IdEquipoMedida}"
+                If Entorno.Length > 0 Then partes.Add(Entorno)
+                partes.Add(If(Instalado, "instalado", "no instalado"))
+                If FechaInstalacion.HasValue Then partes.Add(FechaInstalacion.Value.ToString("dd/MM/yyyy"))
+                Return String.Join(" · ", partes)
+            End Get
+        End Property
     End Class
 
     ''' <summary>
@@ -114,11 +138,14 @@ WHERE   fcc.CodigoContrato = @contrato
                                            Optional ct As CancellationToken = Nothing) _
                                            As Task(Of IReadOnlyList(Of EquipoMedida))
 
+            ' IsInvisible fuera: son los que SIGE no enseña, y ofrecerlos aquí seria
+            ' justo lo contrario de lo que se quiere.
             Const sql As String =
-"SELECT  em.IdEquipoMedida, em.NumeroSerie, em.Descripcion
+"SELECT  em.IdEquipoMedida, em.NumeroSerie, em.Entorno, em.IsInstalado, em.FechaInstalacion
 FROM    EquipoMedida em WITH (NOLOCK)
 WHERE   em.CodigoContrato = @contrato
-ORDER BY em.NumeroSerie;"
+  AND   ISNULL(em.IsInvisible, 0) = 0
+ORDER BY em.IsInstalado DESC, em.FechaInstalacion DESC, em.NumeroSerie;"
 
             Dim lista As New List(Of EquipoMedida)()
 
@@ -134,7 +161,9 @@ ORDER BY em.NumeroSerie;"
                             lista.Add(New EquipoMedida With {
                                 .IdEquipoMedida = Leer(Of Long)(lector, "IdEquipoMedida"),
                                 .NumeroSerie = LeerTexto(lector, "NumeroSerie"),
-                                .Descripcion = LeerTexto(lector, "Descripcion")})
+                                .Entorno = LeerTexto(lector, "Entorno"),
+                                .Instalado = LeerBool(lector, "IsInstalado"),
+                                .FechaInstalacion = LeerFecha(lector, "FechaInstalacion")})
                         End While
                     End Using
                 End Using

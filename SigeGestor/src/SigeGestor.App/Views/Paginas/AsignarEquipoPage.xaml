@@ -126,7 +126,7 @@
                             <ComboBox Height="32" Width="260" FontSize="13"
                                       Margin="0,0,8,6"
                                       ItemsSource="{Binding Equipos}"
-                                      DisplayMemberPath="NumeroSerie"
+                                      DisplayMemberPath="Etiqueta"
                                       SelectedItem="{Binding EquipoParaTodas, Mode=TwoWay}" />
                             <Button Style="{StaticResource BtnSecondary}" Content="Aplicar a todas"
                                     Margin="0,0,6,6"
@@ -185,7 +185,7 @@
                                                   IsEnabled="{Binding YaTenia, Converter={StaticResource BoolNegado}}"
                                                   ItemsSource="{Binding DataContext.Equipos,
                                                                 RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                  DisplayMemberPath="NumeroSerie"
+                                                  DisplayMemberPath="Etiqueta"
                                                   SelectedValuePath="IdEquipoMedida"
                                                   SelectedValue="{Binding Elegido, Mode=TwoWay,
                                                                   UpdateSourceTrigger=PropertyChanged}" />
