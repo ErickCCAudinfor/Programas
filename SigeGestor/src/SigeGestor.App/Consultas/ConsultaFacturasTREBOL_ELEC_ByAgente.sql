@@ -1,8 +1,20 @@
-﻿--rick _Gestor Sige_Consulta Cuentas LB2B
+﻿--Gestor SIGE _ Desglosado Trebol Luz by Agente.
+--
+--Hasta la 3.4 se llamaba «Cuentas LB2B», y el fichero, Consulta_Cuentas_LB2B.sql. Se
+--renombro a peticion del BPO: hay varias peticiones parecidas a la de LB2B y el nombre
+--viejo no dejaba ver de que consulta se trataba. Su gemela de gas es
+--ConsultaFacturasTREBOL_GAS_ByAgente.sql.
+--
+--El entorno del contrato es E1 porque es luz.
+--
+--OJO con el agente: NombreAgente es columna de Agente, NO de Contrato (Contrato solo tiene
+--IdAgente). Filtrar «FROM Contrato WHERE nombreagente like ...» falla con «El nombre de
+--columna 'nombreagente' no es valido». Por eso el CTE entra por Agente.
 ;WITH ContratosAgente AS (
-    SELECT CodigoContrato
-    FROM Contrato WITH (NOLOCK)
-    WHERE nombreagente like'%NombreAgenteReplace%'  AND Entorno = 'E1' 
+    SELECT c.CodigoContrato
+    FROM Contrato c WITH (NOLOCK)
+    INNER JOIN Agente a WITH (NOLOCK) ON a.IdAgente = c.IdAgente
+    WHERE a.NombreAgente LIKE '%NombreAgenteReplace%' AND c.Entorno = 'E1'
 )
 
 ,FacturasVentaConsulta AS (

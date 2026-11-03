@@ -858,6 +858,19 @@
                 If(formatoFecha, Implementadas.ConsultaPorFechas.FormatoBarras))
         End Function
 
+        ''' <summary>
+        ''' Consulta por rango de fechas que ademas filtra por el nombre del agente. El texto
+        ''' entra tal cual en un LIKE '%...%' de la plantilla, asi que vale con una parte.
+        ''' </summary>
+        Private Function PorAgente(plantilla As String,
+                                   nombreFichero As String,
+                                   nombreHoja As String) As IOperacionEjecutable
+            Return New Implementadas.ConsultaPorFechas(
+                Sql, plantilla, nombreFichero, nombreHoja,
+                Implementadas.ConsultaPorFechas.FormatoBarras, pideFechas:=True,
+                extra:=Sub(pl, c) pl.Poner("NombreAgenteReplace", c.Texto))
+        End Function
+
         Private Function PorFechas(plantilla As String,
                                    nombreFichero As String,
                                    Optional nombreHoja As String = "",
@@ -1000,6 +1013,9 @@
                         ejecutable:=PorFechas("GAM", "GAM")),
                 General("CAM", EntradasOperacion.Fechas, "Facturación de CAM en el rango indicado.",
                         ejecutable:=PorFechas("ConsultaFacturasCAM", "CAM")),
+                General("CAM Gas (Trébol)", EntradasOperacion.Fechas,
+                        "Facturas de gas del grupo de tarifa «MIBGAS_MARP CAM», en el rango indicado.",
+                        ejecutable:=PorFechas("ConsultaFacturas_MIBGAS_MARP_CAM_TREBOL_GAS", "CAM_GAS", "CamGas")),
                 General("Concello de Allariz", EntradasOperacion.Fechas,
                         "Facturación del Concello de Allariz en el rango indicado.",
                         ejecutable:=PorFechas("ConsultaFacturasAllariz", "Allariz")),
@@ -1077,6 +1093,16 @@
                 General("Desglosado Trébol Gas by CIF", EntradasOperacion.Cifs Or EntradasOperacion.Fechas,
                         "Facturas de gas (entorno E2) por CIF y rango de fechas.", dividir:=True,
                         ejecutable:=PorLista("ConsultaFacturasTREBOL_GAS_ByIdentidadFechas", "TREBOL_GAS", "identidadReplace")),
+                General("Desglosado Trébol Luz by Agente", EntradasOperacion.Texto Or EntradasOperacion.Fechas,
+                        "Facturas de luz (entorno E1) de los contratos del agente, en el rango indicado. " &
+                        "Busca por parte del nombre del agente; no hace falta escribirlo completo.",
+                        ejecutable:=PorAgente("ConsultaFacturasTREBOL_ELEC_ByAgente", "TREBOL_LUZ_ByAgente",
+                                              "TrebolLuzAgente")),
+                General("Desglosado Trébol Gas by Agente", EntradasOperacion.Texto Or EntradasOperacion.Fechas,
+                        "Facturas de gas (entorno E2) de los contratos del agente, en el rango indicado. " &
+                        "Busca por parte del nombre del agente; no hace falta escribirlo completo.",
+                        ejecutable:=PorAgente("ConsultaFacturasTREBOL_GAS_ByAgente", "TREBOL_GAS_ByAgente",
+                                              "TrebolGasAgente")),
                 General("Grupo SRS", EntradasOperacion.Cifs Or EntradasOperacion.Fechas,
                         "Se entrega partida por CIF. Desmarca la casilla para juntarlo todo.", dividir:=True,
                         ejecutable:=PorLista("ConsultaNorauto", "", "CIFReplace",
@@ -1124,12 +1150,6 @@
                         "de las facturas de compra no se pega bien.",
                         ejecutable:=PorFechas("ConsultaAutoconsumoPrefacturas", "AutoconsumoPrefacturas",
                                               "Autoconsumo", pideFechas:=False)),
-                General("Cuentas LB2B", EntradasOperacion.Texto Or EntradasOperacion.Fechas,
-                        "Busca por parte del nombre del agente; no hace falta escribirlo completo.",
-                        ejecutable:=New Implementadas.ConsultaPorFechas(
-                            Sql, "Consulta_Cuentas_LB2B", "Cuentas_LB2B", "CuentasLB2B",
-                            Implementadas.ConsultaPorFechas.FormatoBarras, pideFechas:=True,
-                            extra:=Sub(pl, c) pl.Poner("NombreAgenteReplace", c.Texto))),
                 General("Energía Activa y Reactiva", EntradasOperacion.Facturas,
                         "Lecturas de activa, reactiva y varios de las facturas indicadas.",
                         ejecutable:=New Implementadas.ConsultaPorFechas(

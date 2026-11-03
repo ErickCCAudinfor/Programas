@@ -25,6 +25,17 @@ Public Module NovedadesApp
 
     Public ReadOnly Historial As New List(Of Novedad) From {
         New Novedad With {
+            .Version = "3.5",
+            .Fecha = New Date(2026, 11, 3),
+            .Titulo = "Las consultas de Trébol por agente, y CAM Gas",
+            .Cambios = New List(Of String) From {
+                "«Cuentas LB2B» pasa a llamarse «Desglosado Trébol Luz by Agente». Es la misma consulta; el nombre viejo no dejaba ver de qué iba, que es lo que pedíais.",
+                "Consulta nueva «Desglosado Trébol Gas by Agente»: la misma, pero de gas. Se escribe parte del nombre del agente y el rango de fechas.",
+                "Corregido en las dos: el filtro del agente buscaba el nombre en la tabla de contratos, donde esa columna no existe, y la consulta fallaba. Ahora entra por la tabla de agentes.",
+                "Consulta nueva «CAM Gas (Trébol)»: facturas de gas del grupo de tarifa «MIBGAS_MARP CAM». Antes había que editar las fechas a mano dentro del .sql; ahora las pide la pantalla."
+            }
+        },
+        New Novedad With {
             .Version = "3.4",
             .Fecha = New Date(2026, 11, 3),
             .Titulo = "Tres consultas más y el nº de equipo por lista",
