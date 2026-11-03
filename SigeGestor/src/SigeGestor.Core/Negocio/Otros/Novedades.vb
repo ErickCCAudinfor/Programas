@@ -25,6 +25,19 @@ Public Module NovedadesApp
 
     Public ReadOnly Historial As New List(Of Novedad) From {
         New Novedad With {
+            .Version = "3.4",
+            .Fecha = New Date(2026, 11, 3),
+            .Titulo = "Tres consultas más y el nº de equipo por lista",
+            .Cambios = New List(Of String) From {
+                "«Asignar nº de equipo en prefacturas» acepta ahora una lista de contratos, no uno solo: se pegan separados por comas o uno por línea.",
+                "Y el IdEquipoMedida se escribe a mano en cada lectura. Ya no se ofrece el equipo del contrato: el id lo trae quien hace el cambio. Lo que no sea un número se marca y no deja guardar.",
+                "Corregido: al seleccionar una fila de cualquier rejilla el texto se volvía blanco y no se leía. Pasaba también en Empresas y en Modelos de impresión.",
+                "Consulta nueva «Contratos con factura única por alta»: los que agrupan facturas y tienen la revisión «única», por fecha de alta.",
+                "Consulta nueva «Contratos por alta y CIF»: se pegan los CIF y salen sus contratos dados de alta en el rango.",
+                "Consulta nueva «Contratos activos sin lecturas finales»: contratos activos cuya última lectura facturada se quedó atrás. Se elige luz, gas o las dos, y opcionalmente una tarifa de peaje."
+            }
+        },
+        New Novedad With {
             .Version = "3.3",
             .Fecha = New Date(2026, 10, 30),
             .Titulo = "Vencimientos, nº de equipo y sugerencias que se pliegan",

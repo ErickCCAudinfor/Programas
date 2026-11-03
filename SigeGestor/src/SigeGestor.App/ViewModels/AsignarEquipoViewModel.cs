@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.Input;
 using SigeGestor.Core.Configuracion;
 using SigeGestor.Core.Lecturas;
 using SigeGestor.Core.Modelos;
+using SigeGestor.Core.Operaciones;
 
 namespace SigeGestor.App.ViewModels;
 
@@ -18,7 +19,6 @@ public sealed partial class LecturaVm : ObservableObject
     public LecturaVm(LecturaPrefactura lectura)
     {
         Lectura = lectura;
-        _elegido = lectura.IdEquipoMedida;
     }
 
     public LecturaPrefactura Lectura { get; }
@@ -41,14 +41,28 @@ public sealed partial class LecturaVm : ObservableObject
 
     public bool YaTenia => Lectura.IdEquipoMedida is not null;
 
-    /// <summary>Lo que se va a poner. Null = esta fila se deja como está.</summary>
-    [ObservableProperty] private long? _elegido;
+    /// <summary>
+    /// El IdEquipoMedida que se teclea para esta lectura. Es texto y no un número porque se
+    /// escribe a mano y hay que poder dejarlo a medias o en blanco sin que la celda proteste.
+    /// </summary>
+    [ObservableProperty] private string _idEquipo = "";
 
-    partial void OnElegidoChanged(long? value)
+    partial void OnIdEquipoChanged(string value)
     {
         OnPropertyChanged(nameof(VaACambiar));
+        OnPropertyChanged(nameof(Problema));
         Cambiado?.Invoke(this, EventArgs.Empty);
     }
+
+    /// <summary>El id tecleado, si es un número válido.</summary>
+    public long? Elegido =>
+        long.TryParse((IdEquipo ?? "").Trim(), out var n) && n > 0 ? n : null;
+
+    /// <summary>Qué le pasa a lo tecleado. Vacío si está bien.</summary>
+    public string Problema =>
+        (IdEquipo ?? "").Trim().Length == 0 || Elegido is not null
+            ? ""
+            : "no es un número";
 
     public event EventHandler? Cambiado;
 
@@ -87,12 +101,57 @@ public sealed partial class AsignarEquipoViewModel : ObservableObject
 
     // ---------- Búsqueda ----------
 
+    /// <summary>
+    /// La lista de contratos, pegada. Se parte con el mismo analizador que el resto de la
+    /// aplicación, así que admite comas, puntos y coma, tabuladores y saltos de línea, y
+    /// descarta repetidos.
+    /// </summary>
     [ObservableProperty] private string _contrato = "";
+
+    /// <summary>Los contratos reconocidos de lo pegado.</summary>
+    public IReadOnlyList<long> ContratosValidos
+    {
+        get
+        {
+            var analisis = AnalizadorEntradas.Analizar(Contrato, TipoLista.Contratos);
+            var lista = new List<long>();
+            foreach (var v in analisis.Validos)
+            {
+                if (long.TryParse(v, out var n) && n > 0) lista.Add(n);
+            }
+            return lista;
+        }
+    }
+
+    /// <summary>Lo que se lee bajo el cuadro: cuántos han entrado y qué se ha descartado.</summary>
+    public string ResumenContratos
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(Contrato)) return "";
+
+            var analisis = AnalizadorEntradas.Analizar(Contrato, TipoLista.Contratos);
+            var partes = new List<string> { $"{analisis.Validos.Count} contratos" };
+
+            if (analisis.Repetidos > 0) partes.Add($"{analisis.Repetidos} repetidos");
+            if (analisis.Descartados.Count > 0)
+            {
+                partes.Add($"descartados: {string.Join(", ", analisis.Descartados.Take(5))}" +
+                           (analisis.Descartados.Count > 5 ? " y más" : ""));
+            }
+
+            return string.Join(" · ", partes);
+        }
+    }
     [ObservableProperty] private string _numeroFactura = "";
     [ObservableProperty] private bool _soloSinEquipo = true;
     [ObservableProperty] private bool _trabajando;
 
-    partial void OnContratoChanged(string value) => OnPropertyChanged(nameof(PuedeBuscar));
+    partial void OnContratoChanged(string value)
+    {
+        OnPropertyChanged(nameof(PuedeBuscar));
+        OnPropertyChanged(nameof(ResumenContratos));
+    }
     partial void OnTrabajandoChanged(bool value)
     {
         OnPropertyChanged(nameof(PuedeBuscar));
@@ -100,12 +159,15 @@ public sealed partial class AsignarEquipoViewModel : ObservableObject
     }
 
     public bool PuedeBuscar =>
-        !Trabajando && long.TryParse(Contrato.Trim(), out var c) && c > 0 && EntornoElegido is not null;
+        !Trabajando && ContratosValidos.Count > 0 && EntornoElegido is not null;
 
     public ObservableCollection<LecturaVm> Lecturas { get; } = new();
-    public ObservableCollection<EquipoMedida> Equipos { get; } = new();
 
-    [ObservableProperty] private EquipoMedida? _equipoParaTodas;
+    /// <summary>
+    /// El id que se pone de golpe en todas las filas. No se ofrece ningún catálogo de
+    /// equipos a propósito: el id lo trae quien hace el cambio.
+    /// </summary>
+    [ObservableProperty] private string _idParaTodas = "";
 
     [ObservableProperty] private string _error = "";
     [ObservableProperty] private string _aviso = "";
@@ -129,14 +191,22 @@ public sealed partial class AsignarEquipoViewModel : ObservableObject
             if (Lecturas.Count == 0) return "";
             var cambian = Lecturas.Count(l => l.VaACambiar);
             var conEquipo = Lecturas.Count(l => l.YaTenia);
+            var malos = Lecturas.Count(l => l.Problema.Length > 0);
+            var contratos = Lecturas.Select(l => l.Lectura.CodigoContrato).Distinct().Count();
 
-            return $"{Lecturas.Count} lecturas · {conEquipo} ya tienen equipo · " +
-                   $"{cambian} marcadas para cambiar";
+            return $"{Lecturas.Count} lecturas de {contratos} contratos · " +
+                   $"{conEquipo} ya tienen equipo · {cambian} marcadas para cambiar" +
+                   (malos > 0 ? $" · {malos} con el id mal escrito" : "");
         }
     }
 
     /// <summary>Hay algo que guardar y no se está ya guardando.</summary>
-    public bool PuedeGuardar => !Trabajando && Lecturas.Any(l => l.VaACambiar);
+    /// <summary>
+    /// Con algún id mal escrito NO se deja guardar: es preferible a asignar la mitad y que
+    /// quien lo lanza no se entere de cuál se quedó fuera.
+    /// </summary>
+    public bool PuedeGuardar =>
+        !Trabajando && Lecturas.Any(l => l.VaACambiar) && !Lecturas.Any(l => l.Problema.Length > 0);
 
     [RelayCommand]
     private async Task Buscar()
@@ -149,15 +219,11 @@ public sealed partial class AsignarEquipoViewModel : ObservableObject
 
         try
         {
-            var contrato = long.Parse(Contrato.Trim());
+            var contratos = ContratosValidos;
             var servicio = new ServicioEquipoLectura(_entornos.CadenaConexion(EntornoElegido!, 120));
 
-            var equipos = await servicio.EquiposAsync(contrato).ConfigureAwait(true);
-            Equipos.Clear();
-            foreach (var e in equipos) Equipos.Add(e);
-
             var lecturas = await servicio.BuscarAsync(
-                contrato, NumeroFactura, SoloSinEquipo).ConfigureAwait(true);
+                contratos, NumeroFactura, SoloSinEquipo).ConfigureAwait(true);
 
             Lecturas.Clear();
             foreach (var l in lecturas)
@@ -170,12 +236,18 @@ public sealed partial class AsignarEquipoViewModel : ObservableObject
             if (Lecturas.Count == 0)
             {
                 Aviso = SoloSinEquipo
-                    ? "No hay lecturas sin equipo para ese contrato. Desmarca la casilla para verlas todas."
-                    : "No hay lecturas para ese contrato con esa factura.";
+                    ? "No hay lecturas sin equipo en esos contratos. Desmarca la casilla para verlas todas."
+                    : "No hay lecturas en esos contratos con esa factura.";
             }
-            else if (Equipos.Count == 0)
+            else
             {
-                Error = "El contrato no tiene equipos de medida, así que no hay ninguno que asignar.";
+                // Cuántos de los pedidos han traído algo. Con una lista pegada es lo primero
+                // que se mira: si faltan, es que el número está mal o no tienen lecturas así.
+                var conLecturas = Lecturas.Select(l => l.Lectura.CodigoContrato).Distinct().Count();
+                if (conLecturas < contratos.Count)
+                {
+                    Aviso = $"{conLecturas} de los {contratos.Count} contratos han traído lecturas.";
+                }
             }
         }
         catch (Exception ex)
@@ -189,16 +261,17 @@ public sealed partial class AsignarEquipoViewModel : ObservableObject
         }
     }
 
-    /// <summary>Pone el mismo equipo en todas las que no lo tengan. Lo normal es que sea uno.</summary>
+    /// <summary>
+    /// Pone el mismo id en todas las que no tengan equipo. Útil cuando la lista es de un solo
+    /// contrato; con varios, lo normal es que cada uno lleve el suyo.
+    /// </summary>
     [RelayCommand]
     private void AplicarATodas()
     {
-        if (EquipoParaTodas is null) return;
+        var texto = (IdParaTodas ?? "").Trim();
+        if (texto.Length == 0) return;
 
-        foreach (var l in Lecturas.Where(l => !l.YaTenia))
-        {
-            l.Elegido = EquipoParaTodas.IdEquipoMedida;
-        }
+        foreach (var l in Lecturas.Where(l => !l.YaTenia)) l.IdEquipo = texto;
 
         Refrescar();
     }
@@ -206,7 +279,7 @@ public sealed partial class AsignarEquipoViewModel : ObservableObject
     [RelayCommand]
     private void QuitarSeleccion()
     {
-        foreach (var l in Lecturas.Where(l => !l.YaTenia)) l.Elegido = null;
+        foreach (var l in Lecturas.Where(l => !l.YaTenia)) l.IdEquipo = "";
         Refrescar();
     }
 

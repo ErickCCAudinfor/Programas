@@ -83,6 +83,24 @@
             <Trigger Property="IsKeyboardFocusWithin" Value="True">
                 <Setter Property="Background" Value="Transparent" />
             </Trigger>
+
+            <!--
+                EL TEXTO NO SE VUELVE BLANCO AL SELECCIONAR.
+
+                La plantilla de DataGridRow de aquí arriba solo tiñe el fondo, pero no basta:
+                el estilo de tema de DataGridCell trae su propio disparador de IsSelected que
+                pone Background y Foreground en los colores de selección de Windows, y ese
+                Foreground blanco sobre nuestro azul claro deja la fila ilegible.
+
+                Redefinir la plantilla de la celda tampoco lo quita: los Setter de ese
+                disparador se aplican igual sobre las propiedades del control. Hay que
+                pisarlos con un disparador propio, que gana por venir del Style explícito.
+            -->
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
+                <Setter Property="BorderBrush" Value="Transparent" />
+            </Trigger>
         </Style.Triggers>
     </Style>
 

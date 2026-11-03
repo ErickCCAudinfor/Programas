@@ -50,9 +50,18 @@
                     <StackPanel>
                         <WrapPanel>
                             <StackPanel Margin="0,0,12,6">
-                                <TextBlock Text="Contrato" Style="{StaticResource TxLabel}" Margin="0,0,0,6" />
-                                <TextBox Style="{StaticResource InputBase}" Width="150"
-                                         Text="{Binding Contrato, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Text="Contratos" Style="{StaticResource TxLabel}" Margin="0,0,0,6" />
+                                <TextBox Style="{StaticResource InputBase}"
+                                         Width="260" Height="76"
+                                         AcceptsReturn="True"
+                                         TextWrapping="Wrap"
+                                         VerticalContentAlignment="Top"
+                                         VerticalScrollBarVisibility="Auto"
+                                         Text="{Binding Contrato, UpdateSourceTrigger=PropertyChanged, Delay=250}" />
+                                <TextBlock Text="{Binding ResumenContratos}"
+                                           Style="{StaticResource TxHelp}"
+                                           TextWrapping="Wrap" MaxWidth="260"
+                                           Margin="0,4,0,0" />
                             </StackPanel>
 
                             <StackPanel Margin="0,0,12,6">
@@ -121,13 +130,11 @@
                     <StackPanel Grid.Row="0" Margin="15,14,15,0">
                         <TextBlock Text="LECTURAS" Style="{StaticResource TxSection}" />
                         <WrapPanel Margin="0,10,0,0">
-                            <TextBlock Text="Poner en todas:" Style="{StaticResource TxLabel}"
+                            <TextBlock Text="IdEquipoMedida en todas:" Style="{StaticResource TxLabel}"
                                        VerticalAlignment="Center" Margin="0,0,8,6" />
-                            <ComboBox Height="32" Width="260" FontSize="13"
-                                      Margin="0,0,8,6"
-                                      ItemsSource="{Binding Equipos}"
-                                      DisplayMemberPath="Etiqueta"
-                                      SelectedItem="{Binding EquipoParaTodas, Mode=TwoWay}" />
+                            <TextBox Style="{StaticResource InputBase}"
+                                     Height="32" Width="140" Margin="0,0,8,6"
+                                     Text="{Binding IdParaTodas, UpdateSourceTrigger=PropertyChanged}" />
                             <Button Style="{StaticResource BtnSecondary}" Content="Aplicar a todas"
                                     Margin="0,0,6,6"
                                     Command="{Binding AplicarATodasCommand}" />
@@ -145,7 +152,7 @@
                             <TextBlock Style="{StaticResource TxHelp}"
                                        HorizontalAlignment="Center" TextAlignment="Center"
                                        TextWrapping="Wrap" MaxWidth="420" Margin="0,5,0,0"
-                                       Text="Escribe el contrato y pulsa Buscar. El nº de factura de compra es opcional: sin él salen las de todas sus facturas." />
+                                       Text="Pega los contratos —uno por línea o separados por comas— y pulsa Buscar. El nº de factura de compra es opcional: sin él salen las de todas sus facturas." />
                         </StackPanel>
                     </Border>
 
@@ -177,18 +184,32 @@
                                                 Width="1.4*" MinWidth="160" />
 
                             <!-- La única editable: qué equipo se le pone -->
-                            <DataGridTemplateColumn Header="PONER" Width="230">
+                            <!--
+                                El IdEquipoMedida se teclea. No se ofrece catalogo de equipos
+                                a proposito: el id lo trae quien hace el cambio.
+                            -->
+                            <DataGridTemplateColumn Header="IdEquipoMedida" Width="160">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <ComboBox Margin="2"
-                                                  FontSize="12"
-                                                  IsEnabled="{Binding YaTenia, Converter={StaticResource BoolNegado}}"
-                                                  ItemsSource="{Binding DataContext.Equipos,
-                                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                  DisplayMemberPath="Etiqueta"
-                                                  SelectedValuePath="IdEquipoMedida"
-                                                  SelectedValue="{Binding Elegido, Mode=TwoWay,
-                                                                  UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBox Margin="2"
+                                                 FontSize="12"
+                                                 FontFamily="{StaticResource FontMono}"
+                                                 IsEnabled="{Binding YaTenia, Converter={StaticResource BoolNegado}}"
+                                                 Text="{Binding IdEquipo, Mode=TwoWay,
+                                                        UpdateSourceTrigger=PropertyChanged}"
+                                                 ToolTip="{Binding Problema}">
+                                            <TextBox.Style>
+                                                <Style TargetType="TextBox">
+                                                    <Style.Triggers>
+                                                        <!-- Lo que no es un numero se marca en rojo. -->
+                                                        <DataTrigger Binding="{Binding Problema}" Value="no es un número">
+                                                            <Setter Property="Foreground" Value="{StaticResource BadBrush}" />
+                                                            <Setter Property="BorderBrush" Value="{StaticResource BadBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBox.Style>
+                                        </TextBox>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>

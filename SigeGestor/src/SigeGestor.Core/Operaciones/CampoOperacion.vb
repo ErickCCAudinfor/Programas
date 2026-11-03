@@ -61,6 +61,12 @@
         ''' </summary>
         Public Const ClientesPago As String = "clientespago"
 
+        ''' <summary>
+        ''' Tarifas de peaje de los dos entornos, con «luz» o «gas» detrás. Se usa para
+        ''' acotar consultas, y dejarla vacia significa «todas».
+        ''' </summary>
+        Public Const TarifasPeaje As String = "tarifaspeaje"
+
         ''' <summary>True si el origen no necesita conexión a la base.</summary>
         Public Function EsDeConfiguracion(origen As String) As Boolean
             Return origen = TiposXml

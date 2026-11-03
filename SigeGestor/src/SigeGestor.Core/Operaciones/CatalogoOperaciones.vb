@@ -861,12 +861,72 @@
         Private Function PorFechas(plantilla As String,
                                    nombreFichero As String,
                                    Optional nombreHoja As String = "",
-                                   Optional pideFechas As Boolean = True) As IOperacionEjecutable
+                                   Optional pideFechas As Boolean = True,
+                                   Optional formatoFecha As String = Nothing) As IOperacionEjecutable
             Return New Implementadas.ConsultaPorFechas(
                 Sql, plantilla, nombreFichero,
                 If(String.IsNullOrEmpty(nombreHoja), nombreFichero, nombreHoja),
-                Implementadas.ConsultaPorFechas.FormatoBarras,
+                If(formatoFecha, Implementadas.ConsultaPorFechas.FormatoBarras),
                 pideFechas)
+        End Function
+
+        ' ============================================================
+        ' Contratos activos sin lecturas finales
+        ' ============================================================
+
+        Public Const ClaveEnergia As String = "energia"
+        Public Const ClaveTarifaPeaje As String = "tarifaPeaje"
+        Public Const ClaveDias As String = "diasSinLectura"
+
+        Public Const EnergiaAmbas As String = ""
+        Public Const EnergiaLuz As String = "luz"
+        Public Const EnergiaGas As String = "gas"
+
+        ''' <summary>
+        ''' Los entornos que entran en el IN, ya entrecomillados: «'G1'», «'G2'» o los dos.
+        '''
+        ''' Sin elegir energia salen los dos, que es lo que se espera al no acotar por nada.
+        ''' El prefijo es «G» para la lectura y «E» para el contrato: la misma energia se
+        ''' llama distinto en cada tabla.
+        ''' </summary>
+        Private Function EntornosDe(energia As String, prefijo As String) As String
+            Select Case (If(energia, "")).Trim().ToLowerInvariant()
+                Case EnergiaLuz : Return $"'{prefijo}1'"
+                Case EnergiaGas : Return $"'{prefijo}2'"
+                Case Else : Return $"'{prefijo}1', '{prefijo}2'"
+            End Select
+        End Function
+
+        ''' <summary>
+        ''' El valor si es un numero entero, y el de reserva si no.
+        '''
+        ''' Estos dos van al SQL SIN comillas, dentro de un DECLARE: lo que no sea un numero
+        ''' seria sintaxis inyectada, no un filtro raro. Los campos ya son de seleccion y de
+        ''' numero, pero el valor llega como texto y aqui se comprueba igual.
+        ''' </summary>
+        Private Function SoloNumero(valor As String, reserva As String) As String
+            Dim n As Long
+            Return If(Long.TryParse((If(valor, "")).Trim(), n) AndAlso n >= 0, n.ToString(), reserva)
+        End Function
+
+        ''' <summary>
+        ''' Una lista para un IN de texto: 'A1234567B', 'C7654321D'.
+        '''
+        ''' La comilla simple se duplica. Un CIF no deberia traerla, pero esto entra en el SQL
+        ''' como texto y lo que entra como texto se escapa, sin excepciones.
+        ''' </summary>
+        Private Function ComoListaEnComillas(entradas As IEnumerable(Of String)) As String
+            If entradas Is Nothing Then Return "''"
+
+            Dim piezas = entradas.
+                Select(Function(e) (If(e, "")).Trim()).
+                Where(Function(e) e.Length > 0).
+                Select(Function(e) "'" & e.Replace("'", "''") & "'").
+                ToList()
+
+            ' Sin entradas no se deja el IN vacio, que es un error de sintaxis: se pone algo
+            ' que no casa con nada y la consulta devuelve cero filas.
+            Return If(piezas.Count = 0, "''", String.Join(", ", piezas))
         End Function
 
         ''' <summary>
@@ -947,6 +1007,65 @@
                         "Autoconsumo y clicks de las facturas de compra indicadas. Se pega el número " &
                         "de factura de compra, uno por línea.",
                         ejecutable:=PorLista("ConsultaTopParaLidia", "ConsultaTopLidia", "numFacCompraReplace")),
+                General("Contratos activos sin lecturas finales", EntradasOperacion.Ninguna,
+                        "Contratos activos cuya última lectura facturada se quedó atrás. " &
+                        "Se elige luz o gas, y opcionalmente una tarifa de peaje.",
+                        ejecutable:=New Implementadas.ConsultaPorFechas(
+                            Sql, "ConsultaContratosActivosSinLecturasFinales",
+                            "ContratosSinLecturasFinales", "SinLecturasFinales",
+                            Implementadas.ConsultaPorFechas.FormatoCompacto,
+                            pideFechas:=False,
+                            extra:=Sub(pl, c)
+                                       pl.Poner("entornoLecturaReplace", EntornosDe(c.Campo(ClaveEnergia), "G"))
+                                       pl.Poner("entornoContratoReplace", EntornosDe(c.Campo(ClaveEnergia), "E"))
+                                       pl.Poner("idTarifaPeajeReplace", SoloNumero(c.Campo(ClaveTarifaPeaje), "0"))
+                                       pl.Poner("diasReplace", SoloNumero(c.Campo(ClaveDias), "90"))
+                                   End Sub),
+                        campos:={
+                            New CampoOperacion With {
+                                .Clave = ClaveEnergia,
+                                .Etiqueta = "Energía",
+                                .Ayuda = "Luz mira las lecturas de G1 contra contratos E1, y gas las de G2 " &
+                                         "contra E2. Van juntos: cruzarlos no devuelve nada. Por omisión " &
+                                         "salen los dos.",
+                                .Tipo = TipoCampo.Seleccion,
+                                .OpcionesFijas = {New OpcionFija(EnergiaAmbas, "Luz y gas"),
+                                                  New OpcionFija(EnergiaLuz, "Luz"),
+                                                  New OpcionFija(EnergiaGas, "Gas")},
+                                .ValorInicial = EnergiaAmbas,
+                                .Requerido = False
+                            },
+                            New CampoOperacion With {
+                                .Clave = ClaveTarifaPeaje,
+                                .Etiqueta = "Tarifa de peaje",
+                                .Ayuda = "Dejándola vacía salen todas.",
+                                .Tipo = TipoCampo.Seleccion,
+                                .Origen = OrigenLista.TarifasPeaje,
+                                .EtiquetaVacio = "— todas —",
+                                .Requerido = False
+                            },
+                            New CampoOperacion With {
+                                .Clave = ClaveDias,
+                                .Etiqueta = "Días sin lectura",
+                                .Ayuda = "Salen los contratos cuya última lectura facturada tenga más días que esto.",
+                                .Tipo = TipoCampo.Numero,
+                                .ValorInicial = "90",
+                                .Minimo = 1,
+                                .Maximo = 3650,
+                                .Requerido = False
+                            }
+                        }),
+                General("Contratos con factura única por alta", EntradasOperacion.Fechas,
+                        "Contratos que agrupan facturas y tienen la revisión «única», por fecha de alta.",
+                        ejecutable:=PorFechas("ConsultaContratosPorFechaAlta", "ContratosFacturaUnica",
+                                              "FacturaUnica", formatoFecha:=Implementadas.ConsultaPorFechas.FormatoCompacto)),
+                General("Contratos por alta y CIF", EntradasOperacion.Fechas Or EntradasOperacion.Cifs,
+                        "Contratos de los CIF indicados dados de alta en el rango. Se pegan los CIF, " &
+                        "uno por línea.",
+                        ejecutable:=New Implementadas.ConsultaPorFechas(
+                            Sql, "ConsultaContratosPorFechaAltaCif", "ContratosPorAltaCif", "PorAltaCIF",
+                            Implementadas.ConsultaPorFechas.FormatoCompacto,
+                            extra:=Sub(pl, c) pl.Poner("identidadesReplace", ComoListaEnComillas(c.Entradas)))),
                 General("Bajas con lecturas sin calcular", EntradasOperacion.Fechas,
                         "Lecturas pendientes de facturar de contratos que ya están de baja, por fecha " &
                         "de baja.",

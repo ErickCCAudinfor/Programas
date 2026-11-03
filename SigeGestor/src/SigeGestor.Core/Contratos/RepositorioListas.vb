@@ -82,6 +82,13 @@ Namespace Contratos
                     consulta = "SELECT IdContratoSituacion, TextoSituacion, Entorno " &
                                "FROM ContratoSituacion ORDER BY TextoSituacion"
 
+                Case OrigenLista.TarifasPeaje
+                    ' Los dos entornos, con la etiqueta detras, como en Productos: una misma
+                    ' pantalla puede consultar luz o gas y asi se ve cual es cual.
+                    consulta = "SELECT IdTarifaPeaje, TextoTarifaPeaje, " &
+                               "       CASE Entorno WHEN 'G1' THEN 'luz' WHEN 'G2' THEN 'gas' ELSE Entorno END " &
+                               "FROM TarifaPeaje ORDER BY Entorno, TextoTarifaPeaje"
+
                 Case OrigenLista.Cnaes
                     consulta = "SELECT IdCNAE, TextoCNAE, CodigoCNAE FROM cnae ORDER BY TextoCNAE"
 

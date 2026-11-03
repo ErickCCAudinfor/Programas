@@ -21,37 +21,6 @@ Namespace Lecturas
     End Class
 
     ''' <summary>
-    ''' Un equipo de medida del contrato, para poder elegirlo en vez de teclear el Id.
-    '''
-    ''' Las columnas son las que tiene la tabla de verdad. La primera versión pedía
-    ''' «Descripcion», que NO existe en EquipoMedida, y la búsqueda entera moría con
-    ''' «El nombre de columna 'Descripcion' no es válido». El esquema está en
-    ''' SigeCom.CrossUty\TablesAuto.vb, clase EquipoMedidaT.
-    ''' </summary>
-    Public Class EquipoMedida
-        Public Property IdEquipoMedida As Long
-        Public Property NumeroSerie As String = ""
-        Public Property Entorno As String = ""
-        Public Property Instalado As Boolean
-        Public Property FechaInstalacion As Date?
-
-        ''' <summary>
-        ''' Lo que se lee en el desplegable. El número de serie solo no basta cuando un
-        ''' contrato ha tenido varios contadores: se añade si está instalado y desde cuándo.
-        ''' </summary>
-        Public ReadOnly Property Etiqueta As String
-            Get
-                Dim partes As New List(Of String) From {If(NumeroSerie, "").Trim()}
-                If partes(0).Length = 0 Then partes(0) = $"(sin nº de serie) {IdEquipoMedida}"
-                If Entorno.Length > 0 Then partes.Add(Entorno)
-                partes.Add(If(Instalado, "instalado", "no instalado"))
-                If FechaInstalacion.HasValue Then partes.Add(FechaInstalacion.Value.ToString("dd/MM/yyyy"))
-                Return String.Join(" · ", partes)
-            End Get
-        End Property
-    End Class
-
-    ''' <summary>
     ''' Asignar el equipo de medida a las lecturas de una prefactura.
     '''
     ''' Cuando las lecturas se graban a mano no se les pone el equipo, y luego la prefactura
@@ -74,11 +43,19 @@ Namespace Lecturas
         ''' Las lecturas de las facturas de compra de un contrato. El número de factura es
         ''' opcional: sin él salen las de todas sus facturas.
         ''' </summary>
-        Public Async Function BuscarAsync(codigoContrato As Long,
+        Public Async Function BuscarAsync(contratos As IReadOnlyList(Of Long),
                                           numeroFactura As String,
                                           soloSinEquipo As Boolean,
                                           Optional ct As CancellationToken = Nothing) _
                                           As Task(Of IReadOnlyList(Of LecturaPrefactura))
+
+            If contratos Is Nothing OrElse contratos.Count = 0 Then
+                Return Array.Empty(Of LecturaPrefactura)()
+            End If
+
+            ' Un parametro por contrato (@c0, @c1...) y no los numeros pegados al texto del
+            ' IN: asi el plan se reutiliza y no hay nada que escapar.
+            Dim marcas = String.Join(", ", contratos.Select(Function(c, i) "@c" & i))
 
             Dim sql =
 "SELECT  l.IdLectura, l.CodigoContrato, l.Entorno,
@@ -91,12 +68,12 @@ INNER JOIN FacturaCompraCabecera fcc WITH (NOLOCK)
         ON fcc.IdFacturaCompraCabecera = l.IdFacturaCompraCabecera
 LEFT JOIN EquipoMedida em WITH (NOLOCK)
         ON em.IdEquipoMedida = l.IdEquipoMedida
-WHERE   fcc.CodigoContrato = @contrato
+WHERE   fcc.CodigoContrato IN (" & marcas & ")
   AND   (@numero = '' OR fcc.NumeroFactura = @numero)"
 
             If soloSinEquipo Then sql &= Environment.NewLine & "  AND   l.IdEquipoMedida IS NULL"
 
-            sql &= Environment.NewLine & "ORDER BY fcc.NumeroFactura, l.FechaLectura, l.IdLectura;"
+            sql &= Environment.NewLine & "ORDER BY l.CodigoContrato, fcc.NumeroFactura, l.FechaLectura, l.IdLectura;"
 
             Dim lista As New List(Of LecturaPrefactura)()
 
@@ -105,7 +82,9 @@ WHERE   fcc.CodigoContrato = @contrato
 
                 Using cmd As New SqlCommand(sql, cn)
                     cmd.CommandTimeout = 120
-                    cmd.Parameters.Add("@contrato", SqlDbType.BigInt).Value = codigoContrato
+                    For i = 0 To contratos.Count - 1
+                        cmd.Parameters.Add("@c" & i, SqlDbType.BigInt).Value = contratos(i)
+                    Next
                     cmd.Parameters.Add("@numero", SqlDbType.NVarChar, 50).Value =
                         If(numeroFactura, "").Trim()
 
@@ -124,46 +103,6 @@ WHERE   fcc.CodigoContrato = @contrato
                                 .Vigente = LeerBool(lector, "Vigente"),
                                 .IdEquipoMedida = LeerLongNulo(lector, "IdEquipoMedida"),
                                 .NumeroSerie = LeerTexto(lector, "NumeroSerie")})
-                        End While
-                    End Using
-                End Using
-            End Using
-
-            Return lista
-
-        End Function
-
-        ''' <summary>Los equipos de medida del contrato, para elegir de una lista.</summary>
-        Public Async Function EquiposAsync(codigoContrato As Long,
-                                           Optional ct As CancellationToken = Nothing) _
-                                           As Task(Of IReadOnlyList(Of EquipoMedida))
-
-            ' IsInvisible fuera: son los que SIGE no enseña, y ofrecerlos aquí seria
-            ' justo lo contrario de lo que se quiere.
-            Const sql As String =
-"SELECT  em.IdEquipoMedida, em.NumeroSerie, em.Entorno, em.IsInstalado, em.FechaInstalacion
-FROM    EquipoMedida em WITH (NOLOCK)
-WHERE   em.CodigoContrato = @contrato
-  AND   ISNULL(em.IsInvisible, 0) = 0
-ORDER BY em.IsInstalado DESC, em.FechaInstalacion DESC, em.NumeroSerie;"
-
-            Dim lista As New List(Of EquipoMedida)()
-
-            Using cn As New SqlConnection(_cadenaConexion)
-                Await cn.OpenAsync(ct).ConfigureAwait(False)
-
-                Using cmd As New SqlCommand(sql, cn)
-                    cmd.CommandTimeout = 60
-                    cmd.Parameters.Add("@contrato", SqlDbType.BigInt).Value = codigoContrato
-
-                    Using lector = Await cmd.ExecuteReaderAsync(ct).ConfigureAwait(False)
-                        While Await lector.ReadAsync(ct).ConfigureAwait(False)
-                            lista.Add(New EquipoMedida With {
-                                .IdEquipoMedida = Leer(Of Long)(lector, "IdEquipoMedida"),
-                                .NumeroSerie = LeerTexto(lector, "NumeroSerie"),
-                                .Entorno = LeerTexto(lector, "Entorno"),
-                                .Instalado = LeerBool(lector, "IsInstalado"),
-                                .FechaInstalacion = LeerFecha(lector, "FechaInstalacion")})
                         End While
                     End Using
                 End Using
