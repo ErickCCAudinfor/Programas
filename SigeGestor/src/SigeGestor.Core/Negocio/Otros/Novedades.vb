@@ -34,7 +34,8 @@ Public Module NovedadesApp
                 "Corregido: al seleccionar una fila de cualquier rejilla el texto se volvía blanco y no se leía. Pasaba también en Empresas y en Modelos de impresión.",
                 "Consulta nueva «Contratos con factura única por alta»: los que agrupan facturas y tienen la revisión «única», por fecha de alta.",
                 "Consulta nueva «Contratos por alta y CIF»: se pegan los CIF y salen sus contratos dados de alta en el rango.",
-                "Consulta nueva «Contratos activos sin lecturas finales»: contratos activos cuya última lectura facturada se quedó atrás. Se elige luz, gas o las dos, y opcionalmente una tarifa de peaje."
+                "Consulta nueva «Contratos activos sin lecturas finales»: contratos activos cuya última lectura facturada se quedó atrás. Se elige luz, gas o las dos, y opcionalmente una tarifa de peaje.",
+                "Corregido: el saludo del inicio cortaba el nombre por el primer espacio, así que las cuentas del BPO veían todas «Audinfor». Ahora sale el nombre entero."
             }
         },
         New Novedad With {
