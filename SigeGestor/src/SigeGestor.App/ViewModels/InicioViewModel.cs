@@ -28,7 +28,7 @@ public sealed partial class InicioViewModel : ObservableObject
         _usuario = usuario;
     }
 
-    public string Saludo => $"{FranjaDelDia()}, {PrimerNombre(_usuario.Nombre)}";
+    public string Saludo => $"{FranjaDelDia()}, {NombreParaSaludar(_usuario.Nombre)}";
 
     public string Subtitulo =>
         $"{DateTime.Now:dddd d 'de' MMMM} · esto es lo que lleva el equipo hoy.";
@@ -40,13 +40,21 @@ public sealed partial class InicioViewModel : ObservableObject
         _ => "Buenas noches"
     };
 
-    private static string PrimerNombre(string nombre)
+    /// <summary>
+    /// Con quién se saluda: el nombre ENTERO, tal como viene de la tabla de usuarios.
+    ///
+    /// Antes se cortaba por el primer espacio para saludar por el nombre de pila. Eso vale
+    /// para «Erick Cupueran», pero las cuentas del BPO se llaman «Audinfor BPO1», «Audinfor
+    /// BPO3»… y el recorte se llevaba justo la parte que distingue a cada persona: los ocho
+    /// veían «Buenos días, Audinfor».
+    ///
+    /// Se deja entero y no se intenta adivinar cuál es el nombre de pila: acertar con las dos
+    /// formas a la vez pide reglas que fallan con el siguiente nombre que no encaje.
+    /// </summary>
+    private static string NombreParaSaludar(string nombre)
     {
-        var limpio = (nombre ?? "").Trim();
-        if (limpio.Length == 0) return "de nuevo";
-
-        var espacio = limpio.IndexOf(' ');
-        return espacio > 0 ? limpio[..espacio] : limpio;
+        var limpio = string.Join(" ", (nombre ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries));
+        return limpio.Length == 0 ? "de nuevo" : limpio;
     }
 
     public ObservableCollection<MetricaVm> Metricas { get; } = new();
