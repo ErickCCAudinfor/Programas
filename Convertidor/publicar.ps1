@@ -1,4 +1,4 @@
-<#
+﻿<#
     Publica Convertidor como UN SOLO .exe autocontenido (no necesita .NET instalado).
 
     Ejemplos

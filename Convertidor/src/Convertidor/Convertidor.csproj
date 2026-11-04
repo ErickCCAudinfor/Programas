@@ -11,9 +11,12 @@
     <AssemblyName>Convertidor</AssemblyName>
     <RootNamespace>Convertidor</RootNamespace>
     <Version>1.1.0</Version>
+    <!-- Sin el hash de git pegado a la versión ("1.1.0+c8e3141...") -->
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <Product>Convertidor</Product>
     <Company>Audinfor</Company>
     <SatelliteResourceLanguages>es</SatelliteResourceLanguages>
+    <ApplicationIcon>Convertidor.ico</ApplicationIcon>
   </PropertyGroup>
 
   <!--
@@ -28,6 +31,11 @@
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <DebugType>none</DebugType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- El mismo icono, para la barra de título de las ventanas -->
+    <Resource Include="Convertidor.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.1" />

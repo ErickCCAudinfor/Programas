@@ -48,6 +48,16 @@ La zona se vuelve a dibujar con la resolución elegida, no se amplía la vista p
 - **PDF a Word**: lo hace Word, que reconstruye el documento. Con PDF escaneados o maquetaciones complicadas puede necesitar retoques.
 - **Office**: abre los archivos en solo lectura y sin macros. Si ya tenías Word, Excel o PowerPoint abiertos, no se cierran.
 
+## Instalar (para usarlo sin Visual Studio)
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\instalar.ps1                    # instala o actualiza
+powershell -ExecutionPolicy Bypass -File .\instalar.ps1 -AccesoEscritorio  # y un acceso en el escritorio
+powershell -ExecutionPolicy Bypass -File .\instalar.ps1 -Desinstalar
+```
+
+Publica y deja el `.exe` en `Escritorio\Erick\Convertidor`. También crea dos accesos directos: uno en el **menú Inicio** y otro en **Enviar a** (clic derecho sobre los archivos > Enviar a > Convertidor). Para actualizar, se vuelve a lanzar. Todo queda en el usuario: no pide administrador ni toca el registro.
+
 ## Publicar
 
 ```powershell
