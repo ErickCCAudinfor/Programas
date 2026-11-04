@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <!-- Windows 10 1809 o posterior: hace falta para el lector de PDF de Windows (Windows.Data.Pdf) -->
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>Convertidor</AssemblyName>
+    <RootNamespace>Convertidor</RootNamespace>
+    <Version>1.1.0</Version>
+    <Product>Convertidor</Product>
+    <Company>Audinfor</Company>
+    <SatelliteResourceLanguages>es</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <!--
+    Publicación en UN SOLO .exe: la gracia del programa es arrastrar archivos encima del
+    ejecutable, y eso es más cómodo con un único fichero que se puede dejar en el escritorio.
+    Las DLL nativas de Magick se extraen solas al primer arranque (IncludeNativeLibraries...).
+  -->
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.105.1" />
+    <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="15.0.0" />
+  </ItemGroup>
+
+</Project>

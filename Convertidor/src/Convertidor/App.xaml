@@ -1,0 +1,98 @@
+﻿<Application x:Class="Convertidor.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Startup="Application_Startup"
+             DispatcherUnhandledException="Application_DispatcherUnhandledException">
+    <Application.Resources>
+
+        <!-- Paleta sobria: el primario es tinta, el color se reserva para los estados -->
+        <SolidColorBrush x:Key="Fondo" Color="#F6F6F4"/>
+        <SolidColorBrush x:Key="Superficie" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="Borde" Color="#DAD9D4"/>
+        <SolidColorBrush x:Key="Tinta" Color="#1F2328"/>
+        <SolidColorBrush x:Key="TintaSuave" Color="#5F6368"/>
+        <SolidColorBrush x:Key="Hover" Color="#EDECE8"/>
+        <SolidColorBrush x:Key="Ok" Color="#1E7B45"/>
+        <SolidColorBrush x:Key="Mal" Color="#B3261E"/>
+        <SolidColorBrush x:Key="Aviso" Color="#8A5A00"/>
+
+        <Style TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource Tinta}"/>
+            <Setter Property="Background" Value="{StaticResource Superficie}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Borde}"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="b" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="{StaticResource Hover}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="Primario" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="{StaticResource Tinta}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Tinta}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="22,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="b" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="#3A3F45"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Los formatos son RadioButton con pinta de "chip" -->
+        <Style x:Key="Chip" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{StaticResource Tinta}"/>
+            <Setter Property="Margin" Value="0,0,8,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="b" Background="{StaticResource Superficie}" BorderBrush="{StaticResource Borde}"
+                                BorderThickness="1" CornerRadius="14" Padding="12,5">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="{StaticResource Hover}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="{StaticResource Tinta}"/>
+                                <Setter TargetName="b" Property="BorderBrush" Value="{StaticResource Tinta}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Application.Resources>
+</Application>

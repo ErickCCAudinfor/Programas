@@ -1,0 +1,140 @@
+﻿<Window x:Class="Convertidor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Convertidor"
+        Title="Convertidor" Width="860" Height="620" MinWidth="640" MinHeight="480"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource Fondo}" Foreground="{StaticResource Tinta}"
+        FontFamily="Segoe UI" FontSize="13"
+        AllowDrop="True" DragEnter="Ventana_DragOver" DragOver="Ventana_DragOver" DragLeave="Ventana_DragLeave" Drop="Ventana_Drop">
+
+    <Grid Margin="20,16,20,16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Cabecera -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,12">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button x:Name="BotonRecortar" Content="Recortar…" Click="Recortar_Click" IsEnabled="False" Margin="0,0,8,0"
+                        ToolTip="Abre el PDF o la imagen seleccionada para elegir la zona, el formato y el tamaño"/>
+                <Button Content="Añadir archivos…" Click="Anadir_Click"/>
+                <Button x:Name="BotonQuitar" Content="Quitar" Margin="8,0,0,0" Click="Quitar_Click" IsEnabled="False"/>
+                <Button x:Name="BotonVaciar" Content="Vaciar" Margin="8,0,0,0" Click="Vaciar_Click" IsEnabled="False"/>
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Text="Convertidor" FontSize="20" FontWeight="SemiBold"/>
+                <TextBlock Text="Imágenes, documentos de Office, datos y texto" Foreground="{StaticResource TintaSuave}"/>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Zona de arrastre y lista -->
+        <Border x:Name="Zona" Grid.Row="1" Background="{StaticResource Superficie}" CornerRadius="8"
+                BorderBrush="{StaticResource Borde}" BorderThickness="1">
+            <Grid>
+                <!-- Vacía: el aviso grande -->
+                <Grid x:Name="Vacio">
+                    <Rectangle Margin="10" RadiusX="8" RadiusY="8" Stroke="{StaticResource Borde}"
+                               StrokeThickness="2" StrokeDashArray="5 4"/>
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="Arrastra aquí los archivos" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="o suéltalos encima de Convertidor.exe · también valen carpetas"
+                                   Foreground="{StaticResource TintaSuave}" HorizontalAlignment="Center" Margin="0,6,0,0"/>
+                    </StackPanel>
+                </Grid>
+
+                <ListView x:Name="Lista" Visibility="Collapsed" BorderThickness="0" Background="Transparent"
+                          SelectionMode="Extended" SelectionChanged="Lista_SelectionChanged"
+                          MouseDoubleClick="Lista_MouseDoubleClick" KeyDown="Lista_KeyDown"
+                          ToolTip="Doble clic en un archivo convertido para verlo en su carpeta. Clic derecho para recortar.">
+                    <ListView.ContextMenu>
+                        <ContextMenu Opened="Menu_Opened">
+                            <MenuItem x:Name="MenuRecortar" Header="Recortar / extraer una zona…" Click="Recortar_Click"/>
+                            <MenuItem x:Name="MenuCarpeta" Header="Abrir su carpeta" Click="MenuCarpeta_Click"/>
+                            <Separator/>
+                            <MenuItem Header="Quitar de la lista" Click="Quitar_Click"/>
+                        </ContextMenu>
+                    </ListView.ContextMenu>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Archivo" Width="300" DisplayMemberBinding="{Binding Nombre}"/>
+                            <GridViewColumn Header="Tipo" Width="90" DisplayMemberBinding="{Binding Familia}"/>
+                            <GridViewColumn Header="Estado" Width="400">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type local:ElementoArchivo}">
+                                        <TextBlock x:Name="t" Text="{Binding Mensaje}" TextTrimming="CharacterEllipsis"
+                                                   ToolTip="{Binding Mensaje}"/>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding Estado}" Value="Hecho">
+                                                <Setter TargetName="t" Property="Foreground" Value="{StaticResource Ok}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Estado}" Value="Error">
+                                                <Setter TargetName="t" Property="Foreground" Value="{StaticResource Mal}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Estado}" Value="NoAdmitido">
+                                                <Setter TargetName="t" Property="Foreground" Value="{StaticResource Aviso}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Estado}" Value="Convirtiendo">
+                                                <Setter TargetName="t" Property="FontStyle" Value="Italic"/>
+                                            </DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </Grid>
+        </Border>
+
+        <!-- Formatos -->
+        <StackPanel Grid.Row="2" Margin="0,16,0,0">
+            <TextBlock Text="Convertir a" FontWeight="SemiBold" Margin="0,0,0,8"/>
+            <TextBlock x:Name="SinFormatos" Text="Añade archivos para ver a qué formatos se pueden pasar."
+                       Foreground="{StaticResource TintaSuave}" Margin="0,0,0,8"/>
+            <ItemsControl x:Name="Formatos">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type local:OpcionFormato}">
+                        <RadioButton Style="{StaticResource Chip}" GroupName="Formato"
+                                     Content="{Binding Texto}" IsChecked="{Binding Elegida, Mode=TwoWay}"
+                                     Checked="Formato_Checked"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+
+        <!-- Dónde dejar el resultado -->
+        <StackPanel Grid.Row="3" Margin="0,8,0,0">
+            <TextBlock Text="Guardar en" FontWeight="SemiBold" Margin="0,0,0,6"/>
+            <RadioButton x:Name="MismaCarpeta" Content="La misma carpeta que cada original" IsChecked="True"
+                         GroupName="Destino" Margin="0,0,0,4" Checked="Destino_Changed"/>
+            <DockPanel>
+                <RadioButton x:Name="OtraCarpeta" Content="Otra carpeta:" GroupName="Destino"
+                             VerticalAlignment="Center" Checked="Destino_Changed"/>
+                <Button DockPanel.Dock="Right" Content="Elegir…" Margin="8,0,0,0" Click="ElegirCarpeta_Click"/>
+                <TextBox x:Name="Carpeta" Margin="8,0,0,0" Padding="4,3" IsEnabled="False"
+                         BorderBrush="{StaticResource Borde}" VerticalContentAlignment="Center"/>
+            </DockPanel>
+        </StackPanel>
+
+        <!-- Pie -->
+        <DockPanel Grid.Row="4" Margin="0,16,0,0" LastChildFill="True">
+            <Button x:Name="BotonConvertir" DockPanel.Dock="Right" Style="{StaticResource Primario}"
+                    Content="Convertir" IsEnabled="False" Click="Convertir_Click"/>
+            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+                <TextBlock x:Name="Resumen" Foreground="{StaticResource TintaSuave}" TextTrimming="CharacterEllipsis"/>
+                <ProgressBar x:Name="Progreso" Height="4" Margin="0,6,0,0" Visibility="Collapsed"
+                             Foreground="{StaticResource Tinta}" Background="{StaticResource Hover}" BorderThickness="0"/>
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,179 @@
+<Window x:Class="Convertidor.VentanaRecorte"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Convertidor"
+        Title="Recortar" Width="1180" Height="780" MinWidth="900" MinHeight="560"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource Fondo}" Foreground="{StaticResource Tinta}"
+        FontFamily="Segoe UI" FontSize="13"
+        Loaded="Ventana_Loaded" KeyDown="Ventana_KeyDown">
+
+    <Window.Resources>
+        <Style x:Key="Etiqueta" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,14,0,6"/>
+        </Style>
+        <Style x:Key="Nota" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TintaSuave}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="4,3"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Borde}"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="ColMiniaturas" Width="170"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="300"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Páginas -->
+        <DockPanel Grid.Column="0" Background="{StaticResource Superficie}">
+            <TextBlock DockPanel.Dock="Top" Text="Páginas" FontWeight="SemiBold" Margin="14,12,0,8"/>
+            <ListBox x:Name="Miniaturas" BorderThickness="0" Background="Transparent"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     SelectionChanged="Miniaturas_SelectionChanged">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type local:Miniatura}">
+                        <StackPanel Margin="6,4" HorizontalAlignment="Center">
+                            <Border BorderBrush="{StaticResource Borde}" BorderThickness="1" Background="White"
+                                    Width="120" Height="{Binding AltoCaja}">
+                                <Image Source="{Binding Imagen}" Stretch="Uniform"/>
+                            </Border>
+                            <TextBlock Text="{Binding Texto}" HorizontalAlignment="Center" Margin="0,4,0,0"
+                                       Foreground="{StaticResource TintaSuave}" FontSize="12"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+
+        <!-- Visor -->
+        <DockPanel Grid.Column="1">
+            <DockPanel DockPanel.Dock="Top" Margin="14,10,14,8">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Content="−" Width="32" Padding="0,4" Click="Alejar_Click" ToolTip="Alejar (Ctrl + rueda)"/>
+                    <TextBlock x:Name="TextoZoom" Width="54" TextAlignment="Center" VerticalAlignment="Center"/>
+                    <Button Content="+" Width="32" Padding="0,4" Click="Acercar_Click" ToolTip="Acercar (Ctrl + rueda)"/>
+                    <Button Content="Ajustar" Margin="8,0,0,0" Click="AjustarVista_Click"/>
+                    <Button Content="100 %" Margin="6,0,0,0" Click="Zoom100_Click"/>
+                </StackPanel>
+                <TextBlock Style="{StaticResource Nota}" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
+                           Text="Arrastra sobre la página para marcar la zona. Sin zona se guarda la página entera."/>
+            </DockPanel>
+
+            <Border Background="#E6E5E1">
+                <Grid>
+                    <ScrollViewer x:Name="Visor" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                                  PreviewMouseWheel="Visor_PreviewMouseWheel" SizeChanged="Visor_SizeChanged">
+                        <Grid x:Name="Lienzo" Margin="24" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Grid.LayoutTransform>
+                                <ScaleTransform x:Name="Escala"/>
+                            </Grid.LayoutTransform>
+                            <Grid.Effect>
+                                <DropShadowEffect BlurRadius="10" ShadowDepth="1" Opacity="0.25"/>
+                            </Grid.Effect>
+                            <!-- Cuadros grises de fondo: así se ve lo transparente -->
+                            <Rectangle x:Name="Damero">
+                                <Rectangle.Fill>
+                                    <DrawingBrush TileMode="Tile" Viewport="0,0,16,16" ViewportUnits="Absolute">
+                                        <DrawingBrush.Drawing>
+                                            <DrawingGroup>
+                                                <GeometryDrawing Brush="White" Geometry="M0,0 H2 V2 H0Z"/>
+                                                <GeometryDrawing Brush="#E4E4E4" Geometry="M0,0 H1 V1 H0Z M1,1 H2 V2 H1Z"/>
+                                            </DrawingGroup>
+                                        </DrawingBrush.Drawing>
+                                    </DrawingBrush>
+                                </Rectangle.Fill>
+                            </Rectangle>
+                            <Image x:Name="Vista" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"/>
+                            <Canvas x:Name="Capa" Background="Transparent" Cursor="Cross" ClipToBounds="True"
+                                    MouseLeftButtonDown="Capa_MouseDown" MouseMove="Capa_MouseMove"
+                                    MouseLeftButtonUp="Capa_MouseUp" LostMouseCapture="Capa_LostMouseCapture">
+                                <Path x:Name="Mascara" Fill="#77000000" IsHitTestVisible="False"/>
+                                <Rectangle x:Name="MarcoClaro" Stroke="White" IsHitTestVisible="False"/>
+                                <Rectangle x:Name="MarcoOscuro" Stroke="#1F2328" StrokeDashArray="4 3" IsHitTestVisible="False"/>
+                            </Canvas>
+                        </Grid>
+                    </ScrollViewer>
+                    <TextBlock x:Name="Cargando" Text="Abriendo…" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Foreground="{StaticResource TintaSuave}" FontSize="16"/>
+                </Grid>
+            </Border>
+        </DockPanel>
+
+        <!-- Opciones -->
+        <Border Grid.Column="2" Background="{StaticResource Superficie}" BorderBrush="{StaticResource Borde}" BorderThickness="1,0,0,0">
+            <DockPanel Margin="18,8,18,16">
+                <StackPanel DockPanel.Dock="Bottom">
+                    <TextBlock x:Name="Aviso" Style="{StaticResource Nota}" Foreground="{StaticResource Mal}" Margin="0,0,0,8" Visibility="Collapsed"/>
+                    <DockPanel>
+                        <Button x:Name="BotonCopiar" Content="Copiar" Click="Copiar_Click" ToolTip="Copia la imagen al portapapeles (Ctrl+C)"/>
+                        <Button x:Name="BotonGuardar" Content="Guardar…" Style="{StaticResource Primario}" Margin="8,0,0,0" Click="Guardar_Click"/>
+                    </DockPanel>
+                    <TextBlock x:Name="Estado" Style="{StaticResource Nota}" Margin="0,10,0,0"/>
+                    <Button x:Name="BotonAbrirCarpeta" Content="Abrir la carpeta" Margin="0,6,0,0" HorizontalAlignment="Left"
+                            Visibility="Collapsed" Click="AbrirCarpeta_Click"/>
+                </StackPanel>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="Zona" Style="{StaticResource Etiqueta}"/>
+                        <TextBlock x:Name="TextoZona" Style="{StaticResource Nota}"/>
+                        <WrapPanel Margin="0,8,0,0">
+                            <Button Content="Página entera" Margin="0,0,6,6" Click="PaginaEntera_Click" ToolTip="Esc"/>
+                            <Button Content="Ajustar al contenido" Margin="0,0,6,6" Click="AjustarContenido_Click"
+                                    ToolTip="Recorta los márgenes en blanco de la zona (o de la página)"/>
+                        </WrapPanel>
+
+                        <TextBlock Text="Formato" Style="{StaticResource Etiqueta}"/>
+                        <ComboBox x:Name="Formato" SelectionChanged="Formato_SelectionChanged" DisplayMemberPath="Nombre"/>
+
+                        <TextBlock Text="Resolución (ppp)" Style="{StaticResource Etiqueta}"/>
+                        <ComboBox x:Name="Resolucion" IsEditable="True" Width="120" HorizontalAlignment="Left"
+                                  LostKeyboardFocus="Resolucion_Confirmar" KeyDown="Resolucion_KeyDown"
+                                  SelectionChanged="Resolucion_SelectionChanged">
+                            <ComboBoxItem Content="72"/>
+                            <ComboBoxItem Content="96"/>
+                            <ComboBoxItem Content="150"/>
+                            <ComboBoxItem Content="200"/>
+                            <ComboBoxItem Content="300"/>
+                            <ComboBoxItem Content="600"/>
+                        </ComboBox>
+                        <TextBlock Style="{StaticResource Nota}" Margin="0,4,0,0"
+                                   Text="96 para pantalla, 150-200 para documentos, 300 o más para imprimir."/>
+
+                        <TextBlock Text="Tamaño en píxeles" Style="{StaticResource Etiqueta}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="PxAncho" Width="78" LostKeyboardFocus="PxAncho_Confirmar" KeyDown="Px_KeyDown"/>
+                            <TextBlock Text="×" Margin="8,0" VerticalAlignment="Center"/>
+                            <TextBox x:Name="PxAlto" Width="78" LostKeyboardFocus="PxAlto_Confirmar" KeyDown="Px_KeyDown"/>
+                            <TextBlock Text="px" Margin="6,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource TintaSuave}"/>
+                        </StackPanel>
+                        <CheckBox x:Name="Proporcion" Content="Mantener la proporción" IsChecked="True" Margin="0,8,0,0"
+                                  Checked="Proporcion_Changed" Unchecked="Proporcion_Changed"/>
+                        <TextBlock x:Name="TextoMedida" Style="{StaticResource Nota}" Margin="0,6,0,0"/>
+
+                        <StackPanel x:Name="PanelCalidad">
+                            <TextBlock Style="{StaticResource Etiqueta}">
+                                <Run Text="Calidad"/>
+                                <Run x:Name="TextoCalidad" FontWeight="Normal" Foreground="{StaticResource TintaSuave}"/>
+                            </TextBlock>
+                            <Slider x:Name="Calidad" Minimum="10" Maximum="100" Value="92" IsSnapToTickEnabled="True"
+                                    TickFrequency="1" ValueChanged="Calidad_ValueChanged"/>
+                        </StackPanel>
+
+                        <CheckBox x:Name="Transparente" Content="Fondo transparente" Margin="0,14,0,0"
+                                  Checked="Transparente_Changed" Unchecked="Transparente_Changed"
+                                  ToolTip="Lo que en el PDF no tiene nada debajo queda transparente en vez de blanco"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>
