@@ -25,6 +25,20 @@ Public Module NovedadesApp
 
     Public ReadOnly Historial As New List(Of Novedad) From {
         New Novedad With {
+            .Version = "3.6",
+            .Fecha = New Date(2026, 11, 6),
+            .Titulo = "Buscar dentro de los desplegables largos",
+            .Cambios = New List(Of String) From {
+                "Los desplegables con muchas opciones traen ahora una casilla «Buscar…» encima: según escribes, el desplegable se queda solo con lo que coincide. Sale de una sugerencia del equipo.",
+                "Busca en cualquier parte del nombre, no solo al principio: «landa» encuentra «ANTONIO LANDA». Las tildes no cuentan, así que «barcelo» encuentra «BARCELÓ». Y vale también el (G1) o el (G2).",
+                "Debajo se dice cuántas quedan, para que un desplegable corto o vacío no parezca una avería.",
+                "Lo tienen «Cambiar agente» y «Cambiar administrador», que es de donde salió la petición, y de paso todos los demás que tiren de una lista larga: productos, modelos, CNAE, clientes de pago…",
+                "Los desplegables de pocas opciones no cambian: ahí la lista entera se ve de un vistazo.",
+                "Corregido en «Asignar nº de equipo en prefacturas»: había contratos con lecturas sin equipo que salían como «no hay lecturas». Buscaba por el contrato de la factura de compra en lugar de por el de la lectura, y no siempre es el mismo.",
+                "En esa misma pantalla, columna «Contrato» en la rejilla: buscando por una lista de contratos no había forma de saber de cuál era cada lectura."
+            }
+        },
+        New Novedad With {
             .Version = "3.5",
             .Fecha = New Date(2026, 11, 3),
             .Titulo = "Las consultas de Trébol por agente, y CAM Gas",

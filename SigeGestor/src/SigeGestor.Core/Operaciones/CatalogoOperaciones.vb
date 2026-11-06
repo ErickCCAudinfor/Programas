@@ -438,8 +438,8 @@
                 .Nombre = "Asignar nº de equipo en prefacturas",
                 .Seccion = SeccionOperacion.Contratos,
                 .Descripcion = "Las lecturas grabadas a mano se quedan sin equipo y la prefactura sale " &
-                               "sin número de contador. Busca las lecturas de una factura de compra y " &
-                               "les pone el suyo. Solo toca las que no lo tienen.",
+                               "sin número de contador. Busca las lecturas de unos contratos y les pone " &
+                               "el suyo. Solo toca las que no lo tienen.",
                 .EsEscritura = True,
                 .PaginaPropia = PaginasPropias.AsignarEquipo
             })

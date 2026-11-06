@@ -40,7 +40,7 @@
                 <TextBlock Style="{StaticResource TxBodyMuted}"
                            TextWrapping="Wrap" HorizontalAlignment="Left" MaxWidth="820"
                            Margin="0,6,0,0"
-                           Text="Las lecturas grabadas a mano suelen quedarse sin equipo y la prefactura sale sin número de contador. Busca las lecturas de una factura de compra y ponles el suyo." />
+                           Text="Las lecturas grabadas a mano suelen quedarse sin equipo y la prefactura sale sin número de contador. Busca las lecturas de unos contratos y ponles el suyo." />
 
                 <Border Margin="0,16,0,0" Padding="14,12"
                         CornerRadius="{StaticResource RCard}"
@@ -152,7 +152,7 @@
                             <TextBlock Style="{StaticResource TxHelp}"
                                        HorizontalAlignment="Center" TextAlignment="Center"
                                        TextWrapping="Wrap" MaxWidth="420" Margin="0,5,0,0"
-                                       Text="Pega los contratos —uno por línea o separados por comas— y pulsa Buscar. El nº de factura de compra es opcional: sin él salen las de todas sus facturas." />
+                                       Text="Pega los contratos —uno por línea o separados por comas— y pulsa Buscar. El nº de factura de compra es opcional: sin él salen todas las lecturas del contrato." />
                         </StackPanel>
                     </Border>
 
@@ -168,16 +168,21 @@
                                 enlaza TwoWay por omisión y contra una propiedad sin setter
                                 revienta al mostrar la rejilla.
                             -->
-                            <DataGridTextColumn Header="LECTURA" Binding="{Binding IdLectura, Mode=OneWay}"
-                                                Width="90" />
+                            <DataGridTextColumn Header="CONTRATO" Binding="{Binding CodigoContrato, Mode=OneWay}"
+                                                Width="100" />
+                            <!-- «ID LECTURA» y no «LECTURA»: la columna de la fecha ya se
+                                 llama asi, y dos cabeceras iguales en la misma rejilla no
+                                 dicen cual es cual. -->
+                            <DataGridTextColumn Header="ID LECTURA" Binding="{Binding IdLectura, Mode=OneWay}"
+                                                Width="95" />
                             <DataGridTextColumn Header="FACTURA" Binding="{Binding NumeroFactura, Mode=OneWay}"
                                                 Width="1.2*" MinWidth="130" />
                             <DataGridTextColumn Header="ENT." Binding="{Binding Entorno, Mode=OneWay}"
                                                 Width="60" />
                             <DataGridTextColumn Header="ANTERIOR" Binding="{Binding FechaLecturaAnterior, Mode=OneWay}"
-                                                Width="100" />
+                                                Width="112" />
                             <DataGridTextColumn Header="LECTURA" Binding="{Binding FechaLectura, Mode=OneWay}"
-                                                Width="100" />
+                                                Width="112" />
                             <DataGridTextColumn Header="ESTADO" Binding="{Binding Estado, Mode=OneWay}"
                                                 Width="1.3*" MinWidth="150" />
                             <DataGridTextColumn Header="EQUIPO ACTUAL" Binding="{Binding EquipoActual, Mode=OneWay}"

@@ -21,12 +21,36 @@
                          MaxLength="{Binding Definicion.LongitudMaxima}"
                          Text="{Binding Texto, UpdateSourceTrigger=PropertyChanged}" />
 
+                <!--
+                    BUSCAR DENTRO DEL DESPLEGABLE: caja aparte, no un ComboBox editable.
+                    Solo en las listas largas -agentes, administradores, productos-; en las de
+                    tres opciones no hay nada que buscar. Quien decide es PermiteBuscar.
+
+                    SE PROBO CON IsEditable Y NO VALE. Al recortarse la lista, WPF suelta la
+                    seleccion y REESCRIBE el texto del ComboBox -a veces en otro turno del
+                    despachador-, asi que las letras se cruzaban: tecleando «landa» salia
+                    «lianda». Con la caja aparte, escribir y elegir son dos controles
+                    distintos y no se pisan.
+                -->
+                <TextBox Visibility="{Binding VisibilidadBusqueda}"
+                         Style="{StaticResource InputBase}"
+                         Height="30"
+                         Margin="0,0,0,5"
+                         Tag="Buscar…"
+                         Text="{Binding Busqueda, UpdateSourceTrigger=PropertyChanged}" />
+
                 <ComboBox Visibility="{Binding VisibilidadSeleccion}"
                           Height="34"
                           FontSize="13.5"
                           ItemsSource="{Binding Opciones}"
                           DisplayMemberPath="Etiqueta"
                           SelectedItem="{Binding Opcion, Mode=TwoWay}" />
+
+                <TextBlock Text="{Binding TextoResultadosBusqueda}"
+                           Style="{StaticResource TxHelp}"
+                           HorizontalAlignment="Left"
+                           Visibility="{Binding VisibilidadResultadosBusqueda}"
+                           Margin="0,4,0,0" />
 
                 <!-- Numérico: estrecho, porque un ancho de caja de texto
                      para cuatro cifras invita a escribir otra cosa. -->

@@ -24,6 +24,12 @@ public sealed partial class LecturaVm : ObservableObject
     public LecturaPrefactura Lectura { get; }
 
     public long IdLectura => Lectura.IdLectura;
+
+    /// <summary>
+    /// De qué contrato es. Se busca por una LISTA de contratos, así que sin esto no hay forma
+    /// de saber a cuál pertenece cada fila.
+    /// </summary>
+    public long CodigoContrato => Lectura.CodigoContrato;
     public string NumeroFactura => Lectura.NumeroFactura;
     public string Entorno => Lectura.Entorno;
     public string FechaLectura => Lectura.FechaLectura?.ToString("dd/MM/yyyy") ?? "";

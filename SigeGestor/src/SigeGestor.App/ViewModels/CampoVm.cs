@@ -106,6 +106,83 @@ public sealed partial class CampoVm : ObservableObject
 
     partial void OnOpcionChanged(OpcionLista? value) => Cambiado?.Invoke(this, EventArgs.Empty);
 
+    // ---------- Buscar dentro del desplegable ----------
+
+    /// <summary>
+    /// A partir de cuántas opciones el desplegable deja escribir para filtrar.
+    ///
+    /// Por debajo de esto se ve la lista entera de un vistazo y poner un cursor dentro solo
+    /// invita a teclear algo que no es ninguna de las opciones. Por encima —agentes,
+    /// administradores, productos: cientos— desplazarse hasta el que toca es inviable.
+    /// </summary>
+    private const int UmbralBusqueda = 12;
+
+    /// <summary>
+    /// Si este desplegable se puede escribir para filtrar.
+    ///
+    /// Se mide sobre TODAS las opciones cargadas, no sobre las que se ven: si se midiera sobre
+    /// las visibles, al escribir y quedar menos de <see cref="UmbralBusqueda"/> el desplegable
+    /// dejaría de ser editable a mitad de la palabra.
+    /// </summary>
+    public bool PermiteBuscar =>
+        Definicion.Tipo == TipoCampo.Seleccion && _todas.Count > UmbralBusqueda;
+
+    public Visibility VisibilidadBusqueda =>
+        PermiteBuscar ? Visibility.Visible : Visibility.Collapsed;
+
+    /// <summary>
+    /// Cuántas quedan. Se dice porque un desplegable que se ha quedado corto —o vacío— no
+    /// explica por sí solo que es por lo que hay escrito arriba.
+    /// </summary>
+    public string TextoResultadosBusqueda => Opciones.Count switch
+    {
+        0 => $"Ninguna coincide con «{Busqueda.Trim()}».",
+        1 => "1 coincidencia.",
+        _ => $"{Opciones.Count} coincidencias."
+    };
+
+    public Visibility VisibilidadResultadosBusqueda =>
+        PermiteBuscar && Busqueda.Trim().Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+    private string _busqueda = string.Empty;
+
+    /// <summary>
+    /// Lo escrito en el desplegable. Vacío = no se está buscando.
+    ///
+    /// Escrita a mano y no con [ObservableProperty] porque al recargar de la base hay que
+    /// vaciarla tocando el campo, sin disparar un Reconstruir() de más justo antes del que
+    /// hace la propia recarga; con el atributo, referenciar el campo es un aviso del
+    /// generador.
+    /// </summary>
+    public string Busqueda
+    {
+        get => _busqueda;
+        set
+        {
+            if (_busqueda == value) return;
+            _busqueda = value;
+            OnPropertyChanged();
+
+            // Lo que había elegido antes de empezar a escribir, para poder devolverlo si la
+            // búsqueda se abandona sin elegir nada: al recortarse la lista, lo elegido puede
+            // caerse de ella y entonces WPF suelta la selección.
+            if (value.Trim().Length > 0) _antesDeBuscar ??= Opcion;
+
+            Reconstruir();
+            OnPropertyChanged(nameof(TextoResultadosBusqueda));
+            OnPropertyChanged(nameof(VisibilidadResultadosBusqueda));
+        }
+    }
+
+    /// <summary>
+    /// Lo elegido antes de empezar a escribir.
+    ///
+    /// Mientras se busca, la lista se recorta y WPF deja el SelectedItem a null en cuanto lo
+    /// elegido se cae del filtro. Si luego se borra la búsqueda sin elegir otra cosa, el campo
+    /// tiene que volver a lo que había, no quedarse vacío ni saltar solo a la opción de vaciar.
+    /// </summary>
+    private OpcionLista? _antesDeBuscar;
+
     [ObservableProperty]
     private bool _cargandoOpciones;
 
@@ -292,28 +369,52 @@ public sealed partial class CampoVm : ObservableObject
         // Lo elegido se conserva si sobrevive al filtro: cambiar de tipo de lista sin querer no
         // debería obligar a volver a buscar el producto.
         var elegido = Opcion;
+        var aguja = Buscador.Normalizar(Busqueda);
+        var buscando = aguja.Length > 0;
 
         Opciones.Clear();
 
-        // La opción de vaciar no lleva entorno y no se filtra nunca: significa «ninguno», y eso
-        // vale igual para luz que para gas.
-        if (Definicion.AdmiteVacio)
+        // La opción de vaciar no lleva entorno y no se filtra por suministro: significa
+        // «ninguno», y eso vale igual para luz que para gas. Pero sí desaparece mientras se
+        // busca, porque «Sin administrador» no es un resultado de buscar «landa».
+        if (Definicion.AdmiteVacio && !buscando)
         {
             Opciones.Add(new OpcionLista { Id = 0, Nombre = Definicion.EtiquetaVacio });
         }
 
-        foreach (var o in _todas.Where(o => Encaja(o, _suministro)))
+        foreach (var o in _todas.Where(o => Encaja(o, _suministro) && EncajaTexto(o, aguja)))
         {
             Opciones.Add(o);
         }
 
-        Opcion = elegido is not null && Opciones.Contains(elegido)
-            ? elegido
-            : (Definicion.AdmiteVacio && Opciones.Count > 0 ? Opciones[0] : null);
+        // Mientras se busca no se elige nada por cuenta propia. Con la lista recortándose a
+        // cada tecla, auto-seleccionar iría cambiando el valor sin que nadie lo pida y, en un
+        // desplegable editable, reescribiría encima lo que se está escribiendo.
+        if (!buscando)
+        {
+            var preferido = elegido ?? _antesDeBuscar;
+            _antesDeBuscar = null;
+
+            Opcion = preferido is not null && Opciones.Contains(preferido)
+                ? preferido
+                : (Definicion.AdmiteVacio && Opciones.Count > 0 ? Opciones[0] : null);
+        }
 
         OnPropertyChanged(nameof(SinOpcionesPorSuministro));
         Cambiado?.Invoke(this, EventArgs.Empty);
     }
+
+    /// <summary>
+    /// Si la opción encaja con lo que se está escribiendo. Se busca en la etiqueta entera
+    /// —nombre y entorno— y en cualquier posición, no solo al principio: los nombres de los
+    /// agentes empiezan por «AAFF», «71 REILAV»… y lo que se recuerda es el apellido.
+    ///
+    /// La aguja llega ya normalizada por quien llama, que es quien sabe cuándo cambia; aquí se
+    /// normaliza solo el candidato porque eso sí hay que hacerlo opción por opción.
+    /// </summary>
+    private static bool EncajaTexto(OpcionLista o, string aguja) =>
+        aguja.Length == 0 ||
+        Buscador.Normalizar(o.Etiqueta).Contains(aguja, StringComparison.Ordinal);
 
     private static bool Encaja(OpcionLista o, TipoSuministro suministro) => suministro switch
     {
@@ -334,6 +435,13 @@ public sealed partial class CampoVm : ObservableObject
         && ErrorOpciones.Length == 0
         && _todas.Count > 0
         && Opciones.Count == 0;
+
+    private void AvisarDeBusqueda()
+    {
+        OnPropertyChanged(nameof(PermiteBuscar));
+        OnPropertyChanged(nameof(VisibilidadBusqueda));
+        OnPropertyChanged(nameof(VisibilidadResultadosBusqueda));
+    }
 
     /// <summary>
     /// Recarga las opciones para el entorno indicado. Los de texto no hacen nada.
@@ -363,9 +471,16 @@ public sealed partial class CampoVm : ObservableObject
         Opciones.Clear();
         Opcion = null;
 
+        // Otra base, otra lista: lo que se estuviera buscando ya no viene a cuento. Se toca el
+        // campo directamente para no disparar un Reconstruir() de más justo antes del de abajo.
+        _busqueda = string.Empty;
+        _antesDeBuscar = null;
+        OnPropertyChanged(nameof(Busqueda));
+
         try
         {
             _todas = await _listas.CargarAsync(cadenaConexion, Definicion.Origen, filtro: filtro);
+            AvisarDeBusqueda();
 
             // Reconstruir pone la opción de vaciar, aplica el filtro por suministro si lo hay y
             // deja seleccionado lo que toque. Antes se hacía aquí a mano y el filtro se perdía
@@ -380,6 +495,7 @@ public sealed partial class CampoVm : ObservableObject
             // cuando lo que había pasado es que la base no respondió. Dos motivos distintos con
             // el mismo aspecto es peor que no decir nada.
             _todas = Array.Empty<OpcionLista>();
+            AvisarDeBusqueda();
             ErrorOpciones = $"No se han podido cargar las opciones: {ex.Message}";
         }
         finally

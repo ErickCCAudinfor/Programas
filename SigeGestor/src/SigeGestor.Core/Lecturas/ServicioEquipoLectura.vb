@@ -21,15 +21,25 @@ Namespace Lecturas
     End Class
 
     ''' <summary>
-    ''' Asignar el equipo de medida a las lecturas de una prefactura.
+    ''' Asignar el equipo de medida a las lecturas de un contrato.
     '''
     ''' Cuando las lecturas se graban a mano no se les pone el equipo, y luego la prefactura
-    ''' sale sin número de contador. Esto busca las lecturas de una factura de compra y deja
-    ''' ponérselo.
+    ''' sale sin número de contador. Esto las busca y deja ponérselo.
     '''
-    ''' LA COLUMNA SE LLAMA IdEquipoMedida, no IdEquipo. La tabla es EquipoMedida y cuelga del
-    ''' contrato por CodigoContrato, que es lo que permite ofrecer los equipos en una lista en
-    ''' lugar de pedir un Id a ciegas.
+    ''' SE BUSCA POR EL CONTRATO DE LA LECTURA, NO POR EL DE SU FACTURA DE COMPRA.
+    '''
+    ''' La primera versión filtraba por FacturaCompraCabecera.CodigoContrato, dando por hecho
+    ''' que es el mismo que el de la lectura. No tiene por qué: el contrato 551897 tenía cinco
+    ''' lecturas sin equipo, todas con su IdFacturaCompraCabecera puesto, y la pantalla decía
+    ''' «no hay lecturas». Quien manda es el contrato de la lectura, que es lo que se busca y
+    ''' lo que se va a tocar.
+    '''
+    ''' El JOIN con la factura es LEFT por lo mismo: sirve para enseñar su número, no para
+    ''' decidir qué lecturas salen. Una lectura sin factura de compra también necesita equipo.
+    ''' Con el INNER de antes, además, bastaba un IdFacturaCompraCabecera a NULL para que
+    ''' desapareciera sin que nada lo dijera.
+    '''
+    ''' LA COLUMNA SE LLAMA IdEquipoMedida, no IdEquipo. La tabla es EquipoMedida.
     ''' </summary>
     Public Class ServicioEquipoLectura
 
@@ -40,8 +50,42 @@ Namespace Lecturas
         End Sub
 
         ''' <summary>
-        ''' Las lecturas de las facturas de compra de un contrato. El número de factura es
-        ''' opcional: sin él salen las de todas sus facturas.
+        ''' La consulta de búsqueda, aparte para poder mirarla sin base de datos. Es lo único
+        ''' que ha fallado aquí hasta ahora, y dentro de BuscarAsync no había forma de
+        ''' comprobarla sin una conexión.
+        ''' </summary>
+        Friend Shared Function ConstruirSql(cuantosContratos As Integer,
+                                            soloSinEquipo As Boolean) As String
+
+            ' Un parametro por contrato (@c0, @c1...) y no los numeros pegados al texto del
+            ' IN: asi el plan se reutiliza y no hay nada que escapar.
+            Dim marcas = String.Join(", ",
+                Enumerable.Range(0, cuantosContratos).Select(Function(i) "@c" & i))
+
+            Dim sql =
+"SELECT  l.IdLectura, l.CodigoContrato, l.Entorno,
+        fcc.NumeroFactura, fcc.FechaRecepcion,
+        l.FechaLecturaAnterior, l.FechaLectura,
+        l.Facturar, l.Facturado, l.Vigente,
+        l.IdEquipoMedida, em.NumeroSerie
+FROM    lectura l WITH (NOLOCK)
+LEFT  JOIN FacturaCompraCabecera fcc WITH (NOLOCK)
+        ON fcc.IdFacturaCompraCabecera = l.IdFacturaCompraCabecera
+LEFT  JOIN EquipoMedida em WITH (NOLOCK)
+        ON em.IdEquipoMedida = l.IdEquipoMedida
+WHERE   l.CodigoContrato IN (" & marcas & ")
+  AND   (@numero = '' OR fcc.NumeroFactura = @numero)"
+
+            If soloSinEquipo Then sql &= Environment.NewLine & "  AND   l.IdEquipoMedida IS NULL"
+
+            Return sql & Environment.NewLine &
+                   "ORDER BY l.CodigoContrato, fcc.NumeroFactura, l.FechaLectura, l.IdLectura;"
+
+        End Function
+
+        ''' <summary>
+        ''' Las lecturas de unos contratos. El número de factura de compra es opcional: sin
+        ''' él salen TODAS las del contrato, tengan factura de compra o no.
         ''' </summary>
         Public Async Function BuscarAsync(contratos As IReadOnlyList(Of Long),
                                           numeroFactura As String,
@@ -53,27 +97,7 @@ Namespace Lecturas
                 Return Array.Empty(Of LecturaPrefactura)()
             End If
 
-            ' Un parametro por contrato (@c0, @c1...) y no los numeros pegados al texto del
-            ' IN: asi el plan se reutiliza y no hay nada que escapar.
-            Dim marcas = String.Join(", ", contratos.Select(Function(c, i) "@c" & i))
-
-            Dim sql =
-"SELECT  l.IdLectura, l.CodigoContrato, l.Entorno,
-        fcc.NumeroFactura, fcc.FechaRecepcion,
-        l.FechaLecturaAnterior, l.FechaLectura,
-        l.Facturar, l.Facturado, l.Vigente,
-        l.IdEquipoMedida, em.NumeroSerie
-FROM    lectura l WITH (NOLOCK)
-INNER JOIN FacturaCompraCabecera fcc WITH (NOLOCK)
-        ON fcc.IdFacturaCompraCabecera = l.IdFacturaCompraCabecera
-LEFT JOIN EquipoMedida em WITH (NOLOCK)
-        ON em.IdEquipoMedida = l.IdEquipoMedida
-WHERE   fcc.CodigoContrato IN (" & marcas & ")
-  AND   (@numero = '' OR fcc.NumeroFactura = @numero)"
-
-            If soloSinEquipo Then sql &= Environment.NewLine & "  AND   l.IdEquipoMedida IS NULL"
-
-            sql &= Environment.NewLine & "ORDER BY l.CodigoContrato, fcc.NumeroFactura, l.FechaLectura, l.IdLectura;"
+            Dim sql = ConstruirSql(contratos.Count, soloSinEquipo)
 
             Dim lista As New List(Of LecturaPrefactura)()
 
