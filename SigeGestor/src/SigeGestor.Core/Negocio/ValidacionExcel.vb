@@ -4,6 +4,7 @@ Imports System.Data
 Imports System.IO
 Imports ClosedXML.Excel
 Imports Microsoft.Data.SqlClient
+Imports SigeGestor.Core.Consultas
 
 ''' <summary>
 ''' ADAPTADOR DE COMPATIBILIDAD para el código portado de ActualizaPrecios.
@@ -47,6 +48,13 @@ Public Class ValidacionExcel
     Public ReadOnly Property contratos As New List(Of Long)
 
     Private Funciones As FuncionesGenericas
+
+    ''' <summary>
+    ''' De donde salen las consultas de penalizaciones: de Consultas\*.sql, como el resto.
+    ''' Antes estaban escritas dentro de este fichero, y por eso cualquier retoque obligaba a
+    ''' recompilar y republicar la aplicacion entera.
+    ''' </summary>
+    Private ReadOnly Sql As New RepositorioSql()
 
     ''' <summary>Ficheros escritos en la última llamada a GenerarPenalizacionesAsync.</summary>
     Public ReadOnly Property Generados As New List(Of String)
@@ -235,216 +243,129 @@ Public Class ValidacionExcel
 
 
 
-                For Each codigo As Long In CodigoContrato
-                    Using connection As New SqlConnection(connectionString)
-                        connection.Open()
-                        ' Consulta SQL que recupera los datos
-                        Dim query As String = "
-                    WITH FacturasVentaConsulta AS (
-    SELECT 
-        MAX(NumeroFactura) AS NumeroFactura, 
-        CodigoContrato 
-    FROM 
-        FacturaVentaCabecera WITH (NOLOCK) 
-    WHERE 
-        CodigoContrato IN (
-@CodigoContrato
-        )
-    AND SerieFactura = 'FELEC'
-    GROUP BY 
-        CodigoContrato
-)
-SELECT 
-    fvc.CodigoContrato,
-    fvc.SerieFactura,
-    fvc.NumeroFactura,
+                ' UNA sola consulta para todos los contratos, no una por contrato.
+                '
+                ' La consulta vive ahora en Consultas\Penalizaciones_LUZ.sql. Estaba escrita
+                ' aqui dentro, y eso es lo que impedia tocarla sin recompilar y republicar.
+                Dim plantilla As New PlantillaSql(Sql.Obtener("Penalizaciones_LUZ"))
+                plantilla.Poner("contratosReplace", String.Join(", ", CodigoContrato))
 
-    -- Precios de cada periodo sumando PrecioCargo y PrecioMedio de las tablas correspondientes
-    REPLACE(ISNULL(MAX(CASE WHEN fvl.codigoperiodoXML = 1 THEN  ISNULL(fvl.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvlb.codigoperiodoXML = 1 THEN  ISNULL(fvlb.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 1 THEN  ISNULL(fvlc.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvld.codigoperiodoXML = 1 THEN  fvld.PrecioMedioVariable ELSE NULL END), 0), '.', ',') AS SumaPrecioP1,
+                Dim pendientes = plantilla.MarcadoresPendientes()
+                If pendientes.Count > 0 Then
+                    Throw New InvalidOperationException(
+                        "La consulta de penalizaciones deja marcadores sin resolver: " &
+                        String.Join(", ", pendientes))
+                End If
 
-     REPLACE(ISNULL(MAX(CASE WHEN fvl.codigoperiodoXML = 2 THEN  ISNULL(fvl.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvlb.codigoperiodoXML = 2 THEN  ISNULL(fvlb.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 2 THEN  ISNULL(fvlc.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvld.codigoperiodoXML = 2 THEN  fvld.PrecioMedioVariable ELSE NULL END), 0), '.', ',') AS SumaPrecioP2,
+                Using connection As New SqlConnection(connectionString)
+                    connection.Open()
 
-     REPLACE(ISNULL(MAX(CASE WHEN fvl.codigoperiodoXML = 3 THEN  ISNULL(fvl.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvlb.codigoperiodoXML = 3 THEN  ISNULL(fvlb.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 3 THEN  ISNULL(fvlc.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvld.codigoperiodoXML = 3 THEN  fvld.PrecioMedioVariable ELSE NULL END), 0), '.', ',') AS SumaPrecioP3,
+                    Using command As New SqlCommand(plantilla.ToString(), connection)
+                        ' Dos minutos. Antes eran 100.000 segundos -27 horas-, asi que una
+                        ' consulta atascada no fallaba: se quedaba colgada para siempre.
+                        command.CommandTimeout = 120
 
-     REPLACE(ISNULL(MAX(CASE WHEN fvl.codigoperiodoXML = 4 THEN  ISNULL(fvl.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvlb.codigoperiodoXML = 4 THEN  ISNULL(fvlb.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 4 THEN  ISNULL(fvlc.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvld.codigoperiodoXML = 4 THEN  fvld.PrecioMedioVariable ELSE NULL END), 0), '.', ',') AS SumaPrecioP4,
-
-     REPLACE(ISNULL(MAX(CASE WHEN fvl.codigoperiodoXML = 5 THEN  ISNULL(fvl.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvlb.codigoperiodoXML = 5 THEN  ISNULL(fvlb.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 5 THEN  ISNULL(fvlc.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvld.codigoperiodoXML = 5 THEN  fvld.PrecioMedioVariable ELSE NULL END), 0), '.', ',') AS SumaPrecioP5,
-
-     REPLACE(ISNULL(MAX(CASE WHEN fvl.codigoperiodoXML = 6 THEN  ISNULL(fvl.InfoLineaXML.value('(FacturaConceptosDTO/FacturaConceptoCargos/PrecioCargo)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvlb.codigoperiodoXML = 6 THEN  ISNULL(fvlb.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 6 THEN  ISNULL(fvlc.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0)ELSE NULL END), 0) +
-			ISNULL(MAX(CASE WHEN fvld.codigoperiodoXML = 6 THEN  fvld.PrecioMedioVariable ELSE NULL END), 0), '.', ',') AS SumaPrecioP6,
-
-    -- Consumos de cada periodo
-    REPLACE(ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 1 or (fvld.codigoperiodoXML = 1 and tg.TextoTarifaGrupo like '%soul%') THEN 
-        case when tg.TextoTarifaGrupo like '%soul%' then fvld.ConsumoVariable else ISNULL(fvlc.TotConsumoEnergiaXML, 0) end
-        ELSE NULL END), 0), '.', ',') AS ConsumoP1,
-    REPLACE(ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 2 or (fvld.codigoperiodoXML = 2 and tg.TextoTarifaGrupo like '%soul%') THEN 
-        case when tg.TextoTarifaGrupo like '%soul%' then fvld.ConsumoVariable else ISNULL(fvlc.TotConsumoEnergiaXML, 0) end
-        ELSE NULL END), 0), '.', ',') AS ConsumoP2,
-    REPLACE(ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 3 or (fvld.codigoperiodoXML = 3 and tg.TextoTarifaGrupo like '%soul%') THEN 
-                case when tg.TextoTarifaGrupo like '%soul%' then fvld.ConsumoVariable else ISNULL(fvlc.TotConsumoEnergiaXML, 0) end
-        ELSE NULL END), 0), '.', ',') AS ConsumoP3,
-    REPLACE(ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 4 or (fvld.codigoperiodoXML = 4 and tg.TextoTarifaGrupo like '%soul%') THEN 
-        case when tg.TextoTarifaGrupo like '%soul%' then fvld.ConsumoVariable else ISNULL(fvlc.TotConsumoEnergiaXML, 0) end
-        ELSE NULL END), 0), '.', ',') AS ConsumoP4,
-    REPLACE(ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 5 or (fvld.codigoperiodoXML = 5 and tg.TextoTarifaGrupo like '%soul%') THEN 
-        case when tg.TextoTarifaGrupo like '%soul%' then fvld.ConsumoVariable else ISNULL(fvlc.TotConsumoEnergiaXML, 0) end
-        ELSE NULL END), 0), '.', ',') AS ConsumoP5,
-    REPLACE(ISNULL(MAX(CASE WHEN fvlc.codigoperiodoXML = 6 or (fvld.codigoperiodoXML = 6 and tg.TextoTarifaGrupo like '%soul%') THEN 
-        case when tg.TextoTarifaGrupo like '%soul%' then fvld.ConsumoVariable else ISNULL(fvlc.TotConsumoEnergiaXML, 0) end
-        ELSE NULL END), 0), '.', ',') AS ConsumoP6
-		,tg.TextoTarifaGrupo
-FROM FacturaVentaCabecera fvc WITH (NOLOCK)
-LEFT JOIN FacturaVentaLinea fvl WITH (NOLOCK) ON fvl.idfacturaventacabecera = fvc.idfacturaventacabecera AND fvl.Facturaconcepto IN (130004)
-LEFT JOIN FacturaVentaLinea fvlb WITH (NOLOCK) ON fvlb.idfacturaventacabecera = fvc.idfacturaventacabecera AND fvlb.Facturaconcepto IN (30001)
-LEFT JOIN FacturaVentaLinea fvlc WITH (NOLOCK) ON fvlc.idfacturaventacabecera = fvc.idfacturaventacabecera AND fvlc.Facturaconcepto = 30002
-left join (
-select IdFacturaVentaCabecera
-, sum(ISNULL(fvl.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoEnergia/PrecioMedio)[1]', 'decimal(18,6)'), 0))PrecioMedioVariable
-, max(TotConsumoEnergiaXML) ConsumoVariable
-,CodigoPeriodoXML
-from facturaventalinea fvl
-where facturaconcepto=30004
-group by fvl.IdFacturaVentaCabecera, fvl.CodigoPeriodoXML
-)  fvld ON fvld.idfacturaventacabecera = fvc.idfacturaventacabecera
-left join TarifaGrupo tg on fvc.IdTarifaGrupoXML = tg.IdTarifaGrupo
-WHERE fvc.IdFacturaVentaCabecera IN (
-    SELECT idfacturaventacabecera 
-    FROM FacturaVentaCabecera WITH (NOLOCK) 
-    WHERE NumeroFactura IN (SELECT NumeroFactura FROM FacturasVentaConsulta WITH (NOLOCK))
-    AND SerieFactura LIKE 'FELEC'
-)
-GROUP BY 
-    fvc.CodigoContrato,
-    fvc.SerieFactura,
-    fvc.NumeroFactura
-	,fvc.IdFacturaVentaCabecera
-	,tg.TextoTarifaGrupo;
-
-"
-
-                        ' Ejecutar consulta
-                        Dim command As New SqlCommand(query, connection)
-                        command.Parameters.AddWithValue("@CodigoContrato", codigo)
-                        command.CommandTimeout = 100000
-                        ' Leer los resultados
                         Using reader As SqlDataReader = command.ExecuteReader()
                             While reader.Read()
-                                worksheet.Cells(currentRow, 1).Value = reader("CodigoContrato")
-                                worksheet.Cells(currentRow, 2).Value = reader("SerieFactura")
-                                worksheet.Cells(currentRow, 3).Value = reader("NumeroFactura").ToString
-                                Dim precioMedio As Decimal
+                            worksheet.Cells(currentRow, 1).Value = reader("CodigoContrato")
+                            worksheet.Cells(currentRow, 2).Value = reader("SerieFactura")
+                            worksheet.Cells(currentRow, 3).Value = reader("NumeroFactura").ToString
+                            Dim precioMedio As Decimal
 
-                                ' Intentar convertir y asignar el valor
-                                If Decimal.TryParse(reader("SumaPrecioP1").ToString(), precioMedio) Then
-                                    worksheet.Cells(currentRow, 4).Value = precioMedio
-                                Else
-                                    worksheet.Cells(currentRow, 4).Value = 0
-                                End If
-                                worksheet.Cells(currentRow, 4).Style.Numberformat.Format = "#,##0.000000" ' Formato decimal
+                            ' Intentar convertir y asignar el valor
+                            If Decimal.TryParse(reader("SumaPrecioP1").ToString(), precioMedio) Then
+                                worksheet.Cells(currentRow, 4).Value = precioMedio
+                            Else
+                                worksheet.Cells(currentRow, 4).Value = 0
+                            End If
+                            worksheet.Cells(currentRow, 4).Style.Numberformat.Format = "#,##0.000000" ' Formato decimal
 
-                                ' Repetir el mismo proceso para los demás campos
-                                If Decimal.TryParse(reader("SumaPrecioP2").ToString(), precioMedio) Then
-                                    worksheet.Cells(currentRow, 5).Value = precioMedio
-                                Else
-                                    worksheet.Cells(currentRow, 5).Value = 0
-                                End If
-                                worksheet.Cells(currentRow, 5).Style.Numberformat.Format = "#,##0.000000"
+                            ' Repetir el mismo proceso para los demás campos
+                            If Decimal.TryParse(reader("SumaPrecioP2").ToString(), precioMedio) Then
+                                worksheet.Cells(currentRow, 5).Value = precioMedio
+                            Else
+                                worksheet.Cells(currentRow, 5).Value = 0
+                            End If
+                            worksheet.Cells(currentRow, 5).Style.Numberformat.Format = "#,##0.000000"
 
-                                If Decimal.TryParse(reader("SumaPrecioP3").ToString(), precioMedio) Then
-                                    worksheet.Cells(currentRow, 6).Value = precioMedio
-                                Else
-                                    worksheet.Cells(currentRow, 6).Value = 0
-                                End If
-                                worksheet.Cells(currentRow, 6).Style.Numberformat.Format = "#,##0.000000"
+                            If Decimal.TryParse(reader("SumaPrecioP3").ToString(), precioMedio) Then
+                                worksheet.Cells(currentRow, 6).Value = precioMedio
+                            Else
+                                worksheet.Cells(currentRow, 6).Value = 0
+                            End If
+                            worksheet.Cells(currentRow, 6).Style.Numberformat.Format = "#,##0.000000"
 
-                                If Decimal.TryParse(reader("SumaPrecioP4").ToString(), precioMedio) Then
-                                    worksheet.Cells(currentRow, 7).Value = precioMedio
-                                Else
-                                    worksheet.Cells(currentRow, 7).Value = 0
-                                End If
-                                worksheet.Cells(currentRow, 7).Style.Numberformat.Format = "#,##0.000000"
+                            If Decimal.TryParse(reader("SumaPrecioP4").ToString(), precioMedio) Then
+                                worksheet.Cells(currentRow, 7).Value = precioMedio
+                            Else
+                                worksheet.Cells(currentRow, 7).Value = 0
+                            End If
+                            worksheet.Cells(currentRow, 7).Style.Numberformat.Format = "#,##0.000000"
 
-                                If Decimal.TryParse(reader("SumaPrecioP5").ToString(), precioMedio) Then
-                                    worksheet.Cells(currentRow, 8).Value = precioMedio
-                                Else
-                                    worksheet.Cells(currentRow, 8).Value = 0
-                                End If
-                                worksheet.Cells(currentRow, 8).Style.Numberformat.Format = "#,##0.000000"
+                            If Decimal.TryParse(reader("SumaPrecioP5").ToString(), precioMedio) Then
+                                worksheet.Cells(currentRow, 8).Value = precioMedio
+                            Else
+                                worksheet.Cells(currentRow, 8).Value = 0
+                            End If
+                            worksheet.Cells(currentRow, 8).Style.Numberformat.Format = "#,##0.000000"
 
-                                If Decimal.TryParse(reader("SumaPrecioP6").ToString(), precioMedio) Then
-                                    worksheet.Cells(currentRow, 9).Value = precioMedio
-                                Else
-                                    worksheet.Cells(currentRow, 9).Value = 0
-                                End If
-                                worksheet.Cells(currentRow, 9).Style.Numberformat.Format = "#,##0.000000"
+                            If Decimal.TryParse(reader("SumaPrecioP6").ToString(), precioMedio) Then
+                                worksheet.Cells(currentRow, 9).Value = precioMedio
+                            Else
+                                worksheet.Cells(currentRow, 9).Value = 0
+                            End If
+                            worksheet.Cells(currentRow, 9).Style.Numberformat.Format = "#,##0.000000"
 
-                                ' Asegúrate de repetir el proceso para los campos de consumo
-                                ' ConsumoP1, ConsumoP2, etc.
-                                If Decimal.TryParse(reader("ConsumoP1").ToString(), precioMedio) Then
-                                    worksheet.Cells(currentRow, 10).Value = precioMedio
-                                Else
-                                    worksheet.Cells(currentRow, 10).Value = 0
-                                End If
-                                worksheet.Cells(currentRow, 10).Style.Numberformat.Format = "#,##0.0"
+                            ' Asegúrate de repetir el proceso para los campos de consumo
+                            ' ConsumoP1, ConsumoP2, etc.
+                            If Decimal.TryParse(reader("ConsumoP1").ToString(), precioMedio) Then
+                                worksheet.Cells(currentRow, 10).Value = precioMedio
+                            Else
+                                worksheet.Cells(currentRow, 10).Value = 0
+                            End If
+                            worksheet.Cells(currentRow, 10).Style.Numberformat.Format = "#,##0.0"
 
-                                If Decimal.TryParse(reader("ConsumoP2").ToString(), precioMedio) Then
-                                    worksheet.Cells(currentRow, 11).Value = precioMedio
-                                Else
-                                    worksheet.Cells(currentRow, 11).Value = 0
-                                End If
-                                worksheet.Cells(currentRow, 11).Style.Numberformat.Format = "#,##0.0"
+                            If Decimal.TryParse(reader("ConsumoP2").ToString(), precioMedio) Then
+                                worksheet.Cells(currentRow, 11).Value = precioMedio
+                            Else
+                                worksheet.Cells(currentRow, 11).Value = 0
+                            End If
+                            worksheet.Cells(currentRow, 11).Style.Numberformat.Format = "#,##0.0"
 
-                                If Decimal.TryParse(reader("ConsumoP3").ToString(), precioMedio) Then
-                                    worksheet.Cells(currentRow, 12).Value = precioMedio
-                                Else
-                                    worksheet.Cells(currentRow, 12).Value = 0
-                                End If
-                                worksheet.Cells(currentRow, 12).Style.Numberformat.Format = "#,##0.0"
+                            If Decimal.TryParse(reader("ConsumoP3").ToString(), precioMedio) Then
+                                worksheet.Cells(currentRow, 12).Value = precioMedio
+                            Else
+                                worksheet.Cells(currentRow, 12).Value = 0
+                            End If
+                            worksheet.Cells(currentRow, 12).Style.Numberformat.Format = "#,##0.0"
 
-                                If Decimal.TryParse(reader("ConsumoP4").ToString(), precioMedio) Then
-                                    worksheet.Cells(currentRow, 13).Value = precioMedio
-                                Else
-                                    worksheet.Cells(currentRow, 13).Value = 0
-                                End If
-                                worksheet.Cells(currentRow, 13).Style.Numberformat.Format = "#,##0.0"
+                            If Decimal.TryParse(reader("ConsumoP4").ToString(), precioMedio) Then
+                                worksheet.Cells(currentRow, 13).Value = precioMedio
+                            Else
+                                worksheet.Cells(currentRow, 13).Value = 0
+                            End If
+                            worksheet.Cells(currentRow, 13).Style.Numberformat.Format = "#,##0.0"
 
-                                If Decimal.TryParse(reader("ConsumoP5").ToString(), precioMedio) Then
-                                    worksheet.Cells(currentRow, 14).Value = precioMedio
-                                Else
-                                    worksheet.Cells(currentRow, 14).Value = 0
-                                End If
-                                worksheet.Cells(currentRow, 14).Style.Numberformat.Format = "#,##0.0"
+                            If Decimal.TryParse(reader("ConsumoP5").ToString(), precioMedio) Then
+                                worksheet.Cells(currentRow, 14).Value = precioMedio
+                            Else
+                                worksheet.Cells(currentRow, 14).Value = 0
+                            End If
+                            worksheet.Cells(currentRow, 14).Style.Numberformat.Format = "#,##0.0"
 
-                                If Decimal.TryParse(reader("ConsumoP6").ToString(), precioMedio) Then
-                                    worksheet.Cells(currentRow, 15).Value = precioMedio
-                                Else
-                                    worksheet.Cells(currentRow, 15).Value = 0
-                                End If
-                                worksheet.Cells(currentRow, 15).Style.Numberformat.Format = "#,##0.0"
+                            If Decimal.TryParse(reader("ConsumoP6").ToString(), precioMedio) Then
+                                worksheet.Cells(currentRow, 15).Value = precioMedio
+                            Else
+                                worksheet.Cells(currentRow, 15).Value = 0
+                            End If
+                            worksheet.Cells(currentRow, 15).Style.Numberformat.Format = "#,##0.0"
 
-                                currentRow += 1
+                            currentRow += 1
                             End While
                         End Using
                     End Using
+                End Using
 
-                Next
 
                 ' Guardar el archivo
                 package.Save()
@@ -476,67 +397,47 @@ GROUP BY
 
                 Dim currentRow As Integer = 2
 
+                ' UNA sola consulta para todos los contratos, no una por contrato.
+                '
+                ' La consulta vive ahora en Consultas\Penalizaciones_GAS.sql. Estaba escrita
+                ' aqui dentro, y eso es lo que impedia tocarla sin recompilar y republicar.
+                Dim plantilla As New PlantillaSql(Sql.Obtener("Penalizaciones_GAS"))
+                plantilla.Poner("contratosReplace", String.Join(", ", CodigoContrato))
+
+                Dim pendientes = plantilla.MarcadoresPendientes()
+                If pendientes.Count > 0 Then
+                    Throw New InvalidOperationException(
+                        "La consulta de penalizaciones deja marcadores sin resolver: " &
+                        String.Join(", ", pendientes))
+                End If
+
                 Using connection As New SqlConnection(connectionString)
                     connection.Open()
 
-                    For Each codigo As Integer In CodigoContrato
-                        Dim query As String = "
-                    WITH FacturasVentaConsulta AS (
-    SELECT 
-        NumeroFactura, 
-        CodigoContrato,
-        ROW_NUMBER() OVER (PARTITION BY CodigoContrato ORDER BY NumeroFactura DESC) AS rn
-    FROM FacturaVentaCabecera WITH (NOLOCK)
-    WHERE CodigoContrato =@CodigoContrato
-    AND SerieFactura = 'FGAS'
-)
-SELECT 
-    fvc.CodigoContrato,
-    fvc.SerieFactura,
-    fvc.NumeroFactura,
-    REPLACE(
-        ISNULL(SUM(
-            CASE 
-                WHEN fvl.Facturaconcepto = 90066 
-                THEN ISNULL(fvl.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoTerminoFijoGas/PrecioMedio)[1]', 'decimal(18,6)'), 0)
-                ELSE ISNULL(fvl.InfoLineaXML.value('(FacturaConceptosDTO/ConceptoConsumoGas/PrecioMedio)[1]', 'decimal(18,6)'), 0)
-            END
-        ), 0),
-        '.', ','
-    ) AS PrecioMedioTotal
-FROM FacturaVentaCabecera fvc WITH (NOLOCK)
-JOIN FacturasVentaConsulta fvcq ON fvc.NumeroFactura = fvcq.NumeroFactura AND fvcq.rn = 1
-LEFT JOIN FacturaVentaLinea fvl WITH (NOLOCK) 
-    ON fvl.IdFacturaVentaCabecera = fvc.IdFacturaVentaCabecera 
-    AND fvl.Facturaconcepto IN (90012, 90038, 90062, 90066, 90001) 
-    AND fvl.codigoperiodoXML = 1
-WHERE fvc.SerieFactura = 'FGAS'
-GROUP BY fvc.CodigoContrato, fvc.SerieFactura, fvc.NumeroFactura;
+                    Using command As New SqlCommand(plantilla.ToString(), connection)
+                        ' Dos minutos. Antes eran 100.000 segundos -27 horas-, asi que una
+                        ' consulta atascada no fallaba: se quedaba colgada para siempre.
+                        command.CommandTimeout = 120
 
-                    "
-
-                        Using command As New SqlCommand(query, connection)
-                            command.Parameters.AddWithValue("@CodigoContrato", codigo)
-
-                            Using reader As SqlDataReader = command.ExecuteReader()
-                                While reader.Read()
-                                    ' Escribir datos al Excel
-                                    worksheet.Cells(currentRow, 1).Value = reader("CodigoContrato")
-                                    worksheet.Cells(currentRow, 2).Value = reader("SerieFactura").ToString
-                                    worksheet.Cells(currentRow, 3).Value = reader("NumeroFactura").ToString
-                                    Dim precioMedio As Decimal
-                                    If Decimal.TryParse(reader("PrecioMedioTotal").ToString(), precioMedio) Then
-                                        worksheet.Cells(currentRow, 4).Value = precioMedio
-                                        worksheet.Cells(currentRow, 4).Style.Numberformat.Format = "#,##0.000000" ' Formato decimal
-                                    Else
-                                        worksheet.Cells(currentRow, 4).Value = 0 ' En caso de error, poner 0
-                                    End If
-                                    currentRow += 1
-                                End While
-                            End Using
+                        Using reader As SqlDataReader = command.ExecuteReader()
+                            While reader.Read()
+                                ' Escribir datos al Excel
+                                worksheet.Cells(currentRow, 1).Value = reader("CodigoContrato")
+                                worksheet.Cells(currentRow, 2).Value = reader("SerieFactura").ToString
+                                worksheet.Cells(currentRow, 3).Value = reader("NumeroFactura").ToString
+                                Dim precioMedio As Decimal
+                                If Decimal.TryParse(reader("PrecioMedioTotal").ToString(), precioMedio) Then
+                                    worksheet.Cells(currentRow, 4).Value = precioMedio
+                                    worksheet.Cells(currentRow, 4).Style.Numberformat.Format = "#,##0.000000" ' Formato decimal
+                                Else
+                                    worksheet.Cells(currentRow, 4).Value = 0 ' En caso de error, poner 0
+                                End If
+                                currentRow += 1
+                            End While
                         End Using
-                    Next
+                    End Using
                 End Using
+
 
                 ' Guardar el archivo Excel
                 package.Save()

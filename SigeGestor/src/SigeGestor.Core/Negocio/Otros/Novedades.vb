@@ -25,6 +25,17 @@ Public Module NovedadesApp
 
     Public ReadOnly Historial As New List(Of Novedad) From {
         New Novedad With {
+            .Version = "3.7",
+            .Fecha = New Date(2026, 11, 10),
+            .Titulo = "Penalizaciones, de horas a una pasada",
+            .Cambios = New List(Of String) From {
+                "«Penalizaciones» tardaba horas y a veces se quedaba colgada sin acabar. Ahora va de una sola pasada para todos los contratos, en vez de una consulta por contrato.",
+                "La causa: una parte de la consulta de luz recorría la tabla de líneas de factura ENTERA por cada contrato. Ya va acotada a las facturas que se están mirando.",
+                "Corregido de paso: al buscar la última factura se cruzaba solo por el número, sin el contrato, así que si un número se repetía entre contratos se colaban facturas de otros.",
+                "Las dos consultas salen ahora de Consultas\Penalizaciones_LUZ.sql y Penalizaciones_GAS.sql, como el resto. Antes estaban escritas dentro del programa y cualquier retoque obligaba a reinstalarlo."
+            }
+        },
+        New Novedad With {
             .Version = "3.6",
             .Fecha = New Date(2026, 11, 6),
             .Titulo = "Buscar dentro de los desplegables largos",
