@@ -25,6 +25,28 @@ Public Module NovedadesApp
 
     Public ReadOnly Historial As New List(Of Novedad) From {
         New Novedad With {
+            .Version = "3.9",
+            .Fecha = New Date(2026, 11, 23),
+            .Titulo = "Las facturas devueltas de los DEVOL",
+            .Cambios = New List(Of String) From {
+                "Operación nueva en Facturas: «Facturas devueltas de los DEVOL». Estaba en la aplicación anterior como «Extraer Nomb Fac FichDev» y faltaba aquí.",
+                "Se elige la carpeta de importación y un rango de fechas, y recorre las carpetas del día (20261123) sacando los números de factura de los ficheros DEVOL_*.xml.",
+                "Sale un Excel con una fila por factura, diciendo de qué día y de qué fichero viene cada una. Antes era un cuadro con todos los números pegados por comas y un botón de copiar.",
+                "Avisa de las facturas repetidas, en vez de contarlas dos veces, y de los ficheros que no se han podido leer, en vez de saltárselos en silencio.",
+                "Se puede acotar por arriba: la anterior iba siempre desde la fecha escrita hasta hoy."
+            }
+        },
+        New Novedad With {
+            .Version = "3.8",
+            .Fecha = New Date(2026, 11, 17),
+            .Titulo = "Lo que se cambia a mano también queda registrado",
+            .Cambios = New List(Of String) From {
+                "Tres pantallas hacían cambios que NO salían en Ejecuciones: «Asignar nº de equipo en prefacturas», «Empresas y bases de datos» y «Modelos de impresión». Ya quedan registrados.",
+                "De cada uno se guarda lo de siempre: quién, cuándo, desde qué equipo, contra qué entorno y cuántas filas se tocaron.",
+                "Son justo las que escriben en Producción o cambian algo que usa todo el equipo, así que si alguien pregunta quién tocó qué, ahora está en Ejecuciones."
+            }
+        },
+        New Novedad With {
             .Version = "3.7",
             .Fecha = New Date(2026, 11, 10),
             .Titulo = "Penalizaciones, de horas a una pasada",

@@ -285,6 +285,23 @@
                                         IsEnabled="{Binding HayModelo}"
                                         Click="DescargarModelo_Click" />
                             </WrapPanel>
+
+                            <!--
+                                COPIA ANTES DE PISAR. Arranca marcada a proposito: el 17/11/2026
+                                se piso un report en Produccion que no era y no habia copia de
+                                ninguna clase. Vale tanto para esta rejilla como para el
+                                «Actualizar» masivo de abajo.
+                            -->
+                            <CheckBox Style="{StaticResource CheckBase}"
+                                      Margin="0,4,0,0"
+                                      Content="Guardar una copia del report antes de pisarlo o borrarlo"
+                                      IsChecked="{Binding RespaldarAntesDeCambiar, Mode=TwoWay}" />
+
+                            <TextBlock Text="{Binding AyudaRespaldo}"
+                                       Style="{StaticResource TxHelp}"
+                                       TextWrapping="Wrap"
+                                       MaxWidth="560" HorizontalAlignment="Left"
+                                       Margin="25,2,0,0" />
                         </StackPanel>
 
                         <DataGrid Grid.Row="1"

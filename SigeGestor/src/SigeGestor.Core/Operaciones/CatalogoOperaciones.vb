@@ -700,6 +700,29 @@
 
             ' ============================================================
             lista.Add(New DefinicionOperacion With {
+                .Nombre = "Facturas devueltas de los DEVOL",
+                .Seccion = SeccionOperacion.Facturas,
+                .Descripcion = "Recorre las carpetas del día de la carpeta de importación y saca los " &
+                               "números de factura de los ficheros DEVOL_*.xml. Devuelve un Excel con " &
+                               "la factura, el día y el fichero del que sale. No toca nada.",
+                .Requiere = EntradasOperacion.Fechas Or EntradasOperacion.Carpeta,
+                .EsEscritura = False,
+                .EtiquetaAccion = "Extraer",
+                .Ejecutable = New Implementadas.ExtraerFacturasDevueltas(),
+                .Campos = New List(Of CampoOperacion) From {
+                    New CampoOperacion With {
+                        .Clave = Implementadas.ExtraerFacturasDevueltas.ClaveCarpeta,
+                        .Etiqueta = "Carpeta de importación",
+                        .Ayuda = "La que tiene dentro una carpeta por día (20261123). En Total es " &
+                                 "\172.31.100.13\Total\FicherosExport\Import. Solo se leen las " &
+                                 "carpetas cuyo nombre sea una fecha y que caigan en el rango de arriba.",
+                        .Tipo = TipoCampo.CarpetaEntrada
+                    }
+                }
+            })
+
+            ' ============================================================
+            lista.Add(New DefinicionOperacion With {
                 .Nombre = "Extraer documentos generales",
                 .Seccion = SeccionOperacion.Ajustes,
                 .Descripcion = "Baja a disco los documentos cuyos Id vienen en un Excel. Los documentos " &

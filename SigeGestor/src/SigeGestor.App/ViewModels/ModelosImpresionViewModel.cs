@@ -9,6 +9,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using SigeGestor.Core.Configuracion;
 using SigeGestor.Core.Impresion;
 using SigeGestor.Core;
+using SigeGestor.App.Servicios;
+using SigeGestor.Core.Operaciones;
+using SigeGestor.Core.Registro;
 using SigeGestor.Core.Modelos;
 
 namespace SigeGestor.App.ViewModels;
@@ -83,8 +86,16 @@ public sealed partial class ModelosImpresionViewModel : ObservableObject
     private IReadOnlyList<ModeloDeImpresion> _todos = Array.Empty<ModeloDeImpresion>();
     private CancellationTokenSource? _cancelacion;
 
-    public ModelosImpresionViewModel()
+    /// <summary>
+    /// Quien deja el cambio en el log de ejecuciones. Opcional: sin el se hace igual, pero no
+    /// se registra. Ver AnotadorDeCambios.
+    /// </summary>
+    private readonly AnotadorDeCambios? _anotador;
+
+    public ModelosImpresionViewModel(AnotadorDeCambios? anotador = null)
     {
+        _anotador = anotador;
+
         Tipos = Enum.GetValues<TipoModeloImpresionGeneral>()
             .Select(t => new TipoModeloVm { Codigo = (int)t, Nombre = NombreTipo((int)t) })
             .ToList();
@@ -398,7 +409,8 @@ public sealed partial class ModelosImpresionViewModel : ObservableObject
 
     public Task ActualizarAsync() =>
         EjecutarMasivoAsync((servicio, empresas, avisar, ct) =>
-            servicio.ActualizarAsync(empresas, ComponerMasivo(), avisar, ct), "Actualización");
+            servicio.ActualizarAsync(empresas, ComponerMasivo(), avisar, ct, RespaldarAntesDeCambiar),
+            "Actualización");
 
     public Task ComprobarAsync() =>
         EjecutarMasivoAsync((servicio, empresas, avisar, ct) =>
@@ -452,6 +464,15 @@ public sealed partial class ModelosImpresionViewModel : ObservableObject
                 ? $"{queEs} terminada: las {bien} bien."
                 : $"{queEs} terminada: {bien} de {resultados.Count} bien. El detalle está en cada fila.";
 
+            // AL LOG. Un masivo toca el modelo de impresión de varias empresas de clientes a
+            // la vez; es de lo que más conviene que quede rastro.
+            await AnotarAsync(
+                $"{queEs} masiva: «{DescripcionMasivo.Trim()}» en {resultados.Count:N0} empresa" +
+                $"{(resultados.Count == 1 ? "" : "s")}" +
+                (bien < resultados.Count ? $" · {resultados.Count - bien:N0} con error" : ""),
+                bien,
+                resultados.Count - bien).ConfigureAwait(true);
+
             // Si la empresa activa era una de las tocadas, la rejilla ya no vale.
             if (EmpresaActiva is not null && elegidas.Contains(EmpresaActiva))
             {
@@ -478,6 +499,52 @@ public sealed partial class ModelosImpresionViewModel : ObservableObject
     // ============================================================
     // ALTA, EDICIÓN Y BAJA EN LA EMPRESA ACTIVA
     // ============================================================
+
+    /// <summary>
+    /// Guardar una copia del .rpt que hay ahora ANTES de pisarlo o borrarlo.
+    ///
+    /// Arranca marcada, y así debe quedarse salvo que haya un motivo. El 17/11/2026 se pisó
+    /// un report en Producción que no era, y no había copia de ninguna clase: el binario solo
+    /// vivía en la base del cliente y el UPDATE lo sustituyó.
+    ///
+    /// No afecta a «Subir», que inserta uno nuevo y no pisa nada, ni a «Comprobar», que solo
+    /// lee.
+    /// </summary>
+    [ObservableProperty]
+    private bool _respaldarAntesDeCambiar = true;
+
+    public string AyudaRespaldo =>
+        RespaldarAntesDeCambiar
+            ? $"Antes de pisar o borrar un report se guarda una copia en {RespaldoModelos.Carpeta}."
+            : "SIN COPIA: lo que se pise o se borre no se podrá recuperar.";
+
+    partial void OnRespaldarAntesDeCambiarChanged(bool value) =>
+        OnPropertyChanged(nameof(AyudaRespaldo));
+
+    /// <summary>
+    /// Respalda el modelo si la casilla está marcada. Devuelve el texto que añadir al
+    /// resumen, o null si hay que ABORTAR porque no se ha podido respaldar.
+    ///
+    /// Que falle la copia tiene que parar el cambio: seguir adelante creyendo que hay
+    /// respaldo cuando no lo hay es peor que no tener la casilla.
+    /// </summary>
+    private async Task<string?> RespaldarAsync(long idModelo)
+    {
+        if (!RespaldarAntesDeCambiar || EmpresaActiva is null) return "";
+
+        try
+        {
+            var copia = await _servicio.RespaldarAsync(EmpresaActiva.Empresa, idModelo);
+            if (copia is null) return "";   // ya no existe: no hay nada que perder
+
+            return $" · copia: {copia.Resumen}";
+        }
+        catch (Exception ex)
+        {
+            Error = $"No se ha podido guardar la copia del report, así que NO se ha tocado nada: {ex.Message}";
+            return null;
+        }
+    }
 
     public Task<byte[]?> BinarioAsync(long idModelo) =>
         EmpresaActiva is null
@@ -509,13 +576,30 @@ public sealed partial class ModelosImpresionViewModel : ObservableObject
                 }
             }
 
+            // Solo al pisar uno que ya está: un alta no destruye nada.
+            var copia = "";
+            if (!esNuevo)
+            {
+                var hecha = await RespaldarAsync(modelo.IdModeloDeImpresion);
+                if (hecha is null) return Error;
+                copia = hecha;
+            }
+
             var resultado = await _servicio.Guardar(EmpresaActiva.Empresa, modelo, esNuevo);
             if (resultado <= 0) return "La base no ha devuelto ninguna fila afectada.";
 
+            var nombreEmpresa = EmpresaActiva.Nombre;
             await CargarModelosAsync();
             Resumen = esNuevo
-                ? $"Modelo creado en {EmpresaActiva.Nombre} con Id {resultado}."
-                : $"Modelo actualizado en {EmpresaActiva.Nombre}.";
+                ? $"Modelo creado en {nombreEmpresa} con Id {resultado}."
+                : $"Modelo actualizado en {nombreEmpresa}.{copia}";
+
+            await AnotarAsync(
+                esNuevo
+                    ? $"Modelo nuevo en «{nombreEmpresa}», Id {resultado}"
+                    : $"Modelo {modelo.IdModeloDeImpresion} cambiado en «{nombreEmpresa}»",
+                1, 0).ConfigureAwait(true);
+
             return "";
         }
         catch (Exception ex)
@@ -530,17 +614,46 @@ public sealed partial class ModelosImpresionViewModel : ObservableObject
 
         try
         {
+            var copia = await RespaldarAsync(idModelo);
+            if (copia is null) return Error;
+
             var filas = await _servicio.Borrar(EmpresaActiva.Empresa, idModelo);
             if (filas <= 0) return "No se ha borrado ninguna fila.";
 
+            var nombreEmpresa = EmpresaActiva.Nombre;
             await CargarModelosAsync();
-            Resumen = $"Modelo {idModelo} borrado de {EmpresaActiva.Nombre}.";
+            Resumen = $"Modelo {idModelo} borrado de {nombreEmpresa}.{copia}";
+
+            await AnotarAsync($"Modelo {idModelo} borrado de «{nombreEmpresa}»", 1, 0)
+                .ConfigureAwait(true);
+
             return "";
         }
         catch (Exception ex)
         {
             return ex.Message;
         }
+    }
+
+    /// <summary>
+    /// Al log. Esta pantalla escribe en las bases de los clientes, asi que un cambio aqui
+    /// tiene que poder rastrearse igual que una operacion normal.
+    ///
+    /// El entorno se anota como Produccion porque es contra lo que trabaja: la empresa sale
+    /// de Empresas.json, no del selector de entornos.
+    /// </summary>
+    private async Task AnotarAsync(string detalle, long hechos, int errores)
+    {
+        if (_anotador is null) return;
+
+        await _anotador.AnotarAsync(
+            "Modelos de impresión",
+            SeccionOperacion.Ajustes,
+            detalle,
+            ClaveEntorno.Produccion,
+            AnotadorDeCambios.EstadoPor(hechos, errores),
+            registros: hechos,
+            errores: errores).ConfigureAwait(true);
     }
 
     public void Recargar()

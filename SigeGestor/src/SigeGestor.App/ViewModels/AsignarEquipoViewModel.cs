@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SigeGestor.App.Servicios;
 using SigeGestor.Core.Configuracion;
 using SigeGestor.Core.Lecturas;
 using SigeGestor.Core.Modelos;
@@ -93,13 +94,21 @@ public sealed partial class AsignarEquipoViewModel : ObservableObject
 {
     private readonly RepositorioEntornos _entornos;
 
-    public AsignarEquipoViewModel(RepositorioEntornos entornos)
+    public AsignarEquipoViewModel(RepositorioEntornos entornos,
+                                  AnotadorDeCambios? anotador = null)
     {
         _entornos = entornos;
+        _anotador = anotador;
 
         Entornos = _entornos.Disponibles(paraEscritura: true).ToList();
         _entornoElegido = Entornos.FirstOrDefault();
     }
+
+    /// <summary>
+    /// Quien deja el cambio en el log de ejecuciones. Opcional: sin el, se guarda igual pero
+    /// no se registra. Ver AnotadorDeCambios.
+    /// </summary>
+    private readonly AnotadorDeCambios? _anotador;
 
     public IReadOnlyList<EntornoBD> Entornos { get; }
 
@@ -302,6 +311,11 @@ public sealed partial class AsignarEquipoViewModel : ObservableObject
         var hechas = 0;
         var saltadas = 0;
         var fallos = 0;
+        var arranque = DateTime.Now;
+        var contratos = Lecturas.Where(l => l.VaACambiar)
+                                .Select(l => l.CodigoContrato)
+                                .Distinct()
+                                .Count();
 
         try
         {
@@ -341,6 +355,26 @@ public sealed partial class AsignarEquipoViewModel : ObservableObject
                     (fallos > 0 ? $" · {fallos} con error" : "");
 
             if (fallos > 0) Error = "Alguna lectura ha fallado; el motivo está en su fila.";
+
+            // AL LOG. Esto escribe en Producción, así que tiene que verse en Ejecuciones:
+            // quién, cuándo, en qué entorno y sobre cuántas lecturas.
+            if (_anotador is not null)
+            {
+                var detalle = $"{hechas:N0} lectura{(hechas == 1 ? "" : "s")} de {contratos:N0} " +
+                              $"contrato{(contratos == 1 ? "" : "s")}" +
+                              (saltadas > 0 ? $" · {saltadas:N0} ya tenían equipo" : "") +
+                              (fallos > 0 ? $" · {fallos:N0} con error" : "");
+
+                await _anotador.AnotarAsync(
+                    "Asignar nº de equipo en prefacturas",
+                    SeccionOperacion.Contratos,
+                    detalle,
+                    EntornoElegido!.Clave,
+                    AnotadorDeCambios.EstadoPor(hechas, fallos),
+                    registros: hechas,
+                    errores: fallos,
+                    duracion: DateTime.Now - arranque).ConfigureAwait(true);
+            }
         }
         catch (Exception ex)
         {

@@ -5,6 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
+using SigeGestor.App.Servicios;
+using SigeGestor.Core.Operaciones;
+using SigeGestor.Core.Registro;
 using SigeGestor.Core.Configuracion;
 using SigeGestor.Core;
 using SigeGestor.Core.Modelos;
@@ -62,8 +65,16 @@ public sealed partial class EmpresasViewModel : ObservableObject
 {
     private readonly RepositorioEmpresas _repositorio = new();
 
-    public EmpresasViewModel()
+    /// <summary>
+    /// Quien deja el cambio en el log de ejecuciones. Opcional: sin el se guarda igual, pero
+    /// no se registra. Ver AnotadorDeCambios.
+    /// </summary>
+    private readonly AnotadorDeCambios? _anotador;
+
+    public EmpresasViewModel(AnotadorDeCambios? anotador = null)
     {
+        _anotador = anotador;
+
         Recargar();
     }
 
@@ -154,6 +165,7 @@ public sealed partial class EmpresasViewModel : ObservableObject
         Empresas.Add(new EmpresaVm(empresa));
         if (Guardar())
         {
+            Anotar($"Alta de «{empresa.Nombre}»");
             Aviso = $"«{empresa.Nombre}» registrada.";
             OnPropertyChanged(nameof(Recuento));
             OnPropertyChanged(nameof(VisibilidadVacio));
@@ -172,7 +184,11 @@ public sealed partial class EmpresasViewModel : ObservableObject
         Empresas[indice] = new EmpresaVm(nueva);
         Seleccionada = Empresas[indice];
 
-        if (Guardar()) Aviso = $"«{nueva.Nombre}» actualizada.";
+        if (Guardar())
+        {
+            Anotar($"Cambio en «{nueva.Nombre}»");
+            Aviso = $"«{nueva.Nombre}» actualizada.";
+        }
     }
 
     public void Quitar(EmpresaVm empresa)
@@ -182,10 +198,32 @@ public sealed partial class EmpresasViewModel : ObservableObject
         Seleccionada = null;
         if (Guardar())
         {
+            Anotar($"Baja de «{empresa.Nombre}»");
             Aviso = $"«{empresa.Nombre}» eliminada del fichero.";
             OnPropertyChanged(nameof(Recuento));
             OnPropertyChanged(nameof(VisibilidadVacio));
         }
+    }
+
+    /// <summary>
+    /// Al log. Empresas.json lo usa TODO el equipo desde el .13: un alta, una baja o un
+    /// cambio de credenciales afecta a los ocho, y hasta ahora no quedaba constancia de
+    /// quien lo habia hecho.
+    ///
+    /// Se lanza sin esperar porque las tres llamadas vienen de metodos sincronos de la
+    /// pantalla; escribir en el log no debe hacerles cambiar de forma.
+    /// </summary>
+    private void Anotar(string detalle)
+    {
+        if (_anotador is null) return;
+
+        _ = _anotador.AnotarAsync(
+            "Empresas y bases de datos",
+            SeccionOperacion.Ajustes,
+            detalle,
+            ClaveEntorno.Produccion,
+            EstadoEjecucion.Completada,
+            registros: 1);
     }
 
     [ObservableProperty]

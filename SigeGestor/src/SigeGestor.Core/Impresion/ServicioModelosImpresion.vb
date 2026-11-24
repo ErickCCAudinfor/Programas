@@ -1,6 +1,7 @@
-Option Strict Off   ' Usa los DTO portados.
+﻿Option Strict Off   ' Usa los DTO portados.
 
 Imports System.IO
+Imports System.Linq
 Imports System.Threading
 Imports SigeGestor.Core.Configuracion
 Imports SigeGestor.Core.Modelos
@@ -62,6 +63,64 @@ Namespace Impresion
                     Dim m = funciones.GetModeloBinario(idModelo)
                     Return If(m Is Nothing, Nothing, m.Modelo)
                 End Function)
+
+        End Function
+
+        ''' <summary>
+        ''' Guarda en disco el modelo tal como esta AHORA en la base, antes de pisarlo o
+        ''' borrarlo. Devuelve Nothing si ese Id ya no existe: no hay nada que perder.
+        '''
+        ''' Lanza si no puede escribir el respaldo, para que quien llame aborte el cambio.
+        ''' Ver RespaldoModelos.
+        ''' </summary>
+        Public Function RespaldarAsync(empresa As EmpresaBD,
+                                       idModelo As Long) As Task(Of ResultadoRespaldo)
+
+            Return Task.Run(
+                Function() As ResultadoRespaldo
+                    Dim funciones As New FuncionesGenericas(_empresas.CadenaConexion(empresa, 60))
+
+                    ' La ficha y el binario vienen de sitios distintos: la lista no trae el
+                    ' report -son megas por fila- y GetModeloBinario no trae la descripcion.
+                    Dim ficha = BuscarPorId(funciones, idModelo)
+                    If ficha Is Nothing Then Return Nothing
+
+                    Dim conBinario = funciones.GetModeloBinario(idModelo)
+                    If conBinario IsNot Nothing Then ficha.Modelo = conBinario.Modelo
+
+                    Return RespaldoModelos.Guardar(empresa.Nombre, ficha)
+                End Function)
+
+        End Function
+
+        Private Shared Function BuscarPorId(funciones As FuncionesGenericas,
+                                            idModelo As Long) As ModeloDeImpresion
+
+            Dim lista = funciones.GetAllModelosImpresion()
+            If lista Is Nothing Then Return Nothing
+
+            Return lista.FirstOrDefault(Function(m) m.IdModeloDeImpresion = idModelo)
+
+        End Function
+
+        ''' <summary>
+        ''' El modelo que casa con la clave del masivo: descripcion, entorno y tipo. Es
+        ''' exactamente lo que busca UpdateModeloImpresionPorClave, asi que es lo que ese
+        ''' UPDATE va a pisar.
+        ''' </summary>
+        Private Shared Function BuscarPorClave(funciones As FuncionesGenericas,
+                                               modelo As ModeloDeImpresion) As ModeloDeImpresion
+
+            Dim lista = funciones.GetAllModelosImpresion()
+            If lista Is Nothing Then Return Nothing
+
+            Return lista.FirstOrDefault(
+                Function(m) String.Equals(m.DescripcionModeloDeImpresion,
+                                          modelo.DescripcionModeloDeImpresion,
+                                          StringComparison.OrdinalIgnoreCase) AndAlso
+                            String.Equals(m.Entorno, modelo.Entorno,
+                                          StringComparison.OrdinalIgnoreCase) AndAlso
+                            m.CodigoTipoModeloDeImpresion = modelo.CodigoTipoModeloDeImpresion)
 
         End Function
 
@@ -158,12 +217,47 @@ Namespace Impresion
         Public Function ActualizarAsync(empresas As IEnumerable(Of EmpresaBD),
                                         modelo As ModeloDeImpresion,
                                         avisar As Action(Of String),
-                                        ct As CancellationToken) As Task(Of IReadOnlyList(Of ResultadoEmpresa))
+                                        ct As CancellationToken,
+                                        Optional respaldar As Boolean = True) _
+            As Task(Of IReadOnlyList(Of ResultadoEmpresa))
 
             Return RecorrerAsync(empresas,
                 Function(funciones, empresa)
+
+                    ' RESPALDO ANTES DE PISAR, empresa por empresa: el report que hay en cada
+                    ' una es distinto, asi que una sola copia no serviria.
+                    '
+                    ' Si falla el respaldo, esta empresa NO se toca y se dice por que. Se
+                    ' queda fuera ella sola; las demas siguen, como ya hacia el recorrido con
+                    ' cualquier otro fallo.
+                    Dim copia As String = ""
+
+                    If respaldar Then
+                        Dim actual = BuscarPorClave(funciones, modelo)
+                        If actual Is Nothing Then
+                            Return ResultadoEmpresa.Mal(empresa.Nombre, "no existe ese modelo aquí")
+                        End If
+
+                        Try
+                            Dim conBinario = funciones.GetModeloBinario(actual.IdModeloDeImpresion)
+                            If conBinario IsNot Nothing Then actual.Modelo = conBinario.Modelo
+
+                            copia = RespaldoModelos.Guardar(empresa.Nombre, actual).Resumen
+
+                        Catch ex As Exception
+                            Return ResultadoEmpresa.Mal(
+                                empresa.Nombre,
+                                $"no se ha podido respaldar el report actual, así que NO se ha tocado: {ex.Message}")
+                        End Try
+                    End If
+
                     Dim filas = funciones.UpdateModeloImpresionPorClave(modelo)
-                    If filas > 0 Then Return ResultadoEmpresa.Ok(empresa.Nombre, $"{filas} actualizado")
+                    If filas > 0 Then
+                        Return ResultadoEmpresa.Ok(
+                            empresa.Nombre,
+                            $"{filas} actualizado" & If(copia.Length > 0, $" · copia: {copia}", ""))
+                    End If
+
                     Return ResultadoEmpresa.Mal(empresa.Nombre, "no existe ese modelo aquí")
                 End Function, avisar, ct)
 

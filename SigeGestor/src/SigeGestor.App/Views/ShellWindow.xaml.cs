@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using SigeGestor.App.Servicios;
 using SigeGestor.App.ViewModels;
 using SigeGestor.App.Views.Paginas;
 using SigeGestor.Core.Configuracion;
@@ -226,6 +227,15 @@ public partial class ShellWindow : Window
     }
 
     /// <summary>
+    /// Lo que hace que los cambios de las páginas propias salgan en Ejecuciones.
+    ///
+    /// Las operaciones normales se registran solas al pasar por EjecucionViewModel; estas tres
+    /// no pasan por ahí, así que hasta ahora lo que hacían no dejaba ningún rastro. Y son las
+    /// que escriben en Producción o cambian configuración que usa todo el equipo.
+    /// </summary>
+    private AnotadorDeCambios Anotador => new(_registro, _usuario);
+
+    /// <summary>
     /// Las páginas propias tampoco se guardan en caché: entrar de nuevo debe releer el fichero
     /// y la base, no mostrar lo que hubiera cargado la vez anterior.
     /// </summary>
@@ -235,21 +245,21 @@ public partial class ShellWindow : Window
         {
             case PaginasPropias.Empresas:
                 {
-                    var pagina = new EmpresasPage(new EmpresasViewModel());
+                    var pagina = new EmpresasPage(new EmpresasViewModel(Anotador));
                     pagina.VolverPedido += (_, _) => AreaContenido.Content = paginaSeccion;
                     return pagina;
                 }
 
             case PaginasPropias.ModelosImpresion:
                 {
-                    var pagina = new ModelosImpresionPage(new ModelosImpresionViewModel());
+                    var pagina = new ModelosImpresionPage(new ModelosImpresionViewModel(Anotador));
                     pagina.VolverPedido += (_, _) => AreaContenido.Content = paginaSeccion;
                     return pagina;
                 }
 
             case PaginasPropias.AsignarEquipo:
                 {
-                    var pagina = new AsignarEquipoPage(new AsignarEquipoViewModel(_entornos));
+                    var pagina = new AsignarEquipoPage(new AsignarEquipoViewModel(_entornos, Anotador));
                     pagina.VolverPedido += (_, _) => AreaContenido.Content = paginaSeccion;
                     return pagina;
                 }

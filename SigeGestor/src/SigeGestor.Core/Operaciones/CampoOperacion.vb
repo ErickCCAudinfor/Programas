@@ -9,6 +9,11 @@
         Numero
         ''' <summary>Ruta de un fichero de entrada, con su selector. Ver FiltroFichero.</summary>
         Fichero
+        ''' <summary>
+        ''' Carpeta de ENTRADA, con su selector. No confundir con EntradasOperacion.Carpeta,
+        ''' que es la carpeta donde se deja el resultado: esta es de donde se lee.
+        ''' </summary>
+        CarpetaEntrada
         ''' <summary>Importe con decimales. Cadena vacía significa NULL, no cero.</summary>
         Importe
         ''' <summary>Casilla. Llega al ejecutable como «1» o «0».</summary>

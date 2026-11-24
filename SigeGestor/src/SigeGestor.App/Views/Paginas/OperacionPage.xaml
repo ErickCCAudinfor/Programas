@@ -79,6 +79,24 @@
                             FontSize="13.5"
                             SelectedDate="{Binding Fecha, Mode=TwoWay}" />
 
+                <!-- Carpeta de ENTRADA. Es de donde se lee; la de salida la pide aparte
+                     el formulario con EntradasOperacion.Carpeta. -->
+                <Grid Visibility="{Binding VisibilidadCarpetaEntrada}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0"
+                             Style="{StaticResource InputBase}"
+                             IsReadOnly="True"
+                             Text="{Binding Texto}" />
+                    <Button Grid.Column="1" Margin="9,0,0,0"
+                            Style="{StaticResource BtnGhost}"
+                            Content="Elegir…"
+                            Click="ElegirCarpetaCampo_Click"
+                            Tag="{Binding}" />
+                </Grid>
+
                 <!-- Fichero de entrada -->
                 <Grid Visibility="{Binding VisibilidadFichero}">
                     <Grid.ColumnDefinitions>

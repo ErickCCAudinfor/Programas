@@ -134,6 +134,25 @@ public partial class OperacionPage : UserControl
     /// Selector de un campo de tipo Fichero declarado en el catálogo. El campo llega en el Tag
     /// del botón, que es lo que permite que el ItemsControl pinte varios sin código por campo.
     /// </summary>
+    /// <summary>
+    /// Selector para un campo de carpeta de ENTRADA. Se usa OpenFolderDialog, que es el
+    /// cuadro moderno de Windows; el FolderBrowserDialog de WinForms que usaba
+    /// ActualizaPrecios es el arbolito antiguo y además arrastra la referencia a WinForms.
+    /// </summary>
+    private void ElegirCarpetaCampo_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button boton || boton.Tag is not CampoVm campo) return;
+
+        var dialogo = new OpenFolderDialog { Title = campo.Etiqueta };
+
+        if (Directory.Exists(campo.Texto)) dialogo.InitialDirectory = campo.Texto;
+
+        if (dialogo.ShowDialog() == true)
+        {
+            campo.Texto = dialogo.FolderName;
+        }
+    }
+
     private void ElegirFicheroCampo_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not Button boton || boton.Tag is not CampoVm campo) return;

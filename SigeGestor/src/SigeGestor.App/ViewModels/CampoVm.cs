@@ -52,6 +52,9 @@ public sealed partial class CampoVm : ObservableObject
     public Visibility VisibilidadFichero =>
         Definicion.Tipo == TipoCampo.Fichero ? Visibility.Visible : Visibility.Collapsed;
 
+    public Visibility VisibilidadCarpetaEntrada =>
+        Definicion.Tipo == TipoCampo.CarpetaEntrada ? Visibility.Visible : Visibility.Collapsed;
+
     public Visibility VisibilidadImporte =>
         Definicion.Tipo == TipoCampo.Importe ? Visibility.Visible : Visibility.Collapsed;
 
@@ -274,6 +277,11 @@ public sealed partial class CampoVm : ObservableObject
             if (Definicion.Tipo == TipoCampo.Fichero && !File.Exists(Valor))
             {
                 return "Ese fichero ya no existe.";
+            }
+
+            if (Definicion.Tipo == TipoCampo.CarpetaEntrada && !Directory.Exists(Valor))
+            {
+                return "Esa carpeta ya no existe.";
             }
 
             return string.Empty;
