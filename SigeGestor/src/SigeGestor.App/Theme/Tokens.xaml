@@ -106,11 +106,14 @@
     <Color x:Key="Pro">#B45309</Color>
     <Color x:Key="ProMark">#F59E0B</Color>
     <Color x:Key="ProSoft">#FEF6E9</Color>
+    <Color x:Key="OnPro">#FFFFFF</Color>
     <Color x:Key="ProLine">#F3D9A8</Color>
     <SolidColorBrush x:Key="ProBrush" Color="{StaticResource Pro}" />
     <SolidColorBrush x:Key="ProMarkBrush" Color="{StaticResource ProMark}" />
     <SolidColorBrush x:Key="ProSoftBrush" Color="{StaticResource ProSoft}" />
     <SolidColorBrush x:Key="ProLineBrush" Color="{StaticResource ProLine}" />
+    <!-- Lo que va ENCIMA del ambar de Produccion. Aqui el ambar es oscuro: blanco. -->
+    <SolidColorBrush x:Key="OnProBrush" Color="{StaticResource OnPro}" />
 
     <Color x:Key="Rep">#047857</Color>
     <Color x:Key="RepMark">#10B981</Color>
@@ -141,6 +144,8 @@
     <Color x:Key="Bad">#B42318</Color>
     <Color x:Key="BadSoft">#FDF1F0</Color>
     <Color x:Key="BadLine">#F5C9C4</Color>
+    <!-- El texto que va ENCIMA del rojo: aqui el rojo es oscuro, asi que blanco. -->
+    <Color x:Key="OnBad">#FFFFFF</Color>
     <SolidColorBrush x:Key="OkBrush" Color="{StaticResource Ok}" />
     <SolidColorBrush x:Key="OkSoftBrush" Color="{StaticResource OkSoft}" />
     <SolidColorBrush x:Key="OkLineBrush" Color="{StaticResource OkLine}" />
@@ -149,6 +154,7 @@
     <SolidColorBrush x:Key="BadBrush" Color="{StaticResource Bad}" />
     <SolidColorBrush x:Key="BadSoftBrush" Color="{StaticResource BadSoft}" />
     <SolidColorBrush x:Key="BadLineBrush" Color="{StaticResource BadLine}" />
+    <SolidColorBrush x:Key="OnBadBrush" Color="{StaticResource OnBad}" />
 
     <!-- ============================================================
          Tipografía

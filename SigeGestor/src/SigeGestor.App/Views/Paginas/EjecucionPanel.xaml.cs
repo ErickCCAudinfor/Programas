@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using SigeGestor.App.Servicios;
 using SigeGestor.App.ViewModels;
+using SigeGestor.App.Views.Dialogos;
 
 namespace SigeGestor.App.Views.Paginas;
 
@@ -107,14 +108,13 @@ public partial class EjecucionPanel : UserControl
         }
         catch (Exception ex)
         {
-            MessageBox.Show(
+            PreguntaWindow.Avisar(
                 Window.GetWindow(this),
-                "No se ha podido copiar al portapapeles. Suele ser que otro programa lo tiene " +
-                "ocupado un momento; prueba otra vez." + Environment.NewLine + Environment.NewLine +
+                "No se ha podido copiar",
+                "Suele ser que otro programa tiene el portapapeles ocupado un momento; " +
+                "prueba otra vez." + Environment.NewLine + Environment.NewLine +
                 $"Detalle: {ex.Message}",
-                "Copiar",
-                MessageBoxButton.OK,
-                MessageBoxImage.Warning);
+                TonoDialogo.Cuidado);
         }
     }
 

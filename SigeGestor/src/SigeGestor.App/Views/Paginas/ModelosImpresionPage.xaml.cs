@@ -93,8 +93,8 @@ public partial class ModelosImpresionPage : UserControl
 
         if (problema.Length > 0)
         {
-            MessageBox.Show(Window.GetWindow(this), problema, "No se ha podido guardar",
-                            MessageBoxButton.OK, MessageBoxImage.Warning);
+            PreguntaWindow.Avisar(Window.GetWindow(this), "No se ha podido guardar",
+                                  problema, TonoDialogo.Cuidado);
         }
     }
 
@@ -105,24 +105,21 @@ public partial class ModelosImpresionPage : UserControl
 
         // Se borra una fila de la base de un cliente y no hay deshacer: se pregunta con el
         // nombre de la empresa delante, que es el error fácil de cometer aquí.
-        var respuesta = MessageBox.Show(
+        var borrar = PreguntaWindow.Preguntar(
             Window.GetWindow(this),
-            $"Se va a borrar el modelo {modelo.Id} «{modelo.Descripcion}»\n" +
-            $"de la base de {_vm.EmpresaActiva.Nombre}.\n\n" +
-            "Si algún contrato o factura lo tiene asignado, dejará de imprimir. No hay deshacer.\n\n" +
-            "¿Seguir?",
-            "Borrar modelo de impresión",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Warning,
-            MessageBoxResult.No);
+            $"Borrar el modelo {modelo.Id} de {_vm.EmpresaActiva.Nombre}",
+            $"«{modelo.Descripcion}»\n\n" +
+            "Si algún contrato o factura lo tiene asignado, dejará de imprimir. No hay deshacer.",
+            siTexto: "Borrarlo",
+            tono: TonoDialogo.Destructivo);
 
-        if (respuesta != MessageBoxResult.Yes) return;
+        if (!borrar) return;
 
         var problema = await _vm.BorrarAsync(modelo.Id);
         if (problema.Length > 0)
         {
-            MessageBox.Show(Window.GetWindow(this), problema, "No se ha podido borrar",
-                            MessageBoxButton.OK, MessageBoxImage.Warning);
+            PreguntaWindow.Avisar(Window.GetWindow(this), "No se ha podido borrar",
+                                  problema, TonoDialogo.Cuidado);
         }
     }
 
@@ -155,9 +152,9 @@ public partial class ModelosImpresionPage : UserControl
 
             if (bytes is null || bytes.Length == 0)
             {
-                MessageBox.Show(Window.GetWindow(this),
-                    "Ese modelo no tiene report guardado en la base.",
-                    "Nada que guardar", MessageBoxButton.OK, MessageBoxImage.Information);
+                PreguntaWindow.Avisar(Window.GetWindow(this),
+                    "Nada que guardar",
+                    "Ese modelo no tiene report guardado en la base.");
                 return;
             }
 
@@ -165,8 +162,8 @@ public partial class ModelosImpresionPage : UserControl
         }
         catch (Exception ex)
         {
-            MessageBox.Show(Window.GetWindow(this), ex.Message, "No se ha podido guardar",
-                            MessageBoxButton.OK, MessageBoxImage.Warning);
+            PreguntaWindow.Avisar(Window.GetWindow(this), "No se ha podido guardar",
+                                  ex.Message, TonoDialogo.Cuidado);
         }
     }
 
@@ -212,15 +209,13 @@ public partial class ModelosImpresionPage : UserControl
 
         var lista = string.Join("\n", elegidas.Select(d => $"  · {d.Nombre}"));
 
-        var respuesta = MessageBox.Show(
-            Window.GetWindow(this),
-            $"Se va a {queSeVaAHacer} {elegidas.Count} empresa(s):\n\n{lista}\n\n" +
-            "Son bases de datos de clientes distintas y el cambio no se deshace solo. ¿Seguir?",
-            "Confirmar operación masiva",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Warning,
-            MessageBoxResult.No);
+        var plural = elegidas.Count == 1 ? "empresa" : "empresas";
 
-        return respuesta == MessageBoxResult.Yes;
+        return PreguntaWindow.Preguntar(
+            Window.GetWindow(this),
+            $"Se va a {queSeVaAHacer} {elegidas.Count} {plural}",
+            $"{lista}\n\n" +
+            "Son bases de datos de clientes distintas y el cambio no se deshace solo.",
+            siTexto: "Seguir");
     }
 }

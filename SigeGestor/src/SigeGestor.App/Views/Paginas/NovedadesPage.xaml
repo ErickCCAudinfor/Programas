@@ -33,6 +33,7 @@
                                   Cursor="Hand"
                                   HorizontalContentAlignment="Stretch"
                                   Background="Transparent"
+                                  Foreground="{StaticResource InkBrush}"
                                   BorderThickness="0"
                                   Padding="0"
                                   Focusable="True">

@@ -38,6 +38,26 @@
     <!-- Novedades: campana -->
     <Geometry x:Key="IcoNovedades">M 4.2,6.8 A 3.8,3.8 0 0 1 11.8,6.8 C 11.8,9.7 12.75,10.5 12.75,10.5 L 3.25,10.5 C 3.25,10.5 4.2,9.7 4.2,6.8 Z M 6.8,12.7 A 1.5,1.5 0 0 0 9.2,12.7</Geometry>
 
+    <!--
+        Tema. Son los dos iconos clásicos, y lo que se enseña es SIEMPRE EL DESTINO:
+        estando en claro se ve la luna —«ponlo oscuro»—, y al revés. Enseñar el estado
+        actual tiene la mitad de papeletas de entenderse al derecho.
+    -->
+    <!-- Luna -->
+    <Geometry x:Key="IcoTemaOscuro">M 12.6,9.6 A 5.2,5.2 0 1 1 6.4,3.4 A 4.1,4.1 0 0 0 12.6,9.6 Z</Geometry>
+    <!-- Sol -->
+    <Geometry x:Key="IcoTemaClaro">M 10.6,8 A 2.6,2.6 0 1 1 5.4,8 A 2.6,2.6 0 1 1 10.6,8 M 8,2.1 L 8,3.3 M 8,12.7 L 8,13.9 M 2.1,8 L 3.3,8 M 12.7,8 L 13.9,8 M 3.8,3.8 L 4.7,4.7 M 11.3,11.3 L 12.2,12.2 M 12.2,3.8 L 11.3,4.7 M 4.7,11.3 L 3.8,12.2</Geometry>
+
+    <!--
+        Los tres de la ventana. Se dibujan a 10x10 dentro de un botón de 46x32, que es la
+        proporción a la que está acostumbrada la mano en Windows.
+    -->
+    <Geometry x:Key="IcoMinimizar">M 3,8 L 13,8</Geometry>
+    <Geometry x:Key="IcoMaximizar">M 3.5,3.5 L 12.5,3.5 L 12.5,12.5 L 3.5,12.5 Z</Geometry>
+    <!-- Restaurar: dos marcos, el de detrás asomando por la esquina -->
+    <Geometry x:Key="IcoRestaurar">M 3.5,5.5 L 10.5,5.5 L 10.5,12.5 L 3.5,12.5 Z M 5.5,5.5 L 5.5,3.5 L 12.5,3.5 L 12.5,10.5 L 10.5,10.5</Geometry>
+    <!-- La aspa de cerrar ya estaba más abajo; se reutiliza esa. -->
+
     <!-- Sugerencias: bocadillo con una bombilla dentro -->
     <Geometry x:Key="IcoSugerencias">M 2.4,4.2 A 1.6,1.6 0 0 1 4,2.6 L 12,2.6 A 1.6,1.6 0 0 1 13.6,4.2 L 13.6,10 A 1.6,1.6 0 0 1 12,11.6 L 6.6,11.6 L 3.8,13.8 L 3.8,11.6 A 1.6,1.6 0 0 1 2.4,10 Z M 8,5 A 2,2 0 0 1 9.5,8.3 L 9.5,9 L 6.5,9 L 6.5,8.3 A 2,2 0 0 1 8,5 Z M 7,10 L 9,10</Geometry>
 

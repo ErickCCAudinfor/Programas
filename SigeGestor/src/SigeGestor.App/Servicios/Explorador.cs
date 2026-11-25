@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using SigeGestor.App.Views.Dialogos;
 
 namespace SigeGestor.App.Servicios;
 
@@ -48,10 +49,9 @@ public static class Explorador
 
             if (string.IsNullOrWhiteSpace(carpeta) || !Directory.Exists(carpeta))
             {
-                Avisar(dueño,
-                    "La carpeta ya no está:" + Environment.NewLine + Environment.NewLine +
-                    (string.IsNullOrWhiteSpace(carpeta) ? "(no se guardó la ruta)" : carpeta),
-                    MessageBoxImage.Information);
+                PreguntaWindow.Avisar(dueño,
+                    "La carpeta ya no está",
+                    string.IsNullOrWhiteSpace(carpeta) ? "No se guardó la ruta." : carpeta);
                 return;
             }
 
@@ -59,22 +59,11 @@ public static class Explorador
         }
         catch (Exception ex)
         {
-            Avisar(dueño,
-                "No se ha podido abrir la carpeta." + Environment.NewLine + Environment.NewLine +
+            PreguntaWindow.Avisar(dueño,
+                "No se ha podido abrir la carpeta",
                 carpeta + Environment.NewLine + Environment.NewLine +
                 $"Detalle: {ex.Message}",
-                MessageBoxImage.Warning);
+                TonoDialogo.Cuidado);
         }
-    }
-
-    private static void Avisar(Window? dueño, string texto, MessageBoxImage icono)
-    {
-        if (dueño is not null)
-        {
-            MessageBox.Show(dueño, texto, "Abrir carpeta", MessageBoxButton.OK, icono);
-            return;
-        }
-
-        MessageBox.Show(texto, "Abrir carpeta", MessageBoxButton.OK, icono);
     }
 }

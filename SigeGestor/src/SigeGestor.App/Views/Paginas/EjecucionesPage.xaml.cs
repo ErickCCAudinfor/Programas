@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using SigeGestor.App.ViewModels;
+using SigeGestor.App.Views.Dialogos;
 
 namespace SigeGestor.App.Views.Paginas;
 
@@ -37,18 +38,18 @@ public partial class EjecucionesPage : UserControl
     /// </summary>
     private void PreguntarYCancelar(object? emisor, EjecucionVm fila)
     {
-        var respuesta = MessageBox.Show(
+        // Los dos botones dicen qué hacen. Con «Sí/No» aquí, el «Cancelar» de irse y la
+        // acción de cancelar la ejecución son la misma palabra y se pulsa el que no es.
+        var parar = PreguntaWindow.Preguntar(
             Window.GetWindow(this),
-            $"«{fila.Titulo}» lleva {fila.Resultado}." + Environment.NewLine + Environment.NewLine +
-            "Si la cancelas se para donde esté. Lo que ya haya procesado se queda como está: " +
-            "no se deshace." + Environment.NewLine + Environment.NewLine +
-            "¿Cancelarla?",
             "Cancelar la ejecución",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Warning,
-            MessageBoxResult.No);
+            $"«{fila.Titulo}» lleva {fila.Resultado}." + Environment.NewLine +
+            "Si la cancelas se para donde esté. Lo que ya haya procesado se queda como está: " +
+            "no se deshace.",
+            siTexto: "Pararla ahora",
+            noTexto: "Dejarla correr");
 
-        if (respuesta == MessageBoxResult.Yes) fila.CancelarAhora();
+        if (parar) fila.CancelarAhora();
     }
 
     private void Limpiar_Click(object sender, RoutedEventArgs e) => _vm.Limpiar();

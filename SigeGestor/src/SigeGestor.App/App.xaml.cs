@@ -4,8 +4,10 @@ using System.Windows;
 using System.Windows.Threading;
 using System.Windows.Markup;
 using SigeGestor.App.ViewModels;
+using SigeGestor.App.Servicios;
 using SigeGestor.App.Views;
 using SigeGestor.Core.Configuracion;
+using SigeGestor.Core.Modelos;
 using SigeGestor.Core.Registro;
 using SigeGestor.Core.Servicios;
 
@@ -93,6 +95,14 @@ public partial class App : Application
     /// </summary>
     private void PedirAcceso()
     {
+        // ANTES de pintar el login, no después.
+        //
+        // Aquí todavía no se sabe quién va a entrar, así que se usa el tema del último que
+        // entró desde esta máquina. Preguntando por el usuario se llega tarde: los estilos
+        // resuelven sus colores al cargarse, y el login salía blanco encima de una
+        // aplicación oscura hasta que se cerraba sesión una vez.
+        Tema.Aplicar(_estadoUsuario.TemaDeEstaMaquina() == TemaOscuro);
+
         var login = new LoginWindow(new LoginViewModel(_autenticacion));
 
         if (login.ShowDialog() != true || login.UsuarioAutenticado is null)
@@ -105,6 +115,21 @@ public partial class App : Application
 
         AbrirSesion(usuario.Login, usuario.Nombre);
 
+        // Y ahora el suyo, que puede no ser el del compañero que usó el puesto antes.
+        Tema.Aplicar(_estadoUsuario.Obtener(usuario.Login).Tema == TemaOscuro);
+
+        AbrirPrincipal(usuario);
+    }
+
+    /// <summary>Nombre del tema oscuro tal y como se guarda en Usuarios.json.</summary>
+    private const string TemaOscuro = "oscuro";
+
+    /// <summary>
+    /// Abre la ventana principal. Al cerrarla se vuelve al login, salvo que se esté
+    /// rehaciendo por un cambio de tema.
+    /// </summary>
+    private void AbrirPrincipal(Usuario usuario)
+    {
         var principal = new ShellWindow(
             usuario, _entornos, _ejecuciones, _registro, DiasRetencionLog);
         MainWindow = principal;
@@ -114,11 +139,45 @@ public partial class App : Application
         // apila sobre la anterior.
         principal.Closed += (_, _) =>
         {
+            if (_rehaciendoPorTema)
+            {
+                _rehaciendoPorTema = false;
+                Dispatcher.BeginInvoke(new Action(() => AbrirPrincipal(usuario)));
+                return;
+            }
+
             CerrarSesion();
             Dispatcher.BeginInvoke(new Action(PedirAcceso));
         };
 
         principal.Show();
+    }
+
+    private bool _rehaciendoPorTema;
+
+    /// <summary>
+    /// Cambia de tema y REHACE la ventana principal.
+    ///
+    /// Rehacerla no es pereza: está medido. Al cambiar los diccionarios con una ventana ya
+    /// pintada, su fondo se quedaba igual —#FFFBFBFC antes y después—, porque los
+    /// StaticResource ya estaban resueltos. O se vuelve a crear, o el cambio solo se vería
+    /// en las pantallas que se abrieran a partir de ese momento, que es peor: media
+    /// aplicación de cada color.
+    ///
+    /// No se pasa por el login: la sesión sigue abierta y el latido no se toca. Lo que había
+    /// en marcha tampoco se pierde, porque las ejecuciones viven en el repositorio, no en la
+    /// ventana.
+    /// </summary>
+    public void CambiarTema(Usuario usuario, bool oscuro)
+    {
+        var estado = _estadoUsuario.Obtener(usuario.Login);
+        estado.Tema = oscuro ? TemaOscuro : "";
+        _estadoUsuario.Guardar(estado);
+
+        Tema.Aplicar(oscuro);
+
+        _rehaciendoPorTema = true;
+        MainWindow?.Close();
     }
 
     /// <summary>

@@ -374,6 +374,7 @@ public sealed partial class OperacionViewModel : ObservableObject
 
         OnPropertyChanged(nameof(EsProduccion));
         OnPropertyChanged(nameof(ColorAccion));
+        OnPropertyChanged(nameof(TintaAccion));
         OnPropertyChanged(nameof(VisibilidadAvisoProduccion));
         OnPropertyChanged(nameof(VisibilidadAvisoConsultaProduccion));
 
@@ -393,6 +394,16 @@ public sealed partial class OperacionViewModel : ObservableObject
     /// </summary>
     public Brush ColorAccion => Apariencia.Pincel(
         Definicion.EsEscritura && EsProduccion ? "ProBrush" : "MarcaBrush");
+
+    /// <summary>
+    /// La tinta del botón de acción, que tiene que ir con su fondo.
+    ///
+    /// No vale el blanco de BtnPrimary para los dos: en tema oscuro el ámbar se aclara hasta
+    /// #E8A33D y el blanco encima se queda en 2,2:1. Justo en el botón que avisa de que esto
+    /// escribe en Producción, que es el que menos conviene que cueste leer.
+    /// </summary>
+    public Brush TintaAccion => Apariencia.Pincel(
+        Definicion.EsEscritura && EsProduccion ? "OnProBrush" : "OnMarcaBrush");
 
     public Visibility VisibilidadAvisoProduccion =>
         Definicion.EsEscritura && EsProduccion ? Visibility.Visible : Visibility.Collapsed;

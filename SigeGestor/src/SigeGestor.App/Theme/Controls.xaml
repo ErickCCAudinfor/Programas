@@ -6,7 +6,8 @@
     porque son cambios de color instantáneos; la animación queda para lo que se mueve.
 -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework">
 
     <!-- ============================================================
          BOTÓN SECUNDARIO  (el de por defecto)
@@ -136,6 +137,92 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <!--
+        El botón que borra.
+
+        En reposo pesa igual que sus vecinos: no hace falta asustar a nadie que solo está
+        mirando. Al apuntarlo se pone rojo y avisa de que ese no es como los demás.
+
+        Un disparador del ESTILO pisa al de la plantilla —ese orden de precedencia es el que
+        hace que esto quepa en ocho líneas en vez de copiar la plantilla entera de BtnGhost—.
+    -->
+    <Style x:Key="BtnGhostPeligro" TargetType="Button" BasedOn="{StaticResource BtnGhost}">
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{StaticResource BadBrush}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--
+        LOS TRES BOTONES DE LA VENTANA.
+
+        Al quitar el marco de Windows hay que poner los suyos, y aquí la consistencia que
+        manda no es la de la aplicación sino la del sistema: van arriba a la derecha, en
+        este orden, con la forma y el tamaño de siempre. Lo único que se cambia es el color,
+        para que no sea una franja blanca encima de una aplicación oscura.
+
+        El de cerrar se pone ROJO al pasar por encima, como en Windows. Es la única señal
+        que distingue «cierro la aplicación» de «la aparto un momento», y se mira poco:
+        conviene que no haya que mirarla.
+    -->
+    <Style x:Key="BtnVentana" TargetType="Button">
+        <Setter Property="Width" Value="46" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="Foreground" Value="{StaticResource Ink2Brush}" />
+        <Setter Property="IsTabStop" Value="False" />
+        <!--
+            BorderBrush se usa aquí como COLOR DE HOVER, que es lo único que distingue al de
+            cerrar de los otros dos. No vale un estilo derivado con un disparador propio: un
+            disparador de plantilla con TargetName gana al TemplateBinding del Border, así
+            que el rojo no llegaría a pintarse.
+        -->
+        <!-- Hair2 y no Elev: en claro Elev es #FFFFFF igual que el panel, y el hover no
+             se veria. Hair2 se nota sobre blanco y sobre oscuro. -->
+        <Setter Property="BorderBrush" Value="{StaticResource Hair2Brush}" />
+        <!-- Sin esto el botón no recibe el clic: se lo come la zona de arrastre. -->
+        <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" Background="Transparent">
+                        <Path Data="{TemplateBinding Tag}"
+                              Stroke="{TemplateBinding Foreground}"
+                              StrokeThickness="1.1"
+                              StrokeStartLineCap="Square"
+                              StrokeEndLineCap="Square"
+                              Stretch="None"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{Binding BorderBrush, RelativeSource={RelativeSource TemplatedParent}}" />
+                            <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--
+        El rojo de cerrar es el de Windows y va fijo: no es un color de la aplicación ni
+        cambia con el tema, es la señal del sistema.
+
+        Y encima va BLANCO, no InkBrush: en tema claro la tinta es casi negra y sobre ese
+        rojo quedaría ilegible. El disparador del estilo pisa al de la plantilla.
+    -->
+    <Style x:Key="BtnVentanaCerrar" TargetType="Button" BasedOn="{StaticResource BtnVentana}">
+        <Setter Property="BorderBrush" Value="#E81123" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="#FFFFFF" />
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <!-- Botón de icono cuadrado (cerrar ventana) -->

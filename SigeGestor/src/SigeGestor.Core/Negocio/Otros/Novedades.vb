@@ -32,6 +32,17 @@ Public Module NovedadesApp
 
     Public ReadOnly Historial As New List(Of Novedad) From {
         New Novedad With {
+            .Version = "3.11",
+            .Fecha = New Date(2026, 11, 25),
+            .Titulo = "Tema oscuro, y los avisos dejan de ser los de Windows",
+            .Cambios = New List(Of String) From {
+                "Botón nuevo en la barra de arriba, al lado de la campana: cambia entre claro y oscuro. Cada uno tiene el suyo y se recuerda, también si entras desde otro puesto.",
+                "Los avisos y las preguntas ya no son los cuadros de Windows: tienen el aspecto de la aplicación y los botones dicen lo que hacen —«Borrarlo», «Asignar el equipo»— en lugar de Sí y No.",
+                "En lo que borra, el botón va en rojo y el foco empieza en Cancelar: un Intro a ciegas ya no borra nada.",
+                "Asignar nº de equipo: el botón pone «Buscando…» mientras consulta, y si un id está mal escrito el motivo se lee en la columna RESULTADO, no solo al pasar el ratón."
+            }
+        },
+        New Novedad With {
             .Version = "3.10",
             .Fecha = New Date(2026, 11, 25),
             .Titulo = "En qué punto del ciclo de impagos está cada factura",

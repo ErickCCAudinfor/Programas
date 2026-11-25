@@ -15,6 +15,7 @@ using SigeGestor.Core.Operaciones;
 using SigeGestor.Core.Registro;
 using SigeGestor.Core.Servicios;
 using SigeGestor.Core.Sesion;
+using System.Windows.Media;
 
 namespace SigeGestor.App.Views;
 
@@ -61,6 +62,8 @@ public partial class ShellWindow : Window
         _ejecuciones = ejecuciones;
         _diasRetencionLog = diasRetencionLog;
 
+        PintarBotonTema();
+
         // Se arranca en Replica: es el entorno de lectura, el que no bloquea a los usuarios
         // de SIGE. Cada operación elige el suyo cuando se abre; esto es solo el de la barra.
         EntornoBD? entorno = null;
@@ -103,6 +106,62 @@ public partial class ShellWindow : Window
     /// Al llegar allí se marcan como leídas y el punto se apaga solo.
     /// </summary>
     private void Campana_Click(object sender, RoutedEventArgs e) => _vm.Ir(Seccion.Novedades);
+
+    /// <summary>
+    /// El icono es el DESTINO, no el estado: en claro se ve la luna, en oscuro el sol. Y el
+    /// tooltip lo dice con palabras, que un icono solo se interpreta al revés la mitad de
+    /// las veces.
+    /// </summary>
+    private void PintarBotonTema()
+    {
+        var aOscuro = !Tema.EsOscuro;
+
+        IconoTema.Data = (Geometry)Application.Current.Resources[
+            aOscuro ? "IcoTemaOscuro" : "IcoTemaClaro"];
+
+        BotonTema.ToolTip = aOscuro ? "Ponerlo oscuro" : "Ponerlo claro";
+    }
+
+    private void Tema_Click(object sender, RoutedEventArgs e) =>
+        ((App)Application.Current).CambiarTema(_usuario, !Tema.EsOscuro);
+
+    // ============================================================
+    // LOS BOTONES DE LA VENTANA
+    //
+    // Sustituyen a los de Windows, que se quitaron con WindowChrome. Lo demás —arrastrar,
+    // el doble clic en la cabecera, Aero Snap, los bordes— lo sigue haciendo el sistema.
+    // ============================================================
+
+    private void Minimizar_Click(object sender, RoutedEventArgs e) =>
+        WindowState = WindowState.Minimized;
+
+    private void Maximizar_Click(object sender, RoutedEventArgs e) =>
+        WindowState = WindowState == WindowState.Maximized
+            ? WindowState.Normal
+            : WindowState.Maximized;
+
+    private void Cerrar_Click(object sender, RoutedEventArgs e) => Close();
+
+    /// <summary>
+    /// El botón del medio enseña a dónde va: estando maximizada, el de restaurar.
+    ///
+    /// Y el relleno: WindowChrome, al maximizar, deja la ventana del tamaño de la pantalla
+    /// ENTERA, y los bordes y la cabecera se salen por debajo de los bordes del monitor. Los
+    /// 7 píxeles son el grosor que mete Windows ahí.
+    /// </summary>
+    protected override void OnStateChanged(EventArgs e)
+    {
+        base.OnStateChanged(e);
+
+        var maximizada = WindowState == WindowState.Maximized;
+
+        BotonMaximizar.Tag = (Geometry)Application.Current.Resources[
+            maximizada ? "IcoRestaurar" : "IcoMaximizar"];
+
+        BotonMaximizar.ToolTip = maximizada ? "Restaurar" : "Maximizar";
+
+        Raiz.Margin = maximizada ? new Thickness(7) : new Thickness(0);
+    }
 
     private void VmPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {

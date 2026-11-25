@@ -9,6 +9,10 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Style x:Key="SelectorEntorno" TargetType="ListBox">
+        <!-- Foreground explicito: el estilo de Windows de las listas pone el negro del
+             sistema, y eso CORTA la herencia para todo lo de dentro. En claro no se nota;
+             en oscuro los titulos de las tarjetas salian negros sobre negro. -->
+        <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
         <Setter Property="Background" Value="{StaticResource SunkBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource HairBrush}" />
         <Setter Property="BorderThickness" Value="1" />

@@ -11,6 +11,10 @@
          BARRA LATERAL
          ============================================================ -->
     <Style x:Key="NavLista" TargetType="ListBox">
+        <!-- Foreground explicito: el estilo de Windows de las listas pone el negro del
+             sistema, y eso CORTA la herencia para todo lo de dentro. En claro no se nota;
+             en oscuro los titulos de las tarjetas salian negros sobre negro. -->
+        <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Padding" Value="0" />

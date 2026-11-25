@@ -52,6 +52,7 @@
                                       Cursor="Hand"
                                       HorizontalContentAlignment="Stretch"
                                       Background="Transparent"
+                                      Foreground="{StaticResource InkBrush}"
                                       BorderThickness="0"
                                       Padding="0"
                                       ToolTip="Pulsa para ver o esconder el detalle">
@@ -146,7 +147,7 @@
                                     Command="{Binding DataContext.EditarCommand,
                                               RelativeSource={RelativeSource AncestorType=UserControl}}"
                                     CommandParameter="{Binding}" />
-                            <Button Style="{StaticResource BtnGhost}" Content="Borrar" FontSize="12"
+                            <Button Style="{StaticResource BtnGhostPeligro}" Content="Borrar" FontSize="12"
                                     Margin="6,0,0,0"
                                     Tag="{Binding}"
                                     Click="Borrar_Click" />

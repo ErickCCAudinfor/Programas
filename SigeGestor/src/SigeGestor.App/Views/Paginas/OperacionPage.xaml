@@ -77,6 +77,7 @@
                 <DatePicker Visibility="{Binding VisibilidadFecha}"
                             Width="160" HorizontalAlignment="Left"
                             FontSize="13.5"
+                            Foreground="{StaticResource InkBrush}"
                             SelectedDate="{Binding Fecha, Mode=TwoWay}" />
 
                 <!-- Carpeta de ENTRADA. Es de donde se lee; la de salida la pide aparte
@@ -287,7 +288,14 @@
                              HorizontalAlignment="Left"
                              Margin="15,11,15,0" />
 
-                    <TextBox Margin="15,10,15,0"
+                    <!--
+                        InputBase aunque sea multilinea: su plantilla lleva un ScrollViewer,
+                        asi que aguanta varias lineas. Sin estilo usaba la plantilla de
+                        Windows y la caja salia BLANCA en tema oscuro, con la letra clara
+                        encima. El Height y el Padding de aqui pisan a los del estilo.
+                    -->
+                    <TextBox Style="{StaticResource InputBase}"
+                             Margin="15,10,15,0"
                              Height="112"
                              AcceptsReturn="True"
                              TextWrapping="NoWrap"
@@ -674,6 +682,7 @@
                 <Button Style="{StaticResource BtnPrimary}"
                         Content="{Binding EtiquetaAccion}"
                         Background="{Binding ColorAccion}"
+                        Foreground="{Binding TintaAccion}"
                         IsEnabled="{Binding PuedeEjecutar}"
                         Click="Ejecutar_Click" />
             </StackPanel>

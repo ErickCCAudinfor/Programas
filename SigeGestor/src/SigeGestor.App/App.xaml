@@ -12,6 +12,7 @@
                 <ResourceDictionary Source="Theme/Typography.xaml" />
                 <ResourceDictionary Source="Theme/Icons.xaml" />
                 <ResourceDictionary Source="Theme/Controls.xaml" />
+                <ResourceDictionary Source="Theme/Desplegables.xaml" />
                 <ResourceDictionary Source="Theme/Shell.xaml" />
                 <ResourceDictionary Source="Theme/Formulario.xaml" />
                 <ResourceDictionary Source="Theme/Rejilla.xaml" />

@@ -68,17 +68,15 @@ public partial class EmpresasPage : UserControl
 
         // Se pregunta porque borra una línea del fichero que comparten los ocho, y no hay
         // deshacer. La copia .bak que deja el repositorio es el único margen.
-        var respuesta = MessageBox.Show(
+        var quitar = PreguntaWindow.Preguntar(
             Window.GetWindow(this),
-            $"Se va a quitar «{actual.Nombre}» del fichero de empresas.\n\n" +
-            "No se borra nada de la base de datos: solo deja de aparecer aquí y en los modelos " +
-            "de impresión. ¿Seguir?",
-            "Eliminar empresa",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Warning,
-            MessageBoxResult.No);
+            $"Quitar «{actual.Nombre}»",
+            "Se va a quitar del fichero de empresas. No se borra nada de la base de datos: " +
+            "solo deja de aparecer aquí y en los modelos de impresión.",
+            siTexto: "Quitarla",
+            tono: TonoDialogo.Destructivo);
 
-        if (respuesta == MessageBoxResult.Yes) _vm.Quitar(actual);
+        if (quitar) _vm.Quitar(actual);
     }
 
     private async void Probar_Click(object sender, RoutedEventArgs e) => await _vm.ProbarTodasAsync();

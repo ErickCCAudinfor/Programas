@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using SigeGestor.App.ViewModels;
+using SigeGestor.App.Views.Dialogos;
 
 namespace SigeGestor.App.Views.Paginas;
 
@@ -27,17 +28,15 @@ public partial class SugerenciasPage : UserControl
     {
         if (sender is not FrameworkElement { Tag: SugerenciaVm fila }) return;
 
-        var respuesta = MessageBox.Show(
+        var borrar = PreguntaWindow.Preguntar(
             Window.GetWindow(this),
-            "¿Borrar esta sugerencia?" + System.Environment.NewLine + System.Environment.NewLine +
+            "Borrar la sugerencia",
             fila.Titulo + System.Environment.NewLine + System.Environment.NewLine +
             "No se puede deshacer.",
-            "Borrar sugerencia",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Question,
-            MessageBoxResult.No);
+            siTexto: "Borrarla",
+            tono: TonoDialogo.Destructivo);
 
-        if (respuesta != MessageBoxResult.Yes) return;
+        if (!borrar) return;
 
         _vm.BorrarConfirmado(fila);
     }

@@ -1,0 +1,73 @@
+<Window x:Class="SigeGestor.App.Views.Dialogos.PreguntaWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SigeGestor"
+        Width="470" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Background="{StaticResource BgBrush}"
+        FontFamily="{StaticResource FontUi}"
+        TextElement.Foreground="{StaticResource InkBrush}"
+        TextOptions.TextFormattingMode="Ideal">
+
+    <!-- El fondo va AQUI, no solo en la Window: lo que se pinta es esto. -->
+    <Border Padding="24" Background="{StaticResource BgBrush}">
+        <StackPanel>
+
+            <!--
+                La marca de color de la izquierda dice de que va esto sin leer nada: ambar
+                si hay que pensarselo, rojo si se borra algo, azul si es solo un aviso.
+                Es la misma senal que usa el resto de la aplicacion para los entornos.
+            -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border x:Name="Marca" Grid.Column="0"
+                        Width="3" CornerRadius="2"
+                        Margin="0,2,13,2"
+                        Background="{StaticResource WarnBrush}" />
+
+                <StackPanel Grid.Column="1">
+                    <TextBlock x:Name="Titulo"
+                               Style="{StaticResource TxCard}"
+                               TextWrapping="Wrap" />
+                    <TextBlock x:Name="Cuerpo"
+                               Style="{StaticResource TxBody}"
+                               TextWrapping="Wrap"
+                               Margin="0,8,0,0" />
+                </StackPanel>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Margin="0,22,0,0">
+
+                <!--
+                    El de irse va PRIMERO y es el que tiene el foco. En lo que se borra o se
+                    escribe en Produccion, el Intro a ciegas tiene que ser el que no hace nada.
+                -->
+                <Button x:Name="BotonNo"
+                        Style="{StaticResource BtnGhost}"
+                        Content="Cancelar"
+                        MinWidth="96"
+                        IsCancel="True"
+                        Click="No_Click" />
+
+                <Button x:Name="BotonSi"
+                        Style="{StaticResource BtnPrimary}"
+                        Content="Seguir"
+                        MinWidth="96"
+                        Margin="9,0,0,0"
+                        Click="Si_Click" />
+
+            </StackPanel>
+
+        </StackPanel>
+    </Border>
+
+</Window>

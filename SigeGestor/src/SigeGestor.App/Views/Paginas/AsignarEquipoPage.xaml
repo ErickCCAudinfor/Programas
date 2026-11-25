@@ -87,7 +87,11 @@
                             </StackPanel>
 
                             <StackPanel VerticalAlignment="Bottom" Margin="0,0,0,6">
-                                <Button Style="{StaticResource BtnPrimary}" Content="Buscar"
+                                <!-- MinWidth: sin ella el boton encoge y crece al cambiar
+                                     «Buscar» por «Buscando…», y da un salto feo. -->
+                                <Button Style="{StaticResource BtnPrimary}"
+                                        Content="{Binding TextoBuscar}"
+                                        MinWidth="104"
                                         IsEnabled="{Binding PuedeBuscar}"
                                         Command="{Binding BuscarCommand}" />
                             </StackPanel>
@@ -194,9 +198,19 @@
                                 a proposito: el id lo trae quien hace el cambio.
                             -->
                             <DataGridTemplateColumn Header="IdEquipoMedida" Width="160">
+                                <!--
+                                    La celda lleva menos relleno que las demas. La fila mide 38
+                                    y CeldaRejilla se come 9 arriba y 9 abajo: con eso no cabe
+                                    una caja de texto y se cortaba por abajo.
+                                -->
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell" BasedOn="{StaticResource CeldaRejilla}">
+                                        <Setter Property="Padding" Value="9,0" />
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBox Margin="2"
+                                        <TextBox Margin="0"
                                                  FontSize="12"
                                                  FontFamily="{StaticResource FontMono}"
                                                  IsEnabled="{Binding YaTenia, Converter={StaticResource BoolNegado}}"
@@ -204,7 +218,12 @@
                                                         UpdateSourceTrigger=PropertyChanged}"
                                                  ToolTip="{Binding Problema}">
                                             <TextBox.Style>
-                                                <Style TargetType="TextBox">
+                                                <!-- BasedOn: sin el, esta celda usaba el
+                                                     TextBox de Windows y se quedaba blanca
+                                                     en tema oscuro. -->
+                                                <Style TargetType="TextBox" BasedOn="{StaticResource InputBase}">
+                                                    <Setter Property="Height" Value="26" />
+                                                    <Setter Property="Padding" Value="7,0" />
                                                     <Style.Triggers>
                                                         <!-- Lo que no es un numero se marca en rojo. -->
                                                         <DataTrigger Binding="{Binding Problema}" Value="no es un número">
@@ -219,9 +238,20 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
 
-                            <DataGridTextColumn Header="RESULTADO" Binding="{Binding Resultado, Mode=OneWay}"
-                                                Width="1.4*" MinWidth="150"
-                                                ElementStyle="{StaticResource CeldaConAyuda}" />
+                            <DataGridTextColumn Header="RESULTADO" Binding="{Binding TextoResultado, Mode=OneWay}"
+                                                Width="1.4*" MinWidth="150">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource CeldaConAyuda}">
+                                        <Style.Triggers>
+                                            <!-- El motivo del id mal escrito, en rojo y en la
+                                                 misma fila que la caja que lo tiene. -->
+                                            <DataTrigger Binding="{Binding Problema}" Value="no es un número">
+                                                <Setter Property="Foreground" Value="{StaticResource BadBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
 

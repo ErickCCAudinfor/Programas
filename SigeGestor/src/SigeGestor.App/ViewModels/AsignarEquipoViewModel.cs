@@ -58,8 +58,11 @@ public sealed partial class LecturaVm : ObservableObject
     {
         OnPropertyChanged(nameof(VaACambiar));
         OnPropertyChanged(nameof(Problema));
+        OnPropertyChanged(nameof(TextoResultado));
         Cambiado?.Invoke(this, EventArgs.Empty);
     }
+
+    partial void OnResultadoChanged(string value) => OnPropertyChanged(nameof(TextoResultado));
 
     /// <summary>El id tecleado, si es un número válido.</summary>
     public long? Elegido =>
@@ -79,6 +82,15 @@ public sealed partial class LecturaVm : ObservableObject
     /// <summary>Resultado del último guardado, para verlo en la propia fila.</summary>
     [ObservableProperty] private string _resultado = "";
     [ObservableProperty] private bool _resultadoBien;
+
+    /// <summary>
+    /// Lo que se lee en la columna RESULTADO.
+    ///
+    /// Si lo tecleado está mal, lo dice AQUÍ. Antes el motivo solo estaba en el tooltip de la
+    /// celda: el botón de guardar se apagaba y había que pasar el ratón por encima de la fila
+    /// para enterarse de por qué. La columna está vacía hasta que se guarda, así que cabe.
+    /// </summary>
+    public string TextoResultado => Problema.Length > 0 ? $"⚠ {Problema}" : Resultado;
 }
 
 /// <summary>
@@ -171,10 +183,21 @@ public sealed partial class AsignarEquipoViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(PuedeBuscar));
         OnPropertyChanged(nameof(PuedeGuardar));
+        OnPropertyChanged(nameof(TextoBuscar));
     }
 
     public bool PuedeBuscar =>
         !Trabajando && ContratosValidos.Count > 0 && EntornoElegido is not null;
+
+    /// <summary>
+    /// Lo que pone el botón de buscar.
+    ///
+    /// Contra Producción esto tarda lo suyo, y hasta ahora lo único que pasaba era que el
+    /// botón se apagaba: desde fuera, igual que si no hubiera llegado la pulsación. Que lo
+    /// diga el propio botón sale más barato que un indicador aparte y se mira donde se acaba
+    /// de pulsar.
+    /// </summary>
+    public string TextoBuscar => Trabajando ? "Buscando…" : "Buscar";
 
     public ObservableCollection<LecturaVm> Lecturas { get; } = new();
 

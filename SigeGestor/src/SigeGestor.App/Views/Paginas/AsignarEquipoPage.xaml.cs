@@ -2,6 +2,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using SigeGestor.App.ViewModels;
+using SigeGestor.App.Views.Dialogos;
 
 namespace SigeGestor.App.Views.Paginas;
 
@@ -35,17 +36,14 @@ public partial class AsignarEquipoPage : UserControl
     {
         if (!_vm.PuedeGuardar) return;
 
-        var respuesta = MessageBox.Show(
+        var adelante = PreguntaWindow.Preguntar(
             Window.GetWindow(this),
-            _vm.ResumenParaConfirmar + Environment.NewLine + Environment.NewLine +
-            "Solo se tocan las lecturas que no tenían equipo." + Environment.NewLine +
-            "¿Seguir?",
             "Asignar nº de equipo",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Warning,
-            MessageBoxResult.No);
+            _vm.ResumenParaConfirmar + Environment.NewLine +
+            "Solo se tocan las lecturas que no tenían equipo.",
+            siTexto: "Asignar el equipo");
 
-        if (respuesta != MessageBoxResult.Yes) return;
+        if (!adelante) return;
 
         await _vm.GuardarConfirmadoAsync();
     }

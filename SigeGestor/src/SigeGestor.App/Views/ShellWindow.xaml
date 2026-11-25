@@ -1,15 +1,44 @@
 ﻿<Window x:Class="SigeGestor.App.Views.ShellWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="Gestor de Datos SIGE"
         Width="1160" Height="720"
         MinWidth="880" MinHeight="560"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource BgBrush}"
         FontFamily="{StaticResource FontUi}"
+        TextElement.Foreground="{StaticResource InkBrush}"
         TextOptions.TextFormattingMode="Ideal">
 
-    <Grid>
+    <!--
+        SIN LA BARRA DE WINDOWS.
+
+        Encima de una aplicación oscura, la barra blanca del sistema era lo primero que se
+        veía al abrir. Se quita y se ponen los tres botones de siempre dentro de la cabecera.
+
+        Se usa WindowChrome y no WindowStyle="None" a secas: así se conserva todo lo que da
+        el sistema y que se echa de menos en cuanto falta —arrastrar, doble clic para
+        maximizar, Aero Snap pegando la ventana a un lado, redimensionar por los bordes y el
+        menú del clic derecho—. Lo único que se sustituye es el aspecto.
+
+        CaptionHeight 51 = la altura de la cabecera, que es la franja por la que se arrastra.
+        Los botones de dentro llevan IsHitTestVisibleInChrome o no recibirían el clic.
+    -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="51"
+                      ResizeBorderThickness="6"
+                      CornerRadius="0"
+                      GlassFrameThickness="0"
+                      UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <!--
+        El fondo, aquí además de en la Window. El de la Window lo pinta el marco; este lo
+        pinta el contenido, y es el que ve cualquier cosa que mire el árbol: sin él, el
+        texto grande del saludo queda compuesto contra nada.
+    -->
+    <Grid x:Name="Raiz" Background="{StaticResource BgBrush}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="236" />
             <ColumnDefinition Width="*" MinWidth="0" />
@@ -100,6 +129,8 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
                     <!-- Migas de pan -->
@@ -122,6 +153,7 @@
                     -->
                     <Button x:Name="IndicadorEnCurso"
                             Grid.Column="1"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True"
                             Style="{StaticResource BtnGhost}"
                             Visibility="{Binding Visibilidad}"
                             Height="30" Padding="10,0"
@@ -145,6 +177,7 @@
 
                     <!-- Chip de entorno -->
                     <Border Grid.Column="2"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True"
                             Height="30" Padding="10,0"
                             CornerRadius="{StaticResource RCtl}"
                             Background="{Binding FondoEntorno}"
@@ -165,8 +198,32 @@
                         </StackPanel>
                     </Border>
 
+                    <!--
+                        Claro / oscuro. Aquí y no enterrado en Ajustes: es de las pocas cosas
+                        que se tocan por gusto y se busca con la vista, no por el menú.
+                        El icono y el tooltip los pone el code-behind, que sabe cuál hay.
+                    -->
+                    <Button x:Name="BotonTema"
+                            Grid.Column="3"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                            Style="{StaticResource BtnIcon}"
+                            Width="30" Height="30"
+                            Margin="0,0,6,0"
+                            IsTabStop="False"
+                            Click="Tema_Click">
+                        <Path x:Name="IconoTema"
+                              Stroke="{StaticResource Ink3Brush}"
+                              StrokeThickness="1.5"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              StrokeLineJoin="Round"
+                              Stretch="Uniform"
+                              Width="15" Height="15" />
+                    </Button>
+
                     <!-- Avisos. Lleva a Novedades; antes no hacía nada. -->
-                    <Button Grid.Column="3"
+                    <Button Grid.Column="4"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True"
                             Style="{StaticResource BtnIcon}"
                             Width="30" Height="30"
                             Margin="0,0,6,0"
@@ -195,9 +252,33 @@
                     </Button>
 
                     <!-- Avatar -->
-                    <Border Grid.Column="4" Style="{StaticResource Avatar}" VerticalAlignment="Center">
+                    <Border Grid.Column="5" Style="{StaticResource Avatar}" VerticalAlignment="Center">
                         <TextBlock Text="{Binding Iniciales}" Style="{StaticResource AvatarTexto}" />
                     </Border>
+
+                    <!--
+                        Los de la ventana. Pegados al borde derecho y sin separación entre
+                        ellos, que es donde los busca la mano: el Margin negativo cancela el
+                        de la rejilla, porque si quedan a 20 px del borde no se aciertan
+                        llevando el ratón a la esquina.
+                    -->
+                    <StackPanel Grid.Column="6" Orientation="Horizontal"
+                                VerticalAlignment="Top"
+                                Margin="14,-10,-20,0">
+                        <Button Style="{StaticResource BtnVentana}"
+                                Tag="{StaticResource IcoMinimizar}"
+                                ToolTip="Minimizar"
+                                Click="Minimizar_Click" />
+                        <Button x:Name="BotonMaximizar"
+                                Style="{StaticResource BtnVentana}"
+                                Tag="{StaticResource IcoMaximizar}"
+                                ToolTip="Maximizar"
+                                Click="Maximizar_Click" />
+                        <Button Style="{StaticResource BtnVentanaCerrar}"
+                                Tag="{StaticResource IcoCerrar}"
+                                ToolTip="Cerrar"
+                                Click="Cerrar_Click" />
+                    </StackPanel>
                 </Grid>
             </Border>
 
@@ -263,10 +344,19 @@
                               StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                               Stretch="Uniform" Width="15" Height="15"
                               VerticalAlignment="Center" Margin="0,0,10,0" />
+                        <!--
+                            Foreground, CaretBrush y SelectionBrush explicitos. Este TextBox
+                            no pasa por InputBase —no lleva marco, va suelto dentro de la
+                            tarjeta del buscador—, y un TextBox sin Foreground se queda con
+                            el NEGRO del tema de Windows: lo tecleado no se leia.
+                        -->
                         <TextBox x:Name="CajaBuscar"
                                  Grid.Column="1"
                                  BorderThickness="0"
                                  Background="Transparent"
+                                 Foreground="{StaticResource InkBrush}"
+                                 CaretBrush="{StaticResource AccentBrush}"
+                                 SelectionBrush="{StaticResource AccentBrush}"
                                  FontSize="16"
                                  VerticalContentAlignment="Center"
                                  Text="{Binding Texto, UpdateSourceTrigger=PropertyChanged}"
@@ -291,6 +381,10 @@
                              MouseLeftButtonUp="ListaBuscar_Click">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
+                                <!-- Foreground explicito: el estilo de Windows de las listas pone el negro del
+                                     sistema, y eso CORTA la herencia para todo lo de dentro. En claro no se nota;
+                                     en oscuro los titulos de las tarjetas salian negros sobre negro. -->
+                                <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
                                 <Setter Property="Padding" Value="9,8" />
                                 <Setter Property="Template">
                                     <Setter.Value>

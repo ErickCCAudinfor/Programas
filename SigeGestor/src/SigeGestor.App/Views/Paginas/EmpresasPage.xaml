@@ -38,7 +38,7 @@
                         Margin="9,0,0,0"
                         IsEnabled="{Binding HaySeleccion}"
                         Click="Editar_Click" />
-                <Button Style="{StaticResource BtnGhost}" Content="Eliminar"
+                <Button Style="{StaticResource BtnGhostPeligro}" Content="Eliminar"
                         Margin="9,0,0,0"
                         IsEnabled="{Binding HaySeleccion}"
                         Click="Eliminar_Click" />

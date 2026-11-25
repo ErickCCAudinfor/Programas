@@ -1,0 +1,172 @@
+﻿<!--
+    TEMA OSCURO de SigeGestor.
+
+    SOLO LOS COLORES. Este diccionario se funde DESPUÉS de Tokens.xaml y pisa sus claves;
+    tipografía, métrica, radios y tiempos siguen estando en un único sitio, que es Tokens.xaml.
+    Si se añade un color allí, hay que añadirlo aquí: el arnés lo comprueba y avisa.
+
+    Se redefinen los Color Y los SolidColorBrush. No basta con los Color: los pinceles de
+    Tokens.xaml ya resolvieron su {StaticResource} al cargarse, así que cambiar el color
+    después no los toca. Lo mismo vale para MarcaDegradado.
+
+    CÓMO SE HAN ELEGIDO
+
+    · Nada de negro puro. El fondo es un gris muy oscuro con una pizca de azul; el negro
+      absoluto contra texto claro deslumbra y marca el halo de los bordes.
+    · La elevación se invierte: en claro una tarjeta se separa del fondo siendo más BLANCA,
+      aquí siendo más CLARA que el fondo. Y lo hundido —las cajas de texto— más oscuro.
+    · La tinta se invierte pero no hasta el blanco puro: #E8EAED cansa menos y deja sitio
+      para destacar algo en blanco de verdad.
+    · OnInk se da la vuelta. Es el texto que va ENCIMA de una superficie de tinta: en claro
+      la tinta es negra y el texto blanco; aquí la tinta es clara y el texto tiene que ser
+      oscuro. Es el token que más fácil se olvida.
+    · LOS COLORES DE ENTORNO SIGUEN DISTINGUIÉNDOSE, que es de lo que se trata: ámbar para
+      Producción, verde para Réplica y gris para UAT. En oscuro se aclaran para que se lean,
+      pero se mantienen los tres tonos bien separados. Que Producción y Réplica se parezcan
+      sería el peor fallo posible de este fichero.
+    · El rojo de error pasa de #B42318 a un rojo claro: el oscuro sobre fondo oscuro no se
+      lee, y es justo el que hay que ver.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============================================================
+         Superficie — el fondo es lo oscuro; lo que flota, más claro
+         ============================================================ -->
+    <Color x:Key="Bg">#121316</Color>
+    <Color x:Key="Panel">#1A1C20</Color>
+    <Color x:Key="Elev">#212429</Color>
+    <!-- Sunk no baja al casi negro: una caja deshabilitada dentro de una tarjeta
+         parecia un agujero. Queda por debajo del panel, que es lo que pide el arnes,
+         pero sin abrir ese boquete. -->
+    <Color x:Key="Sunk">#16181C</Color>
+
+    <SolidColorBrush x:Key="BgBrush" Color="{StaticResource Bg}" />
+    <SolidColorBrush x:Key="PanelBrush" Color="{StaticResource Panel}" />
+    <SolidColorBrush x:Key="ElevBrush" Color="{StaticResource Elev}" />
+    <SolidColorBrush x:Key="SunkBrush" Color="{StaticResource Sunk}" />
+
+    <!-- ============================================================
+         Marca — el azul de SIGE, aclarado para que viva sobre oscuro.
+         #2563C7 sobre #1A1C20 queda apagado y el botón no parece pulsable.
+         ============================================================ -->
+    <Color x:Key="Marca">#3D7FE0</Color>
+    <Color x:Key="MarcaFuerte">#2A5FB4</Color>
+    <Color x:Key="MarcaSuave">#16233A</Color>
+    <Color x:Key="MarcaLinea">#30486F</Color>
+    <Color x:Key="OnMarca">#FFFFFF</Color>
+
+    <SolidColorBrush x:Key="MarcaBrush" Color="{StaticResource Marca}" />
+    <SolidColorBrush x:Key="MarcaFuerteBrush" Color="{StaticResource MarcaFuerte}" />
+    <SolidColorBrush x:Key="MarcaSuaveBrush" Color="{StaticResource MarcaSuave}" />
+    <SolidColorBrush x:Key="MarcaLineaBrush" Color="{StaticResource MarcaLinea}" />
+    <SolidColorBrush x:Key="OnMarcaBrush" Color="{StaticResource OnMarca}" />
+
+    <LinearGradientBrush x:Key="MarcaDegradado" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource MarcaFuerte}" Offset="0" />
+        <GradientStop Color="{StaticResource Marca}" Offset="1" />
+    </LinearGradientBrush>
+
+    <!-- ============================================================
+         Tinta — la escala se da la vuelta: Ink es ahora lo más CLARO
+         ============================================================ -->
+    <!--
+         LOS GRISES VAN MAS ALTOS QUE EN CLARO, y no es capricho.
+
+         Un gris sobre blanco y el mismo gris sobre negro no se leen igual: el ojo pierde
+         mucho mas detalle en lo oscuro, asi que la escala que en claro queda elegante aqui
+         queda apagada. Medido sobre la pantalla de Facturas: las descripciones salian en
+         Ink4 #6B7079 y practicamente no se leian.
+
+         Siguen siendo cuatro escalones distintos; lo que cambia es donde empiezan.
+    -->
+    <Color x:Key="Ink">#E8EAED</Color>
+    <Color x:Key="Ink2">#DCE0E6</Color>
+    <Color x:Key="Ink3">#ADB3BD</Color>
+    <Color x:Key="Ink4">#949AA5</Color>
+    <Color x:Key="OnInk">#0B0C0E</Color>
+
+    <SolidColorBrush x:Key="InkBrush" Color="{StaticResource Ink}" />
+    <SolidColorBrush x:Key="Ink2Brush" Color="{StaticResource Ink2}" />
+    <SolidColorBrush x:Key="Ink3Brush" Color="{StaticResource Ink3}" />
+    <SolidColorBrush x:Key="Ink4Brush" Color="{StaticResource Ink4}" />
+    <SolidColorBrush x:Key="OnInkBrush" Color="{StaticResource OnInk}" />
+
+    <!-- ============================================================
+         Hairlines — más CLAROS que el panel, para que separen
+         ============================================================ -->
+    <Color x:Key="Hair">#2E3238</Color>
+    <Color x:Key="Hair2">#24272C</Color>
+    <SolidColorBrush x:Key="HairBrush" Color="{StaticResource Hair}" />
+    <SolidColorBrush x:Key="Hair2Brush" Color="{StaticResource Hair2}" />
+
+    <!-- ============================================================
+         Acento — el mismo azul que la marca, igual que en claro
+         ============================================================ -->
+    <Color x:Key="Accent">#3D7FE0</Color>
+    <Color x:Key="AccentSoft">#16233A</Color>
+    <Color x:Key="AccentLine">#30486F</Color>
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource Accent}" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="{StaticResource AccentSoft}" />
+    <SolidColorBrush x:Key="AccentLineBrush" Color="{StaticResource AccentLine}" />
+
+    <!-- ============================================================
+         Entorno — ÁMBAR Producción, VERDE Réplica, GRIS UAT.
+         Los tres bien separados: es una señal de seguridad, no decoración.
+         ============================================================ -->
+    <Color x:Key="Pro">#E8A33D</Color>
+    <Color x:Key="ProMark">#F59E0B</Color>
+    <Color x:Key="ProSoft">#2A2012</Color>
+    <!-- El ambar se aclara en oscuro, asi que lo de encima se da la vuelta: el blanco
+         sobre #E8A33D daba 2,2:1 en el boton de escribir en Produccion. -->
+    <Color x:Key="OnPro">#2A2012</Color>
+    <Color x:Key="ProLine">#4D3A1B</Color>
+    <SolidColorBrush x:Key="ProBrush" Color="{StaticResource Pro}" />
+    <SolidColorBrush x:Key="ProMarkBrush" Color="{StaticResource ProMark}" />
+    <SolidColorBrush x:Key="ProSoftBrush" Color="{StaticResource ProSoft}" />
+    <SolidColorBrush x:Key="ProLineBrush" Color="{StaticResource ProLine}" />
+    <SolidColorBrush x:Key="OnProBrush" Color="{StaticResource OnPro}" />
+
+    <Color x:Key="Rep">#34D399</Color>
+    <Color x:Key="RepMark">#10B981</Color>
+    <Color x:Key="RepSoft">#10261E</Color>
+    <Color x:Key="RepLine">#1E4D3B</Color>
+    <SolidColorBrush x:Key="RepBrush" Color="{StaticResource Rep}" />
+    <SolidColorBrush x:Key="RepMarkBrush" Color="{StaticResource RepMark}" />
+    <SolidColorBrush x:Key="RepSoftBrush" Color="{StaticResource RepSoft}" />
+    <SolidColorBrush x:Key="RepLineBrush" Color="{StaticResource RepLine}" />
+
+    <Color x:Key="Uat">#B4B4BD</Color>
+    <Color x:Key="UatMark">#8E8E98</Color>
+    <Color x:Key="UatSoft">#212124</Color>
+    <Color x:Key="UatLine">#3A3A40</Color>
+    <SolidColorBrush x:Key="UatBrush" Color="{StaticResource Uat}" />
+    <SolidColorBrush x:Key="UatMarkBrush" Color="{StaticResource UatMark}" />
+    <SolidColorBrush x:Key="UatSoftBrush" Color="{StaticResource UatSoft}" />
+    <SolidColorBrush x:Key="UatLineBrush" Color="{StaticResource UatLine}" />
+
+    <!-- ============================================================
+         Estado — el rojo y el ámbar se aclaran; si no, no se leen
+         ============================================================ -->
+    <Color x:Key="Ok">#34D399</Color>
+    <Color x:Key="OkSoft">#10261E</Color>
+    <Color x:Key="OkLine">#1E4D3B</Color>
+    <Color x:Key="Warn">#E8A33D</Color>
+    <Color x:Key="WarnSoft">#2A2012</Color>
+    <Color x:Key="Bad">#F87171</Color>
+    <Color x:Key="BadSoft">#2B1513</Color>
+    <Color x:Key="BadLine">#5A2420</Color>
+    <!-- Aqui el rojo se ha aclarado para que se lea, asi que lo de encima se da la vuelta:
+         el blanco sobre #F87171 daba 2,8:1 en el boton de borrar. -->
+    <Color x:Key="OnBad">#2B1513</Color>
+    <SolidColorBrush x:Key="OkBrush" Color="{StaticResource Ok}" />
+    <SolidColorBrush x:Key="OkSoftBrush" Color="{StaticResource OkSoft}" />
+    <SolidColorBrush x:Key="OkLineBrush" Color="{StaticResource OkLine}" />
+    <SolidColorBrush x:Key="WarnBrush" Color="{StaticResource Warn}" />
+    <SolidColorBrush x:Key="WarnSoftBrush" Color="{StaticResource WarnSoft}" />
+    <SolidColorBrush x:Key="BadBrush" Color="{StaticResource Bad}" />
+    <SolidColorBrush x:Key="BadSoftBrush" Color="{StaticResource BadSoft}" />
+    <SolidColorBrush x:Key="BadLineBrush" Color="{StaticResource BadLine}" />
+    <SolidColorBrush x:Key="OnBadBrush" Color="{StaticResource OnBad}" />
+
+</ResourceDictionary>

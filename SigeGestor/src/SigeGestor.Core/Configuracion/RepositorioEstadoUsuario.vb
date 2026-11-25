@@ -52,6 +52,15 @@ Namespace Configuracion
         ''' <summary>Última versión de novedades que ha visto. Vacío = no ha visto ninguna.</summary>
         Public Property VersionNovedadesLeida As String = ""
 
+        ''' <summary>
+        ''' El tema que prefiere: "oscuro" o vacío, que es el claro de siempre.
+        '''
+        ''' Va por persona y no por máquina porque el fichero es el mismo para los ocho y la
+        ''' entrada ya es de cada login: así quien entre desde otro puesto se lo encuentra
+        ''' como lo dejó.
+        ''' </summary>
+        Public Property Tema As String = ""
+
     End Class
 
     ''' <summary>
@@ -104,6 +113,30 @@ Namespace Configuracion
                 Function(e) String.Equals(e.Login, login, StringComparison.OrdinalIgnoreCase))
 
             Return If(mio, New EstadoUsuario With {.Login = login})
+
+        End Function
+
+        ''' <summary>
+        ''' El tema de quien usó la aplicación por última vez DESDE ESTA MÁQUINA.
+        '''
+        ''' Hace falta porque el tema hay que ponerlo antes de pintar el login, y en el login
+        ''' todavía no se sabe quién va a entrar: preguntando por el usuario se llega tarde y
+        ''' la ventana de entrar sale blanca aunque la persona tenga puesto el oscuro.
+        '''
+        ''' Por la máquina se acierta prácticamente siempre —cada uno usa la suya—, y cuando
+        ''' no, lo que pasa es que el login sale del tema del compañero y la aplicación ya
+        ''' entra con el suyo. Es un parpadeo, no un error.
+        ''' </summary>
+        Public Function TemaDeEstaMaquina() As String
+
+            Dim aqui = Environment.MachineName
+
+            Dim ultimo = Leer().
+                Where(Function(e) String.Equals(e.Servidor, aqui, StringComparison.OrdinalIgnoreCase)).
+                OrderByDescending(Function(e) If(e.UltimoAcceso, Date.MinValue)).
+                FirstOrDefault()
+
+            Return If(ultimo?.Tema, "")
 
         End Function
 

@@ -125,6 +125,10 @@
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
+                                <!-- Foreground explicito: el estilo de Windows de las listas pone el negro del
+                                     sistema, y eso CORTA la herencia para todo lo de dentro. En claro no se nota;
+                                     en oscuro los titulos de las tarjetas salian negros sobre negro. -->
+                                <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
                                 <Setter Property="Padding" Value="8,7" />
                                 <Setter Property="Margin" Value="0,1" />
                                 <Setter Property="Template">
@@ -276,7 +280,7 @@
                                         Margin="0,0,6,6"
                                         IsEnabled="{Binding HayModelo}"
                                         Click="EditarModelo_Click" />
-                                <Button Style="{StaticResource BtnGhost}" Content="Borrar"
+                                <Button Style="{StaticResource BtnGhostPeligro}" Content="Borrar"
                                         Margin="0,0,6,6"
                                         IsEnabled="{Binding HayModelo}"
                                         Click="BorrarModelo_Click" />
@@ -300,6 +304,7 @@
                             <TextBlock Text="{Binding AyudaRespaldo}"
                                        Style="{StaticResource TxHelp}"
                                        TextWrapping="Wrap"
+                                       ToolTip="{Binding RutaRespaldo}"
                                        MaxWidth="560" HorizontalAlignment="Left"
                                        Margin="25,2,0,0" />
                         </StackPanel>

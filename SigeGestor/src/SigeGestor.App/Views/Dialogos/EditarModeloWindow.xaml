@@ -4,10 +4,12 @@
         Title="Modelo de impresión"
         Width="560" SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
+        WindowStyle="None"
         ResizeMode="NoResize"
         ShowInTaskbar="False"
         Background="{StaticResource BgBrush}"
         FontFamily="{StaticResource FontUi}"
+        TextElement.Foreground="{StaticResource InkBrush}"
         TextOptions.TextFormattingMode="Ideal">
 
     <Border Padding="24">

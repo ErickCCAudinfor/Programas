@@ -513,10 +513,21 @@ public sealed partial class ModelosImpresionViewModel : ObservableObject
     [ObservableProperty]
     private bool _respaldarAntesDeCambiar = true;
 
+    /// <summary>
+    /// La ayuda del check. En UNA línea: la ruta entera ocupaba dos y tapaba el aviso de
+    /// cuando se desmarca, que es lo único que de verdad hay que leer aquí.
+    ///
+    /// Pero sigue diciendo DÓNDE: con un «en tu Escritorio» a secas, quien vaya a buscar la
+    /// copia no sabe qué carpeta abrir. La ruta completa, en el tooltip.
+    /// </summary>
     public string AyudaRespaldo =>
         RespaldarAntesDeCambiar
-            ? $"Antes de pisar o borrar un report se guarda una copia en {RespaldoModelos.Carpeta}."
+            ? $"Antes de pisar o borrar un report se guarda una copia en tu Escritorio, " +
+              $"carpeta {RespaldoModelos.NombreCarpeta}."
             : "SIN COPIA: lo que se pise o se borre no se podrá recuperar.";
+
+    /// <summary>La ruta de verdad, para el tooltip.</summary>
+    public string RutaRespaldo => RespaldoModelos.Carpeta;
 
     partial void OnRespaldarAntesDeCambiarChanged(bool value) =>
         OnPropertyChanged(nameof(AyudaRespaldo));

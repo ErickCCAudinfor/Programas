@@ -12,6 +12,7 @@
         ResizeMode="NoResize"
         FontFamily="{StaticResource FontUi}"
         TextOptions.TextFormattingMode="Ideal"
+        TextElement.Foreground="{StaticResource InkBrush}"
         MouseLeftButtonDown="Ventana_MouseLeftButtonDown">
 
     <Window.Resources>
