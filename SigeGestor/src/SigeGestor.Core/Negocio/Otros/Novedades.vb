@@ -14,6 +14,13 @@ End Class
 ''' <summary>
 ''' Historial de novedades de la aplicación.
 '''
+''' CÓMO SE NUMERA. Se sube el SEGUNDO número y ya está: 3.9, 3.10, 3.11… hasta 3.99. El
+''' primero NO se toca por llegar a 3.9: solo se cambia al pasar de 3.99, o cuando Erick lo
+''' diga porque el cambio sea gordo. Un 4.0 no se pone solo.
+'''
+''' Tranquilo con el 3.10: EsPosterior compara los números uno a uno, no como texto, así que
+''' 3.10 es posterior a 3.9 y la campana cuenta bien.
+'''
 ''' PARA PUBLICAR NOVEDADES NUEVAS: añade tu entrada AL PRINCIPIO de Historial.
 ''' El resto es automático: VersionActual pasa a ser la de esa entrada, deja de
 ''' coincidir con la VersionNovedadesLeida guardada en Usuarios.json y la campana
@@ -24,6 +31,18 @@ End Class
 Public Module NovedadesApp
 
     Public ReadOnly Historial As New List(Of Novedad) From {
+        New Novedad With {
+            .Version = "3.10",
+            .Fecha = New Date(2026, 11, 25),
+            .Titulo = "En qué punto del ciclo de impagos está cada factura",
+            .Cambios = New List(Of String) From {
+                "Consulta nueva «Ciclo de impagos»: se pegan las facturas (FELEC…, FGAS…) y dice dónde está cada una —OPEN ITEMS, devoluciones, carta de aviso, carta de corte, remesado o cobrado—.",
+                "Dice también si saldría en Comunicados Impago para crear la carta de aviso o la de corte y, cuando no sale, POR QUÉ: que no está en IMPAGADO, que el contrato es No cortable, que el importe es negativo…",
+                "Y qué le pasará con el próximo OPEN ITEMS, tanto si la factura viene como si no.",
+                "Sale un Excel con dos hojas: el detalle y el recuento por situación. El reparto se ve además en la propia pantalla al acabar, sin abrir nada.",
+                "Solo lee: no cambia ni una fila."
+            }
+        },
         New Novedad With {
             .Version = "3.9",
             .Fecha = New Date(2026, 11, 23),

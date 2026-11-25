@@ -1042,6 +1042,16 @@
                 General("Concello de Allariz", EntradasOperacion.Fechas,
                         "Facturación del Concello de Allariz en el rango indicado.",
                         ejecutable:=PorFechas("ConsultaFacturasAllariz", "Allariz")),
+                General("Ciclo de impagos", EntradasOperacion.Facturas,
+                        "En qué punto del ciclo de impagos está cada factura, si saldría en " &
+                        "Comunicados Impago para la carta de aviso o la de corte —y si no, por " &
+                        "qué— y qué le pasará con el próximo OPEN ITEMS. Se pegan las facturas " &
+                        "(FELEC…, FGAS…), una por línea. Solo lee. " &
+                        "OJO: no se puede saber si la factura vino en el último OPEN ITEMS, por " &
+                        "eso hay una columna para cada caso; la carta de corte se mira con la " &
+                        "regla normal, sin detectar bono social; y el cliente pagador se " &
+                        "comprueba por IdClientePago.",
+                        ejecutable:=New Implementadas.ConsultaCicloImpagos(Sql)),
                 General("Consulta TOP", EntradasOperacion.Facturas,
                         "Autoconsumo y clicks de las facturas de compra indicadas. Se pega el número " &
                         "de factura de compra, uno por línea.",
