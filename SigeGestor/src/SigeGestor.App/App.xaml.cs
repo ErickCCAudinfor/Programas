@@ -16,11 +16,18 @@ namespace SigeGestor.App;
 public partial class App : Application
 {
     /// <summary>
-    /// Días de log que se conservan. Erick quiere borrarlo cada 2-3 días, así que las series
-    /// de los sparkline son tramos de 3 h sobre las últimas 24 h: ocho días de historia no
-    /// caben en esta ventana.
+    /// Días de log que se CONSERVAN. Eran 3; se suben a 90 el 26/11/2026 porque con tres
+    /// días no hay manera de saber qué uso real tiene la aplicación —a los dos días la
+    /// evidencia ya no está—, y hacía falta para enseñarlo. Ocupan poquísimo.
+    ///
+    /// Lo que MIRAN las pantallas es otra cosa y sigue siendo corto (DiasVentanaLog): el
+    /// Inicio enseña lo reciente, no el histórico, y las series de los sparkline son tramos
+    /// de 3 h sobre las últimas 24 h.
     /// </summary>
-    private const int DiasRetencionLog = 3;
+    private const int DiasRetencionLog = 90;
+
+    /// <summary>Días que miran el Inicio y «Lo que más usas».</summary>
+    private const int DiasVentanaLog = 7;
 
     private RepositorioEntornos _entornos = null!;
     private ServicioAutenticacion _autenticacion = null!;
@@ -59,7 +66,11 @@ public partial class App : Application
         // El histórico son ficheros de log junto al ejecutable. Como el .exe vive en el
         // servidor .13 y todo el equipo lo abre desde ahí, el log queda compartido sin
         // más: es el mismo mecanismo del Usuarios.json de ActualizaPrecios.
-        _registro = new RegistroEjecuciones { DiasRetencion = DiasRetencionLog };
+        _registro = new RegistroEjecuciones
+        {
+            DiasRetencion = DiasRetencionLog,
+            DiasVentana = DiasVentanaLog
+        };
         _ejecuciones = new RepositorioEjecucionesLog(_registro);
 
         // Se barre lo que ya está fuera de la ventana. Es síncrono pero solo lista y borra
@@ -131,7 +142,7 @@ public partial class App : Application
     private void AbrirPrincipal(Usuario usuario)
     {
         var principal = new ShellWindow(
-            usuario, _entornos, _ejecuciones, _registro, DiasRetencionLog);
+            usuario, _entornos, _ejecuciones, _registro, DiasVentanaLog);
         MainWindow = principal;
 
         // Se encola en el Dispatcher en vez de llamar directamente: así la ventana que se

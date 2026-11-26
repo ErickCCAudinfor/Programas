@@ -63,8 +63,14 @@ public sealed partial class InicioViewModel : ObservableObject
 
     public ObservableCollection<EjecucionVm> Actividad { get; } = new();
 
-    /// <summary>Días de log que se conservan. Se muestra en el estado vacío.</summary>
-    public int DiasRetencion { get; init; } = 3;
+    /// <summary>
+    /// Días que enseña esta pantalla. Se muestra en el estado vacío.
+    ///
+    /// Es la VENTANA, no lo que se guarda: el log conserva mucho más, pero decir «guarda 90
+    /// días» cuando la lista solo enseña la última semana confunde a quien busca algo de
+    /// hace un mes y no lo ve.
+    /// </summary>
+    public int DiasVentana { get; init; } = 7;
 
     public Visibility VisibilidadActividad =>
         Actividad.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
@@ -79,8 +85,8 @@ public sealed partial class InicioViewModel : ObservableObject
         Accesos.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
     public string TextoSinActividad =>
-        $"Aún no hay nada registrado. El log guarda {DiasRetencion} días y se va llenando " +
-        "a medida que el equipo lanza operaciones.";
+        $"Aún no hay nada registrado. Aquí salen los últimos {DiasVentana} días y se va " +
+        "llenando a medida que el equipo lanza operaciones.";
 
     [ObservableProperty]
     private bool _cargando = true;

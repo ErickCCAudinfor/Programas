@@ -107,7 +107,7 @@ Namespace Servicios
                                                     Optional ct As CancellationToken = Nothing) _
             As Task(Of IReadOnlyList(Of Ejecucion)) Implements IRepositorioEjecuciones.ObtenerRecientesAsync
 
-            Dim desde = Date.Today.AddDays(-_registro.DiasRetencion)
+            Dim desde = Date.Today.AddDays(-_registro.DiasVentana)
             Dim todas = Await _registro.LeerAsync(desde, ct).ConfigureAwait(False)
             Return todas.Take(Math.Max(0, cuantas)).ToList()
 
@@ -118,7 +118,7 @@ Namespace Servicios
                                                      Optional ct As CancellationToken = Nothing) _
             As Task(Of IReadOnlyList(Of OperacionFrecuente)) Implements IRepositorioEjecuciones.ObtenerFrecuentesAsync
 
-            Dim desde = Date.Today.AddDays(-_registro.DiasRetencion)
+            Dim desde = Date.Today.AddDays(-_registro.DiasVentana)
             Dim todas = Await _registro.LeerAsync(desde, ct).ConfigureAwait(False)
 
             Dim mias = todas.Where(Function(e) String.Equals(e.Login, login, StringComparison.OrdinalIgnoreCase)).ToList()

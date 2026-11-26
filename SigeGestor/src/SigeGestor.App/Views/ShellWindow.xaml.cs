@@ -35,7 +35,7 @@ public partial class ShellWindow : Window
     private readonly RepositorioEntornos _entornos;
     private readonly RegistroEjecuciones _registro;
     private readonly IRepositorioEjecuciones _ejecuciones;
-    private readonly int _diasRetencionLog;
+    private readonly int _diasVentanaLog;
     private readonly BuscadorViewModel _buscador = new();
 
     /// <summary>
@@ -52,7 +52,7 @@ public partial class ShellWindow : Window
                        RepositorioEntornos entornos,
                        IRepositorioEjecuciones ejecuciones,
                        RegistroEjecuciones registro,
-                       int diasRetencionLog)
+                       int diasVentanaLog)
     {
         InitializeComponent();
 
@@ -60,7 +60,7 @@ public partial class ShellWindow : Window
         _entornos = entornos;
         _registro = registro;
         _ejecuciones = ejecuciones;
-        _diasRetencionLog = diasRetencionLog;
+        _diasVentanaLog = diasVentanaLog;
 
         PintarBotonTema();
 
@@ -190,7 +190,7 @@ public partial class ShellWindow : Window
         if (item.Seccion == Seccion.Inicio)
         {
             var inicio = new InicioPage(
-                new InicioViewModel(_ejecuciones, _usuario) { DiasRetencion = _diasRetencionLog });
+                new InicioViewModel(_ejecuciones, _usuario) { DiasVentana = _diasVentanaLog });
 
             // Los dos botones de la cabecera de Inicio estaban puestos y no hacían nada.
             inicio.VerEjecucionesPedido += (_, _) => _vm.Ir(Seccion.Ejecuciones);

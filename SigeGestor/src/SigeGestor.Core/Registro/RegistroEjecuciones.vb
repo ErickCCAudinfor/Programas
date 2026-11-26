@@ -29,8 +29,23 @@ Namespace Registro
         Private Const Prefijo As String = "ejecuciones-"
         Private Const Extension As String = ".jsonl"
 
-        ''' <summary>Días de log que se conservan. Lo de más se borra al arrancar.</summary>
-        Public Property DiasRetencion As Integer = 3
+        ''' <summary>
+        ''' Días de log que se CONSERVAN en disco. Lo de más se borra al arrancar.
+        '''
+        ''' Eran 3, que es lo que Erick quería para no acumular ficheros. Se suben a 90 el
+        ''' 26/11/2026 porque con tres días no hay forma de contar qué uso tiene la
+        ''' aplicación: a los dos días la evidencia ya no existe. Ocupan poquísimo —son
+        ''' líneas de JSON, unos 30 registros al día entre las ocho personas—.
+        ''' </summary>
+        Public Property DiasRetencion As Integer = 90
+
+        ''' <summary>
+        ''' Días que MIRAN las pantallas. Es otra cosa que lo que se conserva, y por eso son
+        ''' dos propiedades: el Inicio enseña lo reciente, no el histórico. Si se leyeran los
+        ''' 90 días, «Actividad del equipo» y «Lo que más usas» cambiarían de carácter y
+        ''' habría que abrir 90 ficheros por máquina cada vez que alguien entra.
+        ''' </summary>
+        Public Property DiasVentana As Integer = 7
 
         Private Shared ReadOnly OpcionesJson As New JsonSerializerOptions With {
             .PropertyNameCaseInsensitive = True,
